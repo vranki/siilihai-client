@@ -1,0 +1,15 @@
+Source: siilihai-client
+Section: unknown
+Priority: extra
+Maintainer: Ville Ranki <ville.ranki@iki.fi>
+Build-Depends: debhelper (>= 7), libqt4-dev, libsiilihai
+Standards-Version: 3.8.0
+Homepage: http://www.siilihai.com/
+
+Package: siilihai-client
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai
+Description: Siilihai forum reader application
+ Graphical Siilihai forum reader application.
+
+
