@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SubscribeForm</class>
+ <widget class="QWidget" name="SubscribeForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>517</width>
+    <height>486</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Search</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="searchString"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="displayLabel">
+       <property name="text">
+        <string>Display</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="displayCombo">
+       <item>
+        <property name="text">
+         <string>Only Public forums</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Public and Private forums</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Development/testing forums</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>All forums</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QListWidget" name="forumList"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
