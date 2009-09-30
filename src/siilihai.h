@@ -32,8 +32,10 @@ public slots:
 	void forumAdded(ForumParser fp, ForumSubscription fs);
 	void loginFinished(bool success);
 	void subscribeForum();
+	void showSubscribeGroup(int forum);
 private:
 	void launchMainWindow();
+    void setupParserEngine(ForumSubscription &subscription);
 
 	LoginWizard *loginWizard;
 	SubscribeWizard *subscribeWizard;

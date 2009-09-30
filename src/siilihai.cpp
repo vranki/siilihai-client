@@ -38,9 +38,9 @@ void Siilihai::launchSiilihai() {
 
 		QList<ForumSubscription> forums = fdb.listSubscriptions();
 		for (int i = 0; i < forums.size(); i++) {
-			ParserEngine *pe = new ParserEngine(this);
-			engines[forums[i].parser] = pe;
+			setupParserEngine(forums[i]);
 			// @todo do something with these
+			engines[forums[i].parser]->updateGroupList();
 		}
 
 		connect(&protocol, SIGNAL(loginFinished(bool)), this,
@@ -48,6 +48,15 @@ void Siilihai::launchSiilihai() {
 		protocol.login(settings.value("account/username", "").toString(),
 				settings.value("account/password", "").toString());
 	}
+}
+
+void Siilihai::setupParserEngine(ForumSubscription &subscription) {
+	ParserEngine *pe = new ParserEngine(&fdb, this);
+	ForumParser parser = pdb.getParser(subscription.parser);
+	pe->setParser(parser);
+	pe->setSubscription(subscription);
+	engines[subscription.parser] = pe;
+	connect(pe, SIGNAL(groupListChanged(int)), this, SLOT(showSubscribeGroup(int)));
 }
 
 void Siilihai::loginFinished(bool success) {
@@ -100,6 +109,16 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
 				"Error: Unable to subscribe to forum. Are you already subscribed?");
 		msgBox.exec();
 	} else {
+		setupParserEngine(fs);
+		engines[fs.parser]->updateGroupList();
+
 		mainWin->updateForumList();
 	}
+}
+
+void Siilihai::showSubscribeGroup(int forum) {
+	QMessageBox msgBox(mainWin);
+	msgBox.setText(
+			"Groups have changed!");
+	msgBox.exec();
 }
