@@ -69,9 +69,13 @@
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
-                <widget class="QToolButton" name="toolButton">
+                <widget class="QToolButton" name="updateButton">
                  <property name="text">
                   <string>Refresh</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../siilihairesources.qrc">
+                   <normaloff>:/new/prefix1/data/stock_refresh.svg</normaloff>:/new/prefix1/data/stock_refresh.svg</iconset>
                  </property>
                 </widget>
                </item>
@@ -234,6 +238,8 @@
    <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../siilihairesources.qrc"/>
+ </resources>
  <connections/>
 </ui>

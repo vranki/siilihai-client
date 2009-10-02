@@ -18,6 +18,7 @@
 #include "subscribewizard.h"
 #include "mainwindow.h"
 #include "parserengine.h"
+#include "groupsubscriptiondialog.h"
 
 class Siilihai: public QObject {
 Q_OBJECT
@@ -33,6 +34,9 @@ public slots:
 	void loginFinished(bool success);
 	void subscribeForum();
 	void showSubscribeGroup(int forum);
+	void forumUpdated(int forum);
+	void updateClicked();
+	void statusChanged(int forum, bool reloading);
 private:
 	void launchMainWindow();
     void setupParserEngine(ForumSubscription &subscription);

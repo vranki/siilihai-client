@@ -40,7 +40,7 @@ void Siilihai::launchSiilihai() {
 		for (int i = 0; i < forums.size(); i++) {
 			setupParserEngine(forums[i]);
 			// @todo do something with these
-			engines[forums[i].parser]->updateGroupList();
+			// engines[forums[i].parser]->updateGroupList();
 		}
 
 		connect(&protocol, SIGNAL(loginFinished(bool)), this,
@@ -57,6 +57,9 @@ void Siilihai::setupParserEngine(ForumSubscription &subscription) {
 	pe->setSubscription(subscription);
 	engines[subscription.parser] = pe;
 	connect(pe, SIGNAL(groupListChanged(int)), this, SLOT(showSubscribeGroup(int)));
+	connect(pe, SIGNAL(forumUpdated(int)), this, SLOT(forumUpdated(int)));
+	connect(pe, SIGNAL(statusChanged(int, bool)), this, SLOT(statusChanged(int, bool)));
+	connect(pe, SIGNAL(statusChanged(int, bool)), mainWin, SLOT(setForumstatus(int, bool)));
 }
 
 void Siilihai::loginFinished(bool success) {
@@ -99,6 +102,7 @@ void Siilihai::loginWizardFinished() {
 void Siilihai::launchMainWindow() {
 	mainWin = new MainWindow(pdb, fdb);
 	connect(mainWin, SIGNAL(subscribeForum()), this, SLOT(subscribeForum()));
+	connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
 	mainWin->show();
 }
 
@@ -117,8 +121,25 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
 }
 
 void Siilihai::showSubscribeGroup(int forum) {
-	QMessageBox msgBox(mainWin);
-	msgBox.setText(
-			"Groups have changed!");
-	msgBox.exec();
+	GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
+	gsd->setModal(true);
+	gsd->setForum(&fdb, forum);
+	gsd->exec();
+}
+
+void Siilihai::forumUpdated(int forum) {
+	qDebug() << "Forum " << forum << " has been updated";
+}
+
+void Siilihai::updateClicked( ) {
+	qDebug() << "Update clicked, updating all forums";
+	QHashIterator<int, ParserEngine*> i(engines);
+	 while (i.hasNext()) {
+	     i.next();
+	     i.value()->updateForum();
+	 }
+}
+
+void Siilihai::statusChanged(int forum, bool reloading) {
+	qDebug() << "Status change; forum" << forum << " is reloading: " << reloading;
 }

@@ -1,16 +1,19 @@
 TEMPLATE = app
 TARGET = siilihai
+QMAKE_CXXFLAGS += -g
 QT += core \
     webkit \
     gui \
     network \
     xml \
     sql
-HEADERS += subscribewizard.h \
+HEADERS += groupsubscriptiondialog.h \
+    subscribewizard.h \
     mainwindow.h \
     siilihai.h \
     loginwizard.h
-SOURCES += subscribewizard.cpp \
+SOURCES += groupsubscriptiondialog.cpp \
+    subscribewizard.cpp \
     mainwindow.cpp \
     siilihai.cpp \
     loginwizard.cpp \
@@ -20,7 +23,8 @@ LIBDIR = $$PREFIX/lib
 DATADIR = $$PREFIX/share
 target.path = $$BINDIR
 INSTALLS += target
-FORMS = subscribeforum_verify.ui \
+FORMS = groupsubscriptiondialog.ui \
+    subscribeforum_verify.ui \
     subscribeforum_login.ui \
     subscribeforum.ui \
     mainwindow.ui

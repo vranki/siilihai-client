@@ -19,12 +19,16 @@ public:
     void updateForumList();
 signals:
 	void subscribeForum();
+	void updateClicked();
 public slots:
 	void subscribeForumSlot();
+	void updateClickedSlot();
+	void setForumStatus(int forum, bool reloading);
 private:
     Ui::MainWindowClass ui;
     ParserDatabase &pdb;
     ForumDatabase &fdb;
+    QHash<int, int> forumItems;
 };
 
 #endif // MAINWINDOW_H
