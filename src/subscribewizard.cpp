@@ -1,6 +1,7 @@
 #include "subscribewizard.h"
 
-SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto) :
+SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto,
+		QString &baseUrl) :
 	QWizard(parent), protocol(proto) {
 	selectedParser = 0;
 	setWizardStyle(QWizard::ModernStyle);
@@ -19,9 +20,7 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto) :
 	connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this,
 			SLOT(updateParserList()));
 	connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
-	//protocol.setBaseURL(settings.value("network/baseurl", "http://www.siilihai.com/").toString());
-	protocol.setBaseURL(settings.value("network/baseurl",
-			"http://localhost:8000/").toString());
+	protocol.setBaseURL(baseUrl);
 	progress = 0;
 	show();
 	protocol.listParsers();
@@ -133,13 +132,16 @@ void SubscribeWizard::getParserFinished(ForumParser fp) {
 		parser = fp;
 	} else {
 		QMessageBox msgBox;
-		msgBox.setText("Error: Unable to download parser definiton.\nCheck your network connection.");
+		msgBox.setText(
+				"Error: Unable to download parser definiton.\nCheck your network connection.");
 		msgBox.exec();
 		back();
 	}
-	progress->setValue(3);
-	progress->deleteLater();
-	progress = 0;
+	if (progress) {
+		progress->setValue(3);
+		progress->deleteLater();
+		progress = 0;
+	}
 }
 
 void SubscribeWizard::wizardAccepted() {
@@ -157,7 +159,8 @@ void SubscribeWizard::wizardAccepted() {
 	fs.username = user;
 	fs.password = pass;
 	fs.latest_threads = subscribeForumVerify.latestThreadsEdit->text().toInt();
-	fs.latest_messages = subscribeForumVerify.latestMessagesEdit->text().toInt();
+	fs.latest_messages
+			= subscribeForumVerify.latestMessagesEdit->text().toInt();
 
 	emit(forumAdded(parser, fs));
 }

@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET = siilihai
-QMAKE_CXXFLAGS += -g
+QMAKE_CXXFLAGS += -g -O0
+CONFIG += debug
 QT += core \
     webkit \
     gui \

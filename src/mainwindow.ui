@@ -30,9 +30,13 @@
           <x>0</x>
           <y>0</y>
           <width>122</width>
-          <height>511</height>
+          <height>508</height>
          </rect>
         </property>
+        <attribute name="icon">
+         <iconset resource="../siilihairesources.qrc">
+          <normaloff>:/new/prefix1/data/stop.svg</normaloff>:/new/prefix1/data/stop.svg</iconset>
+        </attribute>
         <attribute name="label">
          <string>Cantremovethis</string>
         </attribute>
@@ -80,6 +84,17 @@
                 </widget>
                </item>
                <item>
+                <widget class="QToolButton" name="stopButton">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../siilihairesources.qrc">
+                   <normaloff>:/new/prefix1/data/stop.svg</normaloff>:/new/prefix1/data/stop.svg</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QToolButton" name="toolButton_2">
                  <property name="text">
                   <string>Reply</string>
@@ -93,14 +108,37 @@
                  </property>
                 </widget>
                </item>
+               <item>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
               </layout>
              </widget>
             </item>
             <item>
-             <widget class="QTreeWidget" name="treeWidget">
+             <widget class="QTreeWidget" name="threadTree">
               <column>
                <property name="text">
-                <string notr="true">1</string>
+                <string notr="true">Subject</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Date</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Author</string>
                </property>
               </column>
              </widget>
@@ -209,6 +247,7 @@
      <string>Forum</string>
     </property>
     <addaction name="actionSubscribe_to"/>
+    <addaction name="actionGroup_Subscriptions"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -228,6 +267,11 @@
   <action name="actionAccount">
    <property name="text">
     <string>Account</string>
+   </property>
+  </action>
+  <action name="actionGroup_Subscriptions">
+   <property name="text">
+    <string>Group Subscriptions..</string>
    </property>
   </action>
  </widget>

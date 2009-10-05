@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QtSql>
+#include <QDir>
 #include <siilihaiprotocol.h>
 #include <forumdatabase.h>
 #include <parserdatabase.h>
@@ -34,9 +35,12 @@ public slots:
 	void loginFinished(bool success);
 	void subscribeForum();
 	void showSubscribeGroup(int forum);
+	void subscribeGroupDialogFinished();
 	void forumUpdated(int forum);
 	void updateClicked();
+	void cancelClicked();
 	void statusChanged(int forum, bool reloading);
+	void errorDialog(QString message);
 private:
 	void launchMainWindow();
     void setupParserEngine(ForumSubscription &subscription);
@@ -49,6 +53,7 @@ private:
 	QSqlDatabase db;
 	ForumDatabase fdb;
 	ParserDatabase pdb;
+	QString baseUrl;
 };
 
 #endif /* SIILIHAI_H_ */

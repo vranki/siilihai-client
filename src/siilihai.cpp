@@ -15,7 +15,7 @@ Siilihai::Siilihai() :
 
 void Siilihai::launchSiilihai() {
 	db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName("siilihai.db");
+	db.setDatabaseName(QDir::homePath() + "/siilihai.db");
 	if (!db.open()) {
 		QMessageBox msgBox;
 		msgBox.setText("Error: Unable to open database.");
@@ -23,9 +23,14 @@ void Siilihai::launchSiilihai() {
 		QCoreApplication::quit();
 		return;
 	}
-	//protocol.setBaseURL(settings.value("network/baseurl", "http://www.siilihai.com/").toString());
-	protocol.setBaseURL(settings.value("network/baseurl",
-			"http://localhost:8000/").toString());
+	if (true) {
+		baseUrl = settings.value("network/baseurl",
+				"http://www.siilihai.com/").toString();
+	} else {
+		baseUrl = settings.value("network/baseurl",
+				"http://localhost:8000/").toString();
+	}
+	protocol.setBaseURL(baseUrl);
 	pdb.openDatabase();
 	fdb.openDatabase();
 	if (settings.value("account/username", "").toString() == "") {
@@ -56,10 +61,15 @@ void Siilihai::setupParserEngine(ForumSubscription &subscription) {
 	pe->setParser(parser);
 	pe->setSubscription(subscription);
 	engines[subscription.parser] = pe;
-	connect(pe, SIGNAL(groupListChanged(int)), this, SLOT(showSubscribeGroup(int)));
+	connect(pe, SIGNAL(groupListChanged(int)), this,
+			SLOT(showSubscribeGroup(int)));
 	connect(pe, SIGNAL(forumUpdated(int)), this, SLOT(forumUpdated(int)));
-	connect(pe, SIGNAL(statusChanged(int, bool)), this, SLOT(statusChanged(int, bool)));
-	connect(pe, SIGNAL(statusChanged(int, bool)), mainWin, SLOT(setForumstatus(int, bool)));
+	connect(pe, SIGNAL(statusChanged(int, bool)), this,
+			SLOT(statusChanged(int, bool)));
+	connect(pe, SIGNAL(statusChanged(int, bool)), mainWin,
+			SLOT(setForumStatus(int, bool)));
+	connect(pe, SIGNAL(updateFailure(QString)), this,
+			SLOT(errorDialog(QString)));
 }
 
 void Siilihai::loginFinished(bool success) {
@@ -77,7 +87,7 @@ void Siilihai::loginFinished(bool success) {
 }
 
 void Siilihai::subscribeForum() {
-	subscribeWizard = new SubscribeWizard(mainWin, protocol);
+	subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl);
 	subscribeWizard->setModal(true);
 	connect(subscribeWizard,
 			SIGNAL(forumAdded(ForumParser, ForumSubscription)), this,
@@ -103,7 +113,13 @@ void Siilihai::launchMainWindow() {
 	mainWin = new MainWindow(pdb, fdb);
 	connect(mainWin, SIGNAL(subscribeForum()), this, SLOT(subscribeForum()));
 	connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
+	connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
+	connect(mainWin, SIGNAL(groupSubscriptions(int)), this,
+			SLOT(showSubscribeGroup(int)));
 	mainWin->show();
+	mainWin->updateForumList();
+	if (fdb.listSubscriptions().size() == 0)
+		subscribeForum();
 }
 
 void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
@@ -114,32 +130,59 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
 		msgBox.exec();
 	} else {
 		setupParserEngine(fs);
-		engines[fs.parser]->updateGroupList();
-
 		mainWin->updateForumList();
+		engines[fs.parser]->updateGroupList();
 	}
 }
 
+void Siilihai::errorDialog(QString message) {
+	QMessageBox msgBox(mainWin);
+	msgBox.setModal(true);
+	msgBox.setText(message);
+	msgBox.exec();
+}
+
 void Siilihai::showSubscribeGroup(int forum) {
-	GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
-	gsd->setModal(true);
-	gsd->setForum(&fdb, forum);
-	gsd->exec();
+	if (forum > 0) {
+		GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
+		gsd->setModal(false);
+		gsd->setForum(&fdb, forum);
+		connect(gsd, SIGNAL(finished(int)), this,
+				SLOT(subscribeGroupDialogFinished()));
+		gsd->exec();
+	}
+}
+
+void Siilihai::subscribeGroupDialogFinished() {
+	qDebug() << "SFD finished, updating list";
+	mainWin->updateForumList();
+	updateClicked();
 }
 
 void Siilihai::forumUpdated(int forum) {
 	qDebug() << "Forum " << forum << " has been updated";
+	mainWin->updateForumList();
 }
 
-void Siilihai::updateClicked( ) {
+void Siilihai::updateClicked() {
 	qDebug() << "Update clicked, updating all forums";
 	QHashIterator<int, ParserEngine*> i(engines);
-	 while (i.hasNext()) {
-	     i.next();
-	     i.value()->updateForum();
-	 }
+	while (i.hasNext()) {
+		i.next();
+		i.value()->updateForum();
+	}
+}
+
+void Siilihai::cancelClicked() {
+	qDebug() << "Cancel clicked, stopping all forum updates";
+	QHashIterator<int, ParserEngine*> i(engines);
+	while (i.hasNext()) {
+		i.next();
+		i.value()->cancelOperation();
+	}
 }
 
 void Siilihai::statusChanged(int forum, bool reloading) {
-	qDebug() << "Status change; forum" << forum << " is reloading: " << reloading;
+	qDebug() << "Status change; forum" << forum << " is reloading: "
+			<< reloading;
 }

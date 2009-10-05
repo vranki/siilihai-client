@@ -4,5 +4,7 @@
         <file>data/emblem-important.svg</file>
         <file>data/emblem-web.svg</file>
         <file>data/stock_refresh.svg</file>
+        <file>data/folder.svg</file>
+        <file>data/stop.svg</file>
     </qresource>
 </RCC>
