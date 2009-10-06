@@ -11,6 +11,7 @@
 #include <QSettings>
 #include <QtSql>
 #include <QDir>
+#include <QMessageBox>
 #include <siilihaiprotocol.h>
 #include <forumdatabase.h>
 #include <parserdatabase.h>
@@ -35,9 +36,11 @@ public slots:
 	void loginFinished(bool success);
 	void subscribeForum();
 	void showSubscribeGroup(int forum);
+	void showUnsubscribeForum(int forum);
 	void subscribeGroupDialogFinished();
 	void forumUpdated(int forum);
 	void updateClicked();
+	void updateClicked(int);
 	void cancelClicked();
 	void statusChanged(int forum, bool reloading);
 	void errorDialog(QString message);

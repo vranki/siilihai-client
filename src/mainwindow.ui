@@ -30,11 +30,11 @@
           <x>0</x>
           <y>0</y>
           <width>122</width>
-          <height>508</height>
+          <height>511</height>
          </rect>
         </property>
         <attribute name="icon">
-         <iconset resource="../siilihairesources.qrc">
+         <iconset>
           <normaloff>:/new/prefix1/data/stop.svg</normaloff>:/new/prefix1/data/stop.svg</iconset>
         </attribute>
         <attribute name="label">
@@ -79,7 +79,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../siilihairesources.qrc">
-                   <normaloff>:/new/prefix1/data/stock_refresh.svg</normaloff>:/new/prefix1/data/stock_refresh.svg</iconset>
+                   <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -90,7 +90,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="../siilihairesources.qrc">
-                   <normaloff>:/new/prefix1/data/stop.svg</normaloff>:/new/prefix1/data/stop.svg</iconset>
+                   <normaloff>:/data/process-stop.png</normaloff>:/data/process-stop.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -176,7 +176,7 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QLabel" name="label_3">
+                 <widget class="QLabel" name="messageSubject">
                   <property name="text">
                    <string>TextLabel</string>
                   </property>
@@ -190,7 +190,7 @@
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="QLabel" name="label_4">
+                 <widget class="QLabel" name="messageAuthor">
                   <property name="text">
                    <string>TextLabel</string>
                   </property>
@@ -204,7 +204,7 @@
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QLabel" name="label_6">
+                 <widget class="QLabel" name="messageDate">
                   <property name="text">
                    <string>TextLabel</string>
                   </property>
@@ -248,6 +248,9 @@
     </property>
     <addaction name="actionSubscribe_to"/>
     <addaction name="actionGroup_Subscriptions"/>
+    <addaction name="actionUpdate_all"/>
+    <addaction name="actionUpdate_selected"/>
+    <addaction name="actionUnsubscribe"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -272,6 +275,21 @@
   <action name="actionGroup_Subscriptions">
    <property name="text">
     <string>Group Subscriptions..</string>
+   </property>
+  </action>
+  <action name="actionUpdate_all">
+   <property name="text">
+    <string>Update all</string>
+   </property>
+  </action>
+  <action name="actionUpdate_selected">
+   <property name="text">
+    <string>Update selected</string>
+   </property>
+  </action>
+  <action name="actionUnsubscribe">
+   <property name="text">
+    <string>Unsubscribe..</string>
    </property>
   </action>
  </widget>

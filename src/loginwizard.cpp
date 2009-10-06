@@ -4,7 +4,7 @@ LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto) :
 	QWizard(parent), protocol(proto) {
 	setWizardStyle(QWizard::ModernStyle);
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(
-			"data/siilis_wizard_watermark.png"));
+			":/data/siilis_wizard_watermark.png"));
 	connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
 	setPage(1, createIntroPage());
 	setPage(2, createRegistrationPage());

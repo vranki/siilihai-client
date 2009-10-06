@@ -24,11 +24,11 @@ void Siilihai::launchSiilihai() {
 		return;
 	}
 	if (true) {
-		baseUrl = settings.value("network/baseurl",
-				"http://www.siilihai.com/").toString();
+		baseUrl
+				= settings.value("network/baseurl", "http://www.siilihai.com/").toString();
 	} else {
-		baseUrl = settings.value("network/baseurl",
-				"http://localhost:8000/").toString();
+		baseUrl
+				= settings.value("network/baseurl", "http://localhost:8000/").toString();
 	}
 	protocol.setBaseURL(baseUrl);
 	pdb.openDatabase();
@@ -112,10 +112,16 @@ void Siilihai::loginWizardFinished() {
 void Siilihai::launchMainWindow() {
 	mainWin = new MainWindow(pdb, fdb);
 	connect(mainWin, SIGNAL(subscribeForum()), this, SLOT(subscribeForum()));
+	connect(mainWin, SIGNAL(unsubscribeForum(int)), this,
+			SLOT(showUnsubscribeForum(int)));
 	connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
+	connect(mainWin, SIGNAL(updateClicked(int)), this, SLOT(updateClicked(int)));
 	connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
 	connect(mainWin, SIGNAL(groupSubscriptions(int)), this,
 			SLOT(showSubscribeGroup(int)));
+	connect(mainWin, SIGNAL(messageRead(ForumMessage)), &fdb,
+			SLOT(markMessageRead(ForumMessage)));
+
 	mainWin->show();
 	mainWin->updateForumList();
 	if (fdb.listSubscriptions().size() == 0)
@@ -173,6 +179,11 @@ void Siilihai::updateClicked() {
 	}
 }
 
+void Siilihai::updateClicked(int forumid) {
+	qDebug() << "Update selected clicked, updating forum " << forumid;
+	engines[forumid]->updateForum();
+}
+
 void Siilihai::cancelClicked() {
 	qDebug() << "Cancel clicked, stopping all forum updates";
 	QHashIterator<int, ParserEngine*> i(engines);
@@ -185,4 +196,24 @@ void Siilihai::cancelClicked() {
 void Siilihai::statusChanged(int forum, bool reloading) {
 	qDebug() << "Status change; forum" << forum << " is reloading: "
 			<< reloading;
+	QHashIterator<int, ParserEngine*> i(engines);
+	while (i.hasNext()) {
+		i.next();
+		qDebug() << i.key() << " is busy: " << i.value()->isBusy();
+	}
 }
+
+void Siilihai::showUnsubscribeForum(int forum) {
+	 QMessageBox msgBox;
+	 msgBox.setText("Really unsubscribe from forum?");
+	 // msgBox.setInformativeText(fdb.getSubscription(forum).forum_name);
+	 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+	 msgBox.setDefaultButton(QMessageBox::No);
+	 if(msgBox.exec()==QMessageBox::Yes) {
+		 fdb.deleteForum(forum);
+		 pdb.deleteParser(forum);
+		 mainWin->updateForumList();
+		 engines[forum]->deleteLater();
+		 engines.remove(forum);
+	 }
+	}

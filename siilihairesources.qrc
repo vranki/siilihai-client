@@ -1,10 +1,11 @@
 <RCC>
-    <qresource prefix="/new/prefix1" >
-        <file>data/siilis_wizard_watermark.png</file>
-        <file>data/emblem-important.svg</file>
-        <file>data/emblem-web.svg</file>
-        <file>data/stock_refresh.svg</file>
-        <file>data/folder.svg</file>
-        <file>data/stop.svg</file>
-    </qresource>
+  <qresource prefix="/" >
+    <file>data/siilis_wizard_watermark.png</file>
+    <file>data/emblem-important.png</file>
+    <file>data/emblem-web.png</file>
+    <file>data/folder.png</file>
+    <file>data/process-stop.png</file>
+    <file>data/process-working.png</file>
+    <file>data/view-refresh.png</file>
+  </qresource>
 </RCC>
