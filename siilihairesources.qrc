@@ -1,11 +1,16 @@
 <RCC>
   <qresource prefix="/" >
     <file>data/siilis_wizard_watermark.png</file>
+    <file>data/siilis_icon.png</file>
     <file>data/emblem-important.png</file>
     <file>data/emblem-web.png</file>
     <file>data/folder.png</file>
     <file>data/process-stop.png</file>
     <file>data/process-working.png</file>
     <file>data/view-refresh.png</file>
+    <file>data/user-info.png</file>
+    <file>data/folder-new.png</file>
+    <file>data/emblem-mail.png</file>
+    <file>data/mail-unread.png</file>
   </qresource>
 </RCC>

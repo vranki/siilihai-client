@@ -13,8 +13,15 @@
   <property name="windowTitle">
    <string>Siilihai</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../siilihairesources.qrc">
+    <normaloff>:/data/siilis_icon.png</normaloff>:/data/siilis_icon.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
+    <property name="margin">
+     <number>1</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
@@ -29,8 +36,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>122</width>
-          <height>511</height>
+          <width>129</width>
+          <height>527</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -44,12 +51,18 @@
       </widget>
       <widget class="QFrame" name="frame_2">
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::NoFrame</enum>
        </property>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QSplitter" name="splitter_2">
           <property name="orientation">
@@ -57,23 +70,32 @@
           </property>
           <widget class="QFrame" name="frame_4">
            <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QFrame" name="frame">
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="margin">
+                <number>0</number>
+               </property>
                <item>
                 <widget class="QToolButton" name="updateButton">
+                 <property name="toolTip">
+                  <string>Update all foruns</string>
+                 </property>
                  <property name="text">
                   <string>Refresh</string>
                  </property>
@@ -85,26 +107,18 @@
                </item>
                <item>
                 <widget class="QToolButton" name="stopButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>Cancel updates</string>
+                 </property>
                  <property name="text">
                   <string>...</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../siilihairesources.qrc">
                    <normaloff>:/data/process-stop.png</normaloff>:/data/process-stop.png</iconset>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QToolButton" name="toolButton_2">
-                 <property name="text">
-                  <string>Reply</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QToolButton" name="toolButton_3">
-                 <property name="text">
-                  <string>...</string>
                  </property>
                 </widget>
                </item>
@@ -146,6 +160,9 @@
            </layout>
           </widget>
           <widget class="QScrollArea" name="scrollArea">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
            <property name="widgetResizable">
             <bool>true</bool>
            </property>
@@ -154,59 +171,80 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>628</width>
-              <height>274</height>
+              <width>663</width>
+              <height>323</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
+             <property name="margin">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QFrame" name="frame_3">
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
                </property>
-               <layout class="QFormLayout" name="formLayout">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>Subject:</string>
-                  </property>
-                 </widget>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <layout class="QFormLayout" name="formLayout">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_5">
+                    <property name="text">
+                     <string>Date:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="messageDate">
+                    <property name="text">
+                     <string>TextLabel</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_2">
+                    <property name="text">
+                     <string>Author:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLabel" name="messageAuthor">
+                    <property name="text">
+                     <string>TextLabel</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLabel" name="messageSubject">
+                    <property name="text">
+                     <string>TextLabel</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Subject:</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QLabel" name="messageSubject">
-                  <property name="text">
-                   <string>TextLabel</string>
+                <item>
+                 <widget class="QToolButton" name="viewInBrowser">
+                  <property name="toolTip">
+                   <string>View message in external browser</string>
                   </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_2">
                   <property name="text">
-                   <string>Author:</string>
+                   <string>...</string>
                   </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QLabel" name="messageAuthor">
-                  <property name="text">
-                   <string>TextLabel</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_5">
-                  <property name="text">
-                   <string>Date:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLabel" name="messageDate">
-                  <property name="text">
-                   <string>TextLabel</string>
+                  <property name="icon">
+                   <iconset resource="../siilihairesources.qrc">
+                    <normaloff>:/data/emblem-web.png</normaloff>:/data/emblem-web.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -247,18 +285,43 @@
      <string>Forum</string>
     </property>
     <addaction name="actionSubscribe_to"/>
+    <addaction name="actionUnsubscribe"/>
     <addaction name="actionGroup_Subscriptions"/>
+    <addaction name="separator"/>
     <addaction name="actionUpdate_all"/>
     <addaction name="actionUpdate_selected"/>
-    <addaction name="actionUnsubscribe"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Settings</string>
     </property>
     <addaction name="actionAccount"/>
+    <addaction name="actionPreferences"/>
+   </widget>
+   <widget class="QMenu" name="menuGroup">
+    <property name="title">
+     <string>Group</string>
+    </property>
+    <addaction name="actionMark_as_Read"/>
+    <addaction name="actionMark_as_Unread"/>
+   </widget>
+   <widget class="QMenu" name="menuMessages">
+    <property name="title">
+     <string>Messages</string>
+    </property>
+    <widget class="QMenu" name="menuView_as">
+     <property name="title">
+      <string>View as</string>
+     </property>
+     <addaction name="actionHTML"/>
+     <addaction name="actionText"/>
+     <addaction name="actionWeb_Page"/>
+    </widget>
+    <addaction name="menuView_as"/>
    </widget>
    <addaction name="menuForum"/>
+   <addaction name="menuGroup"/>
+   <addaction name="menuMessages"/>
    <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -278,11 +341,19 @@
    </property>
   </action>
   <action name="actionUpdate_all">
+   <property name="icon">
+    <iconset resource="../siilihairesources.qrc">
+     <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
+   </property>
    <property name="text">
     <string>Update all</string>
    </property>
   </action>
   <action name="actionUpdate_selected">
+   <property name="icon">
+    <iconset resource="../siilihairesources.qrc">
+     <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
+   </property>
    <property name="text">
     <string>Update selected</string>
    </property>
@@ -290,6 +361,48 @@
   <action name="actionUnsubscribe">
    <property name="text">
     <string>Unsubscribe..</string>
+   </property>
+  </action>
+  <action name="actionMark_as_Read">
+   <property name="text">
+    <string>Mark as Read</string>
+   </property>
+  </action>
+  <action name="actionMark_as_Unread">
+   <property name="text">
+    <string>Mark as Unread</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionHTML">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>HTML</string>
+   </property>
+  </action>
+  <action name="actionText">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Text</string>
+   </property>
+  </action>
+  <action name="actionWeb_Page">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Web Page</string>
    </property>
   </action>
  </widget>

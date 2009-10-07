@@ -15,6 +15,8 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QWidget *parent) :
 			SLOT(unsubscribeForumSlot()));
 	connect(ui.updateButton, SIGNAL(clicked()), this, SLOT(updateClickedSlot()));
 	connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
+	connect(ui.viewInBrowser, SIGNAL(clicked()), this, SLOT(viewInBrowserClickedSlot()));
+
 	busyForums = 0;
 }
 
@@ -116,6 +118,11 @@ void MainWindow::setForumStatus(int forum, bool reloading) {
 				":/data/emblem-web.png"));
 		ui.forumToolBox->widget(forumItems[forum])->setEnabled(true);
 	}
+	if(busyForums > 0) {
+		ui.statusbar->showMessage("Updating Forums, please wait..", 5000);
+	} else {
+		ui.statusbar->showMessage("Forums updated", 5000);
+	}
 }
 
 void MainWindow::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
@@ -128,12 +135,14 @@ void MainWindow::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
 	for (int i = 0; i < threads.size(); ++i) {
 		QStringList header;
 		ForumThread *thread = &threads[i];
+		Q_ASSERT(thread->isSane());
 
 		QList<ForumMessage> messages = fdb.listMessages(threads[i]);
 		ForumMessage threadHeaderMessage;
 		if (messages.size() > 0) { // Thread contains messages
 			threadHeaderMessage = messages[0];
-
+			Q_ASSERT(messages[0].isSane());
+			Q_ASSERT(threadHeaderMessage.isSane());
 			// Sometimes messages don't have a subject - only threads do.
 			// Check for this:
 			if (threadHeaderMessage.subject.length() == 0)
@@ -153,6 +162,7 @@ void MainWindow::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
 
 			for (int m = 1; m < messages.size(); ++m) {
 				ForumMessage *message = &messages[m];
+				Q_ASSERT(message->isSane());
 				QStringList messageHeader;
 				if (message->subject.length() == 0) {
 					messageHeader << "Re: " + threadHeaderMessage.subject;
@@ -186,12 +196,17 @@ void MainWindow::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
 void MainWindow::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {
 	if (item == 0)
 		return;
-
-	ForumMessage * msg = &forumMessages[item];
+	if (!forumMessages.contains(item)) {
+		qDebug() << "A thread with no messages. Broken parser?.";
+		return;
+	}
+	displayedMessage = forumMessages[item];
+	ForumMessage *msg = &forumMessages[item];
+	Q_ASSERT(msg->isSane());
 	QString
 			html =
 					"<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"></head><body>"
-							+ msg->body.toLatin1() + "</body>";
+							+ msg->body + "</body>";
 	ui.webView->setContent(html.toUtf8(), QString("text/html"), QUrl("/"));
 	ui.messageAuthor->setText(msg->author);
 	ui.messageSubject->setText(msg->subject);
@@ -206,8 +221,17 @@ void MainWindow::updateMessageRead(QTreeWidgetItem *item) {
 	QFont font = item->font(0);
 	if (forumMessages[item].read) {
 		font.setBold(false);
+		item->setIcon(0, QIcon(":/data/emblem-mail.png"));
 	} else {
 		font.setBold(true);
+		item->setIcon(0, QIcon(":/data/mail-unread.png"));
 	}
 	item->setFont(0, font);
+}
+
+void MainWindow::viewInBrowserClickedSlot() {
+	if(!displayedMessage.isSane())
+		return;
+	qDebug() << "Launching browser to " << displayedMessage.url;
+	QDesktopServices::openUrl(displayedMessage.url);
 }

@@ -33,7 +33,7 @@ public slots:
 	void loginWizardFinished();
 	void launchSiilihai();
 	void forumAdded(ForumParser fp, ForumSubscription fs);
-	void loginFinished(bool success);
+	void loginFinished(bool success, QString motd);
 	void subscribeForum();
 	void showSubscribeGroup(int forum);
 	void showUnsubscribeForum(int forum);
@@ -57,6 +57,7 @@ private:
 	ForumDatabase fdb;
 	ParserDatabase pdb;
 	QString baseUrl;
+	bool loginSuccessful;
 };
 
 #endif /* SIILIHAI_H_ */

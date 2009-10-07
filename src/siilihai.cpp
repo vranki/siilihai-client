@@ -11,11 +11,12 @@ Siilihai::Siilihai() :
 	QObject(), fdb(this), pdb(this) {
 	loginWizard = 0;
 	mainWin = 0;
+	loginSuccessful = false;
 }
 
 void Siilihai::launchSiilihai() {
 	db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName(QDir::homePath() + "/siilihai.db");
+	db.setDatabaseName(QDir::homePath() + "/.siilihai.db");
 	if (!db.open()) {
 		QMessageBox msgBox;
 		msgBox.setText("Error: Unable to open database.");
@@ -48,8 +49,8 @@ void Siilihai::launchSiilihai() {
 			// engines[forums[i].parser]->updateGroupList();
 		}
 
-		connect(&protocol, SIGNAL(loginFinished(bool)), this,
-				SLOT(loginFinished(bool)));
+		connect(&protocol, SIGNAL(loginFinished(bool, QString)), this,
+				SLOT(loginFinished(bool, QString)));
 		protocol.login(settings.value("account/username", "").toString(),
 				settings.value("account/password", "").toString());
 	}
@@ -72,18 +73,23 @@ void Siilihai::setupParserEngine(ForumSubscription &subscription) {
 			SLOT(errorDialog(QString)));
 }
 
-void Siilihai::loginFinished(bool success) {
+void Siilihai::loginFinished(bool success, QString motd) {
 	if (success) {
 		if (fdb.listSubscriptions().size() == 0) {
 			subscribeForum();
 		}
+		loginSuccessful = true;
 	} else {
 		QMessageBox msgBox;
-		msgBox.setText(
-				"Error: Login failed. Check your username, password and network connection.");
+		if (motd.length() > 0) {
+			msgBox.setText(motd);
+		} else {
+			msgBox.setText(
+					"Error: Login failed. Check your username, password and network connection.");
+		}
 		msgBox.exec();
 	}
-	disconnect(&protocol, SIGNAL(loginFinished(bool)));
+	disconnect(&protocol, SIGNAL(loginFinished(bool, QString)));
 }
 
 void Siilihai::subscribeForum() {
@@ -123,9 +129,11 @@ void Siilihai::launchMainWindow() {
 			SLOT(markMessageRead(ForumMessage)));
 
 	mainWin->show();
-	mainWin->updateForumList();
-	if (fdb.listSubscriptions().size() == 0)
-		subscribeForum();
+	if (loginSuccessful) {
+		mainWin->updateForumList();
+		if (fdb.listSubscriptions().size() == 0)
+			subscribeForum();
+	}
 }
 
 void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
@@ -149,7 +157,7 @@ void Siilihai::errorDialog(QString message) {
 }
 
 void Siilihai::showSubscribeGroup(int forum) {
-	if (forum > 0) {
+	if (forum > 0 && loginSuccessful) {
 		GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
 		gsd->setModal(false);
 		gsd->setForum(&fdb, forum);
@@ -160,16 +168,19 @@ void Siilihai::showSubscribeGroup(int forum) {
 }
 
 void Siilihai::subscribeGroupDialogFinished() {
-	qDebug() << "SFD finished, updating list";
-	mainWin->updateForumList();
-	updateClicked();
+	if (loginSuccessful) {
+		qDebug() << "SFD finished, updating list";
+		mainWin->updateForumList();
+		updateClicked();
+	}
 }
 
 void Siilihai::forumUpdated(int forum) {
-	qDebug() << "Forum " << forum << " has been updated";
-	mainWin->updateForumList();
+	if (loginSuccessful) {
+		qDebug() << "Forum " << forum << " has been updated";
+		mainWin->updateForumList();
+	}
 }
-
 void Siilihai::updateClicked() {
 	qDebug() << "Update clicked, updating all forums";
 	QHashIterator<int, ParserEngine*> i(engines);
@@ -204,16 +215,18 @@ void Siilihai::statusChanged(int forum, bool reloading) {
 }
 
 void Siilihai::showUnsubscribeForum(int forum) {
-	 QMessageBox msgBox;
-	 msgBox.setText("Really unsubscribe from forum?");
-	 // msgBox.setInformativeText(fdb.getSubscription(forum).forum_name);
-	 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-	 msgBox.setDefaultButton(QMessageBox::No);
-	 if(msgBox.exec()==QMessageBox::Yes) {
-		 fdb.deleteForum(forum);
-		 pdb.deleteParser(forum);
-		 mainWin->updateForumList();
-		 engines[forum]->deleteLater();
-		 engines.remove(forum);
-	 }
+	if (forum > 0) {
+		QMessageBox msgBox;
+		msgBox.setText("Really unsubscribe from forum?");
+		// msgBox.setInformativeText(fdb.getSubscription(forum).forum_name);
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		msgBox.setDefaultButton(QMessageBox::No);
+		if (msgBox.exec() == QMessageBox::Yes) {
+			fdb.deleteForum(forum);
+			pdb.deleteParser(forum);
+			mainWin->updateForumList();
+			engines[forum]->deleteLater();
+			engines.remove(forum);
+		}
 	}
+}

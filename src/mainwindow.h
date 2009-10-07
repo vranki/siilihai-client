@@ -4,6 +4,7 @@
 #include <QtGui/QMainWindow>
 #include <QListWidget>
 #include <QList>
+#include <QDesktopServices>
 
 #include <parserdatabase.h>
 #include <forumdatabase.h>
@@ -38,6 +39,7 @@ public slots:
 	void updateClickedSlot();
 	void updateSelectedClickedSlot();
 	void cancelClickedSlot();
+	void viewInBrowserClickedSlot();
 	void setForumStatus(int forum, bool reloading);
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
 	void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
@@ -46,6 +48,7 @@ private:
     Ui::MainWindowClass ui;
     ParserDatabase &pdb;
     ForumDatabase &fdb;
+    ForumMessage displayedMessage;
     QHash<int, int> forumItems;
     QHash<QListWidgetItem*, ForumGroup> forumGroups;
     QHash<QTreeWidgetItem*, ForumMessage> forumMessages;

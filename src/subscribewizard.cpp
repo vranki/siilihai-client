@@ -6,7 +6,7 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto,
 	selectedParser = 0;
 	setWizardStyle(QWizard::ModernStyle);
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(
-			"data/siilis_wizard_watermark.png"));
+			":/data/siilis_wizard_watermark.png"));
 	connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
 	addPage(createIntroPage());
 	addPage(createLoginPage());
