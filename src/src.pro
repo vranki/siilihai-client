@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET = siilihai
-QMAKE_CXXFLAGS += -g -O0
+QMAKE_CXXFLAGS += -g \
+    -O0
 CONFIG += debug
 QT += core \
     webkit \
@@ -8,12 +9,14 @@ QT += core \
     network \
     xml \
     sql
-HEADERS += groupsubscriptiondialog.h \
+HEADERS += favicon.h \
+    groupsubscriptiondialog.h \
     subscribewizard.h \
     mainwindow.h \
     siilihai.h \
     loginwizard.h
-SOURCES += groupsubscriptiondialog.cpp \
+SOURCES += favicon.cpp \
+    groupsubscriptiondialog.cpp \
     subscribewizard.cpp \
     mainwindow.cpp \
     siilihai.cpp \

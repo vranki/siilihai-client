@@ -15,7 +15,8 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QWidget *parent) :
 			SLOT(unsubscribeForumSlot()));
 	connect(ui.updateButton, SIGNAL(clicked()), this, SLOT(updateClickedSlot()));
 	connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
-	connect(ui.viewInBrowser, SIGNAL(clicked()), this, SLOT(viewInBrowserClickedSlot()));
+	connect(ui.viewInBrowser, SIGNAL(clicked()), this,
+			SLOT(viewInBrowserClickedSlot()));
 
 	busyForums = 0;
 }
@@ -48,7 +49,20 @@ void MainWindow::updateForumList() {
 				this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
 		ui.forumToolBox->addItem(lw, forums[i].name);
 		forumItems[forums[i].parser] = i;
-		ui.forumToolBox->setItemIcon(i, QIcon(":/data/emblem-web.png"));
+
+		// Setup Favicon
+		if (forumIcons.contains(forums[i].parser)) {
+			forumIcons[forums[i].parser]->update();
+		} else {
+			QString fiUrl = pdb.getParser(forums[i].parser).forum_url;
+			fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
+			fiUrl = fiUrl + "/favicon.ico";
+			Favicon *fi = new Favicon(this, forums[i].parser);
+			connect(fi, SIGNAL(iconChanged(int, QIcon)), this,
+					SLOT(iconUpdated(int, QIcon)));
+			fi->fetchIcon(QUrl(QUrl(fiUrl)), QPixmap(":/data/emblem-web.png"));
+			forumIcons[forums[i].parser] = fi;
+		}
 		ui.forumToolBox->widget(i)->setEnabled(true);
 	}
 }
@@ -103,23 +117,28 @@ void MainWindow::setForumStatus(int forum, bool reloading) {
 		busyForums--;
 	}
 	qDebug() << "Busy forums now " << busyForums;
+	Q_ASSERT(0 < busyForums < forumItems.size());
 	ui.stopButton->setEnabled(busyForums > 0);
 	ui.updateButton->setEnabled(busyForums == 0);
 
 	if (!forumItems.contains(forum))
 		return;
+	if (!forumIcons.contains(forum))
+		return;
+	Favicon *fi = forumIcons[forum];
 
 	if (reloading) {
-		ui.forumToolBox->setItemIcon(forumItems[forum], QIcon(
-				":/data/view-refresh.png"));
+		fi->setReloading(true);
 		ui.forumToolBox->widget(forumItems[forum])->setEnabled(false);
+		ui.forumToolBox->setItemEnabled(forumItems[forum], false);
 	} else {
-		ui.forumToolBox->setItemIcon(forumItems[forum], QIcon(
-				":/data/emblem-web.png"));
+		fi->setReloading(false);
 		ui.forumToolBox->widget(forumItems[forum])->setEnabled(true);
+		ui.forumToolBox->setItemEnabled(forumItems[forum], true);
 	}
-	if(busyForums > 0) {
-		ui.statusbar->showMessage("Updating Forums, please wait..", 5000);
+	if (busyForums > 0) {
+		ui.statusbar->showMessage("Updating Forums, please wait.. "
+				+ QString().number(busyForums), 5000);
 	} else {
 		ui.statusbar->showMessage("Forums updated", 5000);
 	}
@@ -129,7 +148,6 @@ void MainWindow::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
 	ui.threadTree->clear();
 	forumMessages.clear();
 	QString group = forumGroups[item].id;
-	// qDebug() << "Selected group " << group << " in forum " << forum;
 	QList<ForumThread> threads = fdb.listThreads(forumGroups[item]);
 	QList<QTreeWidgetItem *> items;
 	for (int i = 0; i < threads.size(); ++i) {
@@ -207,7 +225,13 @@ void MainWindow::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {
 			html =
 					"<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"></head><body>"
 							+ msg->body + "</body>";
-	ui.webView->setContent(html.toUtf8(), QString("text/html"), QUrl("/"));
+
+	QString baseUrl = msg->url;
+	int i = baseUrl.lastIndexOf('/');
+	if (i > 0) {
+		baseUrl = baseUrl.left(i + 1);
+	}
+	ui.webView->setContent(html.toUtf8(), QString("text/html"), QUrl(baseUrl));
 	ui.messageAuthor->setText(msg->author);
 	ui.messageSubject->setText(msg->subject);
 	ui.messageDate->setText(msg->lastchange);
@@ -230,8 +254,13 @@ void MainWindow::updateMessageRead(QTreeWidgetItem *item) {
 }
 
 void MainWindow::viewInBrowserClickedSlot() {
-	if(!displayedMessage.isSane())
+	if (!displayedMessage.isSane())
 		return;
 	qDebug() << "Launching browser to " << displayedMessage.url;
 	QDesktopServices::openUrl(displayedMessage.url);
+}
+
+void MainWindow::iconUpdated(int forum, QIcon newIcon) {
+	if (forumItems.contains(forum))
+		ui.forumToolBox->setItemIcon(forumItems[forum], newIcon);
 }

@@ -13,6 +13,8 @@
 #include <forumthread.h>
 #include <forummessage.h>
 
+#include "favicon.h"
+
 #include "ui_mainwindow.h"
 
 class MainWindow : public QMainWindow
@@ -43,6 +45,7 @@ public slots:
 	void setForumStatus(int forum, bool reloading);
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
 	void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
+	void iconUpdated(int forum, QIcon newIcon);
 private:
 	void updateMessageRead(QTreeWidgetItem *item);
     Ui::MainWindowClass ui;
@@ -50,6 +53,7 @@ private:
     ForumDatabase &fdb;
     ForumMessage displayedMessage;
     QHash<int, int> forumItems;
+    QHash<int, Favicon*> forumIcons;
     QHash<QListWidgetItem*, ForumGroup> forumGroups;
     QHash<QTreeWidgetItem*, ForumMessage> forumMessages;
     int busyForums;
