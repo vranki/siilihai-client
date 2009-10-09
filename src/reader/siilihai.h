@@ -21,6 +21,7 @@
 #include "mainwindow.h"
 #include "parserengine.h"
 #include "groupsubscriptiondialog.h"
+#include "../commondefs.h"
 
 class Siilihai: public QObject {
 Q_OBJECT
@@ -28,7 +29,6 @@ Q_OBJECT
 public:
 	Siilihai();
 	virtual ~Siilihai();
-	QSettings settings;
 public slots:
 	void loginWizardFinished();
 	void launchSiilihai();
@@ -58,6 +58,7 @@ private:
 	ParserDatabase pdb;
 	QString baseUrl;
 	bool loginSuccessful;
+	QSettings settings;
 };
 
 #endif /* SIILIHAI_H_ */

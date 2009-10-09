@@ -16,7 +16,7 @@ Siilihai::Siilihai() :
 
 void Siilihai::launchSiilihai() {
 	db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName(QDir::homePath() + "/.siilihai.db");
+	db.setDatabaseName(QDir::homePath() + DATABASE_FILE);
 	if (!db.open()) {
 		QMessageBox msgBox;
 		msgBox.setText("Error: Unable to open database.");
@@ -24,13 +24,8 @@ void Siilihai::launchSiilihai() {
 		QCoreApplication::quit();
 		return;
 	}
-	if (true) {
 		baseUrl
-				= settings.value("network/baseurl", "http://www.siilihai.com/").toString();
-	} else {
-		baseUrl
-				= settings.value("network/baseurl", "http://localhost:8000/").toString();
-	}
+				= settings.value("network/baseurl", BASEURL).toString();
 	protocol.setBaseURL(baseUrl);
 	pdb.openDatabase();
 	fdb.openDatabase();
