@@ -9,6 +9,7 @@
 #include <siilihaiprotocol.h>
 #include <forumparser.h>
 #include <forumsession.h>
+#include <patternmatcher.h>
 
 #include "../commondefs.h"
 #include "downloaddialog.h"
@@ -31,8 +32,17 @@ public slots:
 	void saveAsNewClicked();
 	void parserLoaded(ForumParser p);
 	void saveParserFinished(int newId, QString message);
-
 	void downloadGroupList();
+	void groupListPatternChanged(QString txt);
+
+	void dataMatchingStart(QString &html);
+	void dataMatchingEnd();
+	void dataMatched(int pos, QString data, PatternMatchType type);
+
+	void listGroupsFinished(QList<ForumGroup> groups);
+	void listThreadsFinished(QList<ForumThread> threads, ForumGroup group);
+	void listMessagesFinished(QList<ForumMessage> messages, ForumThread thread);
+
 private:
 	Ui::ParserMakerWindow ui;
     ParserDatabase pdb;
@@ -41,6 +51,10 @@ private:
 	SiilihaiProtocol protocol;
 	ForumParser parser;
 	ForumSession session;
+	PatternMatcher matcher;
+	ForumSubscription subscription;
+	QTextCursor groupListCursor;
+	bool groupListDownloaded;
 };
 
 #endif // PARSERMAKER_H

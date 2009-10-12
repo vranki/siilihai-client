@@ -8,6 +8,7 @@ DownloadDialog::DownloadDialog(QWidget *parent, SiilihaiProtocol &p) :
 	connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
 			SLOT(getParserFinished(ForumParser)));
 	connect(ui.okButton, SIGNAL(clicked()), this, SLOT(okClicked()));
+	connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(cancelClicked()));
 	protocol.listParsers();
 }
 
