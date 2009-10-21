@@ -1,34 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DownloadDialogClass</class>
- <widget class="QDialog" name="DownloadDialogClass">
+ <class>OpenRequestDialogClass</class>
+ <widget class="QDialog" name="OpenRequestDialogClass">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
-    <height>363</height>
+    <width>642</width>
+    <height>361</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Open Parser</string>
+   <string>OpenRequestDialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Please choose a existing parser:</string>
+      <string>Please choose a request</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QListWidget" name="listWidget">
-     <item>
-      <property name="text">
-       <string>Please wait..</string>
-      </property>
-     </item>
-    </widget>
+    <widget class="QTableWidget" name="tableWidget"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">

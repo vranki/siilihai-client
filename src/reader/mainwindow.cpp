@@ -17,54 +17,11 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QWidget *parent) :
 	connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
 	connect(ui.viewInBrowser, SIGNAL(clicked()), this,
 			SLOT(viewInBrowserClickedSlot()));
+	flw = new ForumListWidget(this, fdb, pdb);
+	ui.forumsSplitter->insertWidget(0, flw);
+	connect(flw, SIGNAL(groupSelected(ForumGroup)), this, SLOT(groupSelected(ForumGroup)));
 
 	busyForums = 0;
-}
-
-void MainWindow::updateForumList() {
-	while (ui.forumToolBox->count() > 0) {
-		ui.forumToolBox->removeItem(0);
-	}
-	forumItems.clear();
-	QList<ForumSubscription> forums = fdb.listSubscriptions();
-	for (int i = 0; i < forums.size(); i++) {
-		QListWidget *lw = new QListWidget(this);
-		QList<ForumGroup> groups = fdb.listGroups(forums[i].parser);
-		for (int j = 0; j < groups.size(); j++) {
-			if (groups[j].subscribed) {
-				QListWidgetItem *lwi = new QListWidgetItem(lw);
-				lwi->setText(groups[j].name);
-				lwi->setIcon(QIcon(":/data/folder.png"));
-				lw->addItem(lwi);
-				forumGroups[lwi] = groups[j];
-			}
-		}
-		disconnect(
-				lw,
-				SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
-				this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
-		connect(
-				lw,
-				SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
-				this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
-		ui.forumToolBox->addItem(lw, forums[i].name);
-		forumItems[forums[i].parser] = i;
-
-		// Setup Favicon
-		if (forumIcons.contains(forums[i].parser)) {
-			forumIcons[forums[i].parser]->update();
-		} else {
-			QString fiUrl = pdb.getParser(forums[i].parser).forum_url;
-			fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
-			fiUrl = fiUrl + "/favicon.ico";
-			Favicon *fi = new Favicon(this, forums[i].parser);
-			connect(fi, SIGNAL(iconChanged(int, QIcon)), this,
-					SLOT(iconUpdated(int, QIcon)));
-			fi->fetchIcon(QUrl(QUrl(fiUrl)), QPixmap(":/data/emblem-web.png"));
-			forumIcons[forums[i].parser] = fi;
-		}
-		ui.forumToolBox->widget(i)->setEnabled(true);
-	}
 }
 
 MainWindow::~MainWindow() {
@@ -80,13 +37,15 @@ void MainWindow::updateClickedSlot() {
 }
 
 void MainWindow::updateSelectedClickedSlot() {
-	if (getSelectedForum() > 0)
-		emit updateClicked(getSelectedForum());
+	int selectedForum = flw->getSelectedForum();
+	if (selectedForum > 0)
+		emit updateClicked(selectedForum);
 }
 
 void MainWindow::unsubscribeForumSlot() {
-	if (getSelectedForum() > 0)
-		emit unsubscribeForum(getSelectedForum());
+	int selectedForum = flw->getSelectedForum();
+	if (selectedForum > 0)
+		emit unsubscribeForum(selectedForum);
 }
 
 void MainWindow::cancelClickedSlot() {
@@ -94,61 +53,16 @@ void MainWindow::cancelClickedSlot() {
 }
 
 void MainWindow::groupSubscriptionsSlot() {
-	int f = getSelectedForum();
-	if (f > 0)
-		emit groupSubscriptions(f);
+	int selectedForum = flw->getSelectedForum();
+	if (selectedForum > 0)
+		emit groupSubscriptions(selectedForum);
 }
 
-int MainWindow::getSelectedForum() {
-	int s = ui.forumToolBox->currentIndex();
-	QHashIterator<int, int> hi(forumItems);
-	while (hi.hasNext()) {
-		hi.next();
-		if (hi.value() == s)
-			return hi.key();
-	}
-	return -1;
-}
 
-void MainWindow::setForumStatus(int forum, bool reloading) {
-	if (reloading) {
-		busyForums++;
-	} else {
-		busyForums--;
-	}
-	qDebug() << "Busy forums now " << busyForums;
-	Q_ASSERT(0 < busyForums < forumItems.size());
-	ui.stopButton->setEnabled(busyForums > 0);
-	ui.updateButton->setEnabled(busyForums == 0);
-
-	if (!forumItems.contains(forum))
-		return;
-	if (!forumIcons.contains(forum))
-		return;
-	Favicon *fi = forumIcons[forum];
-
-	if (reloading) {
-		fi->setReloading(true);
-		ui.forumToolBox->widget(forumItems[forum])->setEnabled(false);
-		ui.forumToolBox->setItemEnabled(forumItems[forum], false);
-	} else {
-		fi->setReloading(false);
-		ui.forumToolBox->widget(forumItems[forum])->setEnabled(true);
-		ui.forumToolBox->setItemEnabled(forumItems[forum], true);
-	}
-	if (busyForums > 0) {
-		ui.statusbar->showMessage("Updating Forums, please wait.. "
-				+ QString().number(busyForums), 5000);
-	} else {
-		ui.statusbar->showMessage("Forums updated", 5000);
-	}
-}
-
-void MainWindow::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
+void MainWindow::groupSelected(ForumGroup fg) {
 	ui.threadTree->clear();
 	forumMessages.clear();
-	QString group = forumGroups[item].id;
-	QList<ForumThread> threads = fdb.listThreads(forumGroups[item]);
+	QList<ForumThread> threads = fdb.listThreads(fg);
 	QList<QTreeWidgetItem *> items;
 	for (int i = 0; i < threads.size(); ++i) {
 		QStringList header;
@@ -239,6 +153,7 @@ void MainWindow::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {
 	emit
 	messageRead(forumMessages[item]);
 	updateMessageRead(item);
+	flw->updateReadCounts();
 }
 
 void MainWindow::updateMessageRead(QTreeWidgetItem *item) {
@@ -260,7 +175,24 @@ void MainWindow::viewInBrowserClickedSlot() {
 	QDesktopServices::openUrl(displayedMessage.url);
 }
 
-void MainWindow::iconUpdated(int forum, QIcon newIcon) {
-	if (forumItems.contains(forum))
-		ui.forumToolBox->setItemIcon(forumItems[forum], newIcon);
+void MainWindow::setForumStatus(int forum, bool reloading) {
+	if (reloading) {
+		busyForums++;
+	} else {
+		busyForums--;
+	}
+	ui.stopButton->setEnabled(busyForums > 0);
+	ui.updateButton->setEnabled(busyForums == 0);
+	if (busyForums > 0) {
+		ui.statusbar->showMessage("Updating Forums, please wait.. "
+				+ QString().number(busyForums), 5000);
+	} else {
+		ui.statusbar->showMessage("Forums updated", 5000);
+	}
+
+	flw->setForumStatus(forum, reloading);
+}
+
+ForumListWidget* MainWindow::forumList() {
+	return flw;
 }

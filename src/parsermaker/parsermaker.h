@@ -9,10 +9,16 @@
 #include <siilihaiprotocol.h>
 #include <forumparser.h>
 #include <forumsession.h>
-#include <patternmatcher.h>
+#include <forumgroup.h>
+#include <forumthread.h>
 
 #include "../commondefs.h"
 #include "downloaddialog.h"
+#include "openrequestdialog.h"
+#include "patterneditor.h"
+#include "threadlistpatterneditor.h"
+#include "grouplistpatterneditor.h"
+#include "messagelistpatterneditor.h"
 
 #include "ui_parsermaker.h"
 
@@ -28,21 +34,13 @@ public slots:
 	void updateState();
 	void loginFinished(bool success, QString motd);
 	void openClicked();
+	void newFromRequestClicked();
 	void saveClicked();
 	void saveAsNewClicked();
+	void testForumUrlClicked();
 	void parserLoaded(ForumParser p);
 	void saveParserFinished(int newId, QString message);
-	void downloadGroupList();
-	void groupListPatternChanged(QString txt);
-
-	void dataMatchingStart(QString &html);
-	void dataMatchingEnd();
-	void dataMatched(int pos, QString data, PatternMatchType type);
-
-	void listGroupsFinished(QList<ForumGroup> groups);
-	void listThreadsFinished(QList<ForumThread> threads, ForumGroup group);
-	void listMessagesFinished(QList<ForumMessage> messages, ForumThread thread);
-
+	void requestSelected(ForumRequest req);
 private:
 	Ui::ParserMakerWindow ui;
     ParserDatabase pdb;
@@ -51,10 +49,10 @@ private:
 	SiilihaiProtocol protocol;
 	ForumParser parser;
 	ForumSession session;
-	PatternMatcher matcher;
 	ForumSubscription subscription;
-	QTextCursor groupListCursor;
-	bool groupListDownloaded;
+	PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;
+	ForumGroup selectedGroup;
+	ForumThread selectedThread;
 };
 
 #endif // PARSERMAKER_H

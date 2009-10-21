@@ -21,6 +21,8 @@
 #include "mainwindow.h"
 #include "parserengine.h"
 #include "groupsubscriptiondialog.h"
+#include "forumlistwidget.h"
+
 #include "../commondefs.h"
 
 class Siilihai: public QObject {

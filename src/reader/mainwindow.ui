@@ -14,7 +14,7 @@
    <string>Siilihai</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../siilihairesources.qrc">
+   <iconset resource="../../siilihairesources.qrc">
     <normaloff>:/data/siilis_icon.png</normaloff>:/data/siilis_icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -23,32 +23,10 @@
      <number>1</number>
     </property>
     <item>
-     <widget class="QSplitter" name="splitter">
+     <widget class="QSplitter" name="forumsSplitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QToolBox" name="forumToolBox">
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <widget class="QWidget" name="page_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>129</width>
-          <height>527</height>
-         </rect>
-        </property>
-        <attribute name="icon">
-         <iconset>
-          <normaloff>:/new/prefix1/data/stop.svg</normaloff>:/new/prefix1/data/stop.svg</iconset>
-        </attribute>
-        <attribute name="label">
-         <string>Cantremovethis</string>
-        </attribute>
-       </widget>
-      </widget>
       <widget class="QFrame" name="frame_2">
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
@@ -109,7 +87,7 @@
                   <string>Refresh</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../siilihairesources.qrc">
+                  <iconset resource="../../siilihairesources.qrc">
                    <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
                  </property>
                 </widget>
@@ -126,7 +104,7 @@
                   <string>...</string>
                  </property>
                  <property name="icon">
-                  <iconset resource="../siilihairesources.qrc">
+                  <iconset resource="../../siilihairesources.qrc">
                    <normaloff>:/data/process-stop.png</normaloff>:/data/process-stop.png</iconset>
                  </property>
                 </widget>
@@ -180,8 +158,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>663</width>
-              <height>323</height>
+              <width>798</width>
+              <height>320</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout">
@@ -252,7 +230,7 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="../siilihairesources.qrc">
+                   <iconset resource="../../siilihairesources.qrc">
                     <normaloff>:/data/emblem-web.png</normaloff>:/data/emblem-web.png</iconset>
                   </property>
                  </widget>
@@ -351,7 +329,7 @@
   </action>
   <action name="actionUpdate_all">
    <property name="icon">
-    <iconset resource="../siilihairesources.qrc">
+    <iconset resource="../../siilihairesources.qrc">
      <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
    </property>
    <property name="text">
@@ -360,7 +338,7 @@
   </action>
   <action name="actionUpdate_selected">
    <property name="icon">
-    <iconset resource="../siilihairesources.qrc">
+    <iconset resource="../../siilihairesources.qrc">
      <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
    </property>
    <property name="text">
@@ -423,7 +401,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
  </resources>
  <connections/>
 </ui>

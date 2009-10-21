@@ -20,7 +20,9 @@ public:
 	int nextId() const;
 public slots:
 	void pageChanged(int id);
-	void loginFinished(bool success);
+	void loginFinished(bool success, QString motd);
+	void registerFinished(bool success, QString motd);
+	void checkRegisterData();
 private:
 	QWizard wizard;
 	QRadioButton accountDoesntExist;

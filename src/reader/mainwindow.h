@@ -13,7 +13,7 @@
 #include <forumthread.h>
 #include <forummessage.h>
 
-#include "favicon.h"
+#include "forumlistwidget.h"
 
 #include "ui_mainwindow.h"
 
@@ -24,8 +24,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(ParserDatabase &pd, ForumDatabase &fd, QWidget *parent = 0 );
     ~MainWindow();
-    void updateForumList();
-    int getSelectedForum();
+    ForumListWidget* forumList();
 signals:
 	void subscribeForum();
 	void unsubscribeForum(int forumid);
@@ -42,19 +41,17 @@ public slots:
 	void updateSelectedClickedSlot();
 	void cancelClickedSlot();
 	void viewInBrowserClickedSlot();
-	void setForumStatus(int forum, bool reloading);
-	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
+	void groupSelected(ForumGroup fg);
 	void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
-	void iconUpdated(int forum, QIcon newIcon);
+	void setForumStatus(int forum, bool reloading);
+
 private:
 	void updateMessageRead(QTreeWidgetItem *item);
+	ForumListWidget *flw;
     Ui::MainWindowClass ui;
     ParserDatabase &pdb;
     ForumDatabase &fdb;
     ForumMessage displayedMessage;
-    QHash<int, int> forumItems;
-    QHash<int, Favicon*> forumIcons;
-    QHash<QListWidgetItem*, ForumGroup> forumGroups;
     QHash<QTreeWidgetItem*, ForumMessage> forumMessages;
     int busyForums;
 };

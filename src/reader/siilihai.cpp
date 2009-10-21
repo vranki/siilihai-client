@@ -29,20 +29,13 @@ void Siilihai::launchSiilihai() {
 	protocol.setBaseURL(baseUrl);
 	pdb.openDatabase();
 	fdb.openDatabase();
+
 	if (settings.value("account/username", "").toString() == "") {
 		loginWizard = new LoginWizard(0, protocol);
 		connect(loginWizard, SIGNAL(finished(int)), this,
 				SLOT(loginWizardFinished()));
 	} else {
 		launchMainWindow();
-		mainWin->updateForumList();
-
-		QList<ForumSubscription> forums = fdb.listSubscriptions();
-		for (int i = 0; i < forums.size(); i++) {
-			setupParserEngine(forums[i]);
-			// @todo do something with these
-			// engines[forums[i].parser]->updateGroupList();
-		}
 
 		connect(&protocol, SIGNAL(loginFinished(bool, QString)), this,
 				SLOT(loginFinished(bool, QString)));
@@ -123,12 +116,16 @@ void Siilihai::launchMainWindow() {
 	connect(mainWin, SIGNAL(messageRead(ForumMessage)), &fdb,
 			SLOT(markMessageRead(ForumMessage)));
 
-	mainWin->show();
+	QList<ForumSubscription> forums = fdb.listSubscriptions();
+	for (int i = 0; i < forums.size(); i++) {
+		setupParserEngine(forums[i]);
+	}
+	mainWin->forumList()->updateForumList();
 	if (loginSuccessful) {
-		mainWin->updateForumList();
 		if (fdb.listSubscriptions().size() == 0)
 			subscribeForum();
 	}
+	mainWin->show();
 }
 
 void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
@@ -139,7 +136,7 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
 		msgBox.exec();
 	} else {
 		setupParserEngine(fs);
-		mainWin->updateForumList();
+		mainWin->forumList()->updateForumList();
 		engines[fs.parser]->updateGroupList();
 	}
 }
@@ -165,7 +162,7 @@ void Siilihai::showSubscribeGroup(int forum) {
 void Siilihai::subscribeGroupDialogFinished() {
 	if (loginSuccessful) {
 		qDebug() << "SFD finished, updating list";
-		mainWin->updateForumList();
+		mainWin->forumList()->updateForumList();
 		updateClicked();
 	}
 }
@@ -173,7 +170,7 @@ void Siilihai::subscribeGroupDialogFinished() {
 void Siilihai::forumUpdated(int forum) {
 	if (loginSuccessful) {
 		qDebug() << "Forum " << forum << " has been updated";
-		mainWin->updateForumList();
+		mainWin->forumList()->updateForumList();
 	}
 }
 void Siilihai::updateClicked() {
@@ -219,7 +216,7 @@ void Siilihai::showUnsubscribeForum(int forum) {
 		if (msgBox.exec() == QMessageBox::Yes) {
 			fdb.deleteForum(forum);
 			pdb.deleteParser(forum);
-			mainWin->updateForumList();
+			mainWin->forumList()->updateForumList();
 			engines[forum]->deleteLater();
 			engines.remove(forum);
 		}

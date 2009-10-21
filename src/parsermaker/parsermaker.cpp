@@ -1,7 +1,7 @@
 #include "parsermaker.h"
 
 ParserMaker::ParserMaker(QWidget *parent) :
-	QMainWindow(parent), pdb(this), matcher(this, true) {
+	QMainWindow(parent), pdb(this) {
 	ui.setupUi(this);
 
 	db = QSqlDatabase::addDatabase("QSQLITE");
@@ -25,27 +25,32 @@ ParserMaker::ParserMaker(QWidget *parent) :
 		QCoreApplication::quit();
 		return;
 	}
+	groupListEditor = new GroupListPatternEditor(session, parser, subscription, this);
+	ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(), groupListEditor->tabName());
+	threadListEditor = new ThreadListPatternEditor(session, parser, subscription, this);
+	ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(), threadListEditor->tabName());
+	threadListEditor->setEnabled(false);
+	messageListEditor = new MessageListPatternEditor(session, parser, subscription, this);
+	ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(), messageListEditor->tabName());
+	messageListEditor->setEnabled(false);
+	connect(groupListEditor, SIGNAL(groupSelected(ForumGroup)), threadListEditor, SLOT(setGroup(ForumGroup)));
+	connect(threadListEditor, SIGNAL(threadSelected(ForumThread)), messageListEditor, SLOT(setThread(ForumThread)));
+
 	connect(&protocol, SIGNAL(loginFinished(bool, QString)), this,
 			SLOT(loginFinished(bool, QString)));
 	connect(&protocol, SIGNAL(saveParserFinished(int, QString)), this,
 			SLOT(saveParserFinished(int, QString)));
-	connect(&matcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
-			this, SLOT(dataMatched(int, QString, PatternMatchType)));
-	connect(&matcher, SIGNAL(dataMatchingStart(QString&)), this,
-			SLOT(dataMatchingStart(QString&)));
-	connect(&matcher, SIGNAL(dataMatchingEnd()), this, SLOT(dataMatchingEnd()));
-	connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup>)), this,
-			SLOT(listGroupsFinished(QList<ForumGroup>)));
 
 	protocol.login(settings.value("account/username", "").toString(),
 			settings.value("account/password", "").toString());
 
 	connect(ui.openParserButton, SIGNAL(clicked()), this, SLOT(openClicked()));
+	connect(ui.newFromRequestButton, SIGNAL(clicked()), this, SLOT(newFromRequestClicked()));
 	connect(ui.saveChangesButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
 	connect(ui.saveAsNewButton, SIGNAL(clicked()), this,
 			SLOT(saveAsNewClicked()));
-	connect(ui.downloadGroupList, SIGNAL(clicked()), this,
-			SLOT(downloadGroupList()));
+	connect(ui.testForumUrlButton, SIGNAL(clicked()), this,
+			SLOT(testForumUrlClicked()));
 	connect(ui.forumUrl, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
 	connect(ui.parserName, SIGNAL(textEdited(QString)), this,
 			SLOT(updateState()));
@@ -55,15 +60,13 @@ ParserMaker::ParserMaker(QWidget *parent) :
 			SLOT(updateState()));
 	connect(ui.viewMessagePath, SIGNAL(textEdited(QString)), this,
 			SLOT(updateState()));
-	connect(ui.groupListPattern, SIGNAL(textEdited(QString)), this,
-			SLOT(groupListPatternChanged(QString)));
+
+	subscription.latest_threads = 20;
+	subscription.latest_messages = 20;
 
 	updateState();
 	ui.tabWidget->setCurrentIndex(0);
-	ui.groupListSource->setFontFamily("monospace");
 	show();
-
-	groupListCursor = ui.groupListSource->textCursor();
 }
 
 ParserMaker::~ParserMaker() {
@@ -84,7 +87,10 @@ void ParserMaker::updateState() {
 	parser.thread_list_page_start = ui.threadListPageStart->text().toInt();
 	parser.thread_list_page_increment
 			= ui.threadListPageIncrement->text().toInt();
-	parser.group_list_pattern = ui.groupListPattern->text();
+
+	parser.group_list_pattern = groupListEditor->pattern();
+	parser.thread_list_pattern = threadListEditor->pattern();
+	parser.message_list_pattern = messageListEditor->pattern();
 
 	bool mayWork = parser.mayWork();
 
@@ -98,10 +104,8 @@ void ParserMaker::updateState() {
 
 	subscription.name = parser.parser_name;
 	subscription.parser = parser.id;
-	subscription.latest_threads = 20;
-	subscription.latest_messages = 20;
 
-	session.initialize(parser, subscription, &matcher);
+	session.initialize(parser, subscription);
 }
 
 void ParserMaker::loginFinished(bool success, QString motd) {
@@ -129,6 +133,19 @@ void ParserMaker::openClicked() {
 	dlg->show();
 }
 
+void ParserMaker::newFromRequestClicked() {
+	OpenRequestDialog *dlg = new OpenRequestDialog(this, protocol);
+	connect(dlg, SIGNAL(requestSelected(ForumRequest)), this,
+			SLOT(requestSelected(ForumRequest)));
+	dlg->show();
+}
+
+void ParserMaker::requestSelected(ForumRequest req) {
+	ForumParser fp;
+	fp.forum_url = req.forum_url;
+	parserLoaded(fp);
+}
+
 void ParserMaker::parserLoaded(ForumParser p) {
 	parser = p;
 	ui.parserName->setText(p.parser_name);
@@ -143,8 +160,14 @@ void ParserMaker::parserLoaded(ForumParser p) {
 	ui.threadListPageStart->setText(QString().number(p.thread_list_page_start));
 	ui.threadListPageIncrement->setText(QString().number(
 			p.thread_list_page_increment));
-	ui.groupListPattern->setText(p.group_list_pattern);
-
+	ui.charset->setEditText(p.charset);
+	groupListEditor->setPattern(p.group_list_pattern);
+	groupListEditor->parserUpdated();
+	threadListEditor->setPattern(p.thread_list_pattern);
+	threadListEditor->parserUpdated();
+	messageListEditor->setPattern(p.message_list_pattern);
+	messageListEditor->parserUpdated();
+	ui.tabWidget->setCurrentIndex(1);
 	updateState();
 	ui.statusbar->showMessage("Parser loaded", 5000);
 }
@@ -197,90 +220,6 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
 	msgBox.exec();
 }
 
-void ParserMaker::downloadGroupList() {
-	updateState();
-	ui.downloadGroupList->setEnabled(false);
-	session.listGroups();
-	ui.groupListSource->clear();
-	groupListDownloaded = false;
-}
-
-void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
-//	Q_ASSERT(pos < ui.groupListSource->toPlainText().length() && pos > 0);
-	QColor color;
-
-	switch (type) {
-	case PMTMatch:
-		color = Qt::blue;
-		break;
-	case PMTNoMatch:
-		color = Qt::black;
-		break;
-	case PMTTag:
-		color = Qt::green;
-		break;
-	case PMTIgnored:
-		color = Qt::darkGray;
-		break;
-	default:
-		Q_ASSERT(false);
-	}
-
-	groupListCursor.setPosition(groupListCursor.position() + data.length(),
-			QTextCursor::KeepAnchor);
-	QTextCharFormat fmt = groupListCursor.charFormat();
-	;
-	fmt.setForeground(QBrush(color));
-	groupListCursor.setCharFormat(fmt);
-	groupListCursor.setPosition(groupListCursor.position(),
-			QTextCursor::MoveAnchor);
-}
-
-void ParserMaker::listGroupsFinished(QList<ForumGroup> groups) {
-	ui.groupListResultsTable->clear();
-	ui.groupListResultsTable->setRowCount(groups.size());
-	QStringList headers;
-	headers << "Id" << "Name" << "Last change";
-	ui.groupListResultsTable->setHorizontalHeaderLabels(headers);
-	ui.downloadGroupList->setEnabled(true);
-
-	for (int i = 0; i < groups.size(); i++) {
-		QTableWidgetItem *newItem = new QTableWidgetItem(groups[i].id);
-		ui.groupListResultsTable->setItem(i, 0, newItem);
-		newItem = new QTableWidgetItem(groups[i].name);
-		ui.groupListResultsTable->setItem(i, 1, newItem);
-		newItem = new QTableWidgetItem(groups[i].lastchange);
-		ui.groupListResultsTable->setItem(i, 2, newItem);
-	}
-	ui.groupListResultsTable->resizeColumnsToContents();
-}
-
-void ParserMaker::groupListPatternChanged(QString txt) {
-	parser.group_list_pattern = txt;
-	session.setParser(parser);
-	QString glhtml = ui.groupListSource->toPlainText();
-	session.performListGroups(glhtml);
-}
-
-void ParserMaker::listThreadsFinished(QList<ForumThread> threads,
-		ForumGroup group) {
-
-}
-
-void ParserMaker::listMessagesFinished(QList<ForumMessage> messages,
-		ForumThread thread) {
-
-}
-
-void ParserMaker::dataMatchingStart(QString &html) {
-	qDebug() << "DMStart " << html.length();
-	if(ui.groupListSource->toPlainText().length() == 0) {
-		ui.groupListSource->clear();
-		ui.groupListSource->insertPlainText(html);
-	}
-	groupListCursor.setPosition(0, QTextCursor::MoveAnchor);
-}
-
-void ParserMaker::dataMatchingEnd() {
-	groupListDownloaded = true;
+void ParserMaker::testForumUrlClicked() {
+	QDesktopServices::openUrl(parser.forum_url);
 }
