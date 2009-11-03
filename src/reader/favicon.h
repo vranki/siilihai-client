@@ -16,6 +16,10 @@
 #include <QPixmap>
 #include <QByteArray>
 #include <QDebug>
+#include <QRect>
+#include <QPainter>
+#include <QTimer>
+#include <cmath>
 
 class Favicon : public QObject {
 	Q_OBJECT
@@ -23,18 +27,20 @@ class Favicon : public QObject {
 public:
 	Favicon(QObject *parent, int forumid);
 	void fetchIcon(const QUrl &url, const QPixmap &alt);
-	void setReloading(bool rel);
-	void update();
+	void setReloading(bool rel, float progress = 0);
 	virtual ~Favicon();
 public slots:
 	void replyReceived(QNetworkReply *reply);
+	void update();
 signals:
 	void iconChanged(int forumid, QIcon newIcon);
 private:
 	int forum;
 	bool reloading;
 	QNetworkAccessManager nam;
-	QPixmap alternative, downloaded;
+	QPixmap currentpic;
+	float currentProgress;
+	float blinkAngle;
 };
 
 #endif /* FAVICON_H_ */

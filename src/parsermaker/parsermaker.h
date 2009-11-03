@@ -3,7 +3,6 @@
 
 #include <QtGui/QMainWindow>
 #include <QtGui>
-#include <QSqlDatabase>
 
 #include <parserdatabase.h>
 #include <siilihaiprotocol.h>
@@ -12,7 +11,6 @@
 #include <forumgroup.h>
 #include <forumthread.h>
 
-#include "../commondefs.h"
 #include "downloaddialog.h"
 #include "openrequestdialog.h"
 #include "patterneditor.h"
@@ -27,12 +25,11 @@ class ParserMaker : public QMainWindow
     Q_OBJECT
 
 public:
-    ParserMaker(QWidget *parent = 0);
+    ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s, SiilihaiProtocol &p);
     ~ParserMaker();
 
 public slots:
 	void updateState();
-	void loginFinished(bool success, QString motd);
 	void openClicked();
 	void newFromRequestClicked();
 	void saveClicked();
@@ -41,18 +38,23 @@ public slots:
 	void parserLoaded(ForumParser p);
 	void saveParserFinished(int newId, QString message);
 	void requestSelected(ForumRequest req);
+	void tryLogin();
+	void tryWithoutLogin();
+	void loginFinished(bool success);
+	void networkFailure(QString txt);
 private:
+	void closeEvent(QCloseEvent *event);
 	Ui::ParserMakerWindow ui;
-    ParserDatabase pdb;
-    QSqlDatabase db;
-	QSettings settings;
-	SiilihaiProtocol protocol;
+    ParserDatabase &pdb;
+	QSettings &settings;
+	SiilihaiProtocol &protocol;
 	ForumParser parser;
 	ForumSession session;
 	ForumSubscription subscription;
 	PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;
 	ForumGroup selectedGroup;
 	ForumThread selectedThread;
+	bool loginWithoutCredentials;
 };
 
 #endif // PARSERMAKER_H

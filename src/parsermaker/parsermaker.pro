@@ -1,4 +1,4 @@
-TEMPLATE = app
+TEMPLATE = lib
 TARGET = siilihai-parsermaker
 QMAKE_CXXFLAGS += -g \
     -O0
@@ -22,12 +22,11 @@ SOURCES += openrequestdialog.cpp \
     threadlistpatterneditor.cpp \
     patterneditor.cpp \
     downloaddialog.cpp \
-    parsermaker.cpp \
-    main.cpp
+    parsermaker.cpp
 BINDIR = $$PREFIX/bin
 LIBDIR = $$PREFIX/lib
 DATADIR = $$PREFIX/share
-target.path = $$BINDIR
+target.path = $$LIBDIR
 INSTALLS += target
 FORMS = openrequestdialog.ui \
     patterneditor.ui \

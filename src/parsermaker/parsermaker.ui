@@ -21,7 +21,7 @@
        <enum>QTabWidget::West</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="loadSaveTab">
        <attribute name="title">
@@ -41,7 +41,7 @@
         <item row="0" column="1">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Open or download a existing parser for editing</string>
+           <string>Download a existing parser for editing</string>
           </property>
          </widget>
         </item>
@@ -121,7 +121,7 @@ p, li { white-space: pre-wrap; }
            <item row="2" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
-              <string>Charsacter set</string>
+              <string>Character set</string>
              </property>
             </widget>
            </item>
@@ -399,6 +399,137 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
           </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="loginTab">
+       <attribute name="title">
+        <string>Login</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>Login type:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="loginTypeCombo">
+            <item>
+             <property name="text">
+              <string>Not Supported</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>HTTP Post</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>HTTP Auth</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="loginUrlLabel">
+            <property name="text">
+             <string>Login Url will be here</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="tryLoginButton">
+            <property name="text">
+             <string>Try logging in</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="tryWithoutLoginButton">
+            <property name="text">
+             <string>Try without logging in</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_23">
+            <property name="text">
+             <string>Username:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="usernameEdit"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_24">
+            <property name="text">
+             <string>Password:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="passwordEdit"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_25">
+            <property name="text">
+             <string>Http Post parameters:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="loginParameters">
+            <property name="toolTip">
+             <string>Comma-separated list of parameters. For example user=%u,pass=%p,foo=bar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>%u=username, %p=password</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="loginTextEdit">
+          <property name="textInteractionFlags">
+           <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>Search string:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="verifyLoginPattern"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="loginResultLabel">
+          <property name="text">
+           <string>Login result will be here</string>
+          </property>
          </widget>
         </item>
        </layout>

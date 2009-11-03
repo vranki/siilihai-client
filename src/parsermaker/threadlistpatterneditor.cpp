@@ -29,7 +29,7 @@ void ThreadListPatternEditor::downloadList() {
 	downloadParser.thread_list_page_increment = 0;
 	downloadParser.view_thread_page_increment = 0;
 
-	session.initialize(downloadParser, subscription, &matcher);
+	session.initialize(downloadParser, subscription, matcher);
 	session.listThreads(currentGroup);
 
 	ui.sourceTextEdit->clear();
@@ -44,7 +44,7 @@ void ThreadListPatternEditor::testPageSpanning() {
 	downloadSubscription.latest_threads = 999;
 	downloadSubscription.latest_messages = 999;
 
-	session.initialize(downloadParser, downloadSubscription, &matcher);
+	session.initialize(downloadParser, downloadSubscription, matcher);
 	session.listThreads(currentGroup);
 
 	ui.sourceTextEdit->clear();

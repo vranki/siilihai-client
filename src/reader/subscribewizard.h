@@ -32,7 +32,7 @@ public slots:
 	void pageChanged(int id);
 	void wizardAccepted();
 	void getParserFinished(ForumParser parser);
-
+	void comboItemChanged(int id);
 private:
 	QWizard wizard;
 	SiilihaiProtocol &protocol;

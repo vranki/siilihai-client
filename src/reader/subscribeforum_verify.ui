@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="forumPropertiesGroupBox">
      <property name="title">
       <string>Forum properties</string>
      </property>
@@ -86,7 +86,7 @@
          <string>000; </string>
         </property>
         <property name="text">
-         <string>50</string>
+         <string>25</string>
         </property>
        </widget>
       </item>

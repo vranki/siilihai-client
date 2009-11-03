@@ -10,7 +10,6 @@
 MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
 		ForumParser &par, ForumSubscription &fos, QWidget *parent) :
 	PatternEditor(ses, par, fos, parent) {
-	// TODO Auto-generated constructor stub
 	setEnabled(false);
 	connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage>,
 					ForumThread)), this,
@@ -32,7 +31,7 @@ void MessageListPatternEditor::downloadList() {
 	downloadParser.thread_list_page_increment = 0;
 	downloadParser.view_thread_page_increment = 0;
 
-	session.initialize(downloadParser, subscription, &matcher);
+	session.initialize(downloadParser, subscription, matcher);
 	session.listMessages(currentThread);
 
 	ui.sourceTextEdit->clear();
@@ -47,7 +46,7 @@ void MessageListPatternEditor::testPageSpanning() {
 	downloadSubscription.latest_threads = 999;
 	downloadSubscription.latest_messages = 999;
 
-	session.initialize(downloadParser, downloadSubscription, &matcher);
+	session.initialize(downloadParser, downloadSubscription, matcher);
 	session.listMessages(currentThread);
 
 	ui.sourceTextEdit->clear();
@@ -106,7 +105,7 @@ void MessageListPatternEditor::listMessagesFinished(
 		ui.resultsTable->setItem(i, 2, newItem);
 		newItem = new QTableWidgetItem(messages[i].lastchange);
 		ui.resultsTable->setItem(i, 3, newItem);
-		newItem = new QTableWidgetItem(messages[i].body);
+		newItem = new QTableWidgetItem(messages[i].body.left(15));
 		ui.resultsTable->setItem(i, 4, newItem);
 	}
 	ui.resultsTable->resizeColumnsToContents();

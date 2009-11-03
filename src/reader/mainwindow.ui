@@ -79,7 +79,39 @@
                 <number>0</number>
                </property>
                <item>
+                <widget class="QToolButton" name="hideButton">
+                 <property name="toolTip">
+                  <string>Show/Hide the group list</string>
+                 </property>
+                 <property name="text">
+                  <string>Hide List</string>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextUnderIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>10</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
                 <widget class="QToolButton" name="updateButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="toolTip">
                   <string>Update all foruns</string>
                  </property>
@@ -89,6 +121,9 @@
                  <property name="icon">
                   <iconset resource="../../siilihairesources.qrc">
                    <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextUnderIcon</enum>
                  </property>
                 </widget>
                </item>
@@ -101,11 +136,34 @@
                   <string>Cancel updates</string>
                  </property>
                  <property name="text">
-                  <string>...</string>
+                  <string>Stop</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../siilihairesources.qrc">
                    <normaloff>:/data/process-stop.png</normaloff>:/data/process-stop.png</iconset>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextUnderIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="viewInBrowser">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>View message in external browser</string>
+                 </property>
+                 <property name="text">
+                  <string>Open</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../siilihairesources.qrc">
+                   <normaloff>:/data/emblem-web.png</normaloff>:/data/emblem-web.png</iconset>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextUnderIcon</enum>
                  </property>
                 </widget>
                </item>
@@ -167,7 +225,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QFrame" name="frame_3">
+              <widget class="QFrame" name="headerFrame">
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
@@ -187,7 +245,7 @@
                   <item row="0" column="1">
                    <widget class="QLabel" name="messageDate">
                     <property name="text">
-                     <string>TextLabel</string>
+                     <string/>
                     </property>
                    </widget>
                   </item>
@@ -201,14 +259,14 @@
                   <item row="1" column="1">
                    <widget class="QLabel" name="messageAuthor">
                     <property name="text">
-                     <string>TextLabel</string>
+                     <string/>
                     </property>
                    </widget>
                   </item>
                   <item row="2" column="1">
                    <widget class="QLabel" name="messageSubject">
                     <property name="text">
-                     <string>TextLabel</string>
+                     <string/>
                     </property>
                    </widget>
                   </item>
@@ -220,20 +278,6 @@
                    </widget>
                   </item>
                  </layout>
-                </item>
-                <item>
-                 <widget class="QToolButton" name="viewInBrowser">
-                  <property name="toolTip">
-                   <string>View message in external browser</string>
-                  </property>
-                  <property name="text">
-                   <string>...</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="../../siilihairesources.qrc">
-                    <normaloff>:/data/emblem-web.png</normaloff>:/data/emblem-web.png</iconset>
-                  </property>
-                 </widget>
                 </item>
                </layout>
               </widget>
@@ -277,13 +321,16 @@
     <addaction name="separator"/>
     <addaction name="actionUpdate_all"/>
     <addaction name="actionUpdate_selected"/>
+    <addaction name="separator"/>
+    <addaction name="actionReport_broken_or_working"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Settings</string>
     </property>
-    <addaction name="actionAccount"/>
     <addaction name="actionPreferences"/>
+    <addaction name="separator"/>
+    <addaction name="actionParser_Maker"/>
    </widget>
    <widget class="QMenu" name="menuGroup">
     <property name="title">
@@ -294,7 +341,7 @@
    </widget>
    <widget class="QMenu" name="menuMessages">
     <property name="title">
-     <string>Messages</string>
+     <string>Message</string>
     </property>
     <widget class="QMenu" name="menuView_as">
      <property name="title">
@@ -390,6 +437,16 @@
    </property>
    <property name="text">
     <string>Web Page</string>
+   </property>
+  </action>
+  <action name="actionParser_Maker">
+   <property name="text">
+    <string>Parser Maker</string>
+   </property>
+  </action>
+  <action name="actionReport_broken_or_working">
+   <property name="text">
+    <string>Report broken or working</string>
    </property>
   </action>
  </widget>

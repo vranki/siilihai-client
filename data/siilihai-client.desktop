@@ -1,10 +1,14 @@
 [Desktop Entry]
+Version=1.0
 Encoding=UTF-8
 Name=Siilihai Web Forum Reader
 Comment=Siilihai Web Forum Reader
-Exec=siilihai
+Exec=/usr/bin/siilihai
 Terminal=false
 Type=Application
 StartupNotify=false
 Categories=Network;
 Icon=/usr/share/icons/siilihai/siilis_icon.png
+#X-Osso-Service=com.siilihai.siilihai-client
+X-Osso-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable

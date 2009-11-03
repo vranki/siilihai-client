@@ -27,6 +27,7 @@ void GroupSubscriptionDialog::selectNone() {
 	     i.value()->setCheckState(Qt::Unchecked);
 	 }
 }
+
 void GroupSubscriptionDialog::apply() {
 	QList<ForumGroup> subscriptions = fdb->listGroups(forum);
 	for (int i = 0; i < subscriptions.size(); i++) {

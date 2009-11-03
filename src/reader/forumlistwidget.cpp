@@ -1,13 +1,12 @@
 #include "forumlistwidget.h"
 
-ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDatabase &p)
-    : QToolBox(parent), fdb(f), pdb(p)
-{
+ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f,
+		ParserDatabase &p) :
+	QToolBox(parent), fdb(f), pdb(p) {
 
 }
 
-ForumListWidget::~ForumListWidget()
-{
+ForumListWidget::~ForumListWidget() {
 
 }
 
@@ -77,8 +76,9 @@ void ForumListWidget::updateReadCounts() {
 
 		// @todo could be done just for the visible forum
 		setItemText(forumIndexes[forums[i].parser], title);
-		QListWidget *lw = static_cast<QListWidget*> (widget(forumIndexes[forums[i].parser]));
-		for(int j=0;j<lw->count();j++) {
+		QListWidget *lw = static_cast<QListWidget*> (widget(
+				forumIndexes[forums[i].parser]));
+		for (int j = 0; j < lw->count(); j++) {
 			QListWidgetItem *it = lw->item(j);
 			QFont fnt = it->font();
 			int unread = fdb.unreadIn(forumGroups[it]);
@@ -88,11 +88,9 @@ void ForumListWidget::updateReadCounts() {
 			it->setText(title);
 			fnt.setBold(unread > 0);
 			it->setFont(fnt);
-			qDebug() << "Unread in " << title << ":" << unread;
 		}
 	}
 }
-
 
 int ForumListWidget::getSelectedForum() {
 	int s = currentIndex();
@@ -110,24 +108,19 @@ void ForumListWidget::iconUpdated(int forum, QIcon newIcon) {
 		setItemIcon(forumIndexes[forum], newIcon);
 }
 
-void ForumListWidget::setForumStatus(int forum, bool reloading) {
+void ForumListWidget::setForumStatus(int forum, bool reloading, float progress) {
 	if (!forumIndexes.contains(forum))
 		return;
 	if (!forumIndexes.contains(forum))
 		return;
 	Favicon *fi = forumIcons[forum];
 
-	if (reloading) {
-		fi->setReloading(true);
-		widget(forumIndexes[forum])->setEnabled(false);
-		setItemEnabled(forumIndexes[forum], false);
-	} else {
-		fi->setReloading(false);
-		widget(forumIndexes[forum])->setEnabled(true);
-		setItemEnabled(forumIndexes[forum], true);
-	}
+	fi->setReloading(reloading, progress);
+	widget(forumIndexes[forum])->setEnabled(!reloading);
+	setItemEnabled(forumIndexes[forum], !reloading);
 }
 
-void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
+void ForumListWidget::groupSelected(QListWidgetItem* item,
+		QListWidgetItem *prev) {
 	emit groupSelected(forumGroups[item]);
 }

@@ -1,51 +1,33 @@
 #include "parsermaker.h"
 
-ParserMaker::ParserMaker(QWidget *parent) :
-	QMainWindow(parent), pdb(this) {
+ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s,
+		SiilihaiProtocol &p) :
+	QMainWindow(parent), pdb(pd), settings(s), protocol(p) {
 	ui.setupUi(this);
-
-	db = QSqlDatabase::addDatabase("QSQLITE");
-	db.setDatabaseName(QDir::homePath() + DATABASE_FILE);
-	if (!db.open()) {
-		QMessageBox msgBox;
-		msgBox.setText("Error: Unable to open database.");
-		msgBox.setModal(true);
-		msgBox.exec();
-		QCoreApplication::quit();
-		return;
-	}
-	QString baseUrl = settings.value("network/baseurl", BASEURL).toString();
-	protocol.setBaseURL(baseUrl);
-	pdb.openDatabase();
-	if (settings.value("account/username", "").toString() == "") {
-		QMessageBox msgBox;
-		msgBox.setText(
-				"You don't have a valid Siilihai account.\n Set up one using Siilihai client.");
-		msgBox.exec();
-		QCoreApplication::quit();
-		return;
-	}
-	groupListEditor = new GroupListPatternEditor(session, parser, subscription, this);
-	ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(), groupListEditor->tabName());
-	threadListEditor = new ThreadListPatternEditor(session, parser, subscription, this);
-	ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(), threadListEditor->tabName());
+	groupListEditor = new GroupListPatternEditor(session, parser, subscription,
+			this);
+	ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(),
+			groupListEditor->tabName());
+	threadListEditor = new ThreadListPatternEditor(session, parser,
+			subscription, this);
+	ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(),
+			threadListEditor->tabName());
 	threadListEditor->setEnabled(false);
-	messageListEditor = new MessageListPatternEditor(session, parser, subscription, this);
-	ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(), messageListEditor->tabName());
+	messageListEditor = new MessageListPatternEditor(session, parser,
+			subscription, this);
+	ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(),
+			messageListEditor->tabName());
 	messageListEditor->setEnabled(false);
-	connect(groupListEditor, SIGNAL(groupSelected(ForumGroup)), threadListEditor, SLOT(setGroup(ForumGroup)));
-	connect(threadListEditor, SIGNAL(threadSelected(ForumThread)), messageListEditor, SLOT(setThread(ForumThread)));
+	connect(groupListEditor, SIGNAL(groupSelected(ForumGroup)),
+			threadListEditor, SLOT(setGroup(ForumGroup)));
+	connect(threadListEditor, SIGNAL(threadSelected(ForumThread)),
+			messageListEditor, SLOT(setThread(ForumThread)));
 
-	connect(&protocol, SIGNAL(loginFinished(bool, QString)), this,
-			SLOT(loginFinished(bool, QString)));
 	connect(&protocol, SIGNAL(saveParserFinished(int, QString)), this,
 			SLOT(saveParserFinished(int, QString)));
-
-	protocol.login(settings.value("account/username", "").toString(),
-			settings.value("account/password", "").toString());
-
 	connect(ui.openParserButton, SIGNAL(clicked()), this, SLOT(openClicked()));
-	connect(ui.newFromRequestButton, SIGNAL(clicked()), this, SLOT(newFromRequestClicked()));
+	connect(ui.newFromRequestButton, SIGNAL(clicked()), this,
+			SLOT(newFromRequestClicked()));
 	connect(ui.saveChangesButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
 	connect(ui.saveAsNewButton, SIGNAL(clicked()), this,
 			SLOT(saveAsNewClicked()));
@@ -54,18 +36,35 @@ ParserMaker::ParserMaker(QWidget *parent) :
 	connect(ui.forumUrl, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
 	connect(ui.parserName, SIGNAL(textEdited(QString)), this,
 			SLOT(updateState()));
+	connect(ui.parserType, SIGNAL(currentIndexChanged(int)), this,
+			SLOT(updateState()));
 	connect(ui.viewThreadPath, SIGNAL(textEdited(QString)), this,
 			SLOT(updateState()));
 	connect(ui.threadListPath, SIGNAL(textEdited(QString)), this,
 			SLOT(updateState()));
 	connect(ui.viewMessagePath, SIGNAL(textEdited(QString)), this,
 			SLOT(updateState()));
+	connect(ui.loginPath, SIGNAL(textEdited(QString)), this,
+			SLOT(updateState()));
+	connect(ui.loginTypeCombo, SIGNAL(currentIndexChanged(int)), this,
+			SLOT(updateState()));
+	connect(ui.tryLoginButton, SIGNAL(clicked()), this, SLOT(tryLogin()));
+	connect(ui.tryWithoutLoginButton, SIGNAL(clicked()), this,
+			SLOT(tryWithoutLogin()));
+	connect(&session, SIGNAL(loginFinished(bool)), this,
+			SLOT(loginFinished(bool)));
+	connect(&session, SIGNAL(networkFailure(QString)), this,
+			SLOT(networkFailure(QString)));
 
-	subscription.latest_threads = 20;
-	subscription.latest_messages = 20;
+	subscription.latest_threads = 100;
+	subscription.latest_messages = 100;
+	loginWithoutCredentials = false;
 
 	updateState();
 	ui.tabWidget->setCurrentIndex(0);
+	if (!restoreGeometry(settings.value("parsermaker_geometry").toByteArray()))
+		showMaximized();
+
 	show();
 }
 
@@ -77,7 +76,13 @@ void ParserMaker::updateState() {
 	parser.parser_name = ui.parserName->text();
 	parser.charset = ui.charset->currentText().toLower();
 	parser.forum_url = ui.forumUrl->text();
+	parser.forum_software = ui.forumSoftware->text();
 	parser.parser_type = ui.parserType->currentIndex();
+	parser.login_type
+			= (ForumParser::ForumLoginType) ui.loginTypeCombo->currentIndex();
+	parser.login_path = ui.loginPath->text();
+	parser.verify_login_pattern = ui.verifyLoginPattern->text();
+	parser.login_parameters = ui.loginParameters->text();
 	parser.thread_list_path = ui.threadListPath->text();
 	parser.view_thread_path = ui.viewThreadPath->text();
 	parser.view_message_path = ui.viewMessagePath->text();
@@ -94,8 +99,13 @@ void ParserMaker::updateState() {
 
 	bool mayWork = parser.mayWork();
 
-	ui.saveChangesButton->setEnabled(mayWork);
+	ui.saveChangesButton->setEnabled(mayWork && parser.id > 0);
 	ui.saveAsNewButton->setEnabled(mayWork);
+
+	ui.loginTypeCombo->setEnabled(ui.loginPath->text().length() > 0);
+	ui.tryLoginButton->setEnabled(parser.supportsLogin());
+	ui.tryWithoutLoginButton->setEnabled(parser.supportsLogin());
+	ui.loginUrlLabel->setText(session.getLoginUrl());
 
 	ui.baseUrlTL->setText(parser.forumUrlWithoutEnd());
 	ui.baseUrlVT->setText(parser.forumUrlWithoutEnd());
@@ -104,26 +114,14 @@ void ParserMaker::updateState() {
 
 	subscription.name = parser.parser_name;
 	subscription.parser = parser.id;
-
-	session.initialize(parser, subscription);
-}
-
-void ParserMaker::loginFinished(bool success, QString motd) {
-	if (success) {
-		qDebug() << "Login success.";
-		ui.statusbar->showMessage("Logged in to Siilihai", 5000);
+	if (loginWithoutCredentials) {
+		subscription.username = QString::null;
+		subscription.password = QString::null;
 	} else {
-		QMessageBox msgBox;
-		if (motd.length() > 0) {
-			msgBox.setText(motd);
-		} else {
-			msgBox.setText(
-					"Error: Login failed. Check your username, password and network connection.");
-		}
-		msgBox.exec();
-		QCoreApplication::quit();
+		subscription.username = ui.usernameEdit->text();
+		subscription.password = ui.passwordEdit->text();
 	}
-	disconnect(&protocol, SIGNAL(loginFinished(bool, QString)));
+	session.initialize(parser, subscription);
 }
 
 void ParserMaker::openClicked() {
@@ -161,6 +159,10 @@ void ParserMaker::parserLoaded(ForumParser p) {
 	ui.threadListPageIncrement->setText(QString().number(
 			p.thread_list_page_increment));
 	ui.charset->setEditText(p.charset);
+	ui.loginPath->setText(p.login_path);
+	ui.loginTypeCombo->setCurrentIndex(p.login_type);
+	ui.loginParameters->setText(p.login_parameters);
+	ui.verifyLoginPattern->setText(p.verify_login_pattern);
 	groupListEditor->setPattern(p.group_list_pattern);
 	groupListEditor->parserUpdated();
 	threadListEditor->setPattern(p.thread_list_pattern);
@@ -173,6 +175,7 @@ void ParserMaker::parserLoaded(ForumParser p) {
 }
 
 void ParserMaker::saveClicked() {
+	updateState();
 	QMessageBox msgBox;
 	msgBox.setText("Are you sure you want to save changes?");
 	msgBox.setInformativeText(
@@ -185,6 +188,7 @@ void ParserMaker::saveClicked() {
 }
 
 void ParserMaker::saveAsNewClicked() {
+	updateState();
 	QMessageBox msgBox;
 	msgBox.setText("This will upload parser as a new parser to Siilihai.");
 	msgBox.setDetailedText(
@@ -202,7 +206,6 @@ void ParserMaker::saveAsNewClicked() {
 }
 
 void ParserMaker::saveParserFinished(int id, QString msg) {
-	qDebug() << "Savefinished " << id;
 	QString message;
 	if (msg.length() > 0)
 		message = msg;
@@ -222,4 +225,64 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
 
 void ParserMaker::testForumUrlClicked() {
 	QDesktopServices::openUrl(parser.forum_url);
+}
+
+void ParserMaker::closeEvent(QCloseEvent *event) {
+	settings.setValue("parsermaker_geometry", saveGeometry());
+	event->accept();
+	deleteLater();
+}
+
+void ParserMaker::tryLogin() {
+	session.clearAuthentications();
+	loginWithoutCredentials = false;
+	updateState();
+	connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit,
+			SLOT(setPlainText(const QString&)));
+	session.loginToForum();
+	ui.tryLoginButton->setEnabled(false);
+	ui.tryWithoutLoginButton->setEnabled(false);
+}
+
+void ParserMaker::tryWithoutLogin() {
+	session.clearAuthentications();
+	loginWithoutCredentials = true;
+	updateState();
+	connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit,
+			SLOT(setPlainText(const QString&)));
+	session.loginToForum();
+	ui.tryLoginButton->setEnabled(false);
+	ui.tryWithoutLoginButton->setEnabled(false);
+}
+
+void ParserMaker::loginFinished(bool success) {
+	if (loginWithoutCredentials) {
+		if (success) {
+			ui.loginResultLabel->setText("Login was successful. This is wrong.");
+		} else {
+			ui.loginResultLabel->setText(
+					"Login was not successful, as expected.");
+		}
+	} else {
+		if (success) {
+			ui.loginResultLabel->setText("Login was successful, as expected.");
+		} else {
+			ui.loginResultLabel->setText(
+					"Login was not successful. This is wrong.");
+		}
+	}
+
+	disconnect(&session, SIGNAL(receivedHtml(const QString&)),
+			ui.loginTextEdit, SLOT(setText(const QString&)));
+	loginWithoutCredentials = false;
+
+	ui.tryLoginButton->setEnabled(true);
+	ui.tryWithoutLoginButton->setEnabled(true);
+}
+
+void ParserMaker::networkFailure(QString txt) {
+	QMessageBox msgBox;
+	msgBox.setText("Network Failure:\n" + txt);
+	msgBox.exec();
+	updateState();
 }

@@ -1,2 +1,9 @@
 TEMPLATE = subdirs
-SUBDIRS = reader parsermaker
+
+!exists(/etc/libosso) {
+SUBDIRS = parsermaker reader 
+}
+
+exists(/etc/libosso) {
+SUBDIRS = reader 
+}

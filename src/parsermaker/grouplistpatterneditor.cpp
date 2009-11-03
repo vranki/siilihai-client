@@ -21,9 +21,7 @@ GroupListPatternEditor::~GroupListPatternEditor() {
 }
 
 void GroupListPatternEditor::downloadList() {
-	qDebug() << Q_FUNC_INFO << " " << parser.group_list_pattern;
-
-	session.initialize(parser, subscription, &matcher);
+	session.initialize(parser, subscription, matcher);
 
 	ui.downloadButton->setEnabled(false);
 	session.listGroups();
@@ -34,11 +32,6 @@ void GroupListPatternEditor::testPageSpanning() {
 }
 
 void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup> groups) {
-	/*
-	ForumGroup selectedGroup;
-	selectedGroup.id = QString::null;
-	emit(groupSelected(selectedGroup));
-	*/
 	listIds.clear();
 	ui.resultsTable->clear();
 	ui.resultsTable->setRowCount(groups.size());

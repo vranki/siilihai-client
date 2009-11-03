@@ -5,8 +5,11 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto,
 	QWizard(parent), protocol(proto) {
 	selectedParser = 0;
 	setWizardStyle(QWizard::ModernStyle);
+#ifndef Q_WS_HILDON
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(
 			":/data/siilis_wizard_watermark.png"));
+
+#endif
 	connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
 	addPage(createIntroPage());
 	addPage(createLoginPage());
@@ -20,6 +23,8 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto,
 	connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this,
 			SLOT(updateParserList()));
 	connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
+	connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this,
+			SLOT(comboItemChanged(int)));
 	protocol.setBaseURL(baseUrl);
 	progress = 0;
 	show();
@@ -34,8 +39,10 @@ SubscribeWizard::~SubscribeWizard() {
 
 QWizardPage *SubscribeWizard::createIntroPage() {
 	QWizardPage *page = new QWizardPage;
+#ifndef Q_WS_HILDON
 	page->setTitle("Subscribe to a forum");
 	page->setSubTitle("Please choose the forum you wish to subscribe to");
+#endif
 
 	QWidget *widget = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
@@ -54,27 +61,50 @@ void SubscribeWizard::updateParserList() {
 	subscribeForm.forumList->clear();
 	listWidgetItemForum.clear();
 	for (int i = 0; i < allParsers.size(); i++) {
-		if (allParsers[i].parser_name.contains(
-				subscribeForm.searchString->text())
-				|| allParsers[i].forum_url.contains(
-						subscribeForm.searchString->text())) {
-			// @todo type filtering
-			QListWidgetItem *item =
-					new QListWidgetItem(subscribeForm.forumList);
-			item->setText(allParsers[i].parser_name);
-			item->setToolTip(allParsers[i].forum_url);
-			subscribeForm.forumList->addItem(item);
-			listWidgetItemForum[item] = &allParsers[i];
+		bool displayParser = false;
+		int parserType = allParsers[i].parser_type;
+		int ci = subscribeForm.displayCombo->currentIndex();
+		switch (ci) {
+		case 0:
+			if (parserType == 0)
+				displayParser = true;
+			break;
+		case 1:
+			if (parserType == 0 || parserType == 1)
+				displayParser = true;
+			break;
+		case 2:
+			if (parserType == 2)
+				displayParser = true;
+			break;
+		case 3:
+			displayParser = true;
+			break;
+		}
+		if (displayParser) {
+			if (allParsers[i].parser_name.contains(
+					subscribeForm.searchString->text())
+					|| allParsers[i].forum_url.contains(
+							subscribeForm.searchString->text())) {
+				QListWidgetItem *item = new QListWidgetItem(
+						subscribeForm.forumList);
+				item->setText(allParsers[i].parser_name);
+				item->setToolTip(allParsers[i].forum_url);
+				subscribeForm.forumList->addItem(item);
+				listWidgetItemForum[item] = &allParsers[i];
+			}
 		}
 	}
 }
 
 QWizardPage *SubscribeWizard::createLoginPage() {
 	QWizardPage *page = new QWizardPage;
+#ifndef Q_WS_HILDON
 	page->setTitle("Forum account");
 
 	page->setSubTitle(
 			"If you have registered to the forum, you can enter your account credentials here");
+#endif
 	QWidget *widget = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	subscribeForumLogin.setupUi(widget);
@@ -85,12 +115,16 @@ QWizardPage *SubscribeWizard::createLoginPage() {
 
 QWizardPage *SubscribeWizard::createVerifyPage() {
 	QWizardPage *page = new QWizardPage;
+#ifndef Q_WS_HILDON
 	page->setTitle("Verify forum details");
-
 	page->setSubTitle("Click Finish to subscribe to this forum");
+#endif
 	QWidget *widget = new QWidget(this);
 	QVBoxLayout *layout = new QVBoxLayout;
 	subscribeForumVerify.setupUi(widget);
+#ifdef Q_WS_HILDON
+	subscribeForumVerify.forumPropertiesGroupBox->hide();
+#endif
 	layout->addWidget(widget);
 	page->setLayout(layout);
 	return page;
@@ -115,11 +149,12 @@ void SubscribeWizard::pageChanged(int id) {
 		}
 	} else if (id == 2) {
 		if (subscribeForumLogin.accountGroupBox->isChecked()) {
-
-			progress = new QProgressDialog("Checking your credentials..",
-					"Cancel", 0, 3, this);
-			progress->setWindowModality(Qt::WindowModal);
-			progress->setValue(0);
+			/*
+			 progress = new QProgressDialog("Checking your credentials..",
+			 "Cancel", 0, 3, this);
+			 progress->setWindowModality(Qt::WindowModal);
+			 progress->setValue(0);
+			 */
 		}
 		subscribeForumVerify.forumName->setText(selectedParser->parser_name);
 		subscribeForumVerify.forumUrl->setText(selectedParser->forum_url);
@@ -128,19 +163,33 @@ void SubscribeWizard::pageChanged(int id) {
 }
 
 void SubscribeWizard::getParserFinished(ForumParser fp) {
+	QString warningLabel;
 	if (fp.id >= 0) {
 		parser = fp;
+		subscribeForumLogin.accountGroupBox->setEnabled(parser.supportsLogin());
+		if (fp.parser_status == 0) {
+			warningLabel
+					= "Note: This parser is new and has not been tested much.\n"
+						"Please report if it is working or not from the menu later.";
+		} else if (fp.parser_status == 2) {
+			warningLabel
+					= "Warning: This parser has been reported as not working.\n"
+						"Please report if it is working or not from the menu later.";
+		}
 	} else {
-		QMessageBox msgBox;
-		msgBox.setText(
-				"Error: Unable to download parser definiton.\nCheck your network connection.");
-		msgBox.exec();
+		warningLabel = "Error: Unable to download parser definiton.\nCheck your network connection.";
 		back();
 	}
 	if (progress) {
 		progress->setValue(3);
 		progress->deleteLater();
 		progress = 0;
+	}
+	if (!warningLabel.isNull()) {
+		QMessageBox msgBox(this);
+		msgBox.setModal(true);
+		msgBox.setText(warningLabel);
+		msgBox.exec();
 	}
 }
 
@@ -163,4 +212,8 @@ void SubscribeWizard::wizardAccepted() {
 			= subscribeForumVerify.latestMessagesEdit->text().toInt();
 
 	emit(forumAdded(parser, fs));
+}
+
+void SubscribeWizard::comboItemChanged(int id) {
+	updateParserList();
 }

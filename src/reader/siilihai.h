@@ -15,6 +15,7 @@
 #include <siilihaiprotocol.h>
 #include <forumdatabase.h>
 #include <parserdatabase.h>
+#include <parserreport.h>
 
 #include "loginwizard.h"
 #include "subscribewizard.h"
@@ -22,8 +23,17 @@
 #include "parserengine.h"
 #include "groupsubscriptiondialog.h"
 #include "forumlistwidget.h"
+#include "reportparser.h"
 
-#include "../commondefs.h"
+#ifndef Q_WS_HILDON
+#include "../parsermaker/parsermaker.h"
+#else
+class ParserMaker;
+#endif
+
+#define DATABASE_FILE "/.siilihai.db"
+#define BASEURL "http://www.siilihai.com/"
+
 
 class Siilihai: public QObject {
 Q_OBJECT
@@ -40,15 +50,22 @@ public slots:
 	void showSubscribeGroup(int forum);
 	void showUnsubscribeForum(int forum);
 	void subscribeGroupDialogFinished();
-	void forumUpdated(int forum);
+	void forumUpdated(int forumid);
 	void updateClicked();
-	void updateClicked(int);
+	void updateClicked(int forumid);
 	void cancelClicked();
-	void statusChanged(int forum, bool reloading);
+	void reportClicked(int forumid);
+	void statusChanged(int forumid, bool reloading, float progress);
 	void errorDialog(QString message);
+	void listSubscriptionsFinished(QList<int> subscriptions);
+	void updateForumParser(ForumParser parser);
+	void launchParserMaker();
+	void parserMakerClosed();
+	void sendParserReportFinished(bool success);
 private:
 	void launchMainWindow();
     void setupParserEngine(ForumSubscription &subscription);
+    void updateState();
 
 	LoginWizard *loginWizard;
 	SubscribeWizard *subscribeWizard;
@@ -61,6 +78,8 @@ private:
 	QString baseUrl;
 	bool loginSuccessful;
 	QSettings settings;
+	QList<int> parsersToUpdateLeft;
+	ParserMaker *parserMaker;
 };
 
 #endif /* SIILIHAI_H_ */

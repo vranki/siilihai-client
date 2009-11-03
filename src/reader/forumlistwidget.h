@@ -22,7 +22,7 @@ public:
 	void updateReadCounts();
 	void updateForumList();
 	int getSelectedForum();
-	void setForumStatus(int forum, bool reloading);
+	void setForumStatus(int forum, bool reloading, float progress);
 public slots:
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
 	void iconUpdated(int forum, QIcon newIcon);

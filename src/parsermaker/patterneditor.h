@@ -43,7 +43,7 @@ protected:
 	QTextCursor groupListCursor;
 	ForumSession &session;
 	ForumParser &parser;
-	PatternMatcher matcher;
+	PatternMatcher *matcher;
 	ForumSubscription &subscription;
 	QHash<int, QString> listIds;
 	bool pageSpanningTest;

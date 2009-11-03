@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/" >
+    <file>data/go-first.png</file>
+    <file>data/go-last.png</file>
     <file>data/siilis_wizard_watermark.png</file>
     <file>data/siilis_icon.png</file>
     <file>data/emblem-important.png</file>

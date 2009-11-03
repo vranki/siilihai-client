@@ -3,8 +3,10 @@
 LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto) :
 	QWizard(parent), protocol(proto) {
 	setWizardStyle(QWizard::ModernStyle);
+#ifndef Q_WS_HILDON
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(
 			":/data/siilis_wizard_watermark.png"));
+#endif
 	connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
 	setPage(1, createIntroPage());
 	setPage(2, createRegistrationPage());
@@ -51,7 +53,7 @@ QWizardPage *LoginWizard::createLoginPage() {
 	page->setTitle("Log in");
 
 	page->setSubTitle("Please enter your account credentials");
-	loginPass.setEchoMode(QLineEdit::Password);
+	loginPass.setEchoMode(QLineEdit::PasswordEchoOnEdit);
 
 	loginUser.setText(settings.value("account/username", "").toString());
 	loginPass.setText(settings.value("account/password", "").toString());
@@ -109,8 +111,8 @@ void LoginWizard::loginFinished(bool success, QString motd) {
 	} else {
 		finalLabel.setText(
 				"Login successful.\n\nYou are now ready to use Siilihai.");
-		settings.setValue("account/username", loginUser.text());
-		settings.setValue("account/password", loginPass.text());
+		settings.setValue("account/username", loginUser.text().trimmed());
+		settings.setValue("account/password", loginPass.text().trimmed());
 	}
 }
 
@@ -146,14 +148,15 @@ void LoginWizard::pageChanged(int id) {
 				0, 3, this);
 		progress->setWindowModality(Qt::WindowModal);
 		progress->setValue(0);
+
 		disconnect(&protocol, SIGNAL(loginFinished(bool, QString)));
 		if (!accountDoesntExist.isChecked()) {
 			connect(&protocol, SIGNAL(loginFinished(bool, QString)), this, SLOT(loginFinished(bool, QString)));
-			protocol.login(loginUser.text(), loginPass.text());
+			protocol.login(loginUser.text().trimmed(), loginPass.text().trimmed());
 		} else {
 			connect(&protocol, SIGNAL(loginFinished(bool, QString)), this, SLOT(registerFinished(bool, QString)));
-			protocol.registerUser(registerUser.text(), registerPass.text(),
-					registerEmail.text());
+			protocol.registerUser(registerUser.text().trimmed(), registerPass.text().trimmed(),
+					registerEmail.text().trimmed());
 		}
 		break;
 	}

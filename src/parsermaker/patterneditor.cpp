@@ -2,9 +2,9 @@
 
 PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
 		ForumSubscription &fos, QWidget *parent) :
-	QWidget(parent), session(ses), parser(par), subscription(fos), matcher(
-			this, true) {
+	QWidget(parent), session(ses), parser(par), subscription(fos) {
 	ui.setupUi(this);
+	matcher = new PatternMatcher(this, true);
 	connect(ui.downloadButton, SIGNAL(clicked()), this,
 			SLOT(downloadList()));
 	connect(ui.testPageSpanning, SIGNAL(clicked()), this,
@@ -13,11 +13,11 @@ PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
 			SLOT(viewInBrowser()));
 	connect(ui.patternEdit, SIGNAL(textEdited(QString)), this,
 			SLOT(patternChanged(QString)));
-	connect(&matcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
+	connect(matcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
 			this, SLOT(dataMatched(int, QString, PatternMatchType)));
-	connect(&matcher, SIGNAL(dataMatchingStart(QString&)), this,
+	connect(matcher, SIGNAL(dataMatchingStart(QString&)), this,
 			SLOT(dataMatchingStart(QString&)));
-	connect(&matcher, SIGNAL(dataMatchingEnd()), this, SLOT(dataMatchingEnd()));
+	connect(matcher, SIGNAL(dataMatchingEnd()), this, SLOT(dataMatchingEnd()));
 	connect(ui.resultsTable, SIGNAL(cellClicked(int,int)), this, SLOT(resultCellActivated(int, int)));
 
 	ui.resultsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -25,6 +25,7 @@ PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
 	ui.resultsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.sourceTextEdit->setFontFamily("monospace");
 	groupListCursor = ui.sourceTextEdit->textCursor();
+	pageSpanningTest = false;
 }
 
 PatternEditor::~PatternEditor() {
@@ -39,10 +40,29 @@ void PatternEditor::setPattern(QString txt) {
 	ui.patternEdit->setText(txt);
 }
 
-
 void PatternEditor::dataMatched(int pos, QString data, PatternMatchType type) {
-	//	Q_ASSERT(pos < ui.groupListSource->toPlainText().length() && pos > 0);
-	// qDebug() << Q_FUNC_INFO << " " << type << " " << pos;
+	QString myData = ui.sourceTextEdit->toPlainText().mid(pos, data.length());
+	static int mismatches = 0;
+	if(myData != data && mismatches < 5) {
+		for(int i=0;i<data.length();i++) {
+			if(myData[i] != data[i]) {
+				int preDisplay = i-5;
+				int postDisplay = i + 30;
+				if(preDisplay < 0) preDisplay = 0;
+				if(postDisplay > data.length()) postDisplay = data.length();
+				qDebug() << "Data MisMatch at pos " << i << " pre " << preDisplay << ": \n" <<
+				myData.mid(preDisplay, postDisplay-preDisplay) <<
+				"\n != \n" << data.mid(preDisplay, postDisplay-preDisplay);
+				qDebug() << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toAscii() <<  ") != "
+				<< data.at(i) << "(" << (int) data.at(i).toAscii() << ")";
+				i = data.length();
+				mismatches++;
+			}
+		}
+
+		qDebug() << "Position: " << pos << " match type = " << type;
+	}
+
 	if(pageSpanningTest) return;
 
 	QColor color;
@@ -77,10 +97,8 @@ void PatternEditor::dataMatched(int pos, QString data, PatternMatchType type) {
 
 void PatternEditor::dataMatchingStart(QString &html) {
 	if(pageSpanningTest) return;
-	qDebug() << "DMStart size: " << html.length();
 	if (ui.sourceTextEdit->toPlainText().length() == 0) {
-		ui.sourceTextEdit->clear();
-		ui.sourceTextEdit->insertPlainText(html);
+		ui.sourceTextEdit->setPlainText(html);
 	}
 	groupListCursor.setPosition(0, QTextCursor::MoveAnchor);
 	pageSpanningTest = false;
@@ -88,8 +106,6 @@ void PatternEditor::dataMatchingStart(QString &html) {
 
 void PatternEditor::dataMatchingEnd() {
 	if(pageSpanningTest) return;
-	qDebug() << "DMEnd size: " << ui.sourceTextEdit->toPlainText().length();
-
 }
 
 
