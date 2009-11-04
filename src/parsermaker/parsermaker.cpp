@@ -121,7 +121,11 @@ void ParserMaker::updateState() {
 		subscription.username = ui.usernameEdit->text();
 		subscription.password = ui.passwordEdit->text();
 	}
-	session.initialize(parser, subscription);
+	groupListEditor->parserUpdated();
+	threadListEditor->parserUpdated();
+	messageListEditor->parserUpdated();
+
+	// session.initialize(parser, subscription);
 }
 
 void ParserMaker::openClicked() {
@@ -281,7 +285,7 @@ void ParserMaker::loginFinished(bool success) {
 }
 
 void ParserMaker::networkFailure(QString txt) {
-	QMessageBox msgBox;
+	QMessageBox msgBox(this);
 	msgBox.setText("Network Failure:\n" + txt);
 	msgBox.exec();
 	updateState();

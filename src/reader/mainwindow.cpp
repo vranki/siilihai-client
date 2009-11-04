@@ -121,9 +121,9 @@ void MainWindow::groupSelected(ForumGroup fg) {
 			threadHeaderMessage = messages[0];
 			Q_ASSERT(messages[0].isSane());
 			Q_ASSERT(threadHeaderMessage.isSane());
-			// Sometimes messages don't have a subject - only threads do.
+			// Sometimes messages don't have a real subject - only threads do.
 			// Check for this:
-			if (threadHeaderMessage.subject.length() == 0)
+			if (threadHeaderMessage.subject.length() < thread->name.length())
 				threadHeaderMessage.subject = thread->name;
 
 		} else { // Thread doesn't contain messages (wat?)
@@ -235,8 +235,7 @@ void MainWindow::setForumStatus(int forum, bool reloading, float progress) {
 	ui.stopButton->setEnabled(!busyForums.isEmpty() && readerReady);
 	ui.updateButton->setEnabled(busyForums.isEmpty() && readerReady);
 	if (!busyForums.isEmpty()) {
-		ui.statusbar->showMessage("Updating Forums, please wait.. "
-				+ QString().number(busyForums.size()), 5000);
+		ui.statusbar->showMessage("Updating Forums, please stand by.. ", 5000);
 	} else {
 		ui.statusbar->showMessage("Forums updated", 5000);
 	}

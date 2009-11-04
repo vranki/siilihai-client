@@ -321,6 +321,7 @@
     <addaction name="separator"/>
     <addaction name="actionUpdate_all"/>
     <addaction name="actionUpdate_selected"/>
+    <addaction name="actionForce_update_on_selected"/>
     <addaction name="separator"/>
     <addaction name="actionReport_broken_or_working"/>
    </widget>
@@ -447,6 +448,15 @@
   <action name="actionReport_broken_or_working">
    <property name="text">
     <string>Report broken or working</string>
+   </property>
+  </action>
+  <action name="actionForce_update_on_selected">
+   <property name="icon">
+    <iconset resource="../../siilihairesources.qrc">
+     <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
+   </property>
+   <property name="text">
+    <string>Force update on selected</string>
    </property>
   </action>
  </widget>

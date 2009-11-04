@@ -266,6 +266,7 @@ void Siilihai::reportClicked(int forumid) {
 }
 
 void Siilihai::statusChanged(int forumid, bool reloading, float progress) {
+/*
 	qDebug() << "Status change; forum" << forumid << " is reloading: "
 			<< reloading;
 	QHashIterator<int, ParserEngine*> i(engines);
@@ -273,6 +274,7 @@ void Siilihai::statusChanged(int forumid, bool reloading, float progress) {
 		i.next();
 		qDebug() << i.key() << " is busy: " << i.value()->isBusy();
 	}
+	*/
 }
 
 void Siilihai::showUnsubscribeForum(int forum) {

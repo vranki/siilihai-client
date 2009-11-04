@@ -27,11 +27,12 @@ QString MessageListPatternEditor::tabName() {
 }
 
 void MessageListPatternEditor::downloadList() {
-	ForumParser downloadParser = parser;
+	downloadParser = parser;
 	downloadParser.thread_list_page_increment = 0;
 	downloadParser.view_thread_page_increment = 0;
+	downloadSubscription = subscription;
 
-	session.initialize(downloadParser, subscription, matcher);
+	session.initialize(downloadParser, downloadSubscription, matcher);
 	session.listMessages(currentThread);
 
 	ui.sourceTextEdit->clear();
@@ -41,8 +42,8 @@ void MessageListPatternEditor::downloadList() {
 }
 
 void MessageListPatternEditor::testPageSpanning() {
-	ForumParser downloadParser = parser;
-	ForumSubscription downloadSubscription = subscription;
+	downloadParser = parser;
+	downloadSubscription = subscription;
 	downloadSubscription.latest_threads = 999;
 	downloadSubscription.latest_messages = 999;
 

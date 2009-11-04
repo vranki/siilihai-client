@@ -42,9 +42,9 @@ protected:
     Ui::PatternEditorClass ui;
 	QTextCursor groupListCursor;
 	ForumSession &session;
-	ForumParser &parser;
+	ForumParser &parser, downloadParser;
 	PatternMatcher *matcher;
-	ForumSubscription &subscription;
+	ForumSubscription &subscription, downloadSubscription;
 	QHash<int, QString> listIds;
 	bool pageSpanningTest;
 };
