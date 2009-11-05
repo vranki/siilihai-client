@@ -52,7 +52,7 @@ public slots:
 	void subscribeGroupDialogFinished();
 	void forumUpdated(int forumid);
 	void updateClicked();
-	void updateClicked(int forumid);
+	void updateClicked(int forumid, bool force=false);
 	void cancelClicked();
 	void reportClicked(int forumid);
 	void statusChanged(int forumid, bool reloading, float progress);

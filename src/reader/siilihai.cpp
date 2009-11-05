@@ -164,7 +164,7 @@ void Siilihai::launchMainWindow() {
 	connect(mainWin, SIGNAL(unsubscribeForum(int)), this,
 			SLOT(showUnsubscribeForum(int)));
 	connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
-	connect(mainWin, SIGNAL(updateClicked(int)), this, SLOT(updateClicked(int)));
+	connect(mainWin, SIGNAL(updateClicked(int,bool)), this, SLOT(updateClicked(int,bool)));
 	connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
 	connect(mainWin, SIGNAL(groupSubscriptions(int)), this,
 			SLOT(showSubscribeGroup(int)));
@@ -233,6 +233,7 @@ void Siilihai::forumUpdated(int forum) {
 		mainWin->forumList()->updateForumList();
 	}
 }
+
 void Siilihai::updateClicked() {
 	qDebug() << "Update clicked, updating all forums";
 	QHashIterator<int, ParserEngine*> i(engines);
@@ -242,9 +243,9 @@ void Siilihai::updateClicked() {
 	}
 }
 
-void Siilihai::updateClicked(int forumid) {
-	qDebug() << "Update selected clicked, updating forum " << forumid;
-	engines[forumid]->updateForum();
+void Siilihai::updateClicked(int forumid, bool force) {
+	qDebug() << "Update selected clicked, updating forum " << forumid << ", force=" << force;
+	engines[forumid]->updateForum(force);
 }
 
 void Siilihai::cancelClicked() {

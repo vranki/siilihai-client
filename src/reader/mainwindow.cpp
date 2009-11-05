@@ -13,6 +13,8 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s, QWid
 			SLOT(updateClickedSlot()));
 	connect(ui.actionUpdate_selected, SIGNAL(triggered()), this,
 			SLOT(updateSelectedClickedSlot()));
+	connect(ui.actionForce_update_on_selected, SIGNAL(triggered()), this,
+			SLOT(forceUpdateSelectedClickedSlot()));
 	connect(ui.actionReport_broken_or_working, SIGNAL(triggered()), this,
 			SLOT(reportClickedSlot()));
 	connect(ui.actionUnsubscribe, SIGNAL(triggered()), this,
@@ -80,7 +82,13 @@ void MainWindow::hideClickedSlot() {
 void MainWindow::updateSelectedClickedSlot() {
 	int selectedForum = flw->getSelectedForum();
 	if (selectedForum > 0)
-		emit updateClicked(selectedForum);
+		emit updateClicked(selectedForum, false);
+}
+
+void MainWindow::forceUpdateSelectedClickedSlot() {
+	int selectedForum = flw->getSelectedForum();
+	if (selectedForum > 0)
+		emit updateClicked(selectedForum, true);
 }
 
 void MainWindow::unsubscribeForumSlot() {

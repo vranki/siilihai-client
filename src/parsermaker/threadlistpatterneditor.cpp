@@ -58,6 +58,8 @@ void ThreadListPatternEditor::testPageSpanning() {
 void ThreadListPatternEditor::setGroup(ForumGroup grp) {
 	currentGroup = grp;
 	setEnabled(currentGroup.id.length() > 0);
+	ui.downloadButton->setEnabled(true);
+	ui.testPageSpanning->setEnabled(true);
 	parserUpdated();
 }
 

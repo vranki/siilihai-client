@@ -33,7 +33,7 @@ signals:
 	void unsubscribeForum(int forumid);
 	void updateClicked();
 	void reportClicked(int forumid);
-	void updateClicked(int forumid);
+	void updateClicked(int forumid, bool force);
 	void cancelClicked();
 	void groupSubscriptions(int forum);
 	void messageRead(ForumMessage message);
@@ -44,6 +44,7 @@ public slots:
 	void groupSubscriptionsSlot();
 	void updateClickedSlot();
 	void updateSelectedClickedSlot();
+	void forceUpdateSelectedClickedSlot();
 	void cancelClickedSlot();
 	void viewInBrowserClickedSlot();
 	void hideClickedSlot();

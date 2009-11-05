@@ -60,8 +60,11 @@ void MessageListPatternEditor::testPageSpanning() {
 
 void MessageListPatternEditor::setThread(ForumThread thread) {
 	currentThread = thread;
-	setEnabled(currentThread.id.length() > 0);
 	if (currentThread.id.length() > 0) {
+		setEnabled(true);
+		ui.downloadButton->setEnabled(true);
+		ui.testPageSpanning->setEnabled(true);
+
 		parserUpdated();
 	}
 }
@@ -145,7 +148,11 @@ void MessageListPatternEditor::parserUpdated() {
 
 void MessageListPatternEditor::patternChanged(QString txt) {
 	parser.message_list_pattern = txt;
-	session.setParser(parser);
+	downloadParser = parser;
+	downloadParser.thread_list_page_increment = 0;
+	downloadParser.view_thread_page_increment = 0;
+	downloadSubscription = subscription;
+	session.setParser(downloadParser);
 	QString glhtml = ui.sourceTextEdit->toPlainText();
 	session.performListMessages(glhtml);
 	parserUpdated();

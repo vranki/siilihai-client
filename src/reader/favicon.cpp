@@ -50,6 +50,7 @@ void Favicon::update() {
 		painter.setPen(QColor(0, 0, 0, 64));
 		painter.setBrush(QColor(0, 0, 0, 128));
 		painter.drawPie(rect, blinkAngle * 5760 - (5760/2), 1000);
+		/*
 		painter.setBrush(QColor(0, 0, 0, 200));
 
 		if (currentProgress >= 0) {
@@ -61,6 +62,7 @@ void Favicon::update() {
 			rect.setRect(0, outPic.height() - 8, barLength, 8);
 			painter.drawRects(&rect, 1);
 		}
+		*/
 		painter.end();
 	}
 	emit iconChanged(forum, QIcon(outPic));
