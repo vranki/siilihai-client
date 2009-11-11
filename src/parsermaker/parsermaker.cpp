@@ -51,6 +51,7 @@ ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s,
 	connect(ui.tryLoginButton, SIGNAL(clicked()), this, SLOT(tryLogin()));
 	connect(ui.tryWithoutLoginButton, SIGNAL(clicked()), this,
 			SLOT(tryWithoutLogin()));
+	connect(ui.helpButton, SIGNAL(clicked()), this, SLOT(helpClicked()));
 	connect(&session, SIGNAL(loginFinished(bool)), this,
 			SLOT(loginFinished(bool)));
 	connect(&session, SIGNAL(networkFailure(QString)), this,
@@ -180,7 +181,7 @@ void ParserMaker::parserLoaded(ForumParser p) {
 
 void ParserMaker::saveClicked() {
 	updateState();
-	QMessageBox msgBox;
+	QMessageBox msgBox(this);
 	msgBox.setText("Are you sure you want to save changes?");
 	msgBox.setInformativeText(
 			"Note: This will fail, if you don't have rights to make changes to this parser.");
@@ -193,7 +194,7 @@ void ParserMaker::saveClicked() {
 
 void ParserMaker::saveAsNewClicked() {
 	updateState();
-	QMessageBox msgBox;
+	QMessageBox msgBox(this);
 	msgBox.setText("This will upload parser as a new parser to Siilihai.");
 	msgBox.setDetailedText(
 			"Your parser will initially be marked 'new'. New parsers "
@@ -222,7 +223,7 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
 		if (message.isNull())
 			message = "Unable to save parser.";
 	}
-	QMessageBox msgBox;
+	QMessageBox msgBox(this);
 	msgBox.setText(message);
 	msgBox.exec();
 }
@@ -289,4 +290,29 @@ void ParserMaker::networkFailure(QString txt) {
 	msgBox.setText("Network Failure:\n" + txt);
 	msgBox.exec();
 	updateState();
+}
+
+void ParserMaker::helpClicked() {
+	QUrl helpUrl;
+	switch(ui.tabWidget->currentIndex()) {
+	case 0:
+		helpUrl.setUrl(protocol.baseURL() + "help/load_save.html");
+		break;
+	case 1:
+		helpUrl.setUrl(protocol.baseURL() + "help/basics.html");
+		break;
+	case 2:
+		helpUrl.setUrl(protocol.baseURL() + "help/login.html");
+		break;
+	case 3:
+		helpUrl.setUrl(protocol.baseURL() + "help/grouplist.html");
+		break;
+	case 4:
+		helpUrl.setUrl(protocol.baseURL() + "help/threadlist.html");
+		break;
+	case 5:
+		helpUrl.setUrl(protocol.baseURL() + "help/messagelist.html");
+		break;
+	}
+	QDesktopServices::openUrl(helpUrl);
 }

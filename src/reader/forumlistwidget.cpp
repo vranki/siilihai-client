@@ -92,15 +92,26 @@ void ForumListWidget::updateReadCounts() {
 	}
 }
 
-int ForumListWidget::getSelectedForum() {
+ForumSubscription ForumListWidget::getSelectedForum() {
 	int s = currentIndex();
 	QHashIterator<int, int> hi(forumIndexes);
 	while (hi.hasNext()) {
 		hi.next();
 		if (hi.value() == s)
-			return hi.key();
+			return subscriptions[hi.key()];
 	}
-	return -1;
+	return ForumSubscription();
+}
+
+ForumGroup ForumListWidget::getSelectedGroup() {
+	QListWidget *lw = static_cast<QListWidget*> (currentWidget());
+	if (lw) {
+		QListWidgetItem* it = lw->currentItem();
+		if (it) {
+			return forumGroups[it];
+		}
+	}
+	return ForumGroup();
 }
 
 void ForumListWidget::iconUpdated(int forum, QIcon newIcon) {

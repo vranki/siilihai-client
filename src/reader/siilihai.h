@@ -12,6 +12,7 @@
 #include <QtSql>
 #include <QDir>
 #include <QMessageBox>
+#include <QNetworkProxy>
 #include <siilihaiprotocol.h>
 #include <forumdatabase.h>
 #include <parserdatabase.h>
@@ -45,7 +46,7 @@ public slots:
 	void loginWizardFinished();
 	void launchSiilihai();
 	void forumAdded(ForumParser fp, ForumSubscription fs);
-	void loginFinished(bool success, QString motd);
+	void loginFinished(bool success, QString motd=QString());
 	void subscribeForum();
 	void showSubscribeGroup(int forum);
 	void showUnsubscribeForum(int forum);
@@ -76,7 +77,7 @@ private:
 	ForumDatabase fdb;
 	ParserDatabase pdb;
 	QString baseUrl;
-	bool loginSuccessful;
+	bool loginSuccessful, offlineMode;
 	QSettings settings;
 	QList<int> parsersToUpdateLeft;
 	ParserMaker *parserMaker;

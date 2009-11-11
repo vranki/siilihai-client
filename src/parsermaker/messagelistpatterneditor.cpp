@@ -76,7 +76,7 @@ void MessageListPatternEditor::resultCellActivated(int row, int column) {
 	if (listIds.contains(row)) {
 		QString id = listIds[row];
 		QString body = bodies[listIds[row]];
-		QMessageBox msgBox;
+		QMessageBox msgBox(this);
 		msgBox.setText(body);
 		msgBox.setModal(true);
 		msgBox.exec();

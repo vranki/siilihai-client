@@ -10,7 +10,7 @@ class LoginWizard: public QWizard {
 	Q_OBJECT
 
 public:
-	LoginWizard(QWidget *parent, SiilihaiProtocol &proto);
+	LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s);
 	~LoginWizard();
 	QWizardPage *createIntroPage();
 	QWizardPage *createRegistrationPage();
@@ -30,7 +30,7 @@ private:
 	SiilihaiProtocol &protocol;
 	QProgressDialog *progress;
 	QLabel loginMessage, registerMessage, finalLabel;
-	QSettings settings;
+	QSettings &settings;
 };
 
 #endif // LOGINWIZARD_H

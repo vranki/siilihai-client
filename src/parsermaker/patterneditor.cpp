@@ -41,6 +41,8 @@ void PatternEditor::setPattern(QString txt) {
 }
 
 void PatternEditor::dataMatched(int pos, QString data, PatternMatchType type) {
+	if(pageSpanningTest) return;
+
 	QString myData = ui.sourceTextEdit->toPlainText().mid(pos, data.length());
 	static int mismatches = 0;
 	if(myData != data && mismatches < 5) {

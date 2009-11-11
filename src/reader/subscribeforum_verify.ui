@@ -86,7 +86,7 @@
          <string>000; </string>
         </property>
         <property name="text">
-         <string>25</string>
+         <string>15</string>
         </property>
        </widget>
       </item>
@@ -103,7 +103,7 @@
          <string>000; </string>
         </property>
         <property name="text">
-         <string>50</string>
+         <string>20</string>
         </property>
        </widget>
       </item>

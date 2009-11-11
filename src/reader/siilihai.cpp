@@ -5,6 +5,7 @@ Siilihai::Siilihai() :
 	loginWizard = 0;
 	mainWin = 0;
 	loginSuccessful = false;
+	offlineMode = false;
 	parserMaker = 0;
 }
 
@@ -19,13 +20,30 @@ void Siilihai::launchSiilihai() {
 		QCoreApplication::quit();
 		return;
 	}
+	QString proxy = settings.value("preferences/http_proxy", "").toString();
+	if (proxy.length() > 0) {
+		QUrl proxyUrl = QUrl(proxy);
+		if (proxyUrl.isValid()) {
+			QNetworkProxy nproxy(QNetworkProxy::HttpProxy, proxyUrl.host(), proxyUrl.port(0));
+			QNetworkProxy::setApplicationProxy(nproxy);
+		} else {
+			errorDialog("Warning: http proxy is not valid URL");
+		}
+	}
 	baseUrl = settings.value("network/baseurl", BASEURL).toString();
 	protocol.setBaseURL(baseUrl);
 	pdb.openDatabase();
 	fdb.openDatabase();
 
+#ifdef Q_WS_HILDON
+	if(settings.value("firstrun", true).toBool()) {
+		errorDialog("Welcome to Siilihai\nThis Maemo Beta version can't connect\n"
+				"to the Internet, so please do it manually before continuing.");
+		settings.setValue("firstrun", false);
+	}
+#endif
 	if (settings.value("account/username", "").toString() == "") {
-		loginWizard = new LoginWizard(mainWin, protocol);
+		loginWizard = new LoginWizard(mainWin, protocol, settings);
 		connect(loginWizard, SIGNAL(finished(int)), this,
 				SLOT(loginWizardFinished()));
 	} else {
@@ -66,14 +84,17 @@ void Siilihai::loginFinished(bool success, QString motd) {
 
 		loginSuccessful = true;
 	} else {
-		QMessageBox msgBox;
+		QMessageBox msgBox(mainWin);
+		msgBox.setModal(true);
 		if (motd.length() > 0) {
 			msgBox.setText(motd);
 		} else {
 			msgBox.setText(
-					"Error: Login failed. Check your username, password and network connection.");
+					"Error: Login failed. Check your username, password and network connection.\nWorking offline.");
 		}
 		msgBox.exec();
+		offlineMode = true;
+		updateState();
 	}
 	disconnect(&protocol, SIGNAL(loginFinished(bool, QString)));
 }
@@ -95,6 +116,11 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 	}
 	for (int i = 0; i < unsubscribedForums.size(); i++) {
 		fdb.deleteForum(unsubscribedForums.at(i));
+		pdb.deleteParser(unsubscribedForums.at(i));
+		mainWin->forumList()->updateForumList();
+		engines[unsubscribedForums.at(i)]->deleteLater();
+		engines.remove(unsubscribedForums.at(i));
+
 		qDebug() << "Deleted forum " << unsubscribedForums.at(i);
 	}
 
@@ -113,27 +139,30 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 			protocol.getParser(parsersToUpdateLeft.at(0));
 		}
 	}
-}
-
-void Siilihai::updateForumParser(ForumParser parser) {
-	if (parser.id > 0) {
-		pdb.storeParser(parser);
-	} else {
-	} emit
-	statusChanged(parser.id, false, -1);
-	parsersToUpdateLeft.removeFirst();
-	if (parsersToUpdateLeft.size() == 0) {
-		disconnect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
-				SLOT(updateForumParser(ForumParser)));
-	} else {
-		protocol.getParser(parsersToUpdateLeft.at(0));
-	}
 	updateState();
 }
 
+void Siilihai::updateForumParser(ForumParser parser) {
+	if (parser.isSane()) {
+		pdb.storeParser(parser);
+		emit
+		statusChanged(parser.id, false, -1);
+		parsersToUpdateLeft.removeFirst();
+		if (parsersToUpdateLeft.isEmpty()) {
+			disconnect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
+					SLOT(updateForumParser(ForumParser)));
+			if (settings.value("preferences/update_automatically", false).toBool())
+				updateClicked();
+		} else {
+			protocol.getParser(parsersToUpdateLeft.first());
+		}
+		updateState();
+	}
+}
+
 void Siilihai::updateState() {
-	bool ready = parsersToUpdateLeft.size() == 0 && loginSuccessful;
-	mainWin->setReaderReady(ready);
+	bool ready = parsersToUpdateLeft.isEmpty() && loginSuccessful;
+	mainWin->setReaderReady(ready, offlineMode);
 }
 
 void Siilihai::subscribeForum() {
@@ -152,10 +181,12 @@ Siilihai::~Siilihai() {
 void Siilihai::loginWizardFinished() {
 	loginWizard->deleteLater();
 	loginWizard = 0;
-	if (settings.value("account/username", "").toString() == "") {
+	if (settings.value("account/username", "").toString().length()==0) {
+		qDebug() << "Settings wizard failed, quitting.";
 		QApplication::exit(-1);
 	} else {
 		launchMainWindow();
+		loginFinished(true);
 	}
 }
 
@@ -164,12 +195,13 @@ void Siilihai::launchMainWindow() {
 	connect(mainWin, SIGNAL(unsubscribeForum(int)), this,
 			SLOT(showUnsubscribeForum(int)));
 	connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
-	connect(mainWin, SIGNAL(updateClicked(int,bool)), this, SLOT(updateClicked(int,bool)));
+	connect(mainWin, SIGNAL(updateClicked(int,bool)), this,
+			SLOT(updateClicked(int,bool)));
 	connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
 	connect(mainWin, SIGNAL(groupSubscriptions(int)), this,
 			SLOT(showSubscribeGroup(int)));
 	connect(mainWin, SIGNAL(reportClicked(int)), this, SLOT(reportClicked(int)));
-	connect(mainWin, SIGNAL(messageRead(ForumMessage)), &fdb,
+	connect(mainWin->threadList(), SIGNAL(messageSelected(ForumMessage)), &fdb,
 			SLOT(markMessageRead(ForumMessage)));
 	connect(mainWin, SIGNAL(launchParserMaker()), this,
 			SLOT(launchParserMaker()));
@@ -183,7 +215,7 @@ void Siilihai::launchMainWindow() {
 		if (fdb.listSubscriptions().size() == 0)
 			subscribeForum();
 	}
-	mainWin->setReaderReady(false);
+	mainWin->setReaderReady(false, offlineMode);
 	mainWin->show();
 }
 
@@ -244,7 +276,8 @@ void Siilihai::updateClicked() {
 }
 
 void Siilihai::updateClicked(int forumid, bool force) {
-	qDebug() << "Update selected clicked, updating forum " << forumid << ", force=" << force;
+	qDebug() << "Update selected clicked, updating forum " << forumid
+			<< ", force=" << force;
 	engines[forumid]->updateForum(force);
 }
 
@@ -260,28 +293,22 @@ void Siilihai::cancelClicked() {
 void Siilihai::reportClicked(int forumid) {
 	if (forumid > 0) {
 		ForumParser parserToReport = pdb.getParser(forumid);
-		ReportParser *rpt = new ReportParser(mainWin, forumid, parserToReport.parser_name);
-		connect(rpt, SIGNAL(parserReport(ParserReport)), &protocol, SLOT(sendParserReport(ParserReport)));
+		ReportParser *rpt = new ReportParser(mainWin, forumid,
+				parserToReport.parser_name);
+		connect(rpt, SIGNAL(parserReport(ParserReport)), &protocol,
+				SLOT(sendParserReport(ParserReport)));
 		rpt->exec();
 	}
 }
 
 void Siilihai::statusChanged(int forumid, bool reloading, float progress) {
-/*
-	qDebug() << "Status change; forum" << forumid << " is reloading: "
-			<< reloading;
-	QHashIterator<int, ParserEngine*> i(engines);
-	while (i.hasNext()) {
-		i.next();
-		qDebug() << i.key() << " is busy: " << i.value()->isBusy();
-	}
-	*/
+	updateState();
 }
 
 void Siilihai::showUnsubscribeForum(int forum) {
 	if (forum > 0) {
 		ForumSubscription fs = fdb.getSubscription(forum);
-		QMessageBox msgBox;
+		QMessageBox msgBox(mainWin);
 		msgBox.setText("Really unsubscribe from forum?");
 		msgBox.setInformativeText(fs.name);
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -314,7 +341,7 @@ void Siilihai::parserMakerClosed() {
 }
 
 void Siilihai::sendParserReportFinished(bool success) {
-	if(!success) {
+	if (!success) {
 		errorDialog("Sending report failed - please try again.");
 	} else {
 		errorDialog("Thanks for your report");

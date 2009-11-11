@@ -1,7 +1,7 @@
 #include "loginwizard.h"
 
-LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto) :
-	QWizard(parent), protocol(proto) {
+LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s) :
+	QWizard(parent), protocol(proto), settings(s) {
 	setWizardStyle(QWizard::ModernStyle);
 #ifndef Q_WS_HILDON
 	setPixmap(QWizard::WatermarkPixmap, QPixmap(
@@ -113,6 +113,7 @@ void LoginWizard::loginFinished(bool success, QString motd) {
 				"Login successful.\n\nYou are now ready to use Siilihai.");
 		settings.setValue("account/username", loginUser.text().trimmed());
 		settings.setValue("account/password", loginPass.text().trimmed());
+		settings.sync();
 	}
 }
 
@@ -133,8 +134,8 @@ void LoginWizard::registerFinished(bool success, QString motd) {
 	} else {
 		finalLabel.setText(
 				"Registration successful.\n\nYou are now ready to use Siilihai.");
-		settings.setValue("account/username", loginUser.text());
-		settings.setValue("account/password", loginPass.text());
+		settings.setValue("account/username", registerUser.text().trimmed());
+		settings.setValue("account/password", registerPass.text().trimmed());
 	}
 }
 

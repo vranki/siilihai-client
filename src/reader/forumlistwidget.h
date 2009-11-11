@@ -21,7 +21,8 @@ public:
 	~ForumListWidget();
 	void updateReadCounts();
 	void updateForumList();
-	int getSelectedForum();
+	ForumSubscription getSelectedForum();
+	ForumGroup getSelectedGroup();
 	void setForumStatus(int forum, bool reloading, float progress);
 public slots:
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);

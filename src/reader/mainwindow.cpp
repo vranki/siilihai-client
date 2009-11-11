@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s, QWidget *parent) :
+MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
+		QWidget *parent) :
 	QMainWindow(parent), fdb(fd), pdb(pd) {
 	ui.setupUi(this);
 	readerReady = false;
@@ -21,6 +22,17 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s, QWid
 			SLOT(unsubscribeForumSlot()));
 	connect(ui.actionParser_Maker, SIGNAL(triggered()), this,
 			SLOT(launchParserMakerSlot()));
+	connect(ui.actionAbout_Siilihai, SIGNAL(triggered()), this, SLOT(about()));
+	connect(ui.actionPreferences, SIGNAL(triggered()), this,
+			SLOT(settingsDialog()));
+	connect(ui.actionMark_forum_as_read, SIGNAL(triggered()), this,
+			SLOT(markForumRead()));
+	connect(ui.actionMark_forum_as_unread, SIGNAL(triggered()), this,
+			SLOT(markForumUnread()));
+	connect(ui.actionMark_group_as_Read, SIGNAL(triggered()), this,
+			SLOT(markGroupRead()));
+	connect(ui.actionMark_group_as_Unread, SIGNAL(triggered()), this,
+			SLOT(markGroupUnread()));
 	connect(ui.updateButton, SIGNAL(clicked()), this, SLOT(updateClickedSlot()));
 	connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
 	connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
@@ -29,24 +41,43 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s, QWid
 	flw = new ForumListWidget(this, fdb, pdb);
 	ui.forumsSplitter->insertWidget(0, flw);
 	flw->setEnabled(false);
+	tlw = new ThreadListWidget(this, fdb);
+	ui.topFrame->layout()->addWidget(tlw);
 
-	connect(flw, SIGNAL(groupSelected(ForumGroup)), this, SLOT(groupSelected(ForumGroup)));
-	if(!restoreGeometry(settings->value("reader_geometry").toByteArray()))
+	// ui.horizontalSplitter->insertWidget(1,tlw);
+	connect(flw, SIGNAL(groupSelected(ForumGroup)), tlw,
+			SLOT(groupSelected(ForumGroup)));
+	connect(flw, SIGNAL(groupSelected(ForumGroup)), this,
+			SLOT(groupSelected(ForumGroup)));
+	connect(tlw, SIGNAL(messageSelected(ForumMessage)), this,
+			SLOT(messageSelected(ForumMessage)));
+	if (!restoreGeometry(settings->value("reader_geometry").toByteArray()))
 		showMaximized();
+	ui.forumsSplitter->restoreState(settings->value("reader_splitter_size").toByteArray());
+	ui.horizontalSplitter->restoreState(settings->value("reader_horizontal_splitter_size").toByteArray());
 #ifdef Q_WS_HILDON
 	ui.headerFrame->hide();
 	ui.updateButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	ui.stopButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	ui.hideButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-	ui.threadTree->setHeaderHidden(true);
+	ui.viewInBrowser->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	tlw->setHeaderHidden(true);
+	hideClickedSlot();
+	hideClickedSlot();
 #else
 	ui.hideButton->hide();
 #endif
-	hideClickedSlot();
-	hideClickedSlot();
 }
 
 MainWindow::~MainWindow() {
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+	settings->setValue("reader_geometry", saveGeometry());
+	settings->setValue("reader_splitter_size", ui.forumsSplitter->saveState());
+	settings->setValue("reader_horizontal_splitter_size", ui.horizontalSplitter->saveState());
+	event->accept();
 }
 
 void MainWindow::subscribeForumSlot() {
@@ -62,13 +93,13 @@ void MainWindow::updateClickedSlot() {
 }
 
 void MainWindow::reportClickedSlot() {
-	int selectedForum = flw->getSelectedForum();
+	int selectedForum = flw->getSelectedForum().parser;
 	emit reportClicked(selectedForum);
 }
 
 void MainWindow::hideClickedSlot() {
 
-	if(flw->isHidden()) {
+	if (flw->isHidden()) {
 		flw->show();
 		ui.hideButton->setText("Hide");
 		ui.hideButton->setIcon(QIcon(":/data/go-first.png"));
@@ -80,19 +111,19 @@ void MainWindow::hideClickedSlot() {
 }
 
 void MainWindow::updateSelectedClickedSlot() {
-	int selectedForum = flw->getSelectedForum();
+	int selectedForum = flw->getSelectedForum().parser;
 	if (selectedForum > 0)
 		emit updateClicked(selectedForum, false);
 }
 
 void MainWindow::forceUpdateSelectedClickedSlot() {
-	int selectedForum = flw->getSelectedForum();
+	int selectedForum = flw->getSelectedForum().parser;
 	if (selectedForum > 0)
 		emit updateClicked(selectedForum, true);
 }
 
 void MainWindow::unsubscribeForumSlot() {
-	int selectedForum = flw->getSelectedForum();
+	int selectedForum = flw->getSelectedForum().parser;
 	if (selectedForum > 0)
 		emit unsubscribeForum(selectedForum);
 }
@@ -102,134 +133,19 @@ void MainWindow::cancelClickedSlot() {
 }
 
 void MainWindow::groupSubscriptionsSlot() {
-	int selectedForum = flw->getSelectedForum();
+	int selectedForum = flw->getSelectedForum().parser;
 	if (selectedForum > 0)
 		emit groupSubscriptions(selectedForum);
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
- {
-	settings->setValue("reader_geometry", saveGeometry());
-	event->accept();
- }
 
-void MainWindow::groupSelected(ForumGroup fg) {
-	ui.threadTree->clear();
-	forumMessages.clear();
-	QList<ForumThread> threads = fdb.listThreads(fg);
-	QList<QTreeWidgetItem *> items;
-	for (int i = 0; i < threads.size(); ++i) {
-		QStringList header;
-		ForumThread *thread = &threads[i];
-		Q_ASSERT(thread->isSane());
 
-		QList<ForumMessage> messages = fdb.listMessages(threads[i]);
-		ForumMessage threadHeaderMessage;
-		if (messages.size() > 0) { // Thread contains messages
-			threadHeaderMessage = messages[0];
-			Q_ASSERT(messages[0].isSane());
-			Q_ASSERT(threadHeaderMessage.isSane());
-			// Sometimes messages don't have a real subject - only threads do.
-			// Check for this:
-			if (threadHeaderMessage.subject.length() < thread->name.length())
-				threadHeaderMessage.subject = thread->name;
-
-		} else { // Thread doesn't contain messages (wat?)
-			threadHeaderMessage.subject = thread->name;
-			threadHeaderMessage.lastchange = thread->lastchange;
-		}
-		header << threadHeaderMessage.subject << threadHeaderMessage.lastchange
-				<< threadHeaderMessage.author;
-
-		QTreeWidgetItem *threadItem =
-				new QTreeWidgetItem(ui.threadTree, header);
-		if (messages.size() > 0) {
-			forumMessages[threadItem] = messages[0];
-
-			for (int m = 1; m < messages.size(); ++m) {
-				ForumMessage *message = &messages[m];
-				Q_ASSERT(message->isSane());
-				QStringList messageHeader;
-				if (message->subject.length() == 0) {
-					messageHeader << "Re: " + threadHeaderMessage.subject;
-				} else {
-					messageHeader << message->subject;
-				}
-				messageHeader << message->lastchange << message->author;
-				QTreeWidgetItem *messageItem = new QTreeWidgetItem(threadItem,
-						messageHeader);
-
-				threadItem->addChild(messageItem);
-				forumMessages[messageItem] = messages[m];
-				updateMessageRead(messageItem);
-			}
-			items.append(threadItem);
-			updateMessageRead(threadItem);
-		}
-	}
-	ui.threadTree->insertTopLevelItems(0, items);
-	ui.threadTree->resizeColumnToContents(0);
-	ui.threadTree->resizeColumnToContents(1);
-	ui.threadTree->resizeColumnToContents(2);
-	disconnect(ui.threadTree,
-			SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
-			this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
-	connect(ui.threadTree,
-			SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
-			this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
-#ifdef Q_WS_HILDON
-	hideClickedSlot();
-#endif
-}
-
-void MainWindow::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {
-	if (item == 0)
-		return;
-	if (!forumMessages.contains(item)) {
-		qDebug() << "A thread with no messages. Broken parser?.";
-		return;
-	}
-	displayedMessage = forumMessages[item];
-	ForumMessage *msg = &forumMessages[item];
-	Q_ASSERT(msg->isSane());
-	QString
-			html =
-					"<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"></head><body>"
-							+ msg->body + "</body>";
-
-	QString baseUrl = msg->url;
-	int i = baseUrl.lastIndexOf('/');
-	if (i > 0) {
-		baseUrl = baseUrl.left(i + 1);
-	}
-	ui.webView->setContent(html.toUtf8(), QString("text/html"), QUrl(baseUrl));
-	ui.messageAuthor->setText(msg->author);
-	ui.messageSubject->setText(msg->subject);
-	ui.messageDate->setText(msg->lastchange);
-
-	msg->read = true;
-	emit
-	messageRead(forumMessages[item]);
-	updateMessageRead(item);
-	ui.viewInBrowser->setEnabled(true);
-	flw->updateReadCounts();
-}
-
-void MainWindow::updateMessageRead(QTreeWidgetItem *item) {
-	QFont font = item->font(0);
-	if (forumMessages[item].read) {
-		font.setBold(false);
-		item->setIcon(0, QIcon(":/data/emblem-mail.png"));
-	} else {
-		font.setBold(true);
-		item->setIcon(0, QIcon(":/data/mail-unread.png"));
-	}
-	item->setFont(0, font);
-}
 
 void MainWindow::viewInBrowserClickedSlot() {
-	if (!displayedMessage.isSane())
+	if (!displayedMessage.isSane()) {
+		qDebug() << "Viewing message which is not sane, not opening." << displayedMessage.toString();
 		return;
+	}
 	qDebug() << "Launching browser to " << displayedMessage.url;
 	QDesktopServices::openUrl(displayedMessage.url);
 }
@@ -255,13 +171,102 @@ ForumListWidget* MainWindow::forumList() {
 	return flw;
 }
 
-void MainWindow::setReaderReady(bool ready) {
+ThreadListWidget* MainWindow::threadList() {
+	return tlw;
+}
+
+void MainWindow::setReaderReady(bool ready, bool offline) {
 	readerReady = ready;
-	ui.updateButton->setEnabled(readerReady);
+	ui.updateButton->setEnabled(readerReady && !offline);
 	flw->setEnabled(readerReady);
-	if(!ready) {
+	if (!ready) {
 		ui.statusbar->showMessage("Starting up, please wait..", 2000);
 	} else {
-		ui.statusbar->showMessage("Siilihai is ready", 2000);
+		if(!offline) {
+			ui.statusbar->showMessage("Siilihai is ready", 2000);
+		} else {
+			ui.statusbar->showMessage("Siilihai is ready, but in offline mode", 2000);
+		}
 	}
+	if(ready && !offline) {
+		ui.updateButton->setEnabled(true);
+		ui.actionUnsubscribe->setEnabled(true);
+		ui.actionUpdate_all->setEnabled(true);
+		ui.actionUpdate_selected->setEnabled(true);
+		ui.actionGroup_Subscriptions->setEnabled(true);
+		ui.actionSubscribe_to->setEnabled(true);
+		ui.actionReport_broken_or_working->setEnabled(true);
+	}
+}
+
+void MainWindow::about() {
+	QMessageBox::about(this, "About Siilihai",
+			"<h1>Siilihai</h1><p> by Ville Ranki &lt;ville.ranki@iki.fi&gt;</p> "
+				"<p>Artwork by Gnome project and SJ</p><p>Released under GNU GPLv3</p>");
+}
+
+void MainWindow::settingsDialog() {
+	SettingsDialog *sd = new SettingsDialog(this, settings);
+	sd->setModal(true);
+	sd->exec();
+}
+
+void MainWindow::markForumRead(bool read) {
+	qDebug() << Q_FUNC_INFO;
+	ForumSubscription selectedForum = flw->getSelectedForum();
+
+	if (selectedForum.isSane()) {
+		fdb.markForumRead(selectedForum.parser, read);
+		tlw->groupSelected(ForumGroup());
+		flw->updateForumList();
+	}
+}
+
+void MainWindow::markForumUnread() {
+	markForumRead(false);
+}
+
+void MainWindow::markGroupRead(bool read) {
+	qDebug() << Q_FUNC_INFO;
+	ForumGroup selectedGroup = flw->getSelectedGroup();
+
+	if (selectedGroup.isSane()) {
+		fdb.markGroupRead(selectedGroup, read);
+		tlw->groupSelected(selectedGroup);
+		flw->updateForumList();
+	}
+}
+
+void MainWindow::markGroupUnread() {
+	markGroupRead(false);
+}
+
+void MainWindow::messageSelected(ForumMessage msg) {
+	if (!msg.isSane())
+		return;
+	QString
+			html =
+					"<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"></head><body>"
+							+ msg.body + "</body>";
+
+	QString baseUrl = msg.url;
+	int i = baseUrl.lastIndexOf('/');
+	if (i > 0) {
+		baseUrl = baseUrl.left(i + 1);
+	}
+	ui.webView->setContent(html.toUtf8(), QString("text/html"), QUrl(baseUrl));
+	ui.messageAuthor->setText(MessageFormatting::stripHtml(msg.author));
+	ui.messageSubject->setText(MessageFormatting::stripHtml(msg.subject));
+	ui.messageDate->setText(MessageFormatting::stripHtml(msg.lastchange));
+
+	msg.read = true;
+	ui.viewInBrowser->setEnabled(true);
+	flw->updateReadCounts();
+	displayedMessage = msg;
+}
+
+void MainWindow::groupSelected(ForumGroup fg) {
+#ifdef Q_WS_HILDON
+	hideClickedSlot();
+#endif
 }

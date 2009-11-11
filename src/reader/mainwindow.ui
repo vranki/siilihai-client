@@ -42,11 +42,11 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QSplitter" name="splitter_2">
+         <widget class="QSplitter" name="horizontalSplitter">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QFrame" name="frame_4">
+          <widget class="QFrame" name="topFrame">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -59,6 +59,12 @@
             </property>
             <item>
              <widget class="QFrame" name="frame">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>
               </property>
@@ -183,25 +189,6 @@
               </layout>
              </widget>
             </item>
-            <item>
-             <widget class="QTreeWidget" name="threadTree">
-              <column>
-               <property name="text">
-                <string notr="true">Subject</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Date</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Author</string>
-               </property>
-              </column>
-             </widget>
-            </item>
            </layout>
           </widget>
           <widget class="QScrollArea" name="scrollArea">
@@ -323,6 +310,9 @@
     <addaction name="actionUpdate_selected"/>
     <addaction name="actionForce_update_on_selected"/>
     <addaction name="separator"/>
+    <addaction name="actionMark_forum_as_read"/>
+    <addaction name="actionMark_forum_as_unread"/>
+    <addaction name="separator"/>
     <addaction name="actionReport_broken_or_working"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
@@ -332,13 +322,15 @@
     <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionParser_Maker"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout_Siilihai"/>
    </widget>
    <widget class="QMenu" name="menuGroup">
     <property name="title">
      <string>Group</string>
     </property>
-    <addaction name="actionMark_as_Read"/>
-    <addaction name="actionMark_as_Unread"/>
+    <addaction name="actionMark_group_as_Read"/>
+    <addaction name="actionMark_group_as_Unread"/>
    </widget>
    <widget class="QMenu" name="menuMessages">
     <property name="title">
@@ -361,6 +353,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSubscribe_to">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Subscribe to..</string>
    </property>
@@ -371,11 +366,17 @@
    </property>
   </action>
   <action name="actionGroup_Subscriptions">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Group Subscriptions..</string>
    </property>
   </action>
   <action name="actionUpdate_all">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../../siilihairesources.qrc">
      <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
@@ -385,6 +386,9 @@
    </property>
   </action>
   <action name="actionUpdate_selected">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../../siilihairesources.qrc">
      <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
@@ -394,18 +398,21 @@
    </property>
   </action>
   <action name="actionUnsubscribe">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Unsubscribe..</string>
    </property>
   </action>
-  <action name="actionMark_as_Read">
+  <action name="actionMark_group_as_Read">
    <property name="text">
-    <string>Mark as Read</string>
+    <string>Mark as read</string>
    </property>
   </action>
-  <action name="actionMark_as_Unread">
+  <action name="actionMark_group_as_Unread">
    <property name="text">
-    <string>Mark as Unread</string>
+    <string>Mark as unread</string>
    </property>
   </action>
   <action name="actionPreferences">
@@ -446,17 +453,38 @@
    </property>
   </action>
   <action name="actionReport_broken_or_working">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Report broken or working</string>
    </property>
   </action>
   <action name="actionForce_update_on_selected">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../../siilihairesources.qrc">
      <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
    </property>
    <property name="text">
     <string>Force update on selected</string>
+   </property>
+  </action>
+  <action name="actionAbout_Siilihai">
+   <property name="text">
+    <string>About Siilihai</string>
+   </property>
+  </action>
+  <action name="actionMark_forum_as_read">
+   <property name="text">
+    <string>Mark as read</string>
+   </property>
+  </action>
+  <action name="actionMark_forum_as_unread">
+   <property name="text">
+    <string>Mark as unread</string>
    </property>
   </action>
  </widget>

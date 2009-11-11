@@ -42,6 +42,7 @@ public slots:
 	void tryWithoutLogin();
 	void loginFinished(bool success);
 	void networkFailure(QString txt);
+	void helpClicked();
 private:
 	void closeEvent(QCloseEvent *event);
 	Ui::ParserMakerWindow ui;
