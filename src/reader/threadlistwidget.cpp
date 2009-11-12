@@ -39,9 +39,9 @@ void ThreadListWidget::groupSelected(ForumGroup fg) {
 			threadHeaderMessage.subject = thread->name;
 			threadHeaderMessage.lastchange = thread->lastchange;
 		}
-		threadHeaderMessage.subject = MessageFormatting::stripHtml(threadHeaderMessage.subject);
-		threadHeaderMessage.author = MessageFormatting::stripHtml(threadHeaderMessage.author);
-		threadHeaderMessage.lastchange = MessageFormatting::stripHtml(threadHeaderMessage.lastchange);
+		threadHeaderMessage.subject = MessageFormatting::sanitize(threadHeaderMessage.subject);
+		threadHeaderMessage.author = MessageFormatting::sanitize(threadHeaderMessage.author);
+		threadHeaderMessage.lastchange = MessageFormatting::sanitize(threadHeaderMessage.lastchange);
 
 		header << threadHeaderMessage.subject << threadHeaderMessage.lastchange
 				<< threadHeaderMessage.author;
@@ -55,9 +55,9 @@ void ThreadListWidget::groupSelected(ForumGroup fg) {
 				ForumMessage *message = &messages[m];
 				Q_ASSERT(message->isSane());
 				QStringList messageHeader;
-				message->subject = MessageFormatting::stripHtml(message->subject);
-				message->author = MessageFormatting::stripHtml(message->author);
-				message->lastchange = MessageFormatting::stripHtml(message->lastchange);
+				message->subject = MessageFormatting::sanitize(message->subject);
+				message->author = MessageFormatting::sanitize(message->author);
+				message->lastchange = MessageFormatting::sanitize(message->lastchange);
 
 				if (message->subject.length() == 0) {
 					messageHeader << "Re: " + threadHeaderMessage.subject;

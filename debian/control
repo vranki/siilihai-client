@@ -1,5 +1,5 @@
 Source: siilihai-client
-Section: user/communication
+Section: user/network
 Priority: extra
 Maintainer: Ville Ranki <ville.ranki@iki.fi>
 Build-Depends: debhelper (>= 5), libqt4-dev, libsiilihai, libqt4-sql-sqlite
@@ -8,7 +8,7 @@ Homepage: http://www.siilihai.com/
 
 Package: siilihai-client
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai, libqt4-webkit, libqt4-sql-sqlite
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai, libqt4-webkit, libqt4-sql-sqlite, libqt4-phonon
 Description: Siilihai forum reader application
  Graphical Siilihai forum reader application.
 

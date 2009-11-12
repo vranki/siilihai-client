@@ -3,11 +3,6 @@ SUBDIRS = src
 RESOURCES = siilihairesources.qrc
 CONFIG += debug
 
-#desktops.path = /usr/share/applications
-#desktops.files = data/siilihai-client.desktop
-
-#INSTALLS += desktops
-
 maemo_desktops.path = /usr/share/applications/hildon
 maemo_desktops.files = data/siilihai-client.desktop
 
@@ -18,7 +13,7 @@ maemo_services.files = data/siilihai-client.service
 
 INSTALLS += maemo_services
 
-icons.path = /usr/share/icons/siilihai
+icons.path = /usr/share/pixmaps
 icons.files = data/*.png
 
 INSTALLS += icons
