@@ -2,7 +2,7 @@
 #define REPORTPARSER_H
 
 #include <QtGui/QDialog>
-#include <parserreport.h>
+#include <siilihai/parserreport.h>
 #include "ui_reportparser.h"
 
 

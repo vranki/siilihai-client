@@ -191,96 +191,6 @@
             </item>
            </layout>
           </widget>
-          <widget class="QScrollArea" name="scrollArea">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <widget class="QWidget" name="scrollAreaWidgetContents">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>798</width>
-              <height>320</height>
-             </rect>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout">
-             <property name="margin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QFrame" name="headerFrame">
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-               <layout class="QHBoxLayout" name="horizontalLayout_2">
-                <item>
-                 <layout class="QFormLayout" name="formLayout">
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_5">
-                    <property name="text">
-                     <string>Date:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLabel" name="messageDate">
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_2">
-                    <property name="text">
-                     <string>Author:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QLabel" name="messageAuthor">
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLabel" name="messageSubject">
-                    <property name="text">
-                     <string/>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="label">
-                    <property name="text">
-                     <string>Subject:</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QWebView" name="webView">
-               <property name="url">
-                <url>
-                 <string>about:blank</string>
-                </url>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </widget>
          </widget>
         </item>
        </layout>
@@ -488,13 +398,6 @@
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../../siilihairesources.qrc"/>
  </resources>

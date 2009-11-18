@@ -37,8 +37,9 @@ void Siilihai::launchSiilihai() {
 
 #ifdef Q_WS_HILDON
 	if(settings.value("firstrun", true).toBool()) {
-		errorDialog("Welcome to Siilihai\nThis Maemo Beta version can't connect\n"
-				"to the Internet, so please do it manually before continuing.");
+		errorDialog("This is beta software\nMaemo version can't connect\n"
+				"to the Internet, so please do it manually before continuing.\n"
+				"The UI is also work in progress. Go to www.siilihai.com for details.");
 		settings.setValue("firstrun", false);
 	}
 #endif
@@ -201,8 +202,8 @@ void Siilihai::launchMainWindow() {
 	connect(mainWin, SIGNAL(groupSubscriptions(int)), this,
 			SLOT(showSubscribeGroup(int)));
 	connect(mainWin, SIGNAL(reportClicked(int)), this, SLOT(reportClicked(int)));
-	connect(mainWin->threadList(), SIGNAL(messageSelected(ForumMessage)), &fdb,
-			SLOT(markMessageRead(ForumMessage)));
+	connect(mainWin->threadList(), SIGNAL(messageSelected(const ForumMessage&)), &fdb,
+			SLOT(markMessageRead(const ForumMessage&)));
 	connect(mainWin, SIGNAL(launchParserMaker()), this,
 			SLOT(launchParserMaker()));
 
@@ -268,6 +269,8 @@ void Siilihai::forumUpdated(int forum) {
 
 void Siilihai::updateClicked() {
 	qDebug() << "Update clicked, updating all forums";
+	mainWin->threadList()->groupSelected(ForumGroup());
+
 	QHashIterator<int, ParserEngine*> i(engines);
 	while (i.hasNext()) {
 		i.next();

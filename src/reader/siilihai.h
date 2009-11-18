@@ -13,15 +13,15 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QNetworkProxy>
-#include <siilihaiprotocol.h>
-#include <forumdatabase.h>
-#include <parserdatabase.h>
-#include <parserreport.h>
+#include <siilihai/siilihaiprotocol.h>
+#include <siilihai/forumdatabase.h>
+#include <siilihai/parserdatabase.h>
+#include <siilihai/parserreport.h>
+#include <siilihai/parserengine.h>
 
 #include "loginwizard.h"
 #include "subscribewizard.h"
 #include "mainwindow.h"
-#include "parserengine.h"
 #include "groupsubscriptiondialog.h"
 #include "forumlistwidget.h"
 #include "reportparser.h"

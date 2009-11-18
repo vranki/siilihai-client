@@ -49,14 +49,19 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 			SLOT(groupSelected(ForumGroup)));
 	connect(flw, SIGNAL(groupSelected(ForumGroup)), this,
 			SLOT(groupSelected(ForumGroup)));
-	connect(tlw, SIGNAL(messageSelected(ForumMessage)), this,
-			SLOT(messageSelected(ForumMessage)));
+	connect(tlw, SIGNAL(messageSelected(const ForumMessage&)), this,
+			SLOT(messageSelected(const ForumMessage&)));
+
+	mvw = new MessageViewWidget(this);
+	ui.horizontalSplitter->addWidget(mvw);
+	connect(tlw, SIGNAL(messageSelected(const ForumMessage&)), mvw,
+			SLOT(messageSelected(const ForumMessage&)));
+
 	if (!restoreGeometry(settings->value("reader_geometry").toByteArray()))
 		showMaximized();
 	ui.forumsSplitter->restoreState(settings->value("reader_splitter_size").toByteArray());
 	ui.horizontalSplitter->restoreState(settings->value("reader_horizontal_splitter_size").toByteArray());
 #ifdef Q_WS_HILDON
-	ui.headerFrame->hide();
 	ui.updateButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	ui.stopButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	ui.hideButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -138,16 +143,9 @@ void MainWindow::groupSubscriptionsSlot() {
 		emit groupSubscriptions(selectedForum);
 }
 
-
-
-
 void MainWindow::viewInBrowserClickedSlot() {
-	if (!displayedMessage.isSane()) {
-		qDebug() << "Viewing message which is not sane, not opening." << displayedMessage.toString();
-		return;
-	}
-	qDebug() << "Launching browser to " << displayedMessage.url;
-	QDesktopServices::openUrl(displayedMessage.url);
+	if (mvw->currentMessage().isSane())
+		QDesktopServices::openUrl(mvw->currentMessage().url);
 }
 
 void MainWindow::setForumStatus(int forum, bool reloading, float progress) {
@@ -178,7 +176,7 @@ ThreadListWidget* MainWindow::threadList() {
 void MainWindow::setReaderReady(bool ready, bool offline) {
 	readerReady = ready;
 	ui.updateButton->setEnabled(readerReady && !offline);
-	flw->setEnabled(readerReady);
+	flw->setEnabled(readerReady || offline);
 	if (!ready) {
 		ui.statusbar->showMessage("Starting up, please wait..", 2000);
 	} else {
@@ -241,32 +239,18 @@ void MainWindow::markGroupUnread() {
 	markGroupRead(false);
 }
 
-void MainWindow::messageSelected(ForumMessage msg) {
-	if (!msg.isSane())
-		return;
-	QString
-			html =
-					"<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"></head><body>"
-							+ msg.body + "</body>";
-
-	QString baseUrl = msg.url;
-	int i = baseUrl.lastIndexOf('/');
-	if (i > 0) {
-		baseUrl = baseUrl.left(i + 1);
+void MainWindow::messageSelected(const ForumMessage &msg) {
+	if (msg.isSane()) {
+		ui.viewInBrowser->setEnabled(true);
+		flw->updateReadCounts();
 	}
-	ui.webView->setContent(html.toUtf8(), QString("text/html"), QUrl(baseUrl));
-	ui.messageAuthor->setText(MessageFormatting::stripHtml(msg.author));
-	ui.messageSubject->setText(MessageFormatting::stripHtml(msg.subject));
-	ui.messageDate->setText(MessageFormatting::stripHtml(msg.lastchange));
-
-	msg.read = true;
-	ui.viewInBrowser->setEnabled(true);
-	flw->updateReadCounts();
-	displayedMessage = msg;
 }
 
 void MainWindow::groupSelected(ForumGroup fg) {
 #ifdef Q_WS_HILDON
 	hideClickedSlot();
 #endif
+	bool saneGroup = fg.isSane();
+	ui.actionMark_group_as_Read->setEnabled(saneGroup);
+	ui.actionMark_group_as_Unread->setEnabled(saneGroup);
 }

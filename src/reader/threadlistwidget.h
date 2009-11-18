@@ -9,10 +9,10 @@
 #define THREADLISTWIDGET_H_
 
 #include <QTreeWidget>
-#include <forumgroup.h>
-#include <forumthread.h>
-#include <forummessage.h>
-#include <forumdatabase.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/forummessage.h>
+#include <siilihai/forumdatabase.h>
 
 #include "messageformatting.h"
 
@@ -27,9 +27,9 @@ public slots:
 	void updateMessageRead(QTreeWidgetItem *item);
 	void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
 signals:
-	void messageSelected(ForumMessage msg);
+	void messageSelected(const ForumMessage &msg);
 private:
-
+	void updateThreadUnreads(QTreeWidgetItem* threadItem);
 	QHash<QTreeWidgetItem*, ForumMessage> forumMessages;
 	ForumDatabase &fdb;
 };

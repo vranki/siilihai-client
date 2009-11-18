@@ -9,9 +9,9 @@
 #define MESSAGELISTPATTERNEDITOR_H_
 #include <QMessageBox>
 
-#include <forumgroup.h>
-#include <forumthread.h>
-#include <forumsubscription.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/forumsubscription.h>
 
 #include "patterneditor.h"
 

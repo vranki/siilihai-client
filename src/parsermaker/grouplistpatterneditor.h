@@ -7,7 +7,7 @@
 
 #ifndef GROUPLISTPATTERNEDITOR_H_
 #define GROUPLISTPATTERNEDITOR_H_
-#include <forumgroup.h>
+#include <siilihai/forumgroup.h>
 
 #include "patterneditor.h"
 

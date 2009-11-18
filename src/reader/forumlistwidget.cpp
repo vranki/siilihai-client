@@ -34,6 +34,8 @@ void ForumListWidget::updateForumList() {
 				lwi->setIcon(QIcon(":/data/folder.png"));
 				lw->addItem(lwi);
 				forumGroups[lwi] = groups[j];
+				if(groups[j].id == currentGroup.id)
+					lw->setCurrentItem(lwi);
 			}
 		}
 		disconnect(
@@ -44,7 +46,6 @@ void ForumListWidget::updateForumList() {
 				lw,
 				SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
 				this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
-
 		addItem(lw, "later");
 		forumIndexes[forums[i].parser] = i;
 
@@ -62,6 +63,13 @@ void ForumListWidget::updateForumList() {
 			forumIcons[forums[i].parser] = fi;
 		}
 		widget(i)->setEnabled(true);
+		if(!lw->currentItem()) { // Selected group doesn't exist!
+			currentGroup = ForumGroup();
+			emit groupSelected(currentGroup);
+		}
+		if(currentGroup.parser == forums[i].parser) {
+			setCurrentIndex(i);
+		}
 	}
 	updateReadCounts();
 }
@@ -133,5 +141,6 @@ void ForumListWidget::setForumStatus(int forum, bool reloading, float progress) 
 
 void ForumListWidget::groupSelected(QListWidgetItem* item,
 		QListWidgetItem *prev) {
-	emit groupSelected(forumGroups[item]);
+	currentGroup = forumGroups[item];
+	emit groupSelected(currentGroup);
 }

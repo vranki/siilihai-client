@@ -1,6 +1,7 @@
 #include "threadlistwidget.h"
 
-ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) : QTreeWidget(parent), fdb(f) {
+ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
+	QTreeWidget(parent), fdb(f) {
 	setColumnCount(3);
 	QStringList headers;
 	headers << "Subject" << "Date" << "Author";
@@ -14,8 +15,11 @@ ThreadListWidget::~ThreadListWidget() {
 void ThreadListWidget::groupSelected(ForumGroup fg) {
 	clear();
 	forumMessages.clear();
-	if (!fg.isSane())
+	if (!fg.isSane()) {
+		ForumMessage msg;
+		emit messageSelected(msg);
 		return;
+	}
 
 	QList<ForumThread> threads = fdb.listThreads(fg);
 	QList<QTreeWidgetItem *> items;
@@ -25,29 +29,39 @@ void ThreadListWidget::groupSelected(ForumGroup fg) {
 		Q_ASSERT(thread->isSane());
 
 		QList<ForumMessage> messages = fdb.listMessages(threads[i]);
-		ForumMessage threadHeaderMessage;
+		/*
+		// See if whole thread is read
+		ForumMessage message;
+		int unreadMessages = 0;
+		foreach(message, messages) {
+			if(!message.read)
+			unreadMessages++;
+		}
+*/
+		// Create thread header message
+		ForumMessage *threadHeaderMessage = 0;
 		if (messages.size() > 0) { // Thread contains messages
-			threadHeaderMessage = messages[0];
-			Q_ASSERT(messages[0].isSane());
-			Q_ASSERT(threadHeaderMessage.isSane());
+			threadHeaderMessage = &messages[0];
+			Q_ASSERT(threadHeaderMessage->isSane());
 			// Sometimes messages don't have a real subject - only threads do.
 			// Check for this:
-			if (threadHeaderMessage.subject.length() < thread->name.length())
-				threadHeaderMessage.subject = thread->name;
+			if (threadHeaderMessage->subject.length() < thread->name.length())
+				threadHeaderMessage->subject = thread->name;
 
 		} else { // Thread doesn't contain messages (wat?)
-			threadHeaderMessage.subject = thread->name;
-			threadHeaderMessage.lastchange = thread->lastchange;
+			threadHeaderMessage->subject = thread->name;
+			threadHeaderMessage->lastchange = thread->lastchange;
+			qDebug() << "Got a thread which has zero messages - broken parser?";
 		}
-		threadHeaderMessage.subject = MessageFormatting::sanitize(threadHeaderMessage.subject);
-		threadHeaderMessage.author = MessageFormatting::sanitize(threadHeaderMessage.author);
-		threadHeaderMessage.lastchange = MessageFormatting::sanitize(threadHeaderMessage.lastchange);
-
-		header << threadHeaderMessage.subject << threadHeaderMessage.lastchange
-				<< threadHeaderMessage.author;
-
-		QTreeWidgetItem *threadItem =
-				new QTreeWidgetItem(this, header);
+		threadHeaderMessage->subject = MessageFormatting::sanitize(
+				threadHeaderMessage->subject);
+		threadHeaderMessage->author = MessageFormatting::sanitize(
+				threadHeaderMessage->author);
+		threadHeaderMessage->lastchange = MessageFormatting::sanitize(
+				threadHeaderMessage->lastchange);
+		header << threadHeaderMessage->subject << threadHeaderMessage->lastchange
+				<< threadHeaderMessage->author;
+		QTreeWidgetItem *threadItem = new QTreeWidgetItem(this, header);
 		if (messages.size() > 0) {
 			forumMessages[threadItem] = messages[0];
 
@@ -55,12 +69,14 @@ void ThreadListWidget::groupSelected(ForumGroup fg) {
 				ForumMessage *message = &messages[m];
 				Q_ASSERT(message->isSane());
 				QStringList messageHeader;
-				message->subject = MessageFormatting::sanitize(message->subject);
+				message->subject
+						= MessageFormatting::sanitize(message->subject);
 				message->author = MessageFormatting::sanitize(message->author);
-				message->lastchange = MessageFormatting::sanitize(message->lastchange);
+				message->lastchange = MessageFormatting::sanitize(
+						message->lastchange);
 
 				if (message->subject.length() == 0) {
-					messageHeader << "Re: " + threadHeaderMessage.subject;
+					messageHeader << "Re: " + threadHeaderMessage->subject;
 				} else {
 					messageHeader << message->subject;
 				}
@@ -74,22 +90,30 @@ void ThreadListWidget::groupSelected(ForumGroup fg) {
 				updateMessageRead(messageItem);
 			}
 			items.append(threadItem);
-			updateMessageRead(threadItem);
+			// updateMessageRead(threadItem);
 		}
 	}
 	insertTopLevelItems(0, items);
 	resizeColumnToContents(0);
 	resizeColumnToContents(1);
 	resizeColumnToContents(2);
-	disconnect(this,
-			SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
-			this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
-	connect(this,
-			SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
-			this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
+disconnect(this,
+		SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
+		this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
+connect(this,
+		SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
+		this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
 }
 
 void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
+	Q_ASSERT(item);
+	// if item is a message in a thread, update thread's read count
+	QTreeWidgetItem *threadItem = item->parent();
+	if(threadItem) {
+		updateThreadUnreads(threadItem);
+	} else {
+		updateThreadUnreads(item);
+	}
 	QFont font = item->font(0);
 	if (forumMessages[item].read) {
 		font.setBold(false);
@@ -99,16 +123,39 @@ void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
 		item->setIcon(0, QIcon(":/data/mail-unread.png"));
 	}
 	item->setFont(0, font);
+	if(threadItem)
+		updateMessageRead(threadItem);
 }
 
-void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {
+void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
+	if(threadItem) {
+		Q_ASSERT(forumMessages.contains(threadItem));
+		ForumMessage *thread = &forumMessages[threadItem];
+		Q_ASSERT(thread->isSane());
+		int unreads = 0;
+		if(!forumMessages[threadItem].read)
+			unreads++; // Also count first message
+		for(int i=0;i<threadItem->childCount();i++) {
+			if(!forumMessages[threadItem->child(i)].read)
+				unreads++;
+		}
+
+		QString threadSubject = thread->subject;
+		if (unreads) {
+			threadSubject += " (" + QString().number(unreads) + ")";
+		}
+		threadItem->setText(0, threadSubject);
+	}
+}
+
+void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
+		QTreeWidgetItem *prev) {
 	if (item == 0)
 		return;
 	if (!forumMessages.contains(item)) {
 		qDebug() << "A thread with no messages. Broken parser?.";
 		return;
 	}
-
 	ForumMessage *msg = &forumMessages[item];
 	Q_ASSERT(msg->isSane());
 	forumMessages[item].read = true;

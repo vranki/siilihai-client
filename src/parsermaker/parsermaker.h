@@ -4,12 +4,12 @@
 #include <QtGui/QMainWindow>
 #include <QtGui>
 
-#include <parserdatabase.h>
-#include <siilihaiprotocol.h>
-#include <forumparser.h>
-#include <forumsession.h>
-#include <forumgroup.h>
-#include <forumthread.h>
+#include <siilihai/parserdatabase.h>
+#include <siilihai/siilihaiprotocol.h>
+#include <siilihai/forumparser.h>
+#include <siilihai/forumsession.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
 
 #include "downloaddialog.h"
 #include "openrequestdialog.h"

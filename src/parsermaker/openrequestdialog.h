@@ -3,8 +3,8 @@
 
 #include <QtGui/QDialog>
 
-#include <siilihaiprotocol.h>
-#include <forumparser.h>
+#include <siilihai/siilihaiprotocol.h>
+#include <siilihai/forumparser.h>
 
 #include "ui_openrequestdialog.h"
 

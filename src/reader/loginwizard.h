@@ -4,7 +4,7 @@
 #include <QtGui>
 #include <QObject>
 #include <QWizard>
-#include <siilihaiprotocol.h>
+#include <siilihai/siilihaiprotocol.h>
 
 class LoginWizard: public QWizard {
 	Q_OBJECT

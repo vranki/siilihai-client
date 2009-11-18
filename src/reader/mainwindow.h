@@ -10,16 +10,17 @@
 #include <QPushButton>
 #include <QMessageBox>
 
-#include <parserdatabase.h>
-#include <forumdatabase.h>
-#include <forumsubscription.h>
-#include <forumgroup.h>
-#include <forumthread.h>
-#include <forummessage.h>
+#include <siilihai/parserdatabase.h>
+#include <siilihai/forumdatabase.h>
+#include <siilihai/forumsubscription.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/forummessage.h>
 
 #include "forumlistwidget.h"
 #include "settingsdialog.h"
 #include "threadlistwidget.h"
+#include "messageviewwidget.h"
 #include "messageformatting.h"
 
 #include "ui_mainwindow.h"
@@ -64,16 +65,16 @@ public slots:
 private slots:
 	void about();
 	void settingsDialog();
-	void messageSelected(ForumMessage msg);
 	void groupSelected(ForumGroup grp);
+	void messageSelected(const ForumMessage &msg);
 private:
 	void closeEvent(QCloseEvent *event);
 	ForumListWidget *flw;
 	ThreadListWidget *tlw;
+	MessageViewWidget *mvw;
     Ui::MainWindowClass ui;
     ParserDatabase &pdb;
     ForumDatabase &fdb;
-    ForumMessage displayedMessage;
     QSet<int> busyForums;
 	QSettings *settings;
 	bool readerReady;

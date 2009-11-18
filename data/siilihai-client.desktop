@@ -1,9 +1,9 @@
 [Desktop Entry]
 Version=1.0
 Encoding=UTF-8
-Name=Siilihai WFR
+Name=Siilihai
 Comment=Siilihai Web Forum Reader
-Exec=/usr/bin/siilihai
+Exec=siilihai
 Terminal=false
 Type=Application
 StartupNotify=false

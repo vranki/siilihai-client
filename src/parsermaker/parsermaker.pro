@@ -4,11 +4,11 @@ QMAKE_CXXFLAGS += -g \
     -O0
 CONFIG += debug
 QT += core \
-    webkit \
     gui \
     network \
     xml \
     sql
+
 HEADERS += openrequestdialog.h \
     messagelistpatterneditor.h \
     grouplistpatterneditor.h \
@@ -33,7 +33,4 @@ FORMS = openrequestdialog.ui \
     downloaddialog.ui \
     parsermaker.ui
 RESOURCES = ../../siilihairesources.qrc
-INCLUDEPATH += /usr/include/siilihai
-
-# DEPENDPATH += /usr/include/siilihai
 LIBS += -lsiilihai

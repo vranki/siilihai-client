@@ -5,11 +5,14 @@
 #include <QtGui/QToolBox>
 #include <QHash>
 #include <QListWidgetItem>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QScrollArea>
 
-#include <parserdatabase.h>
-#include <forumdatabase.h>
-#include <forumsubscription.h>
-#include <forumgroup.h>
+#include <siilihai/parserdatabase.h>
+#include <siilihai/forumdatabase.h>
+#include <siilihai/forumsubscription.h>
+#include <siilihai/forumgroup.h>
 
 #include "favicon.h"
 
@@ -33,6 +36,7 @@ signals:
 private:
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
+	ForumGroup currentGroup;
 	QHash<int, ForumSubscription> subscriptions;
 	QHash<int, int> forumIndexes;
 	QHash<int, Favicon*> forumIcons;

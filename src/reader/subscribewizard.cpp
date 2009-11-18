@@ -17,8 +17,6 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto,
 	setWindowTitle("Subscribe to a forum");
 	connect(&protocol, SIGNAL(listParsersFinished(QList <ForumParser>)), this,
 			SLOT(listParsersFinished(QList <ForumParser>)));
-	connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
-			SLOT(getParserFinished(ForumParser)));
 
 	connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this,
 			SLOT(updateParserList()));
@@ -140,6 +138,9 @@ void SubscribeWizard::pageChanged(int id) {
 		} else {
 			selectedParser
 					= listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
+			connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
+					SLOT(getParserFinished(ForumParser)));
+
 			protocol.getParser(selectedParser->id);
 
 			progress = new QProgressDialog("Downloading parser definition..",
@@ -158,11 +159,22 @@ void SubscribeWizard::pageChanged(int id) {
 		}
 		subscribeForumVerify.forumName->setText(selectedParser->parser_name);
 		subscribeForumVerify.forumUrl->setText(selectedParser->forum_url);
-		//		subscribeForumVerify.forumType->setText(selectedParser->parser_name);
+		QString typeString;
+		if(selectedParser->parser_type == 0) {
+			typeString = "Public";
+		} else if(selectedParser->parser_type == 1) {
+			typeString = "Private";
+		} else {
+			typeString = "Development";
+		}
+		subscribeForumVerify.forumType->setText(typeString);
 	}
 }
 
 void SubscribeWizard::getParserFinished(ForumParser fp) {
+	disconnect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
+			SLOT(getParserFinished(ForumParser)));
+
 	QString warningLabel;
 	if (fp.id >= 0) {
 		parser = fp;

@@ -8,7 +8,7 @@
 #ifndef THREADLISTPATTERNEDITOR_H_
 #define THREADLISTPATTERNEDITOR_H_
 
-#include <forumgroup.h>
+#include <siilihai/forumgroup.h>
 
 #include "patterneditor.h"
 

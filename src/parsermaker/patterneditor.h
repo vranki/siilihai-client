@@ -3,9 +3,9 @@
 
 #include <QtGui/QWidget>
 #include <QDesktopServices>
-#include <patternmatcher.h>
-#include <forumparser.h>
-#include <forumsession.h>
+#include <siilihai/patternmatcher.h>
+#include <siilihai/forumparser.h>
+#include <siilihai/forumsession.h>
 
 #include "ui_patterneditor.h"
 
