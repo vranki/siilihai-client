@@ -43,6 +43,9 @@ public slots:
 	void loginFinished(bool success);
 	void networkFailure(QString txt);
 	void helpClicked();
+signals:
+	void parserSaved(ForumParser savedParser);
+
 private:
 	void closeEvent(QCloseEvent *event);
 	Ui::ParserMakerWindow ui;

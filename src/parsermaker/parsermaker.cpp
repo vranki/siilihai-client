@@ -219,6 +219,7 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
 		parser.id = id;
 		if (message.isNull())
 			message = "Parser saved.";
+		emit(parserSaved(parser));
 	} else {
 		if (message.isNull())
 			message = "Unable to save parser.";
@@ -226,6 +227,7 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
 	QMessageBox msgBox(this);
 	msgBox.setText(message);
 	msgBox.exec();
+	updateState();
 }
 
 void ParserMaker::testForumUrlClicked() {

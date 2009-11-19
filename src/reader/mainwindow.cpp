@@ -33,6 +33,8 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 			SLOT(markGroupRead()));
 	connect(ui.actionMark_group_as_Unread, SIGNAL(triggered()), this,
 			SLOT(markGroupUnread()));
+	connect(ui.actionWork_offline, SIGNAL(toggled(bool)), this,
+			SLOT(offlineClickedSlot()));
 	connect(ui.updateButton, SIGNAL(clicked()), this, SLOT(updateClickedSlot()));
 	connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
 	connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
@@ -44,11 +46,12 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 	tlw = new ThreadListWidget(this, fdb);
 	ui.topFrame->layout()->addWidget(tlw);
 
-	// ui.horizontalSplitter->insertWidget(1,tlw);
 	connect(flw, SIGNAL(groupSelected(ForumGroup)), tlw,
 			SLOT(groupSelected(ForumGroup)));
 	connect(flw, SIGNAL(groupSelected(ForumGroup)), this,
 			SLOT(groupSelected(ForumGroup)));
+	connect(flw, SIGNAL(forumSelected(ForumSubscription)), this,
+			SLOT(updateEnabled()));
 	connect(tlw, SIGNAL(messageSelected(const ForumMessage&)), this,
 			SLOT(messageSelected(const ForumMessage&)));
 
@@ -59,8 +62,10 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 
 	if (!restoreGeometry(settings->value("reader_geometry").toByteArray()))
 		showMaximized();
-	ui.forumsSplitter->restoreState(settings->value("reader_splitter_size").toByteArray());
-	ui.horizontalSplitter->restoreState(settings->value("reader_horizontal_splitter_size").toByteArray());
+	ui.forumsSplitter->restoreState(
+			settings->value("reader_splitter_size").toByteArray());
+	ui.horizontalSplitter->restoreState(settings->value(
+			"reader_horizontal_splitter_size").toByteArray());
 #ifdef Q_WS_HILDON
 	ui.updateButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	ui.stopButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -77,12 +82,16 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 MainWindow::~MainWindow() {
 }
 
-
 void MainWindow::closeEvent(QCloseEvent *event) {
 	settings->setValue("reader_geometry", saveGeometry());
 	settings->setValue("reader_splitter_size", ui.forumsSplitter->saveState());
-	settings->setValue("reader_horizontal_splitter_size", ui.horizontalSplitter->saveState());
-	event->accept();
+	settings->setValue("reader_horizontal_splitter_size",
+			ui.horizontalSplitter->saveState());
+	emit haltRequest();
+}
+
+void MainWindow::offlineClickedSlot() {
+	emit offlineModeSet(ui.actionWork_offline->isChecked());
 }
 
 void MainWindow::subscribeForumSlot() {
@@ -154,8 +163,6 @@ void MainWindow::setForumStatus(int forum, bool reloading, float progress) {
 	} else {
 		busyForums.remove(forum);
 	}
-	ui.stopButton->setEnabled(!busyForums.isEmpty() && readerReady);
-	ui.updateButton->setEnabled(busyForums.isEmpty() && readerReady);
 	if (!busyForums.isEmpty()) {
 		ui.statusbar->showMessage("Updating Forums, please stand by.. ", 5000);
 	} else {
@@ -163,6 +170,7 @@ void MainWindow::setForumStatus(int forum, bool reloading, float progress) {
 	}
 
 	flw->setForumStatus(forum, reloading, progress);
+	updateEnabled();
 }
 
 ForumListWidget* MainWindow::forumList() {
@@ -173,28 +181,23 @@ ThreadListWidget* MainWindow::threadList() {
 	return tlw;
 }
 
-void MainWindow::setReaderReady(bool ready, bool offline) {
+void MainWindow::setReaderReady(bool ready, bool readerOffline) {
+	qDebug() << Q_FUNC_INFO << ready << readerOffline;
 	readerReady = ready;
-	ui.updateButton->setEnabled(readerReady && !offline);
+	offline = readerOffline;
+	ui.actionWork_offline->setChecked(offline);
 	flw->setEnabled(readerReady || offline);
 	if (!ready) {
 		ui.statusbar->showMessage("Starting up, please wait..", 2000);
 	} else {
-		if(!offline) {
+		if (!offline) {
 			ui.statusbar->showMessage("Siilihai is ready", 2000);
 		} else {
-			ui.statusbar->showMessage("Siilihai is ready, but in offline mode", 2000);
+			ui.statusbar->showMessage("Siilihai is ready, but in offline mode",
+					2000);
 		}
 	}
-	if(ready && !offline) {
-		ui.updateButton->setEnabled(true);
-		ui.actionUnsubscribe->setEnabled(true);
-		ui.actionUpdate_all->setEnabled(true);
-		ui.actionUpdate_selected->setEnabled(true);
-		ui.actionGroup_Subscriptions->setEnabled(true);
-		ui.actionSubscribe_to->setEnabled(true);
-		ui.actionReport_broken_or_working->setEnabled(true);
-	}
+	updateEnabled();
 }
 
 void MainWindow::about() {
@@ -250,7 +253,27 @@ void MainWindow::groupSelected(ForumGroup fg) {
 #ifdef Q_WS_HILDON
 	hideClickedSlot();
 #endif
-	bool saneGroup = fg.isSane();
-	ui.actionMark_group_as_Read->setEnabled(saneGroup);
-	ui.actionMark_group_as_Unread->setEnabled(saneGroup);
+}
+
+void MainWindow::updateEnabled() {
+	ui.updateButton->setEnabled(readerReady && !offline);
+	ui.actionUpdate_all->setEnabled(readerReady && !offline);
+	ui.actionSubscribe_to->setEnabled(readerReady && !offline);
+
+	ui.stopButton->setEnabled(!busyForums.isEmpty() && readerReady);
+	ui.updateButton->setEnabled(busyForums.isEmpty() && readerReady && !offline);
+	// Forum
+	bool sane = flw->getSelectedForum().isSane();
+	ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
+	ui.actionForce_update_on_selected->setEnabled(readerReady && sane && !offline);
+	ui.actionReport_broken_or_working->setEnabled(readerReady && sane && !offline);
+	ui.actionUnsubscribe->setEnabled(readerReady && sane && !offline);
+	ui.actionGroup_Subscriptions->setEnabled(readerReady && sane && !offline);
+	ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
+	ui.actionMark_forum_as_read->setEnabled(readerReady && sane);
+	ui.actionMark_forum_as_unread->setEnabled(readerReady && sane);
+	// Group
+	sane = flw->getSelectedGroup().isSane();
+	ui.actionMark_group_as_Read->setEnabled(readerReady && sane);
+	ui.actionMark_group_as_Unread->setEnabled(readerReady && sane);
 }

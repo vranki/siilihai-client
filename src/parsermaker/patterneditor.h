@@ -3,6 +3,7 @@
 
 #include <QtGui/QWidget>
 #include <QDesktopServices>
+#include <QTimer>
 #include <siilihai/patternmatcher.h>
 #include <siilihai/forumparser.h>
 #include <siilihai/forumsession.h>
@@ -25,21 +26,24 @@ public slots:
 	virtual void parserUpdated();
 	virtual void downloadList() = 0;
 	virtual void testPageSpanning() = 0;
-	virtual void patternChanged(QString txt) = 0;
+	virtual void patternChanged() = 0;
 	virtual void listGroupsFinished(QList<ForumGroup> groups);
 	virtual void listThreadsFinished(QList<ForumThread> threads, ForumGroup group);
 	virtual void listMessagesFinished(QList<ForumMessage> messages, ForumThread thread);
+	virtual void resultCellActivated(int row, int column)=0;
 
 	void viewInBrowser();
 	void dataMatchingStart(QString &html);
 	void dataMatchingEnd();
 	void dataMatched(int pos, QString data, PatternMatchType type);
-	virtual void resultCellActivated(int row, int column)=0;
 
-	signals:
+private slots:
+	void textEdited(); // Called instantaneously
+	void updateCount();
 
 protected:
-    Ui::PatternEditorClass ui;
+
+	Ui::PatternEditorClass ui;
 	QTextCursor groupListCursor;
 	ForumSession &session;
 	ForumParser &parser, downloadParser;
@@ -47,6 +51,7 @@ protected:
 	ForumSubscription &subscription, downloadSubscription;
 	QHash<int, QString> listIds;
 	bool pageSpanningTest;
+	QTimer editTimeout;
 };
 
 #endif // PATTERNEDITOR_H

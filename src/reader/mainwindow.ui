@@ -230,6 +230,7 @@
      <string>Settings</string>
     </property>
     <addaction name="actionPreferences"/>
+    <addaction name="actionWork_offline"/>
     <addaction name="separator"/>
     <addaction name="actionParser_Maker"/>
     <addaction name="separator"/>
@@ -395,6 +396,14 @@
   <action name="actionMark_forum_as_unread">
    <property name="text">
     <string>Mark as unread</string>
+   </property>
+  </action>
+  <action name="actionWork_offline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Work offline</string>
    </property>
   </action>
  </widget>

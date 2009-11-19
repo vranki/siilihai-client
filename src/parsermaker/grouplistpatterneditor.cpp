@@ -15,6 +15,7 @@ GroupListPatternEditor::GroupListPatternEditor(ForumSession &ses,
 			SLOT(listGroupsFinished(QList<ForumGroup>)));
 	ui.testPageSpanning->setEnabled(false);
 	ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
+	session.initialize(par, fos, matcher);
 }
 
 GroupListPatternEditor::~GroupListPatternEditor() {
@@ -87,8 +88,8 @@ void GroupListPatternEditor::parserUpdated() {
 	ui.warningLabel->setText(warnings);
 }
 
-void GroupListPatternEditor::patternChanged(QString txt) {
-	parser.group_list_pattern = txt;
+void GroupListPatternEditor::patternChanged() {
+	parser.group_list_pattern = pattern();
 	session.setParser(parser);
 	QString glhtml = ui.sourceTextEdit->toPlainText();
 	session.performListGroups(glhtml);

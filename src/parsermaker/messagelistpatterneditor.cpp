@@ -17,6 +17,7 @@ MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
 							ForumThread)));
 	ui.patternLabel->setText(
 			"<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
+	session.initialize(par, fos, matcher);
 }
 
 MessageListPatternEditor::~MessageListPatternEditor() {
@@ -146,8 +147,8 @@ void MessageListPatternEditor::parserUpdated() {
 	ui.warningLabel->setText(warnings);
 }
 
-void MessageListPatternEditor::patternChanged(QString txt) {
-	parser.message_list_pattern = txt;
+void MessageListPatternEditor::patternChanged() {
+	parser.message_list_pattern = pattern();
 	downloadParser = parser;
 	downloadParser.thread_list_page_increment = 0;
 	downloadParser.view_thread_page_increment = 0;

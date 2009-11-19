@@ -29,7 +29,7 @@ public slots:
 	void resultCellActivated(int row, int column);
 	virtual void parserUpdated();
 	virtual void listThreadsFinished(QList<ForumThread> threads, ForumGroup group);
-	virtual void patternChanged(QString txt);
+	virtual void patternChanged();
 
 signals:
 	void threadSelected(ForumThread thread);

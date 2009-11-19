@@ -15,6 +15,7 @@ ThreadListPatternEditor::ThreadListPatternEditor(ForumSession &ses,
 			SIGNAL(listThreadsFinished(QList<ForumThread>, ForumGroup)), this,
 			SLOT(listThreadsFinished(QList<ForumThread>, ForumGroup)));
 	ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
+	session.initialize(par, fos, matcher);
 }
 
 ThreadListPatternEditor::~ThreadListPatternEditor() {
@@ -130,8 +131,8 @@ void ThreadListPatternEditor::parserUpdated() {
 	ui.warningLabel->setText(warnings);
 }
 
-void ThreadListPatternEditor::patternChanged(QString txt) {
-	parser.thread_list_pattern = txt;
+void ThreadListPatternEditor::patternChanged() {
+	parser.thread_list_pattern = pattern();
 	session.setParser(parser);
 	if (!pageSpanningTest) {
 		QString glhtml = ui.sourceTextEdit->toPlainText();

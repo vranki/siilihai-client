@@ -2,7 +2,7 @@
 
 PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
 		ForumSubscription &fos, QWidget *parent) :
-	QWidget(parent), session(ses), parser(par), subscription(fos) {
+	QWidget(parent), session(ses), parser(par), subscription(fos), editTimeout(this) {
 	ui.setupUi(this);
 	matcher = new PatternMatcher(this, true);
 	connect(ui.downloadButton, SIGNAL(clicked()), this,
@@ -11,14 +11,17 @@ PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
 			SLOT(testPageSpanning()));
 	connect(ui.viewInBrowserButton, SIGNAL(clicked()), this,
 			SLOT(viewInBrowser()));
+	connect(&editTimeout, SIGNAL(timeout()), this,
+			SLOT(patternChanged()));
 	connect(ui.patternEdit, SIGNAL(textEdited(QString)), this,
-			SLOT(patternChanged(QString)));
+			SLOT(textEdited()));
 	connect(matcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
 			this, SLOT(dataMatched(int, QString, PatternMatchType)));
 	connect(matcher, SIGNAL(dataMatchingStart(QString&)), this,
 			SLOT(dataMatchingStart(QString&)));
 	connect(matcher, SIGNAL(dataMatchingEnd()), this, SLOT(dataMatchingEnd()));
 	connect(ui.resultsTable, SIGNAL(cellClicked(int,int)), this, SLOT(resultCellActivated(int, int)));
+	connect(ui.resultsTable, SIGNAL(itemChanged ( QTableWidgetItem *)), this, SLOT(updateCount()));
 
 	ui.resultsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	ui.resultsTable->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -26,6 +29,7 @@ PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
 	ui.sourceTextEdit->setFontFamily("monospace");
 	groupListCursor = ui.sourceTextEdit->textCursor();
 	pageSpanningTest = false;
+	editTimeout.setSingleShot(true);
 }
 
 PatternEditor::~PatternEditor() {
@@ -34,6 +38,14 @@ PatternEditor::~PatternEditor() {
 
 QString PatternEditor::pattern() {
 	return ui.patternEdit->text();
+}
+
+void PatternEditor::textEdited() {
+	editTimeout.start(2000);
+}
+
+void PatternEditor::updateCount() {
+	ui.countLabel->setText(QString("Found %1 matches").arg(ui.resultsTable->rowCount()));
 }
 
 void PatternEditor::setPattern(QString txt) {

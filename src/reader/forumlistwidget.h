@@ -29,19 +29,20 @@ public:
 	void setForumStatus(int forum, bool reloading, float progress);
 public slots:
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
+	void forumItemSelected(int i);
 	void iconUpdated(int forum, QIcon newIcon);
 signals:
 	void groupSelected(ForumGroup grp);
+	void forumSelected(ForumSubscription sub);
 
 private:
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
 	ForumGroup currentGroup;
-	QHash<int, ForumSubscription> subscriptions;
-	QHash<int, int> forumIndexes;
+	QHash<int, ForumSubscription> subscriptions; // id, sub
+	QHash<int, int> forumIndexes; // id, idx
 	QHash<int, Favicon*> forumIcons;
 	QHash<QListWidgetItem*, ForumGroup> forumGroups;
-
 };
 
 #endif // FORUMLISTWIDGET_H

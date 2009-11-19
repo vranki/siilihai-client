@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QNetworkProxy>
+#include <QProgressDialog>
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/forumdatabase.h>
 #include <siilihai/parserdatabase.h>
@@ -45,6 +46,7 @@ public:
 public slots:
 	void loginWizardFinished();
 	void launchSiilihai();
+	void haltSiilihai();
 	void forumAdded(ForumParser fp, ForumSubscription fs);
 	void loginFinished(bool success, QString motd=QString());
 	void subscribeForum();
@@ -63,24 +65,27 @@ public slots:
 	void launchParserMaker();
 	void parserMakerClosed();
 	void sendParserReportFinished(bool success);
+	void offlineModeSet(bool newOffline);
 private:
 	void launchMainWindow();
     void setupParserEngine(ForumSubscription &subscription);
     void updateState();
+    void tryLogin();
 
 	LoginWizard *loginWizard;
 	SubscribeWizard *subscribeWizard;
 	MainWindow *mainWin;
 	SiilihaiProtocol protocol;
-	QHash <int, ParserEngine*> engines;
+	QHash <int, ParserEngine*> engines; // id, engine*
 	QSqlDatabase db;
 	ForumDatabase fdb;
 	ParserDatabase pdb;
 	QString baseUrl;
-	bool loginSuccessful, offlineMode;
+	bool readerReady, offlineMode;
 	QSettings settings;
 	QList<int> parsersToUpdateLeft;
 	ParserMaker *parserMaker;
+	QProgressDialog *loginProgress;
 };
 
 #endif /* SIILIHAI_H_ */

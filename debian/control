@@ -9,7 +9,7 @@ Homepage: http://www.siilihai.com/
 Package: siilihai-client
 XB-Maemo-Display-Name: Siilihai Web Forum Reader
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai, libqt4-webkit, libqt4-sql-sqlite, libqt4-phonon
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai, libqt4-webkit, libqt4-sql-sqlite, libqt4-phonon | libphonon4
 Description: Siilihai web forum reader application
  Graphical Siilihai forum reader application. See www.siilihai.com for details.
 XB-Maemo-Icon-26:

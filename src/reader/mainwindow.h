@@ -44,6 +44,8 @@ signals:
 	void groupSubscriptions(int forum);
 	void messageRead(ForumMessage message);
 	void launchParserMaker();
+	void offlineModeSet(bool ol);
+	void haltRequest();
 public slots:
 	void subscribeForumSlot();
 	void unsubscribeForumSlot();
@@ -55,6 +57,7 @@ public slots:
 	void viewInBrowserClickedSlot();
 	void hideClickedSlot();
 	void reportClickedSlot();
+	void offlineClickedSlot();
 	void markForumRead(bool read=true);
 	void markForumUnread();
 	void markGroupRead(bool read=true);
@@ -67,8 +70,10 @@ private slots:
 	void settingsDialog();
 	void groupSelected(ForumGroup grp);
 	void messageSelected(const ForumMessage &msg);
+	void updateEnabled();
 private:
 	void closeEvent(QCloseEvent *event);
+
 	ForumListWidget *flw;
 	ThreadListWidget *tlw;
 	MessageViewWidget *mvw;
@@ -77,7 +82,7 @@ private:
     ForumDatabase &fdb;
     QSet<int> busyForums;
 	QSettings *settings;
-	bool readerReady;
+	bool readerReady, offline;
 };
 
 #endif // MAINWINDOW_H

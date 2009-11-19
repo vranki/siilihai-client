@@ -34,7 +34,7 @@ public slots:
 	virtual void parserUpdated();
 	virtual void listMessagesFinished(QList<ForumMessage> messages,
 			ForumThread thread);
-	virtual void patternChanged(QString txt);
+	virtual void patternChanged();
 
 signals:
 

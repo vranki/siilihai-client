@@ -3,14 +3,19 @@
 ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f,
 		ParserDatabase &p) :
 	QToolBox(parent), fdb(f), pdb(p) {
-
+	connect(this, SIGNAL(currentChanged(int)), this,
+			SLOT(forumItemSelected(int)));
 }
 
 ForumListWidget::~ForumListWidget() {
 
 }
+void ForumListWidget::forumItemSelected(int i) {
+	emit forumSelected(getSelectedForum());
+}
 
 void ForumListWidget::updateForumList() {
+	bool firstRun = (count() == 0);
 	while (count() > 0) {
 		removeItem(0);
 	}
@@ -34,7 +39,7 @@ void ForumListWidget::updateForumList() {
 				lwi->setIcon(QIcon(":/data/folder.png"));
 				lw->addItem(lwi);
 				forumGroups[lwi] = groups[j];
-				if(groups[j].id == currentGroup.id)
+				if (groups[j].id == currentGroup.id)
 					lw->setCurrentItem(lwi);
 			}
 		}
@@ -63,13 +68,20 @@ void ForumListWidget::updateForumList() {
 			forumIcons[forums[i].parser] = fi;
 		}
 		widget(i)->setEnabled(true);
-		if(!lw->currentItem()) { // Selected group doesn't exist!
+		if (!lw->currentItem()) { // Selected group doesn't exist!
 			currentGroup = ForumGroup();
 			emit groupSelected(currentGroup);
 		}
-		if(currentGroup.parser == forums[i].parser) {
+
+		if (!firstRun && currentGroup.parser == forums[i].parser) {
 			setCurrentIndex(i);
 		}
+
+	}
+	if (firstRun) {
+		setCurrentIndex(0);
+		emit forumSelected(getSelectedForum());
+		emit groupSelected(getSelectedGroup());
 	}
 	updateReadCounts();
 }

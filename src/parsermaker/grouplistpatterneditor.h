@@ -26,7 +26,7 @@ public slots:
 	virtual void testPageSpanning();
 	void resultCellActivated(int row, int column);
 	virtual void parserUpdated();
-	virtual void patternChanged(QString txt);
+	virtual void patternChanged();
 
 signals:
 	void groupSelected(ForumGroup grp);

@@ -4,6 +4,7 @@
 #include <QtGui>
 #include <QObject>
 #include <QWizard>
+#include <QProgressDialog>
 #include <siilihai/siilihaiprotocol.h>
 
 class LoginWizard: public QWizard {
