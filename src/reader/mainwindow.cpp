@@ -2,10 +2,15 @@
 
 MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 		QWidget *parent) :
-	QMainWindow(parent), fdb(fd), pdb(pd) {
+	QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
 	ui.setupUi(this);
 	readerReady = false;
 	settings = s;
+	viewAsGroup.addAction(ui.actionHTML);
+	viewAsGroup.addAction(ui.actionText);
+	viewAsGroup.addAction(ui.actionWeb_Page);
+	ui.actionWeb_Page->setChecked(true);
+
 	connect(ui.actionSubscribe_to, SIGNAL(triggered()), this,
 			SLOT(subscribeForumSlot()));
 	connect(ui.actionGroup_Subscriptions, SIGNAL(triggered()), this,

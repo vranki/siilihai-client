@@ -23,15 +23,22 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>HTTP Proxy URL</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="1">
       <widget class="QLineEdit" name="httpProxy"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="enableSyncing">
+       <property name="text">
+        <string>Sync read messages with server</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

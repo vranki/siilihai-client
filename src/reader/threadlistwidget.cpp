@@ -39,28 +39,28 @@ void ThreadListWidget::groupSelected(ForumGroup fg) {
 		}
 */
 		// Create thread header message
-		ForumMessage *threadHeaderMessage = 0;
+		ForumMessage threadHeaderMessage;
 		if (messages.size() > 0) { // Thread contains messages
-			threadHeaderMessage = &messages[0];
-			Q_ASSERT(threadHeaderMessage->isSane());
+			threadHeaderMessage = messages[0];
+			Q_ASSERT(threadHeaderMessage.isSane());
 			// Sometimes messages don't have a real subject - only threads do.
 			// Check for this:
-			if (threadHeaderMessage->subject.length() < thread->name.length())
-				threadHeaderMessage->subject = thread->name;
+			if (threadHeaderMessage.subject.length() < thread->name.length())
+				threadHeaderMessage.subject = thread->name;
 
 		} else { // Thread doesn't contain messages (wat?)
-			threadHeaderMessage->subject = thread->name;
-			threadHeaderMessage->lastchange = thread->lastchange;
+			threadHeaderMessage.subject = thread->name;
+			threadHeaderMessage.lastchange = thread->lastchange;
 			qDebug() << "Got a thread which has zero messages - broken parser?";
 		}
-		threadHeaderMessage->subject = MessageFormatting::sanitize(
-				threadHeaderMessage->subject);
-		threadHeaderMessage->author = MessageFormatting::sanitize(
-				threadHeaderMessage->author);
-		threadHeaderMessage->lastchange = MessageFormatting::sanitize(
-				threadHeaderMessage->lastchange);
-		header << threadHeaderMessage->subject << threadHeaderMessage->lastchange
-				<< threadHeaderMessage->author;
+		threadHeaderMessage.subject = MessageFormatting::sanitize(
+				threadHeaderMessage.subject);
+		threadHeaderMessage.author = MessageFormatting::sanitize(
+				threadHeaderMessage.author);
+		threadHeaderMessage.lastchange = MessageFormatting::sanitize(
+				threadHeaderMessage.lastchange);
+		header << threadHeaderMessage.subject << threadHeaderMessage.lastchange
+				<< threadHeaderMessage.author;
 		QTreeWidgetItem *threadItem = new QTreeWidgetItem(this, header);
 		if (messages.size() > 0) {
 			forumMessages[threadItem] = messages[0];
@@ -76,7 +76,7 @@ void ThreadListWidget::groupSelected(ForumGroup fg) {
 						message->lastchange);
 
 				if (message->subject.length() == 0) {
-					messageHeader << "Re: " + threadHeaderMessage->subject;
+					messageHeader << "Re: " + threadHeaderMessage.subject;
 				} else {
 					messageHeader << message->subject;
 				}

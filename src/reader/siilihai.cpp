@@ -1,17 +1,21 @@
 #include "siilihai.h"
 
 Siilihai::Siilihai() :
-	QObject(), fdb(this), pdb(this) {
+	QObject(), fdb(this), pdb(this), syncmaster(this, fdb, protocol) {
 	loginWizard = 0;
 	mainWin = 0;
 	readerReady = false;
 	offlineMode = false;
+	quitting = false;
 	parserMaker = 0;
 	loginProgress = 0;
 }
 
 void Siilihai::launchSiilihai() {
 	mainWin = new MainWindow(pdb, fdb, &settings);
+	bool firstRun = settings.value("first_run", true).toBool();
+
+	settings.setValue("first_run", false);
 	db = QSqlDatabase::addDatabase("QSQLITE");
 	db.setDatabaseName(QDir::homePath() + DATABASE_FILE);
 	if (!db.open()) {
@@ -33,9 +37,19 @@ void Siilihai::launchSiilihai() {
 		}
 	}
 	baseUrl = settings.value("network/baseurl", BASEURL).toString();
+	syncEnabled = settings.value("preferences/sync_enabled", false).toBool();
+	connect(&syncmaster, SIGNAL(syncFinished(bool)), this, SLOT(syncFinished(bool)));
 	protocol.setBaseURL(baseUrl);
+	int mySchema = settings.value("forum_database_schema", 0).toInt();
+	if(!firstRun && fdb.schemaVersion() != mySchema) {
+		errorDialog("The database schema has been changed. Your forum database will be reset."
+				" Remember, this is beta software :-). ");
+		fdb.resetDatabase();
+	}
+	if(fdb.openDatabase()) {
+		settings.setValue("forum_database_schema", fdb.schemaVersion());
+	}
 	pdb.openDatabase();
-	fdb.openDatabase();
 
 #ifdef Q_WS_HILDON
 	if(settings.value("firstrun", true).toBool()) {
@@ -70,9 +84,25 @@ void Siilihai::tryLogin() {
 }
 
 void Siilihai::haltSiilihai() {
+	// Wtf, crashes if canceling login
 	qDebug() << Q_FUNC_INFO;
-	// Add some stuff here later
-	QCoreApplication::quit();
+	quitting = true;
+	offlineModeSet(true);
+	mainWin->setReaderReady(false, false);
+	if(syncEnabled) {
+		syncmaster.endSync();
+	} else {
+		// Add some stuff here later
+		QCoreApplication::quit();
+	}
+}
+
+void Siilihai::syncFinished(bool success){
+	qDebug() << Q_FUNC_INFO;
+	if(quitting) {
+		syncEnabled = false;
+		haltSiilihai();
+	}
 }
 
 void Siilihai::offlineModeSet(bool newOffline) {
@@ -163,6 +193,8 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 	}
 
 	if (dbSubscriptions.size() == 0) {
+		readerReady = true;
+		updateState();
 		subscribeForum();
 	} else { // Update parser def's
 		dbSubscriptions = fdb.listSubscriptions();
@@ -178,6 +210,8 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 			protocol.getParser(parsersToUpdateLeft.at(0));
 		} else {
 			readerReady = true;
+			if(syncEnabled)
+				syncmaster.startSync();
 		}
 	}
 	updateState();
@@ -199,6 +233,9 @@ void Siilihai::updateForumParser(ForumParser parser) {
 				disconnect(&protocol, SIGNAL(getParserFinished(ForumParser)),
 						this, SLOT(updateForumParser(ForumParser)));
 				readerReady = true;
+				if(syncEnabled)
+					syncmaster.startSync();
+
 				if (settings.value("preferences/update_automatically", false).toBool())
 					updateClicked();
 			} else {

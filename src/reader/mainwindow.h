@@ -83,6 +83,7 @@ private:
     QSet<int> busyForums;
 	QSettings *settings;
 	bool readerReady, offline;
+	QActionGroup viewAsGroup;
 };
 
 #endif // MAINWINDOW_H

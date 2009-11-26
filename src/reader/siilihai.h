@@ -19,6 +19,7 @@
 #include <siilihai/parserdatabase.h>
 #include <siilihai/parserreport.h>
 #include <siilihai/parserengine.h>
+#include <siilihai/syncmaster.h>
 
 #include "loginwizard.h"
 #include "subscribewizard.h"
@@ -36,6 +37,9 @@ class ParserMaker;
 #define DATABASE_FILE "/.siilihai.db"
 #define BASEURL "http://www.siilihai.com/"
 
+// Login progress:
+// Login -> update parsers -> sync
+//       '> offline
 
 class Siilihai: public QObject {
 Q_OBJECT
@@ -66,6 +70,7 @@ public slots:
 	void parserMakerClosed();
 	void sendParserReportFinished(bool success);
 	void offlineModeSet(bool newOffline);
+	void syncFinished(bool success);
 private:
 	void launchMainWindow();
     void setupParserEngine(ForumSubscription &subscription);
@@ -81,11 +86,12 @@ private:
 	ForumDatabase fdb;
 	ParserDatabase pdb;
 	QString baseUrl;
-	bool readerReady, offlineMode;
+	bool readerReady, offlineMode, syncEnabled, quitting;
 	QSettings settings;
 	QList<int> parsersToUpdateLeft;
 	ParserMaker *parserMaker;
 	QProgressDialog *loginProgress;
+	SyncMaster syncmaster;
 };
 
 #endif /* SIILIHAI_H_ */

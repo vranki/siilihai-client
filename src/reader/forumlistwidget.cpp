@@ -16,15 +16,23 @@ void ForumListWidget::forumItemSelected(int i) {
 
 void ForumListWidget::updateForumList() {
 	bool firstRun = (count() == 0);
-	while (count() > 0) {
-		removeItem(0);
-	}
-	forumIndexes.clear();
+	//while (count() > 0) {
+	//	removeItem(0);
+	//}
+	//forumIndexes.clear();
 	QList<ForumSubscription> forums = fdb.listSubscriptions();
 	for (int i = 0; i < forums.size(); i++) {
-		subscriptions[forums[i].parser] = forums[i];
+		QListWidget *lw = 0;
+		if(!forumIndexes.contains(forums[i].parser)) {
+			subscriptions[forums[i].parser] = forums[i];
+			lw = new QListWidget(this);
+			addItem(lw, "later");
+			forumIndexes[forums[i].parser] = i;
+		} else {
+			lw = static_cast<QListWidget*> (widget(forumIndexes[forums[i].parser]));
+		}
 
-		QListWidget *lw = new QListWidget(this);
+		lw->clear();
 
 		QList<ForumGroup> groups = fdb.listGroups(forums[i].parser);
 
@@ -51,8 +59,6 @@ void ForumListWidget::updateForumList() {
 				lw,
 				SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
 				this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
-		addItem(lw, "later");
-		forumIndexes[forums[i].parser] = i;
 
 		// Setup Favicon
 		if (forumIcons.contains(forums[i].parser)) {

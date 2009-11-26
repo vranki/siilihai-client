@@ -35,6 +35,7 @@ void GroupSubscriptionDialog::apply() {
 		bool itemChecked = (item->checkState()==Qt::Checked);
 		if(itemChecked != subscriptions[i].subscribed) {
 			subscriptions[i].subscribed = itemChecked;
+			subscriptions[i].changeset = 0;
 			fdb->updateGroup(subscriptions[i]);
 		}
 	}
