@@ -430,7 +430,6 @@ void Siilihai::showUnsubscribeForum(int forum) {
 }
 
 void Siilihai::launchParserMaker() {
-
 #ifndef Q_WS_HILDON
 	if (!parserMaker) {
 		parserMaker = new ParserMaker(mainWin, pdb, settings, protocol);
@@ -444,9 +443,12 @@ void Siilihai::launchParserMaker() {
 	}
 #endif
 }
+
 void Siilihai::parserMakerClosed() {
+#ifndef Q_WS_HILDON
 	if (parserMaker)
 		disconnect(parserMaker);
+#endif
 	parserMaker = 0;
 }
 

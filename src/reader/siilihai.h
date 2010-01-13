@@ -37,9 +37,9 @@ class ParserMaker;
 #define DATABASE_FILE "/.siilihai.db"
 #define BASEURL "http://www.siilihai.com/"
 
-// Login progress:
-// Login -> update parsers -> sync
-//       '> offline
+// Login process:
+// Login -> update parsers -> sync -> ready
+//       '> offline        '> ready
 
 class Siilihai: public QObject {
 Q_OBJECT
