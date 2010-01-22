@@ -383,6 +383,7 @@ void Siilihai::updateClicked() {
 void Siilihai::updateClicked(int forumid, bool force) {
 	qDebug() << "Update selected clicked, updating forum " << forumid
 			<< ", force=" << force;
+	Q_ASSERT(engines[forumid]);
 	engines[forumid]->updateForum(force);
 }
 

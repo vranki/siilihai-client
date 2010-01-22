@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS = src
 RESOURCES = siilihairesources.qrc
-CONFIG += debug
+CONFIG += qt debug
 
 maemo_desktops.path = /usr/share/applications/hildon
 maemo_desktops.files = data/siilihai-client.desktop
