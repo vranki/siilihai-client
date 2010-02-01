@@ -56,8 +56,8 @@ private:
 	ForumSession session;
 	ForumSubscription subscription;
 	PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;
-	ForumGroup selectedGroup;
-	ForumThread selectedThread;
+	ForumGroup *selectedGroup;
+	ForumThread *selectedThread;
 	bool loginWithoutCredentials;
 };
 

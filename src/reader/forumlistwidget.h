@@ -24,25 +24,27 @@ public:
 	~ForumListWidget();
 	void updateReadCounts();
 	void updateForumList();
-	ForumSubscription getSelectedForum();
-	ForumGroup getSelectedGroup();
-	void setForumStatus(int forum, bool reloading, float progress);
+	ForumSubscription *getSelectedForum();
+	ForumGroup *getSelectedGroup();
+	void setForumStatus(ForumSubscription* forum, bool reloading, float progress);
 public slots:
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
 	void forumItemSelected(int i);
-	void iconUpdated(int forum, QIcon newIcon);
+	void iconUpdated(ForumSubscription *sub, QIcon newIcon);
+	void subscriptionFound(ForumSubscription *sub);
+	void groupFound(ForumGroup *grp);
 signals:
-	void groupSelected(ForumGroup grp);
-	void forumSelected(ForumSubscription sub);
+	void groupSelected(ForumGroup *grp);
+	void forumSelected(ForumSubscription *sub);
 
 private:
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
-	ForumGroup currentGroup;
-	QHash<int, ForumSubscription> subscriptions; // id, sub
-	QHash<int, int> forumIndexes; // id, idx
-	QHash<int, Favicon*> forumIcons;
-	QHash<QListWidgetItem*, ForumGroup> forumGroups;
+	ForumGroup *currentGroup;
+	QHash<ForumSubscription*, int> subscriptions; // id, sub
+	QHash<ForumSubscription*, int> forumIndexes; // id, idx
+	QHash<ForumSubscription*, Favicon*> forumIcons;
+	QHash<QListWidgetItem*, ForumGroup*> forumGroups;
 };
 
 #endif // FORUMLISTWIDGET_H

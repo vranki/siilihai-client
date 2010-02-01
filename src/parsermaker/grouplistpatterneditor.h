@@ -15,13 +15,13 @@ class GroupListPatternEditor : public PatternEditor {
 	Q_OBJECT
 
 public:
-	GroupListPatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription &fos, QWidget *parent = 0);
+	GroupListPatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription *fos, QWidget *parent = 0);
 	virtual ~GroupListPatternEditor();
     virtual QIcon tabIcon();
     virtual QString tabName();
 
 public slots:
-	virtual void listGroupsFinished(QList<ForumGroup> groups);
+	virtual void listGroupsFinished(QList<ForumGroup*> groups);
 	virtual void downloadList();
 	virtual void testPageSpanning();
 	void resultCellActivated(int row, int column);
@@ -29,7 +29,7 @@ public slots:
 	virtual void patternChanged();
 
 signals:
-	void groupSelected(ForumGroup grp);
+	void groupSelected(ForumGroup *grp);
 };
 
 #endif /* GROUPLISTPATTERNEDITOR_H_ */

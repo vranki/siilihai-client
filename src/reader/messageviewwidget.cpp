@@ -5,27 +5,28 @@ MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), web
 	setLayout(&vbox);
 	webView.page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 	connect(&webView, SIGNAL(linkClicked(const QUrl &)), this, SLOT(linkClicked(const QUrl &)));
-	messageSelected(ForumMessage());
+	messageSelected(0);
 }
 
 MessageViewWidget::~MessageViewWidget() {
 
 }
 
-const ForumMessage& MessageViewWidget::currentMessage() {
+ForumMessage* MessageViewWidget::currentMessage() {
 	return displayedMessage;
 }
 
-void MessageViewWidget::messageSelected(const ForumMessage &msg) {
-	if (!msg.isSane()) {
+void MessageViewWidget::messageSelected(ForumMessage *msg) {
+	if (!msg) {
 		webView.load(QUrl("file:///usr/share/siilihai/blankmessage/index.html"));
 		return;
 	}
 	// Keep it simple, stupid:
 	displayedMessage = msg;
-	displayedMessage.read = true;
+	// @todo to db?
+	displayedMessage->setRead(true);
 
-	QString bodyToShow = msg.body;
+	QString bodyToShow = msg->body();
 	QString styleHtml = "  <style type=\"text/css\">#siilihai-header {"
 	 "color: white;"
 	 "margin: 3px;"
@@ -33,14 +34,14 @@ void MessageViewWidget::messageSelected(const ForumMessage &msg) {
 	    "background: url(\"file:///usr/share/siilihai/blankmessage/small_gradient.png\") 0% 0% repeat-x;"
 	"}"
 	"</style>";
-	QString headerHtml = "<div id=\"siilihai-header\">" + msg.author + ", " + msg.lastchange + ":</div>";
+	QString headerHtml = "<div id=\"siilihai-header\">" + msg->author() + ", " + msg->lastchange() + ":</div>";
 	QString
 			html =
 					"<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +
 					styleHtml + "</head>"
 				"<body>" + headerHtml + bodyToShow + "</body>";
 
-	QString baseUrl = msg.url;
+	QString baseUrl = msg->url();
 	int i = baseUrl.lastIndexOf('/');
 	if (i > 0) {
 		baseUrl = baseUrl.left(i + 1);

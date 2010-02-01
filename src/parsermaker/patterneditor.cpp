@@ -1,7 +1,7 @@
 #include "patterneditor.h"
 
 PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
-		ForumSubscription &fos, QWidget *parent) :
+		ForumSubscription *fos, QWidget *parent) :
 	QWidget(parent), session(ses), parser(par), subscription(fos), editTimeout(this) {
 	ui.setupUi(this);
 	matcher = new PatternMatcher(this, true);
@@ -138,13 +138,13 @@ void PatternEditor::viewInBrowser() {
 	QDesktopServices::openUrl(QUrl(ui.urlLabel->text()));
 }
 
-void PatternEditor::listGroupsFinished(QList<ForumGroup> groups) {
+void PatternEditor::listGroupsFinished(QList<ForumGroup*> groups) {
 }
 
-void PatternEditor::listMessagesFinished(QList<ForumMessage> messages,
-		ForumThread thread) {
+void PatternEditor::listMessagesFinished(QList<ForumMessage*> messages,
+		ForumThread *thread) {
 
 }
-void PatternEditor::listThreadsFinished(QList<ForumThread> threads,
-		ForumGroup group) {
+void PatternEditor::listThreadsFinished(QList<ForumThread*> threads,
+		ForumGroup *group) {
 }

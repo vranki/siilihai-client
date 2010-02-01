@@ -8,7 +8,7 @@
 #include "messagelistpatterneditor.h"
 
 MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
-		ForumParser &par, ForumSubscription &fos, QWidget *parent) :
+		ForumParser &par, ForumSubscription *fos, QWidget *parent) :
 	PatternEditor(ses, par, fos, parent) {
 	setEnabled(false);
 	connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage>,
@@ -45,8 +45,8 @@ void MessageListPatternEditor::downloadList() {
 void MessageListPatternEditor::testPageSpanning() {
 	downloadParser = parser;
 	downloadSubscription = subscription;
-	downloadSubscription.latest_threads = 999;
-	downloadSubscription.latest_messages = 999;
+	downloadSubscription->setLatestThreads(999);
+	downloadSubscription->setLatestMessages(999);
 
 	session.initialize(downloadParser, downloadSubscription, matcher);
 	session.listMessages(currentThread);
@@ -59,9 +59,9 @@ void MessageListPatternEditor::testPageSpanning() {
 	pageSpanningTest = true;
 }
 
-void MessageListPatternEditor::setThread(ForumThread thread) {
+void MessageListPatternEditor::setThread(ForumThread *thread) {
 	currentThread = thread;
-	if (currentThread.id.length() > 0) {
+	if (currentThread->id().length() > 0) {
 		setEnabled(true);
 		ui.downloadButton->setEnabled(true);
 		ui.testPageSpanning->setEnabled(true);
@@ -71,8 +71,7 @@ void MessageListPatternEditor::setThread(ForumThread thread) {
 }
 
 void MessageListPatternEditor::resultCellActivated(int row, int column) {
-	ForumThread selectedThread;
-	selectedThread.id = QString::null;
+	ForumThread *selectedThread = 0;
 
 	if (listIds.contains(row)) {
 		QString id = listIds[row];
@@ -87,7 +86,7 @@ void MessageListPatternEditor::resultCellActivated(int row, int column) {
 }
 
 void MessageListPatternEditor::listMessagesFinished(
-		QList<ForumMessage> messages, ForumThread thread) {
+		QList<ForumMessage*> messages, ForumThread *thread) {
 	listIds.clear();
 	bodies.clear();
 	ui.resultsTable->clear();
@@ -99,18 +98,18 @@ void MessageListPatternEditor::listMessagesFinished(
 	ui.resultsTable->setHorizontalHeaderLabels(headers);
 
 	for (int i = 0; i < messages.size(); i++) {
-		QTableWidgetItem *newItem = new QTableWidgetItem(messages[i].id);
+		QTableWidgetItem *newItem = new QTableWidgetItem(messages[i]->id());
 		ui.resultsTable->setItem(i, 0, newItem);
-		listIds[i] = messages[i].id;
-		bodies[messages[i].id] = messages[i].body;
+		listIds[i] = messages[i]->id();
+		bodies[messages[i]->id()] = messages[i]->body();
 
-		newItem = new QTableWidgetItem(messages[i].subject);
+		newItem = new QTableWidgetItem(messages[i]->subject());
 		ui.resultsTable->setItem(i, 1, newItem);
-		newItem = new QTableWidgetItem(messages[i].author);
+		newItem = new QTableWidgetItem(messages[i]->author());
 		ui.resultsTable->setItem(i, 2, newItem);
-		newItem = new QTableWidgetItem(messages[i].lastchange);
+		newItem = new QTableWidgetItem(messages[i]->lastchange());
 		ui.resultsTable->setItem(i, 3, newItem);
-		newItem = new QTableWidgetItem(messages[i].body.left(15));
+		newItem = new QTableWidgetItem(messages[i]->body().left(15));
 		ui.resultsTable->setItem(i, 4, newItem);
 	}
 	ui.resultsTable->resizeColumnsToContents();
@@ -120,7 +119,7 @@ void MessageListPatternEditor::listMessagesFinished(
 }
 
 void MessageListPatternEditor::parserUpdated() {
-	if (currentThread.id.length() > 0) {
+	if (currentThread->id().length() > 0) {
 		QString mlu = session.getMessageListUrl(currentThread);
 		ui.urlLabel->setText(mlu);
 	} else {

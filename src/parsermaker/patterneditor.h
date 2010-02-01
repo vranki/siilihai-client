@@ -15,7 +15,7 @@ class PatternEditor : public QWidget
     Q_OBJECT
 
 public:
-    PatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription &fos, QWidget *parent = 0);
+    PatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription *fos, QWidget *parent = 0);
     ~PatternEditor();
     QString pattern();
     void setPattern(QString txt);
@@ -27,9 +27,9 @@ public slots:
 	virtual void downloadList() = 0;
 	virtual void testPageSpanning() = 0;
 	virtual void patternChanged() = 0;
-	virtual void listGroupsFinished(QList<ForumGroup> groups);
-	virtual void listThreadsFinished(QList<ForumThread> threads, ForumGroup group);
-	virtual void listMessagesFinished(QList<ForumMessage> messages, ForumThread thread);
+	virtual void listGroupsFinished(QList<ForumGroup*> groups);
+	virtual void listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group);
+	virtual void listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread);
 	virtual void resultCellActivated(int row, int column)=0;
 
 	void viewInBrowser();
@@ -48,7 +48,7 @@ protected:
 	ForumSession &session;
 	ForumParser &parser, downloadParser;
 	PatternMatcher *matcher;
-	ForumSubscription &subscription, downloadSubscription;
+	ForumSubscription *subscription, *downloadSubscription;
 	QHash<int, QString> listIds;
 	bool pageSpanningTest;
 	QTimer editTimeout;

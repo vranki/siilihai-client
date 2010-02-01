@@ -51,18 +51,18 @@ public slots:
 	void loginWizardFinished();
 	void launchSiilihai();
 	void haltSiilihai();
-	void forumAdded(ForumParser fp, ForumSubscription fs);
+	void forumAdded(ForumParser fp, ForumSubscription *fs);
 	void loginFinished(bool success, QString motd=QString());
 	void subscribeForum();
-	void showSubscribeGroup(int forum);
-	void showUnsubscribeForum(int forum);
+	void showSubscribeGroup(ForumSubscription* forum);
+	void showUnsubscribeForum(ForumSubscription* forum);
 	void subscribeGroupDialogFinished();
-	void forumUpdated(int forumid);
+	void forumUpdated(ForumSubscription* forumid);
 	void updateClicked();
-	void updateClicked(int forumid, bool force=false);
+	void updateClicked(ForumSubscription* forumid, bool force=false);
 	void cancelClicked();
-	void reportClicked(int forumid);
-	void statusChanged(int forumid, bool reloading, float progress);
+	void reportClicked(ForumSubscription* forumid);
+	void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
 	void errorDialog(QString message);
 	void listSubscriptionsFinished(QList<int> subscriptions);
 	void updateForumParser(ForumParser parser);
@@ -73,7 +73,7 @@ public slots:
 	void syncFinished(bool success);
 private:
 	void launchMainWindow();
-    void setupParserEngine(ForumSubscription &subscription);
+    void setupParserEngine(ForumSubscription *subscription);
     void updateState();
     void tryLogin();
 
@@ -88,7 +88,7 @@ private:
 	QString baseUrl;
 	bool readerReady, offlineMode, syncEnabled, quitting;
 	QSettings settings;
-	QList<int> parsersToUpdateLeft;
+	QList<ForumSubscription*> parsersToUpdateLeft;
 	ParserMaker *parserMaker;
 	QProgressDialog *loginProgress;
 	SyncMaster syncmaster;

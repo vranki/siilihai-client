@@ -22,9 +22,8 @@ public:
 	QWizardPage *createIntroPage();
 	QWizardPage *createLoginPage();
 	QWizardPage *createVerifyPage();
-	//int nextId() const;
 signals:
-	void forumAdded(ForumParser fp, ForumSubscription fs);
+	void forumAdded(ForumParser fp, ForumSubscription *fs);
 
 public slots:
 	void listParsersFinished(QList <ForumParser> parsers);

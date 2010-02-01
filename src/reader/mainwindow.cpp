@@ -51,19 +51,19 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 	tlw = new ThreadListWidget(this, fdb);
 	ui.topFrame->layout()->addWidget(tlw);
 
-	connect(flw, SIGNAL(groupSelected(ForumGroup)), tlw,
-			SLOT(groupSelected(ForumGroup)));
-	connect(flw, SIGNAL(groupSelected(ForumGroup)), this,
-			SLOT(groupSelected(ForumGroup)));
-	connect(flw, SIGNAL(forumSelected(ForumSubscription)), this,
+	connect(flw, SIGNAL(groupSelected(ForumGroup*)), tlw,
+			SLOT(groupSelected(ForumGroup*)));
+	connect(flw, SIGNAL(groupSelected(ForumGroup*)), this,
+			SLOT(groupSelected(ForumGroup*)));
+	connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this,
 			SLOT(updateEnabled()));
-	connect(tlw, SIGNAL(messageSelected(const ForumMessage&)), this,
-			SLOT(messageSelected(const ForumMessage&)));
+	connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this,
+			SLOT(messageSelected(ForumMessage*)));
 
 	mvw = new MessageViewWidget(this);
 	ui.horizontalSplitter->addWidget(mvw);
-	connect(tlw, SIGNAL(messageSelected(const ForumMessage&)), mvw,
-			SLOT(messageSelected(const ForumMessage&)));
+	connect(tlw, SIGNAL(messageSelected(ForumMessage*)), mvw,
+			SLOT(messageSelected(ForumMessage*)));
 
 	if (!restoreGeometry(settings->value("reader_geometry").toByteArray()))
 		showMaximized();
@@ -112,8 +112,7 @@ void MainWindow::updateClickedSlot() {
 }
 
 void MainWindow::reportClickedSlot() {
-	int selectedForum = flw->getSelectedForum().parser;
-	emit reportClicked(selectedForum);
+	emit reportClicked(flw->getSelectedForum());
 }
 
 void MainWindow::hideClickedSlot() {
@@ -130,21 +129,15 @@ void MainWindow::hideClickedSlot() {
 }
 
 void MainWindow::updateSelectedClickedSlot() {
-	int selectedForum = flw->getSelectedForum().parser;
-	if (selectedForum > 0)
-		emit updateClicked(selectedForum, false);
+	emit updateClicked(flw->getSelectedForum(), false);
 }
 
 void MainWindow::forceUpdateSelectedClickedSlot() {
-	int selectedForum = flw->getSelectedForum().parser;
-	if (selectedForum > 0)
-		emit updateClicked(selectedForum, true);
+	emit updateClicked(flw->getSelectedForum(), true);
 }
 
 void MainWindow::unsubscribeForumSlot() {
-	int selectedForum = flw->getSelectedForum().parser;
-	if (selectedForum > 0)
-		emit unsubscribeForum(selectedForum);
+	emit unsubscribeForum(flw->getSelectedForum());
 }
 
 void MainWindow::cancelClickedSlot() {
@@ -152,17 +145,15 @@ void MainWindow::cancelClickedSlot() {
 }
 
 void MainWindow::groupSubscriptionsSlot() {
-	int selectedForum = flw->getSelectedForum().parser;
-	if (selectedForum > 0)
-		emit groupSubscriptions(selectedForum);
+	emit groupSubscriptions(flw->getSelectedForum());
 }
 
 void MainWindow::viewInBrowserClickedSlot() {
-	if (mvw->currentMessage().isSane())
-		QDesktopServices::openUrl(mvw->currentMessage().url);
+	if (mvw->currentMessage())
+		QDesktopServices::openUrl(mvw->currentMessage()->url());
 }
 
-void MainWindow::setForumStatus(int forum, bool reloading, float progress) {
+void MainWindow::setForumStatus(ForumSubscription *forum, bool reloading, float progress) {
 	if (reloading) {
 		busyForums.insert(forum);
 	} else {
@@ -219,11 +210,9 @@ void MainWindow::settingsDialog() {
 
 void MainWindow::markForumRead(bool read) {
 	qDebug() << Q_FUNC_INFO;
-	ForumSubscription selectedForum = flw->getSelectedForum();
-
-	if (selectedForum.isSane()) {
-		fdb.markForumRead(selectedForum.parser, read);
-		tlw->groupSelected(ForumGroup());
+	if (flw->getSelectedForum()) {
+		fdb.markForumRead(flw->getSelectedForum(), read);
+		tlw->groupSelected(0);
 		flw->updateForumList();
 	}
 }
@@ -234,9 +223,9 @@ void MainWindow::markForumUnread() {
 
 void MainWindow::markGroupRead(bool read) {
 	qDebug() << Q_FUNC_INFO;
-	ForumGroup selectedGroup = flw->getSelectedGroup();
+	ForumGroup *selectedGroup = flw->getSelectedGroup();
 
-	if (selectedGroup.isSane()) {
+	if (selectedGroup) {
 		fdb.markGroupRead(selectedGroup, read);
 		tlw->groupSelected(selectedGroup);
 		flw->updateForumList();
@@ -247,14 +236,14 @@ void MainWindow::markGroupUnread() {
 	markGroupRead(false);
 }
 
-void MainWindow::messageSelected(const ForumMessage &msg) {
-	if (msg.isSane()) {
+void MainWindow::messageSelected(ForumMessage *msg) {
+	if (msg) {
 		ui.viewInBrowser->setEnabled(true);
 		flw->updateReadCounts();
 	}
 }
 
-void MainWindow::groupSelected(ForumGroup fg) {
+void MainWindow::groupSelected(ForumGroup *fg) {
 #ifdef Q_WS_HILDON
 	hideClickedSlot();
 #endif
@@ -268,7 +257,7 @@ void MainWindow::updateEnabled() {
 	ui.stopButton->setEnabled(!busyForums.isEmpty() && readerReady);
 	ui.updateButton->setEnabled(busyForums.isEmpty() && readerReady && !offline);
 	// Forum
-	bool sane = flw->getSelectedForum().isSane();
+	bool sane = flw->getSelectedForum();
 	ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
 	ui.actionForce_update_on_selected->setEnabled(readerReady && sane && !offline);
 	ui.actionReport_broken_or_working->setEnabled(readerReady && sane && !offline);
@@ -278,7 +267,7 @@ void MainWindow::updateEnabled() {
 	ui.actionMark_forum_as_read->setEnabled(readerReady && sane);
 	ui.actionMark_forum_as_unread->setEnabled(readerReady && sane);
 	// Group
-	sane = flw->getSelectedGroup().isSane();
+	sane = flw->getSelectedGroup();
 	ui.actionMark_group_as_Read->setEnabled(readerReady && sane);
 	ui.actionMark_group_as_Unread->setEnabled(readerReady && sane);
 }

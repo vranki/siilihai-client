@@ -15,14 +15,14 @@ class MessageViewWidget : public QScrollArea {
 public:
 	MessageViewWidget(QWidget *parent);
 	virtual ~MessageViewWidget();
-	const ForumMessage& currentMessage();
+	ForumMessage* currentMessage();
 public slots:
-	void messageSelected(const ForumMessage &msg);
+	void messageSelected(ForumMessage *msg);
 	void linkClicked ( const QUrl & url);
 private:
 	QWebView webView;
 	QVBoxLayout vbox;
-    ForumMessage displayedMessage;
+    ForumMessage *displayedMessage;
 };
 
 #endif /* MESSAGEVIEWWIDGET_H_ */

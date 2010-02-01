@@ -4,17 +4,17 @@ ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s,
 		SiilihaiProtocol &p) :
 	QMainWindow(parent), pdb(pd), settings(s), protocol(p) {
 	ui.setupUi(this);
-	groupListEditor = new GroupListPatternEditor(session, parser, subscription,
+	groupListEditor = new GroupListPatternEditor(session, parser, &subscription,
 			this);
 	ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(),
 			groupListEditor->tabName());
 	threadListEditor = new ThreadListPatternEditor(session, parser,
-			subscription, this);
+			&subscription, this);
 	ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(),
 			threadListEditor->tabName());
 	threadListEditor->setEnabled(false);
 	messageListEditor = new MessageListPatternEditor(session, parser,
-			subscription, this);
+			&subscription, this);
 	ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(),
 			messageListEditor->tabName());
 	messageListEditor->setEnabled(false);
@@ -57,8 +57,8 @@ ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s,
 	connect(&session, SIGNAL(networkFailure(QString)), this,
 			SLOT(networkFailure(QString)));
 
-	subscription.latest_threads = 100;
-	subscription.latest_messages = 100;
+	subscription.setLatestThreads(100);
+	subscription.setLatestMessages(100);
 	loginWithoutCredentials = false;
 
 	updateState();
@@ -113,14 +113,14 @@ void ParserMaker::updateState() {
 	ui.baseUrlVM->setText(parser.forumUrlWithoutEnd());
 	ui.baseUrlLI->setText(parser.forumUrlWithoutEnd());
 
-	subscription.name = parser.parser_name;
-	subscription.parser = parser.id;
+	subscription.setName(parser.parser_name);
+	subscription.setParser(parser.id);
 	if (loginWithoutCredentials) {
-		subscription.username = QString::null;
-		subscription.password = QString::null;
+		subscription.setUsername(QString::null);
+		subscription.setPassword(QString::null);
 	} else {
-		subscription.username = ui.usernameEdit->text();
-		subscription.password = ui.passwordEdit->text();
+		subscription.setUsername(ui.usernameEdit->text());
+		subscription.setPassword(ui.passwordEdit->text());
 	}
 	groupListEditor->parserUpdated();
 	threadListEditor->parserUpdated();

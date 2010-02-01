@@ -20,7 +20,7 @@ Q_OBJECT
 
 public:
 	MessageListPatternEditor(ForumSession &ses, ForumParser &par,
-			ForumSubscription &fos, QWidget *parent = 0);
+			ForumSubscription *fos, QWidget *parent = 0);
 	virtual ~MessageListPatternEditor();
 	virtual QString tabName();
     virtual QIcon tabIcon();
@@ -29,17 +29,17 @@ public slots:
 	virtual void downloadList();
 	virtual void testPageSpanning();
 
-	void setThread(ForumThread thread);
+	void setThread(ForumThread *thread);
 	void resultCellActivated(int row, int column);
 	virtual void parserUpdated();
-	virtual void listMessagesFinished(QList<ForumMessage> messages,
-			ForumThread thread);
+	virtual void listMessagesFinished(QList<ForumMessage*> messages,
+			ForumThread *thread);
 	virtual void patternChanged();
 
 signals:
 
 private:
-	ForumThread currentThread;
+	ForumThread *currentThread;
 	QHash<QString, QString> bodies;
 };
 

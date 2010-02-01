@@ -16,7 +16,7 @@ class ThreadListPatternEditor : public PatternEditor {
 	Q_OBJECT
 
 public:
-	ThreadListPatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription &fos, QWidget *parent = 0);
+	ThreadListPatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription *fos, QWidget *parent = 0);
 	virtual ~ThreadListPatternEditor();
     virtual QString tabName();
     virtual QIcon tabIcon();
@@ -25,16 +25,16 @@ public slots:
 	virtual void downloadList();
 	virtual void testPageSpanning();
 
-	void setGroup(ForumGroup grp);
+	void setGroup(ForumGroup *grp);
 	void resultCellActivated(int row, int column);
 	virtual void parserUpdated();
-	virtual void listThreadsFinished(QList<ForumThread> threads, ForumGroup group);
+	virtual void listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group);
 	virtual void patternChanged();
 
 signals:
-	void threadSelected(ForumThread thread);
+	void threadSelected(ForumThread *thread);
 private:
-	ForumGroup currentGroup;
+	ForumGroup *currentGroup;
 };
 
 #endif /* THREADLISTPATTERNEDITOR_H_ */

@@ -23,14 +23,14 @@ public:
 	ThreadListWidget(QWidget *parent, ForumDatabase &f);
 	virtual ~ThreadListWidget();
 public slots:
-	void groupSelected(ForumGroup fg);
+	void groupSelected(ForumGroup *fg);
 	void updateMessageRead(QTreeWidgetItem *item);
 	void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
 signals:
-	void messageSelected(const ForumMessage &msg);
+	void messageSelected(ForumMessage *msg);
 private:
 	void updateThreadUnreads(QTreeWidgetItem* threadItem);
-	QHash<QTreeWidgetItem*, ForumMessage> forumMessages;
+	QHash<QTreeWidgetItem*, ForumMessage*> forumMessages;
 	ForumDatabase &fdb;
 };
 

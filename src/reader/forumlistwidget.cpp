@@ -5,6 +5,8 @@ ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f,
 	QToolBox(parent), fdb(f), pdb(p) {
 	connect(this, SIGNAL(currentChanged(int)), this,
 			SLOT(forumItemSelected(int)));
+	connect(&f, SIGNAL(subscriptionFound(ForumSubscription *)), this, SLOT(subscriptionFound(ForumSubscription *)));
+	connect(&f, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
 }
 
 ForumListWidget::~ForumListWidget() {
@@ -20,7 +22,8 @@ void ForumListWidget::updateForumList() {
 	//	removeItem(0);
 	//}
 	//forumIndexes.clear();
-	QList<ForumSubscription> forums = fdb.listSubscriptions();
+	/*
+	QList<ForumSubscription*> forums = fdb.listSubscriptions();
 	for (int i = 0; i < forums.size(); i++) {
 		QListWidget *lw = 0;
 		if(!forumIndexes.contains(forums[i].parser)) {
@@ -90,9 +93,11 @@ void ForumListWidget::updateForumList() {
 		emit groupSelected(getSelectedGroup());
 	}
 	updateReadCounts();
+	*/
 }
 
 void ForumListWidget::updateReadCounts() {
+	/*
 	QList<ForumSubscription> forums = fdb.listSubscriptions();
 	for (int i = 0; i < forums.size(); i++) {
 		int unread = fdb.unreadIn(forums[i]);
@@ -116,20 +121,23 @@ void ForumListWidget::updateReadCounts() {
 			it->setFont(fnt);
 		}
 	}
+	*/
 }
 
-ForumSubscription ForumListWidget::getSelectedForum() {
+ForumSubscription* ForumListWidget::getSelectedForum() {
+	/* @todo tee
 	int s = currentIndex();
-	QHashIterator<int, int> hi(forumIndexes);
+	QHashIterator<ForumSubscription *, int> hi(forumIndexes);
 	while (hi.hasNext()) {
 		hi.next();
 		if (hi.value() == s)
 			return subscriptions[hi.key()];
 	}
-	return ForumSubscription();
+	*/
+	return 0;
 }
 
-ForumGroup ForumListWidget::getSelectedGroup() {
+ForumGroup* ForumListWidget::getSelectedGroup() {
 	QListWidget *lw = static_cast<QListWidget*> (currentWidget());
 	if (lw) {
 		QListWidgetItem* it = lw->currentItem();
@@ -137,15 +145,15 @@ ForumGroup ForumListWidget::getSelectedGroup() {
 			return forumGroups[it];
 		}
 	}
-	return ForumGroup();
+	return 0;
 }
 
-void ForumListWidget::iconUpdated(int forum, QIcon newIcon) {
+void ForumListWidget::iconUpdated(ForumSubscription *forum, QIcon newIcon) {
 	if (forumIndexes.contains(forum))
 		setItemIcon(forumIndexes[forum], newIcon);
 }
 
-void ForumListWidget::setForumStatus(int forum, bool reloading, float progress) {
+void ForumListWidget::setForumStatus(ForumSubscription* forum, bool reloading, float progress) {
 	if (!forumIndexes.contains(forum))
 		return;
 	if (!forumIndexes.contains(forum))
@@ -161,4 +169,11 @@ void ForumListWidget::groupSelected(QListWidgetItem* item,
 		QListWidgetItem *prev) {
 	currentGroup = forumGroups[item];
 	emit groupSelected(currentGroup);
+}
+
+void ForumListWidget::subscriptionFound(ForumSubscription *sub) {
+
+}
+void ForumListWidget::groupFound(ForumGroup *grp) {
+
 }

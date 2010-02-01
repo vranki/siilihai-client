@@ -36,12 +36,12 @@ public:
     ThreadListWidget* threadList();
 signals:
 	void subscribeForum();
-	void unsubscribeForum(int forumid);
+	void unsubscribeForum(ForumSubscription *sub);
 	void updateClicked();
-	void reportClicked(int forumid);
-	void updateClicked(int forumid, bool force);
+	void reportClicked(ForumSubscription *sub);
+	void updateClicked(ForumSubscription *sub, bool force);
 	void cancelClicked();
-	void groupSubscriptions(int forum);
+	void groupSubscriptions(ForumSubscription *sub);
 	void messageRead(ForumMessage message);
 	void launchParserMaker();
 	void offlineModeSet(bool ol);
@@ -62,14 +62,14 @@ public slots:
 	void markForumUnread();
 	void markGroupRead(bool read=true);
 	void markGroupUnread();
-	void setForumStatus(int forum, bool reloading, float progress);
+	void setForumStatus(ForumSubscription *sub, bool reloading, float progress);
 	void launchParserMakerSlot();
 	void setReaderReady(bool ready, bool offline);
 private slots:
 	void about();
 	void settingsDialog();
-	void groupSelected(ForumGroup grp);
-	void messageSelected(const ForumMessage &msg);
+	void groupSelected(ForumGroup *grp);
+	void messageSelected(ForumMessage *msg);
 	void updateEnabled();
 private:
 	void closeEvent(QCloseEvent *event);
@@ -80,7 +80,7 @@ private:
     Ui::MainWindowClass ui;
     ParserDatabase &pdb;
     ForumDatabase &fdb;
-    QSet<int> busyForums;
+    QSet<ForumSubscription*> busyForums;
 	QSettings *settings;
 	bool readerReady, offline;
 	QActionGroup viewAsGroup;

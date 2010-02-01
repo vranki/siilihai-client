@@ -15,7 +15,7 @@ class GroupSubscriptionDialog : public QDialog
 public:
     GroupSubscriptionDialog(QWidget *parent = 0);
     ~GroupSubscriptionDialog();
-    void setForum(ForumDatabase *db, int forumId);
+    void setForum(ForumDatabase *db, ForumSubscription *fs);
     void updateList();
 public slots:
 	void selectAll();
@@ -24,8 +24,8 @@ public slots:
 private:
     Ui::GroupSubscriptionDialogClass ui;
     ForumDatabase *fdb;
-    int forum;
-    QHash<QString, QListWidgetItem*> listItems;
+    ForumSubscription *forum;
+    QHash<ForumGroup*, QListWidgetItem*> listItems;
 };
 
 #endif // GROUPSUBSCRIPTIONDIALOG_H

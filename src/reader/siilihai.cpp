@@ -115,19 +115,19 @@ void Siilihai::offlineModeSet(bool newOffline) {
 	}
 }
 
-void Siilihai::setupParserEngine(ForumSubscription &subscription) {
+void Siilihai::setupParserEngine(ForumSubscription *subscription) {
 	ParserEngine *pe = new ParserEngine(&fdb, this);
-	ForumParser parser = pdb.getParser(subscription.parser);
+	ForumParser parser = pdb.getParser(subscription->parser());
 	pe->setParser(parser);
 	pe->setSubscription(subscription);
-	engines[subscription.parser] = pe;
-	connect(pe, SIGNAL(groupListChanged(int)), this,
-			SLOT(showSubscribeGroup(int)));
-	connect(pe, SIGNAL(forumUpdated(int)), this, SLOT(forumUpdated(int)));
-	connect(pe, SIGNAL(statusChanged(int, bool, float)), this,
-			SLOT(statusChanged(int, bool, float)));
-	connect(pe, SIGNAL(statusChanged(int, bool, float)), mainWin,
-			SLOT(setForumStatus(int, bool, float)));
+	engines[subscription->parser()] = pe;
+	connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
+			SLOT(showSubscribeGroup(ForumSubscription*)));
+	connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
+	connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), this,
+			SLOT(statusChanged(ForumSubscription*, bool, float)));
+	connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), mainWin,
+			SLOT(setForumStatus(ForumSubscription*, bool, float)));
 	connect(pe, SIGNAL(updateFailure(QString)), this,
 			SLOT(errorDialog(QString)));
 }
@@ -147,6 +147,11 @@ void Siilihai::loginFinished(bool success, QString motd) {
 		if (loginProgress)
 			loginProgress->setValue(30);
 	} else {
+		if (loginProgress) {
+			loginProgress->cancel();
+			loginProgress->deleteLater();
+			loginProgress = 0;
+		}
 		QMessageBox msgBox(mainWin);
 		msgBox.setModal(true);
 		if (motd.length() > 0) {
@@ -168,26 +173,26 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 	if (loginProgress)
 		loginProgress->setValue(50);
 
-	QList<ForumSubscription> dbSubscriptions = fdb.listSubscriptions();
-	QList<int> unsubscribedForums;
+	QList<ForumSubscription*> dbSubscriptions = fdb.listSubscriptions();
+	QList<ForumSubscription*> unsubscribedForums;
 	for (int d = 0; d < dbSubscriptions.size(); d++) {
 		bool found = false;
 		for (int i = 0; i < subscriptions.size(); i++) {
-			if (subscriptions.at(i) == dbSubscriptions.at(d).parser)
+			if (subscriptions.at(i) == dbSubscriptions.at(d)->parser())
 				found = true;
 		}
 		if (!found) {
 			qDebug() << "Site says not subscribed to "
-					<< dbSubscriptions.at(d).toString();
-			unsubscribedForums.append(dbSubscriptions.at(d).parser);
+					<< dbSubscriptions.at(d)->toString();
+			unsubscribedForums.append(dbSubscriptions.at(d));
 		}
 	}
 	for (int i = 0; i < unsubscribedForums.size(); i++) {
 		fdb.deleteForum(unsubscribedForums.at(i));
-		pdb.deleteParser(unsubscribedForums.at(i));
+		pdb.deleteParser(unsubscribedForums.at(i)->parser());
 		mainWin->forumList()->updateForumList();
-		engines[unsubscribedForums.at(i)]->deleteLater();
-		engines.remove(unsubscribedForums.at(i));
+		engines[unsubscribedForums.at(i)->parser()]->deleteLater();
+		engines.remove(unsubscribedForums.at(i)->parser());
 
 		qDebug() << "Deleted forum " << unsubscribedForums.at(i);
 	}
@@ -202,12 +207,12 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 		connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
 				SLOT(updateForumParser(ForumParser)));
 		for (int d = 0; d < dbSubscriptions.size(); d++) {
-			parsersToUpdateLeft.append(dbSubscriptions.at(d).parser);
-			emit statusChanged(dbSubscriptions.at(d).parser, true, -1);
+			parsersToUpdateLeft.append(dbSubscriptions.at(d));
+			emit statusChanged(dbSubscriptions.at(d), true, -1);
 		}
 		if (!parsersToUpdateLeft.isEmpty()) {
 			qDebug() << "Getting parser " << parsersToUpdateLeft.at(0);
-			protocol.getParser(parsersToUpdateLeft.at(0));
+			protocol.getParser(parsersToUpdateLeft.at(0)->parser());
 		} else {
 			readerReady = true;
 			if(syncEnabled)
@@ -225,8 +230,8 @@ void Siilihai::updateForumParser(ForumParser parser) {
 			pdb.storeParser(parser);
 			engines[parser.id]->setParser(parser);
 			emit
-			statusChanged(parser.id, false, -1);
-			if (!parsersToUpdateLeft.isEmpty() && parsersToUpdateLeft.first()
+			statusChanged(fdb.getSubscription(parser.id), false, -1);
+			if (!parsersToUpdateLeft.isEmpty() && parsersToUpdateLeft.first()->parser()
 					== parser.id)
 				parsersToUpdateLeft.removeFirst();
 			if (parsersToUpdateLeft.isEmpty()) {
@@ -243,7 +248,7 @@ void Siilihai::updateForumParser(ForumParser parser) {
 					if (loginProgress)
 						loginProgress->setValue(80);
 				}
-				protocol.getParser(parsersToUpdateLeft.first());
+				protocol.getParser(parsersToUpdateLeft.first()->parser());
 			}
 			updateState();
 		} else {
@@ -257,6 +262,7 @@ void Siilihai::updateState() {
 	bool ready = parsersToUpdateLeft.isEmpty() && readerReady;
 	mainWin->setReaderReady(ready, offlineMode);
 	if (ready && loginProgress) {
+		loginProgress->cancel();
 		loginProgress->deleteLater();
 		loginProgress = 0;
 	}
@@ -290,18 +296,18 @@ void Siilihai::loginWizardFinished() {
 
 void Siilihai::launchMainWindow() {
 	connect(mainWin, SIGNAL(subscribeForum()), this, SLOT(subscribeForum()));
-	connect(mainWin, SIGNAL(unsubscribeForum(int)), this,
-			SLOT(showUnsubscribeForum(int)));
+	connect(mainWin, SIGNAL(unsubscribeForum(ForumSubscription*)), this,
+			SLOT(showUnsubscribeForum(ForumSubscription*)));
 	connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
-	connect(mainWin, SIGNAL(updateClicked(int,bool)), this,
-			SLOT(updateClicked(int,bool)));
+	connect(mainWin, SIGNAL(updateClicked(ForumSubscription*,bool)), this,
+			SLOT(updateClicked(ForumSubscription*,bool)));
 	connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
-	connect(mainWin, SIGNAL(groupSubscriptions(int)), this,
-			SLOT(showSubscribeGroup(int)));
-	connect(mainWin, SIGNAL(reportClicked(int)), this, SLOT(reportClicked(int)));
+	connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this,
+			SLOT(showSubscribeGroup(ForumSubscription*)));
+	connect(mainWin, SIGNAL(reportClicked(ForumSubscription*)), this, SLOT(reportClicked(ForumSubscription*)));
 	connect(mainWin->threadList(),
-			SIGNAL(messageSelected(const ForumMessage&)), &fdb,
-			SLOT(markMessageRead(const ForumMessage&)));
+			SIGNAL(messageSelected(ForumMessage*)), &fdb,
+			SLOT(markMessageRead(ForumMessage*)));
 	connect(mainWin, SIGNAL(launchParserMaker()), this,
 			SLOT(launchParserMaker()));
 	connect(mainWin, SIGNAL(offlineModeSet(bool)), this,
@@ -309,9 +315,8 @@ void Siilihai::launchMainWindow() {
 	connect(mainWin, SIGNAL(haltRequest()), this,
 			SLOT(haltSiilihai()));
 
-	QList<ForumSubscription> forums = fdb.listSubscriptions();
-	for (int i = 0; i < forums.size(); i++) {
-		setupParserEngine(forums[i]);
+	foreach(ForumSubscription *forum, fdb.listSubscriptions()) {
+		setupParserEngine(forum);
 	}
 	mainWin->forumList()->updateForumList();
 	if (readerReady) {
@@ -322,7 +327,7 @@ void Siilihai::launchMainWindow() {
 	mainWin->show();
 }
 
-void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
+void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
 	if (!pdb.storeParser(fp) || !fdb.addForum(fs)) {
 		QMessageBox msgBox(mainWin);
 		msgBox.setText(
@@ -332,7 +337,7 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription fs) {
 		protocol.subscribeForum(fs);
 		setupParserEngine(fs);
 		mainWin->forumList()->updateForumList();
-		engines[fs.parser]->updateGroupList();
+		engines[fs->parser()]->updateGroupList();
 	}
 }
 
@@ -343,7 +348,7 @@ void Siilihai::errorDialog(QString message) {
 	msgBox.exec();
 }
 
-void Siilihai::showSubscribeGroup(int forum) {
+void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 	if (forum > 0 && readerReady) {
 		GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
 		gsd->setModal(false);
@@ -362,7 +367,7 @@ void Siilihai::subscribeGroupDialogFinished() {
 	}
 }
 
-void Siilihai::forumUpdated(int forum) {
+void Siilihai::forumUpdated(ForumSubscription* forum) {
 	if (readerReady) {
 		qDebug() << "Forum " << forum << " has been updated";
 		mainWin->forumList()->updateForumList();
@@ -371,7 +376,7 @@ void Siilihai::forumUpdated(int forum) {
 
 void Siilihai::updateClicked() {
 	qDebug() << "Update clicked, updating all forums";
-	mainWin->threadList()->groupSelected(ForumGroup());
+	mainWin->threadList()->groupSelected(0);
 
 	QHashIterator<int, ParserEngine*> i(engines);
 	while (i.hasNext()) {
@@ -380,11 +385,11 @@ void Siilihai::updateClicked() {
 	}
 }
 
-void Siilihai::updateClicked(int forumid, bool force) {
+void Siilihai::updateClicked(ForumSubscription* forumid, bool force) {
 	qDebug() << "Update selected clicked, updating forum " << forumid
 			<< ", force=" << force;
-	Q_ASSERT(engines[forumid]);
-	engines[forumid]->updateForum(force);
+	Q_ASSERT(engines[forumid->parser()]);
+	engines[forumid->parser()]->updateForum(force);
 }
 
 void Siilihai::cancelClicked() {
@@ -396,10 +401,10 @@ void Siilihai::cancelClicked() {
 	}
 }
 
-void Siilihai::reportClicked(int forumid) {
+void Siilihai::reportClicked(ForumSubscription* forumid) {
 	if (forumid > 0) {
-		ForumParser parserToReport = pdb.getParser(forumid);
-		ReportParser *rpt = new ReportParser(mainWin, forumid,
+		ForumParser parserToReport = pdb.getParser(forumid->parser());
+		ReportParser *rpt = new ReportParser(mainWin, forumid->parser(),
 				parserToReport.parser_name);
 		connect(rpt, SIGNAL(parserReport(ParserReport)), &protocol,
 				SLOT(sendParserReport(ParserReport)));
@@ -407,24 +412,23 @@ void Siilihai::reportClicked(int forumid) {
 	}
 }
 
-void Siilihai::statusChanged(int forumid, bool reloading, float progress) {
+void Siilihai::statusChanged(ForumSubscription* forumid, bool reloading, float progress) {
 	updateState();
 }
 
-void Siilihai::showUnsubscribeForum(int forum) {
-	if (forum > 0) {
-		ForumSubscription fs = fdb.getSubscription(forum);
+void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
+	if (fs) {
 		QMessageBox msgBox(mainWin);
 		msgBox.setText("Really unsubscribe from forum?");
-		msgBox.setInformativeText(fs.name);
+		msgBox.setInformativeText(fs->name());
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 		msgBox.setDefaultButton(QMessageBox::No);
 		if (msgBox.exec() == QMessageBox::Yes) {
-			fdb.deleteForum(forum);
-			pdb.deleteParser(forum);
+			fdb.deleteForum(fs);
+			pdb.deleteParser(fs->parser());
 			mainWin->forumList()->updateForumList();
-			engines[forum]->deleteLater();
-			engines.remove(forum);
+			engines[fs->parser()]->deleteLater();
+			engines.remove(fs->parser());
 			protocol.subscribeForum(fs, true);
 		}
 	}
