@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = siilihai-parsermaker
-QMAKE_CXXFLAGS += -g \
-    -O0
+QMAKE_CXXFLAGS += -g -O0
 CONFIG += debug
 QT += core \
     gui \

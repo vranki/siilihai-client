@@ -1,10 +1,3 @@
-/*
- * threadlistwidget.h
- *
- *  Created on: Nov 7, 2009
- *      Author: vranki
- */
-
 #ifndef THREADLISTWIDGET_H_
 #define THREADLISTWIDGET_H_
 
@@ -26,6 +19,8 @@ public slots:
 	void groupSelected(ForumGroup *fg);
 	void updateMessageRead(QTreeWidgetItem *item);
 	void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
+        void threadFound(ForumThread* thr);
+        void messageFound(ForumThread* msg);
 signals:
 	void messageSelected(ForumMessage *msg);
 private:

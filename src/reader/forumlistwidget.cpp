@@ -17,7 +17,7 @@ void ForumListWidget::forumItemSelected(int i) {
 }
 
 void ForumListWidget::updateForumList() {
-	bool firstRun = (count() == 0);
+        //bool firstRun = (count() == 0);
 	//while (count() > 0) {
 	//	removeItem(0);
 	//}
@@ -94,6 +94,8 @@ void ForumListWidget::updateForumList() {
 	}
 	updateReadCounts();
 	*/
+    emit forumSelected(0);
+    emit groupSelected(0);
 }
 
 void ForumListWidget::updateReadCounts() {
@@ -149,20 +151,17 @@ ForumGroup* ForumListWidget::getSelectedGroup() {
 }
 
 void ForumListWidget::iconUpdated(ForumSubscription *forum, QIcon newIcon) {
-	if (forumIndexes.contains(forum))
-		setItemIcon(forumIndexes[forum], newIcon);
+    Q_ASSERT(forumSubscriptions.contains(forum));
+    setItemIcon(indexOf(forumSubscriptions[forum]), newIcon);
 }
 
 void ForumListWidget::setForumStatus(ForumSubscription* forum, bool reloading, float progress) {
-	if (!forumIndexes.contains(forum))
-		return;
-	if (!forumIndexes.contains(forum))
-		return;
-	Favicon *fi = forumIcons[forum];
+    Q_ASSERT(forumSubscriptions.contains(forum));
+    Favicon *fi = forumIcons[forum];
 
-	fi->setReloading(reloading, progress);
-	widget(forumIndexes[forum])->setEnabled(!reloading);
-	setItemEnabled(forumIndexes[forum], !reloading);
+    fi->setReloading(reloading, progress);
+    forumSubscriptions[forum]->setEnabled(!reloading);
+    setItemEnabled(indexOf(forumSubscriptions[forum]), !reloading);
 }
 
 void ForumListWidget::groupSelected(QListWidgetItem* item,
@@ -172,8 +171,34 @@ void ForumListWidget::groupSelected(QListWidgetItem* item,
 }
 
 void ForumListWidget::subscriptionFound(ForumSubscription *sub) {
+    QListWidget *lw = new QListWidget(this);
+    addItem(lw, sub->name());
+    forumSubscriptions[sub] = lw;
 
+    connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
+            this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
+
+    QString fiUrl = pdb.getParser(sub->parser()).forum_url;
+    fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
+    fiUrl = fiUrl + "/favicon.ico";
+    Favicon *fi = new Favicon(this, sub);
+    connect(fi, SIGNAL(iconChanged(ForumSubscription*, QIcon)), this,
+            SLOT(iconUpdated(ForumSubscription*, QIcon)));
+    fi->fetchIcon(QUrl(QUrl(fiUrl)), QPixmap(":/data/emblem-web.png"));
+    forumIcons[sub] = fi;
 }
-void ForumListWidget::groupFound(ForumGroup *grp) {
 
+void ForumListWidget::groupFound(ForumGroup *grp) {
+    Q_ASSERT(forumSubscriptions.contains(grp->subscription()));
+    QListWidget *lw = forumSubscriptions[grp->subscription()];
+    Q_ASSERT(lw);
+    QListWidgetItem *lwi = new QListWidgetItem(lw);
+    int unread = fdb.unreadIn(grp);
+    QString title = grp->name();
+    if (unread > 0)
+        title = title + " (" + QString().number(unread) + ")";
+    lwi->setText(title);
+    lwi->setIcon(QIcon(":/data/folder.png"));
+    lw->addItem(lwi);
+    forumGroups[lwi] = grp;
 }

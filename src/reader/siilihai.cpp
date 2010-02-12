@@ -174,6 +174,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 		loginProgress->setValue(50);
 
 	QList<ForumSubscription*> dbSubscriptions = fdb.listSubscriptions();
+
 	QList<ForumSubscription*> unsubscribedForums;
 	for (int d = 0; d < dbSubscriptions.size(); d++) {
 		bool found = false;
@@ -184,7 +185,8 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 		if (!found) {
 			qDebug() << "Site says not subscribed to "
 					<< dbSubscriptions.at(d)->toString();
-			unsubscribedForums.append(dbSubscriptions.at(d));
+			// @TODO really should unsubscribe!
+			// unsubscribedForums.append(dbSubscriptions.at(d));
 		}
 	}
 	for (int i = 0; i < unsubscribedForums.size(); i++) {
@@ -272,8 +274,8 @@ void Siilihai::subscribeForum() {
 	subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl);
 	subscribeWizard->setModal(true);
 	connect(subscribeWizard,
-			SIGNAL(forumAdded(ForumParser, ForumSubscription)), this,
-			SLOT(forumAdded(ForumParser, ForumSubscription)));
+			SIGNAL(forumAdded(ForumParser, ForumSubscription*)), this,
+			SLOT(forumAdded(ForumParser, ForumSubscription*)));
 }
 
 Siilihai::~Siilihai() {
@@ -328,16 +330,18 @@ void Siilihai::launchMainWindow() {
 }
 
 void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
-	if (!pdb.storeParser(fp) || !fdb.addForum(fs)) {
+	qDebug() << Q_FUNC_INFO << fp.toString() << fs->toString();
+	ForumSubscription *newSubscription = 0;
+	if (!pdb.storeParser(fp) || !(newSubscription = fdb.addForum(fs))) {
 		QMessageBox msgBox(mainWin);
 		msgBox.setText(
 				"Error: Unable to subscribe to forum. Are you already subscribed?");
 		msgBox.exec();
 	} else {
-		protocol.subscribeForum(fs);
-		setupParserEngine(fs);
+		protocol.subscribeForum(newSubscription);
+		setupParserEngine(newSubscription);
 		mainWin->forumList()->updateForumList();
-		engines[fs->parser()]->updateGroupList();
+		engines[newSubscription->parser()]->updateGroupList();
 	}
 }
 

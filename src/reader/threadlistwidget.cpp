@@ -6,6 +6,10 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 	QStringList headers;
 	headers << "Subject" << "Date" << "Author";
 	setHeaderLabels(headers);
+        connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
+        connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
+        connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
+                this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
 }
 
 ThreadListWidget::~ThreadListWidget() {
@@ -19,6 +23,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 		emit messageSelected(0);
 		return;
 	}
+        return;
 
 	QList<QTreeWidgetItem *> items;
 	foreach(ForumThread *thread, fdb.listThreads(fg)) {
@@ -107,4 +112,20 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
 	// forumMessages[item].read = true;
 	emit messageSelected(msg);
 	updateMessageRead(item);
+}
+
+void ThreadListWidget::threadFound(ForumThread* thr) {
+    QStringList header;
+    // @todo messageformatting::sanitize
+    header << thr->name() << thr->lastchange() << "author" /*
+                            << thread->author()*/;
+    QTreeWidgetItem *threadItem = new QTreeWidgetItem(this, header);
+    addTopLevelItem(threadItem);
+    resizeColumnToContents(0);
+    resizeColumnToContents(1);
+    resizeColumnToContents(2);
+}
+
+void ThreadListWidget::messageFound(ForumThread* msg){
+
 }

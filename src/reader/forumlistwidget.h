@@ -41,10 +41,12 @@ private:
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
 	ForumGroup *currentGroup;
-	QHash<ForumSubscription*, int> subscriptions; // id, sub
-	QHash<ForumSubscription*, int> forumIndexes; // id, idx
+//	QHash<ForumSubscription*, int> subscriptions; // id, sub
+//	QHash<ForumSubscription*, int> forumIndexes; // id, idx
 	QHash<ForumSubscription*, Favicon*> forumIcons;
 	QHash<QListWidgetItem*, ForumGroup*> forumGroups;
+//        QHash<QListWidget*, ForumSubscription*> forumSubscriptions;
+        QHash<ForumSubscription*, QListWidget*> forumSubscriptions;
 };
 
 #endif // FORUMLISTWIDGET_H

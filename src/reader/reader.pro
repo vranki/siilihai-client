@@ -50,4 +50,6 @@ FORMS = settingsdialog.ui \
 RESOURCES = ../../siilihairesources.qrc
 LIBS += -L../parsermaker \
     -lsiilihai
-!exists(/etc/libosso):LIBS += -lsiilihai-parsermaker
+!exists(/etc/libosso) {
+    LIBS += -lsiilihai-parsermaker
+}

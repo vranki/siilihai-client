@@ -1,10 +1,11 @@
 #include "favicon.h"
 
-Favicon::Favicon(QObject *parent, int forumid) :
+Favicon::Favicon(QObject *parent, ForumSubscription *s) :
 	QObject(parent) {
-	forum = forumid;
+        forum = s;
 	currentProgress = 0;
 	reloading = false;
+        Q_ASSERT(forum);
 }
 
 Favicon::~Favicon() {

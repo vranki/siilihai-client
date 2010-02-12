@@ -174,7 +174,7 @@ void SubscribeWizard::pageChanged(int id) {
 void SubscribeWizard::getParserFinished(ForumParser fp) {
 	disconnect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
 			SLOT(getParserFinished(ForumParser)));
-
+	qDebug() << Q_FUNC_INFO << fp.toString();
 	QString warningLabel;
 	if (fp.id >= 0) {
 		parser = fp;
