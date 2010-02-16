@@ -192,7 +192,6 @@ void Siilihai::listSubscriptionsFinished(QList<int> subscriptions) {
 	for (int i = 0; i < unsubscribedForums.size(); i++) {
 		fdb.deleteForum(unsubscribedForums.at(i));
 		pdb.deleteParser(unsubscribedForums.at(i)->parser());
-		mainWin->forumList()->updateForumList();
 		engines[unsubscribedForums.at(i)->parser()]->deleteLater();
 		engines.remove(unsubscribedForums.at(i)->parser());
 
@@ -320,7 +319,6 @@ void Siilihai::launchMainWindow() {
 	foreach(ForumSubscription *forum, fdb.listSubscriptions()) {
 		setupParserEngine(forum);
 	}
-	mainWin->forumList()->updateForumList();
 	if (readerReady) {
 		if (fdb.listSubscriptions().size() == 0)
 			subscribeForum();
@@ -340,7 +338,6 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
 	} else {
 		protocol.subscribeForum(newSubscription);
 		setupParserEngine(newSubscription);
-		mainWin->forumList()->updateForumList();
 		engines[newSubscription->parser()]->updateGroupList();
 	}
 }
@@ -353,20 +350,20 @@ void Siilihai::errorDialog(QString message) {
 }
 
 void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
-	if (forum > 0 && readerReady) {
-		GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
-		gsd->setModal(false);
-		gsd->setForum(&fdb, forum);
-		connect(gsd, SIGNAL(finished(int)), this,
-				SLOT(subscribeGroupDialogFinished()));
-		gsd->exec();
-	}
+    Q_ASSERT(forum);
+    if (readerReady) {
+        GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
+        gsd->setModal(false);
+        gsd->setForum(&fdb, forum);
+        connect(gsd, SIGNAL(finished(int)), this,
+                SLOT(subscribeGroupDialogFinished()));
+        gsd->exec();
+    }
 }
 
 void Siilihai::subscribeGroupDialogFinished() {
 	if (readerReady) {
 		qDebug() << "SFD finished, updating list";
-		mainWin->forumList()->updateForumList();
 		updateClicked();
 	}
 }
@@ -374,13 +371,11 @@ void Siilihai::subscribeGroupDialogFinished() {
 void Siilihai::forumUpdated(ForumSubscription* forum) {
 	if (readerReady) {
 		qDebug() << "Forum " << forum << " has been updated";
-		mainWin->forumList()->updateForumList();
 	}
 }
 
 void Siilihai::updateClicked() {
 	qDebug() << "Update clicked, updating all forums";
-	mainWin->threadList()->groupSelected(0);
 
 	QHashIterator<int, ParserEngine*> i(engines);
 	while (i.hasNext()) {
@@ -430,7 +425,6 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
 		if (msgBox.exec() == QMessageBox::Yes) {
 			fdb.deleteForum(fs);
 			pdb.deleteParser(fs->parser());
-			mainWin->forumList()->updateForumList();
 			engines[fs->parser()]->deleteLater();
 			engines.remove(fs->parser());
 			protocol.subscribeForum(fs, true);

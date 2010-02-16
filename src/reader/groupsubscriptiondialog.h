@@ -16,7 +16,6 @@ public:
     GroupSubscriptionDialog(QWidget *parent = 0);
     ~GroupSubscriptionDialog();
     void setForum(ForumDatabase *db, ForumSubscription *fs);
-    void updateList();
 public slots:
 	void selectAll();
 	void selectNone();

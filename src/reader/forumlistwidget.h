@@ -22,8 +22,7 @@ Q_OBJECT
 public:
 	ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDatabase &p);
 	~ForumListWidget();
-	void updateReadCounts();
-	void updateForumList();
+        void updateReadCounts(ForumGroup *grp);
 	ForumSubscription *getSelectedForum();
 	ForumGroup *getSelectedGroup();
 	void setForumStatus(ForumSubscription* forum, bool reloading, float progress);
@@ -33,19 +32,22 @@ public slots:
 	void iconUpdated(ForumSubscription *sub, QIcon newIcon);
 	void subscriptionFound(ForumSubscription *sub);
 	void groupFound(ForumGroup *grp);
+        void groupUpdated(ForumGroup *grp);
+        void groupDeleted(ForumGroup *grp);
+        void subscriptionDeleted(ForumSubscription *sub);
+        void messageUpdated(ForumMessage *grp);
 signals:
 	void groupSelected(ForumGroup *grp);
 	void forumSelected(ForumSubscription *sub);
 
 private:
+        QListWidgetItem *groupItem(ForumGroup *grp);
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
 	ForumGroup *currentGroup;
-//	QHash<ForumSubscription*, int> subscriptions; // id, sub
-//	QHash<ForumSubscription*, int> forumIndexes; // id, idx
+        QHash<int, ForumSubscription*> subscriptions; // id, sub
 	QHash<ForumSubscription*, Favicon*> forumIcons;
 	QHash<QListWidgetItem*, ForumGroup*> forumGroups;
-//        QHash<QListWidget*, ForumSubscription*> forumSubscriptions;
         QHash<ForumSubscription*, QListWidget*> forumSubscriptions;
 };
 

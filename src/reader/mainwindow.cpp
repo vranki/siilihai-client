@@ -46,19 +46,19 @@ MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
 	connect(ui.viewInBrowser, SIGNAL(clicked()), this,
 			SLOT(viewInBrowserClickedSlot()));
 	flw = new ForumListWidget(this, fdb, pdb);
-	ui.forumsSplitter->insertWidget(0, flw);
+        connect(flw, SIGNAL(groupSelected(ForumGroup*)), this,
+                        SLOT(groupSelected(ForumGroup*)));
+        connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this,
+                        SLOT(forumSelected(ForumSubscription*)));
+        ui.forumsSplitter->insertWidget(0, flw);
 	flw->setEnabled(false);
 	tlw = new ThreadListWidget(this, fdb);
-	ui.topFrame->layout()->addWidget(tlw);
+        connect(flw, SIGNAL(groupSelected(ForumGroup*)), tlw,
+                        SLOT(groupSelected(ForumGroup*)));
+        connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this,
+                        SLOT(messageSelected(ForumMessage*)));
+        ui.topFrame->layout()->addWidget(tlw);
 
-	connect(flw, SIGNAL(groupSelected(ForumGroup*)), tlw,
-			SLOT(groupSelected(ForumGroup*)));
-	connect(flw, SIGNAL(groupSelected(ForumGroup*)), this,
-			SLOT(groupSelected(ForumGroup*)));
-	connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this,
-			SLOT(updateEnabled()));
-	connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this,
-			SLOT(messageSelected(ForumMessage*)));
 
 	mvw = new MessageViewWidget(this);
 	ui.horizontalSplitter->addWidget(mvw);
@@ -116,7 +116,6 @@ void MainWindow::reportClickedSlot() {
 }
 
 void MainWindow::hideClickedSlot() {
-
 	if (flw->isHidden()) {
 		flw->show();
 		ui.hideButton->setText("Hide");
@@ -166,7 +165,7 @@ void MainWindow::setForumStatus(ForumSubscription *forum, bool reloading, float 
 	}
 
 	flw->setForumStatus(forum, reloading, progress);
-	updateEnabled();
+        updateEnabledButtons();
 }
 
 ForumListWidget* MainWindow::forumList() {
@@ -193,7 +192,7 @@ void MainWindow::setReaderReady(bool ready, bool readerOffline) {
 					2000);
 		}
 	}
-	updateEnabled();
+        updateEnabledButtons();
 }
 
 void MainWindow::about() {
@@ -212,8 +211,6 @@ void MainWindow::markForumRead(bool read) {
 	qDebug() << Q_FUNC_INFO;
 	if (flw->getSelectedForum()) {
 		fdb.markForumRead(flw->getSelectedForum(), read);
-		tlw->groupSelected(0);
-		flw->updateForumList();
 	}
 }
 
@@ -228,7 +225,6 @@ void MainWindow::markGroupRead(bool read) {
 	if (selectedGroup) {
 		fdb.markGroupRead(selectedGroup, read);
 		tlw->groupSelected(selectedGroup);
-		flw->updateForumList();
 	}
 }
 
@@ -237,37 +233,42 @@ void MainWindow::markGroupUnread() {
 }
 
 void MainWindow::messageSelected(ForumMessage *msg) {
-	if (msg) {
-		ui.viewInBrowser->setEnabled(true);
-		flw->updateReadCounts();
-	}
+    ui.viewInBrowser->setEnabled(msg != 0);
 }
 
-void MainWindow::groupSelected(ForumGroup *fg) {
-#ifdef Q_WS_HILDON
-	hideClickedSlot();
-#endif
-}
 
-void MainWindow::updateEnabled() {
+void MainWindow::updateEnabledButtons() {
 	ui.updateButton->setEnabled(readerReady && !offline);
 	ui.actionUpdate_all->setEnabled(readerReady && !offline);
 	ui.actionSubscribe_to->setEnabled(readerReady && !offline);
 
 	ui.stopButton->setEnabled(!busyForums.isEmpty() && readerReady);
 	ui.updateButton->setEnabled(busyForums.isEmpty() && readerReady && !offline);
-	// Forum
-	bool sane = flw->getSelectedForum();
-	ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
-	ui.actionForce_update_on_selected->setEnabled(readerReady && sane && !offline);
-	ui.actionReport_broken_or_working->setEnabled(readerReady && sane && !offline);
-	ui.actionUnsubscribe->setEnabled(readerReady && sane && !offline);
-	ui.actionGroup_Subscriptions->setEnabled(readerReady && sane && !offline);
-	ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
-	ui.actionMark_forum_as_read->setEnabled(readerReady && sane);
-	ui.actionMark_forum_as_unread->setEnabled(readerReady && sane);
-	// Group
-	sane = flw->getSelectedGroup();
-	ui.actionMark_group_as_Read->setEnabled(readerReady && sane);
-	ui.actionMark_group_as_Unread->setEnabled(readerReady && sane);
+
+        bool sane = (flw->getSelectedForum() != 0);
+        ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
+        ui.actionForce_update_on_selected->setEnabled(readerReady && sane && !offline);
+        ui.actionReport_broken_or_working->setEnabled(readerReady && sane && !offline);
+        ui.actionUnsubscribe->setEnabled(readerReady && sane && !offline);
+        ui.actionGroup_Subscriptions->setEnabled(readerReady && sane && !offline);
+        ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
+        ui.actionMark_forum_as_read->setEnabled(readerReady && sane);
+        ui.actionMark_forum_as_unread->setEnabled(readerReady && sane);
+
+        sane = (flw->getSelectedGroup() != 0);
+        ui.actionMark_group_as_Read->setEnabled(readerReady && sane);
+        ui.actionMark_group_as_Unread->setEnabled(readerReady && sane);
+    }
+
+void MainWindow::forumSelected(ForumSubscription *sub) {
+    qDebug() << Q_FUNC_INFO << sub << readerReady << offline;
+    updateEnabledButtons();
+}
+
+void MainWindow::groupSelected(ForumGroup *fg) {
+    qDebug() << Q_FUNC_INFO << fg;
+#ifdef Q_WS_HILDON
+    hideClickedSlot();
+#endif
+    updateEnabledButtons();
 }

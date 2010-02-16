@@ -65,22 +65,23 @@ public slots:
 	void setForumStatus(ForumSubscription *sub, bool reloading, float progress);
 	void launchParserMakerSlot();
 	void setReaderReady(bool ready, bool offline);
+        void forumSelected(ForumSubscription *sub);
+        void groupSelected(ForumGroup *grp);
 private slots:
 	void about();
 	void settingsDialog();
-	void groupSelected(ForumGroup *grp);
 	void messageSelected(ForumMessage *msg);
-	void updateEnabled();
+	void updateEnabledButtons();
 private:
 	void closeEvent(QCloseEvent *event);
 
 	ForumListWidget *flw;
 	ThreadListWidget *tlw;
 	MessageViewWidget *mvw;
-    Ui::MainWindowClass ui;
-    ParserDatabase &pdb;
-    ForumDatabase &fdb;
-    QSet<ForumSubscription*> busyForums;
+        Ui::MainWindowClass ui;
+        ParserDatabase &pdb;
+        ForumDatabase &fdb;
+        QSet<ForumSubscription*> busyForums;
 	QSettings *settings;
 	bool readerReady, offline;
 	QActionGroup viewAsGroup;
