@@ -47,8 +47,10 @@ void Siilihai::launchSiilihai() {
 		fdb.resetDatabase();
 	}
 	if(fdb.openDatabase()) {
-		settings.setValue("forum_database_schema", fdb.schemaVersion());
-	}
+            settings.setValue("forum_database_schema", fdb.schemaVersion());
+        } else {
+            errorDialog("Error opening Siilihai's database!\nSee console for details. Sorry.");
+        }
 	pdb.openDatabase();
 
 #ifdef Q_WS_HILDON

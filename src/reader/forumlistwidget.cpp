@@ -98,24 +98,24 @@ void ForumListWidget::groupUpdated(ForumGroup *grp) {
     Q_ASSERT(grp);
     QListWidget *lw = forumSubscriptions[grp->subscription()];
     Q_ASSERT(lw);
-    QListWidgetItem *groupItem = groupItem(grp);
-    if(groupItem && !grp->subscribed()) {
+    QListWidgetItem *gItem = groupItem(grp);
+    if(gItem && !grp->subscribed()) {
         qDebug() << Q_FUNC_INFO << " deleting removed group from UI";
-        lw->takeItem(lw->row(groupItem));
-        forumGroups.remove(groupItem);
-        delete groupItem;
+        lw->takeItem(lw->row(gItem));
+        forumGroups.remove(gItem);
+        delete gItem;
         if(currentGroup == grp) {
             currentGroup = 0;
             emit groupSelected(currentGroup);
         }
-    } else if(groupItem && grp->subscribed()) {
+    } else if(gItem && grp->subscribed()) {
         int unread = fdb.unreadIn(grp);
         QString title = grp->name();
         if (unread > 0)
             title = title + " (" + QString().number(unread) + ")";
         qDebug() << Q_FUNC_INFO << " Updating group title to " << title;
-        groupItem->setText(title);
-    } else if(!groupItem && grp->subscribed()) {
+        gItem->setText(title);
+    } else if(!gItem && grp->subscribed()) {
         qDebug() << Q_FUNC_INFO << " adding subscribed group to UI";
         groupFound(grp);
     }
