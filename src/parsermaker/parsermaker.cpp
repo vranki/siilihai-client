@@ -18,10 +18,10 @@ ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s,
 	ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(),
 			messageListEditor->tabName());
 	messageListEditor->setEnabled(false);
-	connect(groupListEditor, SIGNAL(groupSelected(ForumGroup)),
-			threadListEditor, SLOT(setGroup(ForumGroup)));
-	connect(threadListEditor, SIGNAL(threadSelected(ForumThread)),
-			messageListEditor, SLOT(setThread(ForumThread)));
+        connect(groupListEditor, SIGNAL(groupSelected(ForumGroup*)),
+                        threadListEditor, SLOT(setGroup(ForumGroup*)));
+        connect(threadListEditor, SIGNAL(threadSelected(ForumThread*)),
+                        messageListEditor, SLOT(setThread(ForumThread*)));
 
 	connect(&protocol, SIGNAL(saveParserFinished(int, QString)), this,
 			SLOT(saveParserFinished(int, QString)));

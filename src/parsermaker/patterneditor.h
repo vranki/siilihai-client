@@ -49,7 +49,7 @@ protected:
 	ForumParser &parser, downloadParser;
 	PatternMatcher *matcher;
 	ForumSubscription *subscription, *downloadSubscription;
-	QHash<int, QString> listIds;
+        // QHash<int, QString> listIds;
 	bool pageSpanningTest;
 	QTimer editTimeout;
 };

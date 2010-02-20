@@ -32,7 +32,7 @@ public slots:
 	void setThread(ForumThread *thread);
 	void resultCellActivated(int row, int column);
 	virtual void parserUpdated();
-	virtual void listMessagesFinished(QList<ForumMessage*> messages,
+        virtual void listMessagesFinished(QList<ForumMessage> &messages,
 			ForumThread *thread);
 	virtual void patternChanged();
 
@@ -41,6 +41,7 @@ signals:
 private:
 	ForumThread *currentThread;
 	QHash<QString, QString> bodies;
+        QHash<int, ForumMessage> listMessages;
 };
 
 #endif /* MESSAGELISTPATTERNEDITOR_H_ */

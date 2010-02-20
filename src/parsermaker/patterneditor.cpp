@@ -30,6 +30,7 @@ PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
 	groupListCursor = ui.sourceTextEdit->textCursor();
 	pageSpanningTest = false;
 	editTimeout.setSingleShot(true);
+        subscription = downloadSubscription = fos;
 }
 
 PatternEditor::~PatternEditor() {

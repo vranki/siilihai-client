@@ -1,10 +1,3 @@
-/*
- * threadlistpatterneditor.h
- *
- *  Created on: Oct 13, 2009
- *      Author: vranki
- */
-
 #ifndef THREADLISTPATTERNEDITOR_H_
 #define THREADLISTPATTERNEDITOR_H_
 
@@ -28,13 +21,14 @@ public slots:
 	void setGroup(ForumGroup *grp);
 	void resultCellActivated(int row, int column);
 	virtual void parserUpdated();
-	virtual void listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group);
+        virtual void listThreadsFinished(QList<ForumThread>& threads, ForumGroup *group);
 	virtual void patternChanged();
 
 signals:
 	void threadSelected(ForumThread *thread);
 private:
 	ForumGroup *currentGroup;
+        QHash<int, ForumThread> listThreads;
 };
 
 #endif /* THREADLISTPATTERNEDITOR_H_ */

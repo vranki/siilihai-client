@@ -87,8 +87,9 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
             QString threadSubject = messageSubject(firstMessage);
             QStringList header;
             // @todo messageformatting::sanitize
-
-            header << threadSubject << thread->lastchange() << firstMessage->author();
+            QString lc = thread->lastchange();
+            QString author = firstMessage->author();
+            header << threadSubject << MessageFormatting::sanitize(lc) << MessageFormatting::sanitize(author);
 
             QTreeWidgetItem *threadItem = new QTreeWidgetItem(this, header);
             forumMessages[threadItem] = firstMessage;
@@ -102,7 +103,9 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
                     if(subject == threadSubject) {
                         subject = "Re: " + threadSubject;
                     }
-                    messageHeader << subject << message->lastchange() << message->author();
+                    lc = message->lastchange();
+                    author = message->author();
+                    messageHeader << subject << MessageFormatting::sanitize(lc) << MessageFormatting::sanitize(author);
                     QTreeWidgetItem *messageItem = new QTreeWidgetItem(threadItem,
                                                                        messageHeader);
                     threadItem->addChild(messageItem);
@@ -122,11 +125,14 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 }
 
 QString ThreadListWidget::messageSubject(ForumMessage *msg) {
+    QString subj;
     if(msg->subject().length() > msg->thread()->name().length()) {
-        return msg->subject();
+        subj = msg->subject();
     } else {
-        return msg->thread()->name();
+        subj = msg->thread()->name();
     }
+    subj = MessageFormatting::sanitize(subj);
+    return subj;
 }
 
 void ThreadListWidget::messageUpdated(ForumMessage *msg) {

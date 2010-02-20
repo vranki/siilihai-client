@@ -11,10 +11,12 @@ GroupListPatternEditor::GroupListPatternEditor(ForumSession &ses,
 		ForumParser &par, ForumSubscription *fos, QWidget *parent) :
 	PatternEditor(ses, par, fos, parent) {
 
-	connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup>)), this,
-			SLOT(listGroupsFinished(QList<ForumGroup>)));
+        connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup>&)), this,
+                        SLOT(listGroupsFinished(QList<ForumGroup>&)));
 	ui.testPageSpanning->setEnabled(false);
 	ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
+        Q_ASSERT(fos);
+        subscription = fos;
 	session.initialize(par, fos, matcher);
 }
 
@@ -32,8 +34,8 @@ void GroupListPatternEditor::downloadList() {
 void GroupListPatternEditor::testPageSpanning() {
 }
 
-void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> groups) {
-	listIds.clear();
+void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup> &groups) {
+        listGroups.clear();
 	ui.resultsTable->clear();
 	ui.resultsTable->setRowCount(groups.size());
 	ui.resultsTable->setColumnCount(3);
@@ -43,13 +45,13 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> groups) {
 	ui.downloadButton->setEnabled(true);
 
 	for (int i = 0; i < groups.size(); i++) {
-		QTableWidgetItem *newItem = new QTableWidgetItem(groups[i]->id());
+                QTableWidgetItem *newItem = new QTableWidgetItem(groups[i].id());
 		ui.resultsTable->setItem(i, 0, newItem);
-		listIds[i] = groups[i]->id();
+                listGroups[i] = groups[i];
 
-		newItem = new QTableWidgetItem(groups[i]->name());
+                newItem = new QTableWidgetItem(groups[i].name());
 		ui.resultsTable->setItem(i, 1, newItem);
-		newItem = new QTableWidgetItem(groups[i]->lastchange());
+                newItem = new QTableWidgetItem(groups[i].lastchange());
 		ui.resultsTable->setItem(i, 2, newItem);
 	}
 	ui.resultsTable->resizeColumnsToContents();
@@ -57,16 +59,13 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> groups) {
 
 void GroupListPatternEditor::resultCellActivated(int row, int column) {
 	ForumGroup *selectedGroup = 0;
-	/* @todo fix
-	if (listIds.contains(row)) {
-		qDebug() << "Selected group " << listIds[row];
-		selectedGroup = fdb.get listIds[row];
-		selectedGroup.parser = parser.id;
 
+        if (listGroups.contains(row)) {
+                qDebug() << "Selected group " << listGroups[row].toString();
+                selectedGroup = &listGroups[row];
 	} else {
 		qDebug() << "Unknown id @ row " << row;
 	}
-	*/
 	emit(groupSelected(selectedGroup));
 }
 

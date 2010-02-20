@@ -1,9 +1,3 @@
-/*
- * threadlistpatterneditor.cpp
- *
- *  Created on: Oct 13, 2009
- *      Author: vranki
- */
 
 #include "threadlistpatterneditor.h"
 
@@ -12,10 +6,13 @@ ThreadListPatternEditor::ThreadListPatternEditor(ForumSession &ses,
 	PatternEditor(ses, par, fos, parent) {
 	setEnabled(false);
 	connect(&session,
-			SIGNAL(listThreadsFinished(QList<ForumThread>, ForumGroup)), this,
-			SLOT(listThreadsFinished(QList<ForumThread>, ForumGroup)));
+                        SIGNAL(listThreadsFinished(QList<ForumThread> &, ForumGroup*)), this,
+                        SLOT(listThreadsFinished(QList<ForumThread> &, ForumGroup*)));
 	ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
+        subscription = fos;
+        Q_ASSERT(fos);
 	session.initialize(par, fos, matcher);
+        currentGroup = 0;
 }
 
 ThreadListPatternEditor::~ThreadListPatternEditor() {
@@ -58,33 +55,27 @@ void ThreadListPatternEditor::testPageSpanning() {
 
 void ThreadListPatternEditor::setGroup(ForumGroup *grp) {
 	currentGroup = grp;
-	setEnabled(currentGroup->id().length() > 0);
-	ui.downloadButton->setEnabled(true);
-	ui.testPageSpanning->setEnabled(true);
+        setEnabled(currentGroup != 0);
+        ui.downloadButton->setEnabled(currentGroup != 0);
+        ui.testPageSpanning->setEnabled(currentGroup != 0);
 	parserUpdated();
 }
 
 void ThreadListPatternEditor::resultCellActivated(int row, int column) {
-	ForumThread *selectedThread = 0;
-	/* @todo fix
-	selectedThread.id = QString::null;
+    ForumThread *selectedThread = 0;
 
-	if (listIds.contains(row)) {
-		qDebug() << "Selected thread " << listIds[row];
-		selectedThread.id = listIds[row];
-		selectedThread.groupid = currentGroup.id;
-		selectedThread.forumid = parser.id;
-	} else {
-		qDebug() << "Unknown id @ row " << row;
-	}
-	*/
-	emit(threadSelected(selectedThread));
+    if (listThreads.contains(row)) {
+        qDebug() << "Selected thread " << listThreads[row].toString();
+        selectedThread= &listThreads[row];
+    } else {
+        qDebug() << "Unknown id @ row " << row;
+    }
+    emit(threadSelected(selectedThread));
 }
 
-void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*> threads,
-		ForumGroup *group) {
+void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread>& threads, ForumGroup *group) {
 	ForumThread selectedThread;
-	listIds.clear();
+        listThreads.clear();
 	ui.resultsTable->clear();
 	ui.resultsTable->setRowCount(threads.size());
 	ui.resultsTable->setColumnCount(3);
@@ -95,13 +86,13 @@ void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*> threads,
 	ui.testPageSpanning->setEnabled(true);
 
 	for (int i = 0; i < threads.size(); i++) {
-		QTableWidgetItem *newItem = new QTableWidgetItem(threads[i]->id());
+                QTableWidgetItem *newItem = new QTableWidgetItem(threads[i].id());
 		ui.resultsTable->setItem(i, 0, newItem);
-		listIds[i] = threads[i]->id();
+                listThreads[i] = threads[i];
 
-		newItem = new QTableWidgetItem(threads[i]->name());
+                newItem = new QTableWidgetItem(threads[i].name());
 		ui.resultsTable->setItem(i, 1, newItem);
-		newItem = new QTableWidgetItem(threads[i]->lastchange());
+                newItem = new QTableWidgetItem(threads[i].lastchange());
 		ui.resultsTable->setItem(i, 2, newItem);
 	}
 
@@ -111,7 +102,7 @@ void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*> threads,
 }
 
 void ThreadListPatternEditor::parserUpdated() {
-	if (currentGroup->id().length() > 0) {
+        if (currentGroup) {
 		ui.urlLabel->setText(session.getThreadListUrl(currentGroup));
 	} else {
 		ui.urlLabel->setText("(No group selected)");

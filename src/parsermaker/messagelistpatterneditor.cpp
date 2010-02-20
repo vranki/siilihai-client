@@ -11,13 +11,16 @@ MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
 		ForumParser &par, ForumSubscription *fos, QWidget *parent) :
 	PatternEditor(ses, par, fos, parent) {
 	setEnabled(false);
-	connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage>,
-					ForumThread)), this,
-			SLOT(listMessagesFinished(QList<ForumMessage>,
-							ForumThread)));
+        connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage>&,
+                                        ForumThread*)), this,
+                        SLOT(listMessagesFinished(QList<ForumMessage>&,
+                                                        ForumThread*)));
 	ui.patternLabel->setText(
 			"<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
+        subscription = fos;
+        Q_ASSERT(fos);
 	session.initialize(par, fos, matcher);
+        currentThread = 0;
 }
 
 MessageListPatternEditor::~MessageListPatternEditor() {
@@ -60,22 +63,22 @@ void MessageListPatternEditor::testPageSpanning() {
 }
 
 void MessageListPatternEditor::setThread(ForumThread *thread) {
-	currentThread = thread;
-	if (currentThread->id().length() > 0) {
-		setEnabled(true);
-		ui.downloadButton->setEnabled(true);
-		ui.testPageSpanning->setEnabled(true);
+    currentThread = thread;
+    setEnabled(currentThread != 0);
+    ui.downloadButton->setEnabled(currentThread != 0);
+    ui.testPageSpanning->setEnabled(currentThread != 0);
 
-		parserUpdated();
-	}
+    if (currentThread) {
+        parserUpdated();
+    }
 }
 
 void MessageListPatternEditor::resultCellActivated(int row, int column) {
 	ForumThread *selectedThread = 0;
 
-	if (listIds.contains(row)) {
-		QString id = listIds[row];
-		QString body = bodies[listIds[row]];
+        if (listMessages.contains(row)) {
+                QString id = listMessages[row].id();
+                QString body = bodies[listMessages[row].id()];
 		QMessageBox msgBox(this);
 		msgBox.setText(body);
 		msgBox.setModal(true);
@@ -86,8 +89,8 @@ void MessageListPatternEditor::resultCellActivated(int row, int column) {
 }
 
 void MessageListPatternEditor::listMessagesFinished(
-		QList<ForumMessage*> messages, ForumThread *thread) {
-	listIds.clear();
+                QList<ForumMessage> &messages, ForumThread *thread) {
+        listMessages.clear();
 	bodies.clear();
 	ui.resultsTable->clear();
 	ui.resultsTable->setRowCount(messages.size());
@@ -97,20 +100,23 @@ void MessageListPatternEditor::listMessagesFinished(
 	headers << "Id" << "Subject" << "Author" << "Last Change" << "Body";
 	ui.resultsTable->setHorizontalHeaderLabels(headers);
 
-	for (int i = 0; i < messages.size(); i++) {
-		QTableWidgetItem *newItem = new QTableWidgetItem(messages[i]->id());
-		ui.resultsTable->setItem(i, 0, newItem);
-		listIds[i] = messages[i]->id();
-		bodies[messages[i]->id()] = messages[i]->body();
+        int tableRow = 0;
+        for(int i=0;i<messages.size();i++) {
+            ForumMessage fm = messages[i];
+                QTableWidgetItem *newItem = new QTableWidgetItem(fm.id());
+                ui.resultsTable->setItem(tableRow, 0, newItem);
+                listMessages[tableRow] = fm;
+                bodies[fm.id()] = fm.body();
 
-		newItem = new QTableWidgetItem(messages[i]->subject());
-		ui.resultsTable->setItem(i, 1, newItem);
-		newItem = new QTableWidgetItem(messages[i]->author());
-		ui.resultsTable->setItem(i, 2, newItem);
-		newItem = new QTableWidgetItem(messages[i]->lastchange());
-		ui.resultsTable->setItem(i, 3, newItem);
-		newItem = new QTableWidgetItem(messages[i]->body().left(15));
-		ui.resultsTable->setItem(i, 4, newItem);
+                newItem = new QTableWidgetItem(fm.subject());
+                ui.resultsTable->setItem(tableRow, 1, newItem);
+                newItem = new QTableWidgetItem(fm.author());
+                ui.resultsTable->setItem(tableRow, 2, newItem);
+                newItem = new QTableWidgetItem(fm.lastchange());
+                ui.resultsTable->setItem(tableRow, 3, newItem);
+                newItem = new QTableWidgetItem(fm.body().left(15));
+                ui.resultsTable->setItem(tableRow, 4, newItem);
+                tableRow++;
 	}
 	ui.resultsTable->resizeColumnsToContents();
 
@@ -119,7 +125,7 @@ void MessageListPatternEditor::listMessagesFinished(
 }
 
 void MessageListPatternEditor::parserUpdated() {
-	if (currentThread->id().length() > 0) {
+        if (currentThread) {
 		QString mlu = session.getMessageListUrl(currentThread);
 		ui.urlLabel->setText(mlu);
 	} else {
