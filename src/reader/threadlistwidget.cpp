@@ -57,35 +57,43 @@ void ThreadListWidget::groupDeleted(ForumGroup *grp) {
 }
 
 void ThreadListWidget::messageFound(ForumMessage *msg) {
-    if(msg->thread()->group() != currentGroup) return;
-    groupSelected(currentGroup); // @todo better
+    if(msg->thread()->group() == currentGroup) updateList();
 }
 
 void ThreadListWidget::threadFound(ForumThread *thread) {
-    if(thread->group() != currentGroup) return;
-    groupSelected(currentGroup);  // @todo better
+    if(thread->group() == currentGroup) updateList();
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
-    qDebug() << Q_FUNC_INFO << fg << " old was " << currentGroup;
-    Q_ASSERT(fg);
-    if(currentGroup == fg) return;
+    if(!fg) {
+        currentGroup = fg;
+        clearList();
+        emit messageSelected(0);
+    } if(currentGroup != fg) {
     currentGroup = fg;
-    // @todo do nothing if group hasn't changed!
+    updateList();
+}
+}
+
+void ThreadListWidget::clearList() {
     clear();
     forumMessages.clear();
     messageSubjects.clear();
-    if (!fg) {
-        emit messageSelected(0);
-        return;
-    }
+}
+
+void ThreadListWidget::updateList() {
+    if(!currentGroup) return;
+    clearList();
 
     QList<QTreeWidgetItem *> items;
-    foreach(ForumThread *thread, fdb.listThreads(fg)) {
+    foreach(ForumThread *thread, fdb.listThreads(currentGroup)) {
         QList<ForumMessage*> messages = fdb.listMessages(thread);
+
         ForumMessage *firstMessage = 0;
         if(!messages.isEmpty()) {
             firstMessage = messages.first();
+            Q_ASSERT(firstMessage->ordernum()==0);
+
             QString threadSubject = messageSubject(firstMessage);
             QStringList header;
             QString lc = thread->lastchange();
@@ -93,11 +101,17 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
             header << threadSubject << MessageFormatting::sanitize(lc) << MessageFormatting::sanitize(author);
 
             QTreeWidgetItem *threadItem = new QTreeWidgetItem(this, header);
+
+            threadItems.append(qMakePair(threadItem, thread));
+            firstMessages.append(qMakePair(threadItem, firstMessage));
+
+            // @todo jatka tasta. pitasko callbackihimmeli teha?
+
             forumMessages[threadItem] = firstMessage;
             messageSubjects[threadItem] = threadSubject;
             items.append(threadItem);
             updateMessageRead(threadItem);
-            int largestOrderNum = -1;
+            int largestOrderNum = 0;
             foreach(ForumMessage *message, messages) {
                 if(message->ordernum() > largestOrderNum) {
                     largestOrderNum = message->ordernum();
