@@ -2,20 +2,20 @@
 
 ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 	QTreeWidget(parent), fdb(f) {
-	setColumnCount(3);
-        currentGroup = 0;
-	QStringList headers;
-	headers << "Subject" << "Date" << "Author";
-	setHeaderLabels(headers);
-        connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
-        connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
-        connect(&fdb, SIGNAL(threadDeleted(ForumThread*)), this, SLOT(threadDeleted(ForumThread*)));
-        connect(&fdb, SIGNAL(messageDeleted(ForumMessage*)), this, SLOT(messageDeleted(ForumMessage*)));
-        connect(&fdb, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
-        connect(&fdb, SIGNAL(groupUpdated(ForumGroup*)), this, SLOT(groupUpdated(ForumGroup*)));
-        connect(&fdb, SIGNAL(groupDeleted(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
-        connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
-                this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
+    setColumnCount(3);
+    currentGroup = 0;
+    QStringList headers;
+    headers << "Subject" << "Date" << "Author";
+    setHeaderLabels(headers);
+    connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
+    connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
+    connect(&fdb, SIGNAL(threadDeleted(ForumThread*)), this, SLOT(threadDeleted(ForumThread*)));
+    connect(&fdb, SIGNAL(messageDeleted(ForumMessage*)), this, SLOT(messageDeleted(ForumMessage*)));
+    connect(&fdb, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
+    connect(&fdb, SIGNAL(groupUpdated(ForumGroup*)), this, SLOT(groupUpdated(ForumGroup*)));
+    connect(&fdb, SIGNAL(groupDeleted(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
+    connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
+            this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
 }
 
 ThreadListWidget::~ThreadListWidget() {
@@ -25,7 +25,7 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
     if(msg->thread()->group() != currentGroup) return;
 
     QTreeWidgetItem *messageItem = messageWidget(msg);
-    Q_ASSERT(messageItem);
+    // Q_ASSERT(messageItem); should exist always?
     if(messageItem) {
         if(messageItem->parent()) { // Is a standard message
             messageItem->parent()->removeChild(messageItem);
@@ -35,6 +35,8 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
         }
 
         delete messageItem;
+    } else {
+        qDebug() << Q_FUNC_INFO << "Message item not found for some reason for " << msg->toString();
     }
 }
 
@@ -82,11 +84,10 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
     foreach(ForumThread *thread, fdb.listThreads(fg)) {
         QList<ForumMessage*> messages = fdb.listMessages(thread);
         ForumMessage *firstMessage = 0;
-        if(messages.size() > 1) {
+        if(!messages.isEmpty()) {
             firstMessage = messages.first();
             QString threadSubject = messageSubject(firstMessage);
             QStringList header;
-            // @todo messageformatting::sanitize
             QString lc = thread->lastchange();
             QString author = firstMessage->author();
             header << threadSubject << MessageFormatting::sanitize(lc) << MessageFormatting::sanitize(author);
@@ -95,8 +96,14 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
             forumMessages[threadItem] = firstMessage;
             messageSubjects[threadItem] = threadSubject;
             items.append(threadItem);
-
+            updateMessageRead(threadItem);
+            int largestOrderNum = -1;
             foreach(ForumMessage *message, messages) {
+                if(message->ordernum() > largestOrderNum) {
+                    largestOrderNum = message->ordernum();
+                } else {
+                    Q_ASSERT(false);
+                }
                 if(message != firstMessage) {
                     QStringList messageHeader;
                     QString subject = messageSubject(message);
@@ -197,7 +204,7 @@ void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
 }
 
 void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
-		QTreeWidgetItem *prev) {
+                                       QTreeWidgetItem *prev) {
     qDebug() << "selected " << item << prev;
     Q_UNUSED(prev);
     if (!item)

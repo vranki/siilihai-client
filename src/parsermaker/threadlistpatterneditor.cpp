@@ -62,6 +62,8 @@ void ThreadListPatternEditor::setGroup(ForumGroup *grp) {
 }
 
 void ThreadListPatternEditor::resultCellActivated(int row, int column) {
+    Q_UNUSED(column);
+
     ForumThread *selectedThread = 0;
 
     if (listThreads.contains(row)) {
@@ -74,6 +76,8 @@ void ThreadListPatternEditor::resultCellActivated(int row, int column) {
 }
 
 void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread>& threads, ForumGroup *group) {
+    Q_UNUSED(group);
+
 	ForumThread selectedThread;
         listThreads.clear();
 	ui.resultsTable->clear();

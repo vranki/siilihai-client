@@ -8,58 +8,58 @@
 #include "messagelistpatterneditor.h"
 
 MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
-		ForumParser &par, ForumSubscription *fos, QWidget *parent) :
-	PatternEditor(ses, par, fos, parent) {
-	setEnabled(false);
-        connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage>&,
-                                        ForumThread*)), this,
-                        SLOT(listMessagesFinished(QList<ForumMessage>&,
-                                                        ForumThread*)));
-	ui.patternLabel->setText(
-			"<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
-        subscription = fos;
-        Q_ASSERT(fos);
-	session.initialize(par, fos, matcher);
-        currentThread = 0;
+                                                   ForumParser &par, ForumSubscription *fos, QWidget *parent) :
+PatternEditor(ses, par, fos, parent) {
+    setEnabled(false);
+    connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage>&,
+                                                  ForumThread*)), this,
+            SLOT(listMessagesFinished(QList<ForumMessage>&,
+                                      ForumThread*)));
+    ui.patternLabel->setText(
+            "<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
+    subscription = fos;
+    Q_ASSERT(fos);
+    session.initialize(par, fos, matcher);
+    currentThread = 0;
 }
 
 MessageListPatternEditor::~MessageListPatternEditor() {
 }
 
 QString MessageListPatternEditor::tabName() {
-	return "Message List";
+    return "Message List";
 }
 
 void MessageListPatternEditor::downloadList() {
-	downloadParser = parser;
-	downloadParser.thread_list_page_increment = 0;
-	downloadParser.view_thread_page_increment = 0;
-	downloadSubscription = subscription;
+    downloadParser = parser;
+    downloadParser.thread_list_page_increment = 0;
+    downloadParser.view_thread_page_increment = 0;
+    downloadSubscription = subscription;
 
-	session.initialize(downloadParser, downloadSubscription, matcher);
-	session.listMessages(currentThread);
+    session.initialize(downloadParser, downloadSubscription, matcher);
+    session.listMessages(currentThread);
 
-	ui.sourceTextEdit->clear();
-	ui.downloadButton->setEnabled(false);
-	ui.testPageSpanning->setEnabled(false);
-	pageSpanningTest = false;
+    ui.sourceTextEdit->clear();
+    ui.downloadButton->setEnabled(false);
+    ui.testPageSpanning->setEnabled(false);
+    pageSpanningTest = false;
 }
 
 void MessageListPatternEditor::testPageSpanning() {
-	downloadParser = parser;
-	downloadSubscription = subscription;
-	downloadSubscription->setLatestThreads(999);
-	downloadSubscription->setLatestMessages(999);
+    downloadParser = parser;
+    downloadSubscription = subscription;
+    downloadSubscription->setLatestThreads(999);
+    downloadSubscription->setLatestMessages(999);
 
-	session.initialize(downloadParser, downloadSubscription, matcher);
-	session.listMessages(currentThread);
+    session.initialize(downloadParser, downloadSubscription, matcher);
+    session.listMessages(currentThread);
 
-	ui.sourceTextEdit->clear();
-	ui.sourceTextEdit->append(
-			"Source not available when testing multiple pages.");
-	ui.downloadButton->setEnabled(false);
-	ui.testPageSpanning->setEnabled(false);
-	pageSpanningTest = true;
+    ui.sourceTextEdit->clear();
+    ui.sourceTextEdit->append(
+            "Source not available when testing multiple pages.");
+    ui.downloadButton->setEnabled(false);
+    ui.testPageSpanning->setEnabled(false);
+    pageSpanningTest = true;
 }
 
 void MessageListPatternEditor::setThread(ForumThread *thread) {
@@ -74,96 +74,97 @@ void MessageListPatternEditor::setThread(ForumThread *thread) {
 }
 
 void MessageListPatternEditor::resultCellActivated(int row, int column) {
-	ForumThread *selectedThread = 0;
-
-        if (listMessages.contains(row)) {
-                QString id = listMessages[row].id();
-                QString body = bodies[listMessages[row].id()];
-		QMessageBox msgBox(this);
-		msgBox.setText(body);
-		msgBox.setModal(true);
-		msgBox.exec();
-	} else {
-		qDebug() << "Unknown id @ row " << row;
-	}
+    Q_UNUSED(column);
+    if (listMessages.contains(row)) {
+        QString id = listMessages[row].id();
+        QString body = bodies[listMessages[row].id()];
+        QMessageBox msgBox(this);
+        msgBox.setText(body);
+        msgBox.setModal(true);
+        msgBox.exec();
+    } else {
+        qDebug() << "Unknown id @ row " << row;
+    }
 }
 
 void MessageListPatternEditor::listMessagesFinished(
-                QList<ForumMessage> &messages, ForumThread *thread) {
-        listMessages.clear();
-	bodies.clear();
-	ui.resultsTable->clear();
-	ui.resultsTable->setRowCount(messages.size());
-	ui.resultsTable->setColumnCount(5);
+        QList<ForumMessage> &messages, ForumThread *thread) {
+    Q_UNUSED(thread);
 
-	QStringList headers;
-	headers << "Id" << "Subject" << "Author" << "Last Change" << "Body";
-	ui.resultsTable->setHorizontalHeaderLabels(headers);
+    listMessages.clear();
+    bodies.clear();
+    ui.resultsTable->clear();
+    ui.resultsTable->setRowCount(messages.size());
+    ui.resultsTable->setColumnCount(5);
 
-        int tableRow = 0;
-        for(int i=0;i<messages.size();i++) {
-            ForumMessage fm = messages[i];
-                QTableWidgetItem *newItem = new QTableWidgetItem(fm.id());
-                ui.resultsTable->setItem(tableRow, 0, newItem);
-                listMessages[tableRow] = fm;
-                bodies[fm.id()] = fm.body();
+    QStringList headers;
+    headers << "Id" << "Subject" << "Author" << "Last Change" << "Body";
+    ui.resultsTable->setHorizontalHeaderLabels(headers);
 
-                newItem = new QTableWidgetItem(fm.subject());
-                ui.resultsTable->setItem(tableRow, 1, newItem);
-                newItem = new QTableWidgetItem(fm.author());
-                ui.resultsTable->setItem(tableRow, 2, newItem);
-                newItem = new QTableWidgetItem(fm.lastchange());
-                ui.resultsTable->setItem(tableRow, 3, newItem);
-                newItem = new QTableWidgetItem(fm.body().left(15));
-                ui.resultsTable->setItem(tableRow, 4, newItem);
-                tableRow++;
-	}
-	ui.resultsTable->resizeColumnsToContents();
+    int tableRow = 0;
+    for(int i=0;i<messages.size();i++) {
+        ForumMessage fm = messages[i];
+        QTableWidgetItem *newItem = new QTableWidgetItem(fm.id());
+        ui.resultsTable->setItem(tableRow, 0, newItem);
+        listMessages[tableRow] = fm;
+        bodies[fm.id()] = fm.body();
 
-	ui.downloadButton->setEnabled(true);
-	ui.testPageSpanning->setEnabled(true);
+        newItem = new QTableWidgetItem(fm.subject());
+        ui.resultsTable->setItem(tableRow, 1, newItem);
+        newItem = new QTableWidgetItem(fm.author());
+        ui.resultsTable->setItem(tableRow, 2, newItem);
+        newItem = new QTableWidgetItem(fm.lastchange());
+        ui.resultsTable->setItem(tableRow, 3, newItem);
+        newItem = new QTableWidgetItem(fm.body().left(15));
+        ui.resultsTable->setItem(tableRow, 4, newItem);
+        tableRow++;
+    }
+    ui.resultsTable->resizeColumnsToContents();
+
+    ui.downloadButton->setEnabled(true);
+    ui.testPageSpanning->setEnabled(true);
 }
 
 void MessageListPatternEditor::parserUpdated() {
-        if (currentThread) {
-		QString mlu = session.getMessageListUrl(currentThread);
-		ui.urlLabel->setText(mlu);
-	} else {
-		ui.urlLabel->setText("(No thread selected)");
-	}
+    if (currentThread) {
+        QString mlu = session.getMessageListUrl(currentThread);
+        ui.urlLabel->setText(mlu);
+    } else {
+        ui.urlLabel->setText("(No thread selected)");
+    }
 
-	QString errors, warnings;
-	if (!parser.message_list_pattern.contains("%a")
-			&& !parser.message_list_pattern.contains("%A"))
-		errors += "Message id (%a) missing\n";
-	if (!parser.message_list_pattern.contains("%b"))
-		warnings += "Message subject (%b) is recommended\n";
-	if (!parser.message_list_pattern.contains("%c"))
-		errors += "Message body (%c) is missing\n";
-	if (!parser.message_list_pattern.contains("%d"))
-		warnings += "Message author (%d) is recommended\n";
-	if (!parser.message_list_pattern.contains("%e"))
-		warnings += "Last change (%e) is recommended\n";
+    QString errors, warnings;
+    if (!parser.message_list_pattern.contains("%a")
+        && !parser.message_list_pattern.contains("%A"))
+        errors += "Message id (%a) missing\n";
+    if (!parser.message_list_pattern.contains("%b"))
+        warnings += "Message subject (%b) is recommended\n";
+    if (!parser.message_list_pattern.contains("%c"))
+        errors += "Message body (%c) is missing\n";
+    if (!parser.message_list_pattern.contains("%d"))
+        warnings += "Message author (%d) is recommended\n";
+    if (!parser.message_list_pattern.contains("%e"))
+        warnings += "Last change (%e) is recommended\n";
 
-	if (errors.length() == 0) {
-		errors = "Pattern is ok.\nClick on message to display its body.\nRemember also to test\nmulti page spanning.";
-	}
-	ui.errorLabel->setText(errors);
-	ui.warningLabel->setText(warnings);
+    if (errors.length() == 0) {
+        errors = "Pattern is ok.\nClick on message to display its body.\nRemember also to test\nmulti page spanning.";
+    }
+    ui.errorLabel->setText(errors);
+    ui.warningLabel->setText(warnings);
 }
 
 void MessageListPatternEditor::patternChanged() {
-	parser.message_list_pattern = pattern();
-	downloadParser = parser;
-	downloadParser.thread_list_page_increment = 0;
-	downloadParser.view_thread_page_increment = 0;
-	downloadSubscription = subscription;
-	session.setParser(downloadParser);
-	QString glhtml = ui.sourceTextEdit->toPlainText();
-	session.performListMessages(glhtml);
-	parserUpdated();
+    parser.message_list_pattern = pattern();
+    downloadParser = parser;
+    downloadParser.thread_list_page_increment = 0;
+    downloadParser.view_thread_page_increment = 0;
+    downloadSubscription = subscription;
+    session.setParser(downloadParser);
+    QString glhtml = ui.sourceTextEdit->toPlainText();
+    session.performListMessages(glhtml);
+    parserUpdated();
 }
 
 QIcon MessageListPatternEditor::tabIcon() {
-	return QIcon(":/data/mail-unread.png");
+    return QIcon(":/data/mail-unread.png");
 }

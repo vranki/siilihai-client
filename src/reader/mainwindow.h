@@ -79,8 +79,8 @@ private:
 	ThreadListWidget *tlw;
 	MessageViewWidget *mvw;
         Ui::MainWindowClass ui;
-        ParserDatabase &pdb;
         ForumDatabase &fdb;
+        ParserDatabase &pdb;
         QSet<ForumSubscription*> busyForums;
 	QSettings *settings;
 	bool readerReady, offline;

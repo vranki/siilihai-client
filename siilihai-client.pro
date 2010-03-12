@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 SUBDIRS = src
 RESOURCES = siilihairesources.qrc
+OTHER_FILES = debian/control debian/rules debian/changelog
 CONFIG += qt debug
 
 maemo_desktops.path = /usr/share/applications/hildon
