@@ -1,5 +1,5 @@
 Source: siilihai-client
-Section: user/network
+Section: net
 Priority: extra
 Maintainer: Ville Ranki <ville.ranki@iki.fi>
 Build-Depends: debhelper (>= 5), libqt4-dev, libsiilihai (>=0.8.0), libqt4-sql-sqlite
