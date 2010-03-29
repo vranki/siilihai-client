@@ -5,7 +5,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     setColumnCount(3);
     currentGroup = 0;
     QStringList headers;
-    headers << "Subject" << "Date" << "Author";
+    headers << "Subject" << "Date" << "Author" << "Ordernum";
     setHeaderLabels(headers);
     connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
     connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
@@ -16,12 +16,14 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     connect(&fdb, SIGNAL(groupDeleted(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
+    hideColumn(3);
 }
 
 ThreadListWidget::~ThreadListWidget() {
 }
 
 void ThreadListWidget::messageDeleted(ForumMessage *msg) {
+    Q_ASSERT(msg);
     if(msg->thread()->group() != currentGroup) return;
 
     QTreeWidgetItem *messageItem = messageWidget(msg);
@@ -33,7 +35,8 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
             takeTopLevelItem(indexOfTopLevelItem(messageItem));
             // @todo i really hope this works if this is deleted first!
         }
-
+        forumMessages.remove(messageItem);
+        messageSubjects.remove(messageItem);
         delete messageItem;
     } else {
         qDebug() << Q_FUNC_INFO << "Message item not found for some reason for " << msg->toString();
@@ -41,27 +44,100 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
 }
 
 void ThreadListWidget::threadDeleted(ForumThread *thread) {
+    if(thread->group() != currentGroup) return;
 
+    // Actually NOP, as deleting the last message will remove the thread.
+    // @todo check that all messages have been removed here!
+    return;
+
+    QTreeWidgetItem *threadItem = threadWidget(thread);
+    // Q_ASSERT(messageItem); should exist always?
+    if(threadItem) {
+        if(threadItem->parent()) { // Is a standard message
+            threadItem->parent()->removeChild(threadItem);
+        } else { // Is a thread's first
+            takeTopLevelItem(indexOfTopLevelItem(threadItem));
+            // @todo i really hope this works if this is deleted first!
+        }
+        forumMessages.remove(threadItem);
+        messageSubjects.remove(threadItem);
+        // delete threadItem; NOT needed, as messageDeleted() deletes the item when first msg is deleted!
+    } else {
+        qDebug() << Q_FUNC_INFO << "Message item not found for some reason for " << thread->toString();
+    }
 }
 
 void ThreadListWidget::groupUpdated(ForumGroup *grp) {
     if(grp != currentGroup) return;
+
     if(!grp->subscribed()) {
         groupDeleted(grp);
     }
 }
 
 void ThreadListWidget::groupDeleted(ForumGroup *grp) {
-    if(grp != currentGroup) return;
-    groupSelected(0);
+    if(grp == currentGroup)
+        groupSelected(0);
 }
 
 void ThreadListWidget::messageFound(ForumMessage *msg) {
-    if(msg->thread()->group() == currentGroup) updateList();
+    if(msg->thread()->group() == currentGroup) addMessage(msg);
 }
 
 void ThreadListWidget::threadFound(ForumThread *thread) {
-    if(thread->group() == currentGroup) updateList();
+    if(thread->group() == currentGroup) addThread(thread);
+}
+
+void ThreadListWidget::addMessage(ForumMessage *message) {
+    Q_ASSERT(message);
+    QPair<QTreeWidgetItem*, ForumThread*> threadPair;
+
+    QTreeWidgetItem *threadItem = threadWidget(message->thread());
+    Q_ASSERT(threadItem);
+
+    QStringList messageHeader;
+    QString subject = messageSubject(message);
+    QString lc = message->lastchange();
+    lc = MessageFormatting::sanitize(lc);
+    QString author = message->author();
+    author = MessageFormatting::sanitize(author);
+    QString orderString = QString().number(message->ordernum());
+    while(orderString.length() < 4) orderString = "0"+orderString;
+
+    QTreeWidgetItem *item = 0;
+    if(message->ordernum()==0) { // First message - update thread item!
+        item = threadItem;
+    } else { // Reply message - create new item
+        item = new QTreeWidgetItem(threadItem);
+        item->setText(3, orderString);
+    }
+    item->setText(0, subject);
+    item->setText(1, lc);
+    item->setText(2, author);
+
+    forumMessages[item] = message;
+    messageSubjects[item] = subject;
+
+    updateMessageRead(item);
+}
+
+void ThreadListWidget::addThread(ForumThread *thread) {
+    Q_ASSERT(thread);
+    QString threadSubject = thread->name();//messageSubject(thread->name());
+    QString lc = thread->lastchange();
+    QString author = "";
+    QString orderString = QString().number(thread->ordernum());
+    while(orderString.length() < 4) orderString = "0"+orderString;
+
+    QTreeWidgetItem *threadItem = new QTreeWidgetItem(this);
+    threadItem->setText(0, threadSubject);
+    threadItem->setText(1, MessageFormatting::sanitize(lc));
+    threadItem->setText(2, MessageFormatting::sanitize(author));
+    threadItem->setText(3, orderString);
+
+    forumThreads[threadItem] = thread;
+    addTopLevelItem(threadItem);
+    sortItems(3, Qt::AscendingOrder);
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
@@ -79,6 +155,7 @@ void ThreadListWidget::clearList() {
     clear();
     forumMessages.clear();
     messageSubjects.clear();
+    forumThreads.clear();
 }
 
 void ThreadListWidget::updateList() {
@@ -87,59 +164,11 @@ void ThreadListWidget::updateList() {
 
     QList<QTreeWidgetItem *> items;
     foreach(ForumThread *thread, fdb.listThreads(currentGroup)) {
-        QList<ForumMessage*> messages = fdb.listMessages(thread);
-
-        ForumMessage *firstMessage = 0;
-        if(!messages.isEmpty()) {
-            firstMessage = messages.first();
-            Q_ASSERT(firstMessage->ordernum()==0);
-
-            QString threadSubject = messageSubject(firstMessage);
-            QStringList header;
-            QString lc = thread->lastchange();
-            QString author = firstMessage->author();
-            header << threadSubject << MessageFormatting::sanitize(lc) << MessageFormatting::sanitize(author);
-
-            QTreeWidgetItem *threadItem = new QTreeWidgetItem(this, header);
-
-            threadItems.append(qMakePair(threadItem, thread));
-            firstMessages.append(qMakePair(threadItem, firstMessage));
-
-            // @todo jatka tasta. pitasko callbackihimmeli teha?
-
-            forumMessages[threadItem] = firstMessage;
-            messageSubjects[threadItem] = threadSubject;
-            items.append(threadItem);
-            updateMessageRead(threadItem);
-            int largestOrderNum = 0;
-            foreach(ForumMessage *message, messages) {
-                if(message->ordernum() > largestOrderNum) {
-                    largestOrderNum = message->ordernum();
-                } else {
-                    Q_ASSERT(false);
-                }
-                if(message != firstMessage) {
-                    QStringList messageHeader;
-                    QString subject = messageSubject(message);
-                    if(subject == threadSubject) {
-                        subject = "Re: " + threadSubject;
-                    }
-                    lc = message->lastchange();
-                    author = message->author();
-                    messageHeader << subject << MessageFormatting::sanitize(lc) << MessageFormatting::sanitize(author);
-                    QTreeWidgetItem *messageItem = new QTreeWidgetItem(threadItem,
-                                                                       messageHeader);
-                    threadItem->addChild(messageItem);
-                    forumMessages[messageItem] = message;
-                    messageSubjects[messageItem] = subject;
-                    updateMessageRead(messageItem);
-                }
-            }
-        } else {
-            qDebug() << "Warning: Thread " << thread->toString() << " contains no messages!";
+        addThread(thread);
+        foreach(ForumMessage *message, fdb.listMessages(thread)) {
+            addMessage(message);
         }
     }
-    insertTopLevelItems(0, items);
     resizeColumnToContents(0);
     resizeColumnToContents(1);
     resizeColumnToContents(2);
@@ -151,6 +180,7 @@ QString ThreadListWidget::messageSubject(ForumMessage *msg) {
         subj = msg->subject();
     } else {
         subj = msg->thread()->name();
+        if(msg->ordernum() > 0) subj = "Re: " + subj;
     }
     subj = MessageFormatting::sanitize(subj);
     return subj;
@@ -158,6 +188,7 @@ QString ThreadListWidget::messageSubject(ForumMessage *msg) {
 
 void ThreadListWidget::messageUpdated(ForumMessage *msg) {
     if(msg->thread()->group() != currentGroup) return;
+
     QTreeWidgetItem *twi = messageWidget(msg);
     if(twi) {
         updateMessageRead(messageWidget(msg));
@@ -175,12 +206,25 @@ QTreeWidgetItem* ThreadListWidget::messageWidget(ForumMessage *msg) {
     return 0;
 }
 
+QTreeWidgetItem* ThreadListWidget::threadWidget(ForumThread *thread) {
+    foreach(QTreeWidgetItem *twi, forumThreads.keys()) {
+        if(forumThreads[twi] == thread) {
+            return twi;
+        }
+    }
+    return 0;
+}
+
 void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
     Q_ASSERT(item);
     // if item is a message in a thread, update thread's read count
-    QTreeWidgetItem *threadItem = item->parent();
-    if(threadItem) {
-        updateThreadUnreads(threadItem);
+    ForumMessage *message = forumMessages[item];
+    // message is 0 if a thread doesn't yet have its first message.
+    if(!message) return;
+
+    QTreeWidgetItem *parentItem = item->parent();
+    if(parentItem) {
+        updateThreadUnreads(parentItem);
     } else {
         updateThreadUnreads(item);
     }
@@ -193,17 +237,19 @@ void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
         item->setIcon(0, QIcon(":/data/mail-unread.png"));
     }
     item->setFont(0, font);
-    if(threadItem)
-        updateMessageRead(threadItem);
+    if(parentItem)
+        updateMessageRead(parentItem);
 }
 
 void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
     if(threadItem) {
-        ForumMessage *thread = forumMessages[threadItem];
-        Q_ASSERT(thread);
+        ForumMessage *message = forumMessages[threadItem];
+        // message is 0 if a thread doesn't yet have its first message.
+        if(!message) return;
         int unreads = 0;
-        if(!forumMessages[threadItem]->read())
+        if(!message->read())
             unreads++; // Also count first message
+
         for(int i=0;i<threadItem->childCount();i++) {
             if(!forumMessages[threadItem->child(i)]->read())
                 unreads++;
@@ -219,7 +265,7 @@ void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
 
 void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
                                        QTreeWidgetItem *prev) {
-    qDebug() << "selected " << item << prev;
+    qDebug() << Q_FUNC_INFO << "selected " << item << prev;
     Q_UNUSED(prev);
     if (!item)
         return;

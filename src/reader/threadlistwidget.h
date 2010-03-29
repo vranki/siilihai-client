@@ -34,15 +34,14 @@ private:
         QString messageSubject(ForumMessage *msg);
         void updateList();
         void clearList();
+        void addThread(ForumThread *thread);
+        void addMessage(ForumMessage *msg);
 	void updateThreadUnreads(QTreeWidgetItem* threadItem);
         QTreeWidgetItem* messageWidget(ForumMessage *msg);
-        QList<QPair<QTreeWidgetItem*, ForumMessage*> > firstMessages; // First messages in thread, representing the whole thread. QTWI has no parent.
-        QList<QPair<QTreeWidgetItem*, ForumThread*> > threadItems; // First messages in thread, representing the whole thread. QTWI has no parent.
-        QList<QPair<QTreeWidgetItem*, ForumMessage*> > replyMessages; // Reply messages in thread. QTWI has always parent.
-
-        QList<QPair<QTreeWidgetItem*, ForumMessage*> > forumThreads;
-
+        QTreeWidgetItem* threadWidget(ForumThread *thread);
+//        QList<QPair<QTreeWidgetItem*, ForumThread*> > threadItems; // First messages in thread, representing the whole thread. QTWI has no parent.
 	QHash<QTreeWidgetItem*, ForumMessage*> forumMessages;
+        QHash<QTreeWidgetItem*, ForumThread*> forumThreads;
         QHash<QTreeWidgetItem*, QString> messageSubjects;
         ForumGroup *currentGroup;
 	ForumDatabase &fdb;

@@ -42,56 +42,57 @@ class ParserMaker;
 //       '> offline        '> ready
 
 class Siilihai: public QObject {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-	Siilihai();
-	virtual ~Siilihai();
+    Siilihai();
+    virtual ~Siilihai();
 public slots:
-	void loginWizardFinished();
-	void launchSiilihai();
-	void haltSiilihai();
-	void forumAdded(ForumParser fp, ForumSubscription *fs);
-	void loginFinished(bool success, QString motd=QString());
-	void subscribeForum();
-	void showSubscribeGroup(ForumSubscription* forum);
-	void showUnsubscribeForum(ForumSubscription* forum);
-	void subscribeGroupDialogFinished();
-	void forumUpdated(ForumSubscription* forumid);
-	void updateClicked();
-	void updateClicked(ForumSubscription* forumid, bool force=false);
-	void cancelClicked();
-	void reportClicked(ForumSubscription* forumid);
-	void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
-	void errorDialog(QString message);
-	void listSubscriptionsFinished(QList<int> subscriptions);
-	void updateForumParser(ForumParser parser);
-	void launchParserMaker();
-	void parserMakerClosed();
-	void sendParserReportFinished(bool success);
-	void offlineModeSet(bool newOffline);
-	void syncFinished(bool success);
+    void loginWizardFinished();
+    void launchSiilihai();
+    void haltSiilihai();
+    void forumAdded(ForumParser fp, ForumSubscription *fs);
+    void loginFinished(bool success, QString motd=QString());
+    void subscribeForum();
+    void showSubscribeGroup(ForumSubscription* forum);
+    void showUnsubscribeForum(ForumSubscription* forum);
+    void subscribeGroupDialogFinished();
+    void forumUpdated(ForumSubscription* forumid);
+    void updateClicked();
+    void updateClicked(ForumSubscription* forumid, bool force=false);
+    void cancelClicked();
+    void reportClicked(ForumSubscription* forumid);
+    void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
+    void errorDialog(QString message);
+    void listSubscriptionsFinished(QList<int> subscriptions);
+    void updateForumParser(ForumParser parser);
+    void launchParserMaker();
+    void parserMakerClosed();
+    void sendParserReportFinished(bool success);
+    void offlineModeSet(bool newOffline);
+    void syncFinished(bool success);
 private:
-	void launchMainWindow();
+    void launchMainWindow();
     void setupParserEngine(ForumSubscription *subscription);
     void updateState();
     void tryLogin();
 
-	LoginWizard *loginWizard;
-	SubscribeWizard *subscribeWizard;
-	MainWindow *mainWin;
-	SiilihaiProtocol protocol;
-	QHash <int, ParserEngine*> engines; // id, engine*
-	QSqlDatabase db;
-	ForumDatabase fdb;
-	ParserDatabase pdb;
-	QString baseUrl;
-	bool readerReady, offlineMode, syncEnabled, quitting;
-	QSettings settings;
-	QList<ForumSubscription*> parsersToUpdateLeft;
-	ParserMaker *parserMaker;
-	QProgressDialog *loginProgress;
-	SyncMaster syncmaster;
+    LoginWizard *loginWizard;
+    SubscribeWizard *subscribeWizard;
+    MainWindow *mainWin;
+    SiilihaiProtocol protocol;
+    QHash <int, ParserEngine*> engines; // id, engine*
+    QSqlDatabase db;
+    ForumDatabase fdb;
+    ParserDatabase pdb;
+    QString baseUrl;
+    bool readerReady, offlineMode, syncEnabled, quitting;
+    QSettings settings;
+    QList<ForumSubscription*> parsersToUpdateLeft;
+    ParserMaker *parserMaker;
+    QProgressDialog *loginProgress;
+    GroupSubscriptionDialog *groupSubscriptionDialog;
+    SyncMaster syncmaster;
 };
 
 #endif /* SIILIHAI_H_ */

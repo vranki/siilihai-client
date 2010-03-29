@@ -9,6 +9,8 @@ Siilihai::Siilihai() :
     quitting = false;
     parserMaker = 0;
     loginProgress = 0;
+    groupSubscriptionDialog = 0;
+    subscribeWizard = 0;
 }
 
 void Siilihai::launchSiilihai() {
@@ -331,6 +333,10 @@ void Siilihai::launchMainWindow() {
 
 void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
     qDebug() << Q_FUNC_INFO << fp.toString() << fs->toString();
+    if(subscribeWizard) {
+        subscribeWizard->deleteLater();
+        subscribeWizard = 0;
+    }
     ForumSubscription *newSubscription = 0;
     if (!pdb.storeParser(fp) || !(newSubscription = fdb.addForum(fs))) {
         QMessageBox msgBox(mainWin);
@@ -354,16 +360,18 @@ void Siilihai::errorDialog(QString message) {
 void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
     Q_ASSERT(forum);
     if (readerReady) {
-        GroupSubscriptionDialog *gsd = new GroupSubscriptionDialog(mainWin);
-        gsd->setModal(false);
-        gsd->setForum(&fdb, forum);
-        connect(gsd, SIGNAL(finished(int)), this,
+        groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
+        groupSubscriptionDialog->setModal(false);
+        groupSubscriptionDialog->setForum(&fdb, forum);
+        connect(groupSubscriptionDialog, SIGNAL(finished(int)), this,
                 SLOT(subscribeGroupDialogFinished()));
-        gsd->exec();
+        groupSubscriptionDialog->exec();
     }
 }
 
 void Siilihai::subscribeGroupDialogFinished() {
+    groupSubscriptionDialog->deleteLater();
+    groupSubscriptionDialog = 0;
     if (readerReady) {
         qDebug() << "SFD finished, updating list";
         updateClicked();
@@ -425,11 +433,11 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::Yes) {
+            protocol.subscribeForum(fs, true);
             fdb.deleteForum(fs);
             pdb.deleteParser(fs->parser());
             engines[fs->parser()]->deleteLater();
             engines.remove(fs->parser());
-            protocol.subscribeForum(fs, true);
         }
     }
 }
@@ -454,6 +462,7 @@ void Siilihai::parserMakerClosed() {
     if (parserMaker)
         disconnect(parserMaker);
 #endif
+    parserMaker->deleteLater();
     parserMaker = 0;
 }
 
