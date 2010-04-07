@@ -1,3 +1,15 @@
+siilihai-client (0.8.2-1) karmic; urgency=low
+
+  * More bug fixes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 07 Apr 2010 20:29:43 +0300
+
+siilihai-client (0.8.1-1) karmic; urgency=low
+
+  * Bugfixes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 29 Mar 2010 20:29:43 +0300
+
 siilihai-client (0.8.0-1) karmic; urgency=low
 
   * Major cleanup
