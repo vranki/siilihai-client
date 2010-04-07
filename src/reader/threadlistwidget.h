@@ -20,7 +20,8 @@ public:
 public slots:
 	void groupSelected(ForumGroup *fg);
 	void updateMessageRead(QTreeWidgetItem *item);
-	void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
+        void updateMessageItem(QTreeWidgetItem *item, ForumMessage *msg);
+        void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
         void messageFound(ForumMessage *msg);
         void threadFound(ForumThread *thread);
         void messageUpdated(ForumMessage *msg);

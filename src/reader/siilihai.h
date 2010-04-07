@@ -1,10 +1,3 @@
-/*
- * siilihai.h
- *
- *  Created on: Sep 25, 2009
- *      Author: vranki
- */
-
 #ifndef SIILIHAI_H_
 #define SIILIHAI_H_
 #include <QObject>
@@ -71,9 +64,10 @@ public slots:
     void sendParserReportFinished(bool success);
     void offlineModeSet(bool newOffline);
     void syncFinished(bool success);
+    void subscriptionFound(ForumSubscription* sub);
+    void subscriptionDeleted(ForumSubscription* sub);
 private:
     void launchMainWindow();
-    void setupParserEngine(ForumSubscription *subscription);
     void updateState();
     void tryLogin();
 
@@ -81,7 +75,7 @@ private:
     SubscribeWizard *subscribeWizard;
     MainWindow *mainWin;
     SiilihaiProtocol protocol;
-    QHash <int, ParserEngine*> engines; // id, engine*
+    QHash <ForumSubscription*, ParserEngine*> engines;
     QSqlDatabase db;
     ForumDatabase fdb;
     ParserDatabase pdb;
