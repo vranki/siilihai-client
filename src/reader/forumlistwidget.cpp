@@ -1,16 +1,16 @@
 #include "forumlistwidget.h"
 
 ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f,
-		ParserDatabase &p) :
-	QToolBox(parent), fdb(f), pdb(p) {
-	connect(this, SIGNAL(currentChanged(int)), this,
-			SLOT(forumItemSelected(int)));
-        connect(&f, SIGNAL(subscriptionFound(ForumSubscription *)), this, SLOT(subscriptionFound(ForumSubscription *)));
-        connect(&f, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
-        connect(&f, SIGNAL(groupUpdated(ForumGroup *)), this, SLOT(groupUpdated(ForumGroup *)));
-        connect(&f, SIGNAL(groupDeleted(ForumGroup *)), this, SLOT(groupDeleted(ForumGroup *)));
-        connect(&f, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
-        connect(&f, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
+                                 ParserDatabase &p) :
+QToolBox(parent), fdb(f), pdb(p) {
+    connect(this, SIGNAL(currentChanged(int)), this,
+            SLOT(forumItemSelected(int)));
+    connect(&f, SIGNAL(subscriptionFound(ForumSubscription *)), this, SLOT(subscriptionFound(ForumSubscription *)));
+    connect(&f, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
+    connect(&f, SIGNAL(groupUpdated(ForumGroup *)), this, SLOT(groupUpdated(ForumGroup *)));
+    connect(&f, SIGNAL(groupDeleted(ForumGroup *)), this, SLOT(groupDeleted(ForumGroup *)));
+    connect(&f, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
+    connect(&f, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
 }
 
 ForumListWidget::~ForumListWidget() {
@@ -47,14 +47,14 @@ ForumSubscription* ForumListWidget::getSelectedForum() {
 }
 
 ForumGroup* ForumListWidget::getSelectedGroup() {
-	QListWidget *lw = static_cast<QListWidget*> (currentWidget());
-	if (lw) {
-		QListWidgetItem* it = lw->currentItem();
-		if (it) {
-			return forumGroups[it];
-		}
-	}
-	return 0;
+    QListWidget *lw = static_cast<QListWidget*> (currentWidget());
+    if (lw) {
+        QListWidgetItem* it = lw->currentItem();
+        if (it) {
+            return forumGroups[it];
+        }
+    }
+    return 0;
 }
 
 void ForumListWidget::iconUpdated(ForumSubscription *forum, QIcon newIcon) {
@@ -70,7 +70,7 @@ void ForumListWidget::setForumStatus(ForumSubscription* forum, bool reloading, f
 }
 
 void ForumListWidget::groupSelected(QListWidgetItem* item,
-		QListWidgetItem *prev) {
+                                    QListWidgetItem *prev) {
     qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
     currentGroup = forumGroups[item];
     emit groupSelected(currentGroup);
@@ -81,7 +81,7 @@ void ForumListWidget::subscriptionFound(ForumSubscription *sub) {
     Q_ASSERT(sub);
     QListWidget *lw = new QListWidget(this);
     forumSubscriptions[sub] = lw;
-    addItem(lw, sub->name());
+    addItem(lw, sub->alias());
     connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
             this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
 
@@ -97,6 +97,7 @@ void ForumListWidget::subscriptionFound(ForumSubscription *sub) {
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
     Q_ASSERT(grp);
+    qDebug() << Q_FUNC_INFO << grp->toString();
     if(!grp->subscribed()) return;
     Q_ASSERT(forumSubscriptions.contains(grp->subscription()));
     QListWidget *lw = forumSubscriptions[grp->subscription()];
@@ -171,3 +172,4 @@ QListWidgetItem * ForumListWidget::groupItem(ForumGroup *grp) {
     }
     return 0;
 }
+

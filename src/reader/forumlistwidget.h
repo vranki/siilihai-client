@@ -38,7 +38,7 @@ public slots:
         void messageUpdated(ForumMessage *grp);
 signals:
 	void groupSelected(ForumGroup *grp);
-	void forumSelected(ForumSubscription *sub);
+        void forumSelected(ForumSubscription *sub);
 
 private:
         QListWidgetItem *groupItem(ForumGroup *grp);

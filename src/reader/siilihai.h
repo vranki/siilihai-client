@@ -31,11 +31,23 @@ class ParserMaker;
 #define BASEURL "http://www.siilihai.com/"
 
 // Login process:
-// Login -> update parsers -> sync -> ready
-//       '> offline        '> ready
+//        ,----------------.>
+// started -> startsync -> update parsers -> ready -> endsync -> quitting
+//         '> offline -> quitting
+
 
 class Siilihai: public QObject {
     Q_OBJECT
+
+    enum siilihai_states {
+        state_started,
+        state_startsyncing,
+        state_offline,
+        state_updating_parsers,
+        state_ready,
+        state_endsync,
+        state_quitting
+    } currentState;
 
 public:
     Siilihai();
@@ -45,7 +57,7 @@ public slots:
     void launchSiilihai();
     void haltSiilihai();
     void forumAdded(ForumParser fp, ForumSubscription *fs);
-    void loginFinished(bool success, QString motd=QString());
+    void loginFinished(bool success, QString motd=QString(), bool=false);
     void subscribeForum();
     void showSubscribeGroup(ForumSubscription* forum);
     void showUnsubscribeForum(ForumSubscription* forum);
@@ -66,9 +78,11 @@ public slots:
     void syncFinished(bool success);
     void subscriptionFound(ForumSubscription* sub);
     void subscriptionDeleted(ForumSubscription* sub);
+    void subscribeForumFinished(bool success);
+
 private:
+    void changeState(siilihai_states newState);
     void launchMainWindow();
-    void updateState();
     void tryLogin();
 
     LoginWizard *loginWizard;
@@ -80,7 +94,7 @@ private:
     ForumDatabase fdb;
     ParserDatabase pdb;
     QString baseUrl;
-    bool readerReady, offlineMode, syncEnabled, quitting;
+    bool syncEnabled;
     QSettings settings;
     QList<ForumSubscription*> parsersToUpdateLeft;
     ParserMaker *parserMaker;

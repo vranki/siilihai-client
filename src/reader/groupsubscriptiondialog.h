@@ -16,10 +16,11 @@ public:
     GroupSubscriptionDialog(QWidget *parent = 0);
     ~GroupSubscriptionDialog();
     void setForum(ForumDatabase *db, ForumSubscription *fs);
+    ForumSubscription* subscription();
 public slots:
-	void selectAll();
-	void selectNone();
-	void apply();
+    void selectAll();
+    void selectNone();
+    void apply();
 private:
     Ui::GroupSubscriptionDialogClass ui;
     ForumDatabase *fdb;

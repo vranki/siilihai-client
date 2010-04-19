@@ -89,11 +89,11 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    Q_UNUSED(event);
     settings->setValue("reader_geometry", saveGeometry());
     settings->setValue("reader_splitter_size", ui.forumsSplitter->saveState());
     settings->setValue("reader_horizontal_splitter_size",
                        ui.horizontalSplitter->saveState());
+    event->ignore();
     emit haltRequest();
 }
 

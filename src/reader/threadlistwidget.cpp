@@ -16,7 +16,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     connect(&fdb, SIGNAL(groupDeleted(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
-    hideColumn(3);
+    //hideColumn(3);
 }
 
 ThreadListWidget::~ThreadListWidget() {
@@ -231,8 +231,9 @@ void ThreadListWidget::messageUpdated(ForumMessage *msg) {
 
 QTreeWidgetItem* ThreadListWidget::messageWidget(ForumMessage *msg) {
     foreach(QTreeWidgetItem *twi, forumMessages.keys()) {
-        if(forumMessages[twi] == msg) {
+        if(forumMessages.value(twi) == msg) {
             return twi;
+
         }
     }
     return 0;
@@ -250,7 +251,7 @@ QTreeWidgetItem* ThreadListWidget::threadWidget(ForumThread *thread) {
 void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
     Q_ASSERT(item);
     // if item is a message in a thread, update thread's read count
-    ForumMessage *message = forumMessages[item];
+    ForumMessage *message = forumMessages.value(item);
     // message is 0 if a thread doesn't yet have its first message.
     if(!message) return;
 
@@ -261,7 +262,7 @@ void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
         updateThreadUnreads(item);
     }
     QFont font = item->font(0);
-    if (forumMessages[item]->read()) {
+    if (message->read()) {
         font.setBold(false);
         item->setIcon(0, QIcon(":/data/emblem-mail.png"));
     } else {
@@ -275,7 +276,8 @@ void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
 
 void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
     if(threadItem) {
-        ForumMessage *message = forumMessages[threadItem];
+
+        ForumMessage *message = forumMessages.value(threadItem);
         // message is 0 if a thread doesn't yet have its first message.
         if(!message) return;
         int unreads = 0;
@@ -283,7 +285,7 @@ void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
             unreads++; // Also count first message
 
         for(int i=0;i<threadItem->childCount();i++) {
-            if(!forumMessages[threadItem->child(i)]->read())
+            if(!forumMessages.value(threadItem->child(i))->read())
                 unreads++;
         }
 
@@ -306,7 +308,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
         emit messageSelected(0);
         return;
     }
-    ForumMessage *msg = forumMessages[item];
+    ForumMessage *msg = forumMessages.value(item);
     Q_ASSERT(msg);
     Q_ASSERT(msg->isSane());
     emit messageSelected(msg);

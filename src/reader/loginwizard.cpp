@@ -36,6 +36,7 @@ QWizardPage *LoginWizard::createRegistrationPage() {
     layout->addRow("E-mail address:", &registerEmail);
     layout->addRow("Password:", &registerPass);
     layout->addRow("Re-enter password:", &registerPass2);
+    layout->addRow("Sync status to server:", &enableSync);
     layout->addRow("", &registerMessage);
     page->setLayout(layout);
     connect(&registerUser, SIGNAL(textChanged(QString)), this, SLOT(
@@ -96,9 +97,9 @@ QWizardPage *LoginWizard::createVerifyPage() {
     return page;
 }
 
-void LoginWizard::loginFinished(bool success, QString motd) {
+void LoginWizard::loginFinished(bool success, QString motd, bool sync) {
     qDebug() << Q_FUNC_INFO;
-    disconnect(&protocol, SIGNAL(loginFinished(bool, QString)), this, SLOT(loginFinished(bool,QString)));
+    disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(loginFinished(bool,QString,bool)));
     if(progress) {
 	progress->setValue(3);
 	progress->deleteLater();
@@ -117,11 +118,12 @@ void LoginWizard::loginFinished(bool success, QString motd) {
                 "Login successful.\n\nYou are now ready to use Siilihai.");
         settings.setValue("account/username", loginUser.text().trimmed());
         settings.setValue("account/password", loginPass.text().trimmed());
+        settings.setValue("preferences/sync_enabled", sync);
         settings.sync();
     }
 }
 
-void LoginWizard::registerFinished(bool success, QString motd) {
+void LoginWizard::registerFinished(bool success, QString motd, bool sync) {
     qDebug() << Q_FUNC_INFO;
     if (progress) {
         progress->setValue(3);
@@ -141,6 +143,8 @@ void LoginWizard::registerFinished(bool success, QString motd) {
                 "Registration successful.\n\nYou are now ready to use Siilihai.");
         settings.setValue("account/username", registerUser.text().trimmed());
         settings.setValue("account/password", registerPass.text().trimmed());
+        settings.setValue("preferences/sync_enabled", sync);
+        settings.sync();
     }
 }
 
@@ -156,15 +160,15 @@ void LoginWizard::pageChanged(int id) {
         progress->setWindowModality(Qt::WindowModal);
         progress->setValue(0);
 
-        disconnect(&protocol, SIGNAL(loginFinished(bool, QString)), this, SLOT(loginFinished(bool,QString)));
-        disconnect(&protocol, SIGNAL(loginFinished(bool, QString)), this, SLOT(registerFinished(bool,QString)));
+        disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(loginFinished(bool,QString,bool)));
+        disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(registerFinished(bool,QString,bool)));
         if (!accountDoesntExist.isChecked()) {
-            connect(&protocol, SIGNAL(loginFinished(bool, QString)), this, SLOT(loginFinished(bool, QString)));
+            connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(loginFinished(bool, QString,bool)));
             protocol.login(loginUser.text().trimmed(), loginPass.text().trimmed());
         } else {
-            connect(&protocol, SIGNAL(loginFinished(bool, QString)), this, SLOT(registerFinished(bool, QString)));
+            connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(registerFinished(bool, QString,bool)));
             protocol.registerUser(registerUser.text().trimmed(), registerPass.text().trimmed(),
-                                  registerEmail.text().trimmed());
+                                  registerEmail.text().trimmed(), enableSync.isChecked());
         }
         break;
     }

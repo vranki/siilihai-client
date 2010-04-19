@@ -216,7 +216,7 @@ void SubscribeWizard::wizardAccepted() {
 
 	ForumSubscription fs(this);
 	fs.setParser(parser.id);
-	fs.setName(subscribeForumVerify.forumName->text());
+        fs.setAlias(subscribeForumVerify.forumName->text());
 	fs.setUsername(user);
 	fs.setPassword(pass);
 	fs.setLatestThreads(subscribeForumVerify.latestThreadsEdit->text().toInt());

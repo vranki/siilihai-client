@@ -113,7 +113,7 @@ void ParserMaker::updateState() {
 	ui.baseUrlVM->setText(parser.forumUrlWithoutEnd());
 	ui.baseUrlLI->setText(parser.forumUrlWithoutEnd());
 
-	subscription.setName(parser.parser_name);
+        subscription.setAlias(parser.parser_name);
 	subscription.setParser(parser.id);
 	if (loginWithoutCredentials) {
 		subscription.setUsername(QString::null);

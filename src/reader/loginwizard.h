@@ -21,8 +21,8 @@ public:
 	int nextId() const;
 public slots:
 	void pageChanged(int id);
-	void loginFinished(bool success, QString motd);
-	void registerFinished(bool success, QString motd);
+        void loginFinished(bool success, QString motd, bool sync);
+        void registerFinished(bool success, QString motd, bool sync);
 	void checkRegisterData();
 private:
 	QWizard wizard;
@@ -30,8 +30,9 @@ private:
 	QLineEdit loginUser, loginPass, registerUser, registerPass, registerPass2, registerEmail;
 	SiilihaiProtocol &protocol;
 	QProgressDialog *progress;
-	QLabel loginMessage, registerMessage, finalLabel;
+        QLabel loginMessage, registerMessage, finalLabel;
 	QSettings &settings;
+        QCheckBox enableSync;
 };
 
 #endif // LOGINWIZARD_H
