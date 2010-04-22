@@ -35,56 +35,59 @@ public:
     ForumListWidget* forumList();
     ThreadListWidget* threadList();
 signals:
-	void subscribeForum();
-	void unsubscribeForum(ForumSubscription *sub);
-	void updateClicked();
-	void reportClicked(ForumSubscription *sub);
-	void updateClicked(ForumSubscription *sub, bool force);
-	void cancelClicked();
-	void groupSubscriptions(ForumSubscription *sub);
-	void messageRead(ForumMessage message);
-	void launchParserMaker();
-	void offlineModeSet(bool ol);
-	void haltRequest();
+    void subscribeForum();
+    void unsubscribeForum(ForumSubscription *sub);
+    void updateClicked();
+    void reportClicked(ForumSubscription *sub);
+    void updateClicked(ForumSubscription *sub, bool force);
+    void cancelClicked();
+    void groupSubscriptions(ForumSubscription *sub);
+    void messageRead(ForumMessage message);
+    void launchParserMaker();
+    void offlineModeSet(bool ol);
+    void haltRequest();
+    void settingsChanged(bool byUser);
 public slots:
-	void subscribeForumSlot();
-	void unsubscribeForumSlot();
-	void groupSubscriptionsSlot();
-	void updateClickedSlot();
-	void updateSelectedClickedSlot();
-	void forceUpdateSelectedClickedSlot();
-	void cancelClickedSlot();
-	void viewInBrowserClickedSlot();
-	void hideClickedSlot();
-	void reportClickedSlot();
-	void offlineClickedSlot();
-	void markForumRead(bool read=true);
-	void markForumUnread();
-	void markGroupRead(bool read=true);
-	void markGroupUnread();
-	void setForumStatus(ForumSubscription *sub, bool reloading, float progress);
-	void launchParserMakerSlot();
-	void setReaderReady(bool ready, bool offline);
-        void forumSelected(ForumSubscription *sub);
-        void groupSelected(ForumGroup *grp);
+    void subscribeForumSlot();
+    void unsubscribeForumSlot();
+    void groupSubscriptionsSlot();
+    void updateClickedSlot();
+    void updateSelectedClickedSlot();
+    void forceUpdateSelectedClickedSlot();
+    void cancelClickedSlot();
+    void viewInBrowserClickedSlot();
+    void hideClickedSlot();
+    void reportClickedSlot();
+    void offlineClickedSlot();
+    void markForumRead(bool read=true);
+    void markForumUnread();
+    void markGroupRead(bool read=true);
+    void markGroupUnread();
+    void setForumStatus(ForumSubscription *sub, bool reloading, float progress);
+    void launchParserMakerSlot();
+    void setReaderReady(bool ready, bool offline);
+    void forumSelected(ForumSubscription *sub);
+    void groupSelected(ForumGroup *grp);
 private slots:
-	void about();
-	void settingsDialog();
-	void messageSelected(ForumMessage *msg);
-	void updateEnabledButtons();
-private:
-	void closeEvent(QCloseEvent *event);
+    void about();
+    void settingsDialog();
+    void settingsDialogAccepted();
+    void messageSelected(ForumMessage *msg);
+    void updateEnabledButtons();
 
-	ForumListWidget *flw;
-	ThreadListWidget *tlw;
-	MessageViewWidget *mvw;
-        Ui::MainWindowClass ui;
-        ForumDatabase &fdb;
-        ParserDatabase &pdb;
-        QSet<ForumSubscription*> busyForums;
-	QSettings *settings;
-	bool readerReady, offline;
-	QActionGroup viewAsGroup;
+private:
+    void closeEvent(QCloseEvent *event);
+
+    ForumListWidget *flw;
+    ThreadListWidget *tlw;
+    MessageViewWidget *mvw;
+    Ui::MainWindowClass ui;
+    ForumDatabase &fdb;
+    ParserDatabase &pdb;
+    QSet<ForumSubscription*> busyForums;
+    QSettings *settings;
+    bool readerReady, offline;
+    QActionGroup viewAsGroup;
 };
 
 #endif // MAINWINDOW_H

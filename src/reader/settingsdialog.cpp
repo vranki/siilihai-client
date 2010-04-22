@@ -20,5 +20,7 @@ void SettingsDialog::closeClicked() {
 	settings->setValue("preferences/update_automatically", ui.updateAutomatically->isChecked());
 	settings->setValue("preferences/sync_enabled", ui.enableSyncing->isChecked());
 	settings->setValue("preferences/http_proxy", ui.httpProxy->text());
-	close();
+        settings->sync();
+        accept();
+        deleteLater();
 }

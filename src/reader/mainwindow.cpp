@@ -207,8 +207,14 @@ void MainWindow::about() {
 
 void MainWindow::settingsDialog() {
     SettingsDialog *sd = new SettingsDialog(this, settings);
+    connect(sd, SIGNAL(accepted()), this, SLOT(settingsDialogAccepted()));
     sd->setModal(true);
     sd->exec();
+}
+
+void MainWindow::settingsDialogAccepted() {
+    qDebug() << Q_FUNC_INFO;
+    emit settingsChanged(true);
 }
 
 void MainWindow::markForumRead(bool read) {

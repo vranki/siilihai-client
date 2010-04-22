@@ -13,6 +13,7 @@
 #include <siilihai/parserreport.h>
 #include <siilihai/parserengine.h>
 #include <siilihai/syncmaster.h>
+#include <siilihai/usersettings.h>
 
 #include "loginwizard.h"
 #include "subscribewizard.h"
@@ -57,7 +58,7 @@ public slots:
     void launchSiilihai();
     void haltSiilihai();
     void forumAdded(ForumParser fp, ForumSubscription *fs);
-    void loginFinished(bool success, QString motd=QString(), bool=false);
+    void loginFinished(bool success, QString motd, bool sync);
     void subscribeForum();
     void showSubscribeGroup(ForumSubscription* forum);
     void showUnsubscribeForum(ForumSubscription* forum);
@@ -79,12 +80,14 @@ public slots:
     void subscriptionFound(ForumSubscription* sub);
     void subscriptionDeleted(ForumSubscription* sub);
     void subscribeForumFinished(bool success);
+    void userSettingsReceived(bool success, UserSettings *newSettings);
+    void settingsChanged(bool byUser);
 
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();
     void tryLogin();
-
+    bool endSyncDone;
     LoginWizard *loginWizard;
     SubscribeWizard *subscribeWizard;
     MainWindow *mainWin;
@@ -94,13 +97,13 @@ private:
     ForumDatabase fdb;
     ParserDatabase pdb;
     QString baseUrl;
-    bool syncEnabled;
     QSettings settings;
     QList<ForumSubscription*> parsersToUpdateLeft;
     ParserMaker *parserMaker;
     QProgressDialog *loginProgress;
     GroupSubscriptionDialog *groupSubscriptionDialog;
     SyncMaster syncmaster;
+    UserSettings usettings;
 };
 
 #endif /* SIILIHAI_H_ */

@@ -1,19 +1,14 @@
-/*
- * MessageListpatterneditor.cpp
- *
- *  Created on: Oct 13, 2009
- *      Author: vranki
- */
-
 #include "messagelistpatterneditor.h"
 
 MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
-                                                   ForumParser &par, ForumSubscription *fos, QWidget *parent) :
+                                                   ForumParser &par,
+                                                   ForumSubscription *fos,
+                                                   QWidget *parent) :
 PatternEditor(ses, par, fos, parent) {
     setEnabled(false);
-    connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage>&,
+    connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage*>&,
                                                   ForumThread*)), this,
-            SLOT(listMessagesFinished(QList<ForumMessage>&,
+            SLOT(listMessagesFinished(QList<ForumMessage*>&,
                                       ForumThread*)));
     ui.patternLabel->setText(
             "<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
@@ -75,9 +70,8 @@ void MessageListPatternEditor::setThread(ForumThread *thread) {
 
 void MessageListPatternEditor::resultCellActivated(int row, int column) {
     Q_UNUSED(column);
-    if (listMessages.contains(row)) {
-        QString id = listMessages[row].id();
-        QString body = bodies[listMessages[row].id()];
+    if (bodies.contains(row)) {
+        QString body = bodies[row];
         QMessageBox msgBox(this);
         msgBox.setText(body);
         msgBox.setModal(true);
@@ -88,10 +82,11 @@ void MessageListPatternEditor::resultCellActivated(int row, int column) {
 }
 
 void MessageListPatternEditor::listMessagesFinished(
-        QList<ForumMessage> &messages, ForumThread *thread) {
+        QList<ForumMessage*> &messages, ForumThread *thread) {
     Q_UNUSED(thread);
 
-    listMessages.clear();
+    //qDeleteAll(listMessages);
+    //listMessages.clear();
     bodies.clear();
     ui.resultsTable->clear();
     ui.resultsTable->setRowCount(messages.size());
@@ -102,20 +97,19 @@ void MessageListPatternEditor::listMessagesFinished(
     ui.resultsTable->setHorizontalHeaderLabels(headers);
 
     int tableRow = 0;
-    for(int i=0;i<messages.size();i++) {
-        ForumMessage fm = messages[i];
-        QTableWidgetItem *newItem = new QTableWidgetItem(fm.id());
+    foreach(ForumMessage *fm, messages) {
+        QTableWidgetItem *newItem = new QTableWidgetItem(fm->id());
         ui.resultsTable->setItem(tableRow, 0, newItem);
-        listMessages[tableRow] = fm;
-        bodies[fm.id()] = fm.body();
+        //listMessages[tableRow] = fm;
+        bodies[tableRow] = fm->body();
 
-        newItem = new QTableWidgetItem(fm.subject());
+        newItem = new QTableWidgetItem(fm->subject());
         ui.resultsTable->setItem(tableRow, 1, newItem);
-        newItem = new QTableWidgetItem(fm.author());
+        newItem = new QTableWidgetItem(fm->author());
         ui.resultsTable->setItem(tableRow, 2, newItem);
-        newItem = new QTableWidgetItem(fm.lastchange());
+        newItem = new QTableWidgetItem(fm->lastchange());
         ui.resultsTable->setItem(tableRow, 3, newItem);
-        newItem = new QTableWidgetItem(fm.body().left(15));
+        newItem = new QTableWidgetItem(fm->body().left(15));
         ui.resultsTable->setItem(tableRow, 4, newItem);
         tableRow++;
     }

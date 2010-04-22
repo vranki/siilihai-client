@@ -24,6 +24,7 @@ public slots:
         void loginFinished(bool success, QString motd, bool sync);
         void registerFinished(bool success, QString motd, bool sync);
 	void checkRegisterData();
+
 private:
 	QWizard wizard;
 	QRadioButton accountDoesntExist;

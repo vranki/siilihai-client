@@ -1,18 +1,13 @@
-/*
- * grouplistpatterneditor.cpp
- *
- *  Created on: Oct 13, 2009
- *      Author: vranki
- */
-
 #include "grouplistpatterneditor.h"
 
 GroupListPatternEditor::GroupListPatternEditor(ForumSession &ses,
-                                               ForumParser &par, ForumSubscription *fos, QWidget *parent) :
+                                               ForumParser &par,
+                                               ForumSubscription *fos,
+                                               QWidget *parent) :
 PatternEditor(ses, par, fos, parent) {
 
-    connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup>&)), this,
-            SLOT(listGroupsFinished(QList<ForumGroup>&)));
+    connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup*>&)), this,
+            SLOT(listGroupsFinished(QList<ForumGroup*>&)));
     ui.testPageSpanning->setEnabled(false);
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     Q_ASSERT(fos);
@@ -34,7 +29,8 @@ void GroupListPatternEditor::downloadList() {
 void GroupListPatternEditor::testPageSpanning() {
 }
 
-void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup> &groups) {
+void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups) {
+    qDeleteAll(listGroups);
     listGroups.clear();
     ui.resultsTable->clear();
     ui.resultsTable->setRowCount(groups.size());
@@ -44,15 +40,16 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup> &groups) {
     ui.resultsTable->setHorizontalHeaderLabels(headers);
     ui.downloadButton->setEnabled(true);
 
-    for (int i = 0; i < groups.size(); i++) {
-        QTableWidgetItem *newItem = new QTableWidgetItem(groups[i].id());
-        ui.resultsTable->setItem(i, 0, newItem);
-        listGroups[i] = groups[i];
-
-        newItem = new QTableWidgetItem(groups[i].name());
-        ui.resultsTable->setItem(i, 1, newItem);
-        newItem = new QTableWidgetItem(groups[i].lastchange());
-        ui.resultsTable->setItem(i, 2, newItem);
+    int row = 0;
+    foreach (ForumGroup *group, groups) {
+        QTableWidgetItem *newItem = new QTableWidgetItem(group->id());
+        ui.resultsTable->setItem(row, 0, newItem);
+        listGroups[row] = new ForumGroup(*group);
+        newItem = new QTableWidgetItem(group->name());
+        ui.resultsTable->setItem(row, 1, newItem);
+        newItem = new QTableWidgetItem(group->lastchange());
+        ui.resultsTable->setItem(row, 2, newItem);
+        row++;
     }
     ui.resultsTable->resizeColumnsToContents();
 }
@@ -63,8 +60,8 @@ void GroupListPatternEditor::resultCellActivated(int row, int column) {
     ForumGroup *selectedGroup = 0;
 
     if (listGroups.contains(row)) {
-        qDebug() << "Selected group " << listGroups[row].toString();
-        selectedGroup = &listGroups[row];
+        qDebug() << "Selected group " << listGroups.value(row)->toString();
+        selectedGroup = listGroups.value(row);
     } else {
         qDebug() << "Unknown id @ row " << row;
     }
