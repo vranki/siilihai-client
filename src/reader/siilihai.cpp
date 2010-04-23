@@ -1,20 +1,29 @@
 #include "siilihai.h"
 
-Siilihai::Siilihai() :
-	QObject(), fdb(this), pdb(this), syncmaster(this, fdb, protocol) {
+Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv), fdb(this), pdb(this), syncmaster(this, fdb, protocol) {
     loginWizard = 0;
     mainWin = 0;
     parserMaker = 0;
-    loginProgress = 0;
+    progressBar = 0;
     groupSubscriptionDialog = 0;
     subscribeWizard = 0;
     endSyncDone = false;
+    firstRun = true;
+}
+
+Siilihai::~Siilihai() {
+    /*
+    if (mainWin)
+        mainWin->deleteLater();
+    mainWin = 0;
+    */
 }
 
 void Siilihai::launchSiilihai() {
     currentState = state_started;
+    connect(this, SIGNAL(lastWindowClosed()), this, SLOT(quit()));
     mainWin = new MainWindow(pdb, fdb, &settings);
-    bool firstRun = settings.value("first_run", true).toBool();
+    firstRun = settings.value("first_run", true).toBool();
 
     settings.setValue("first_run", false);
     db = QSqlDatabase::addDatabase("QSQLITE");
@@ -69,6 +78,7 @@ void Siilihai::launchSiilihai() {
         settings.setValue("firstrun", false);
     }
 #endif
+
     if (settings.value("account/username", "").toString() == "") {
         loginWizard = new LoginWizard(mainWin, protocol, settings);
         connect(loginWizard, SIGNAL(finished(int)), this,
@@ -80,50 +90,68 @@ void Siilihai::launchSiilihai() {
 }
 
 void Siilihai::changeState(siilihai_states newState) {
+    siilihai_states previousState = currentState;
+    currentState = newState;
+
     if(newState==state_offline) {
         qDebug() << Q_FUNC_INFO << "Offline";
+        Q_ASSERT(previousState==state_login || previousState==state_ready);
         mainWin->setReaderReady(true, true);
+    } else if(newState==state_login) {
+        qDebug() << Q_FUNC_INFO << "Login";
+        if(!progressBar) {
+            progressBar = new QProgressDialog("Logging in", "Cancel", 0, 100,
+                                              mainWin);
+            progressBar->setWindowModality(Qt::WindowModal);
+            progressBar->setValue(0);
+            connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
+        }
+        progressBar->setLabelText("Logging in..");
+        progressBar->setValue(5);
     } else if(newState==state_startsyncing) {
         qDebug() << Q_FUNC_INFO << "Startsync";
         if(usettings.syncEnabled)
             syncmaster.startSync();
+        Q_ASSERT(progressBar);
+        progressBar->setValue(50);
+        progressBar->setLabelText("Downloading message read status");
+    } else if(newState==state_endsync) {
+        qDebug() << Q_FUNC_INFO << "Endsync";
+        mainWin->setReaderReady(false, false);
+        Q_ASSERT(!progressBar);
+        progressBar = new QProgressDialog("Synchronizing with server", "Cancel", 0, 100,
+                                          mainWin);
+        progressBar->setWindowModality(Qt::WindowModal);
+        progressBar->setValue(0);
+        connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
     } else if(newState==state_updating_parsers) {
         qDebug() << Q_FUNC_INFO << "Update parsers";
         if(parsersToUpdateLeft.isEmpty()) {
             changeState(state_ready);
             return;
         }
+        Q_ASSERT(progressBar);
+        progressBar->setValue(80);
+        progressBar->setLabelText("Updating parser definitions");
+
         protocol.getParser(parsersToUpdateLeft.takeFirst()->parser());
     } else if(newState==state_ready) {
         qDebug() << Q_FUNC_INFO << "Ready";
-        if (loginProgress) {
-            loginProgress->cancel();
-            loginProgress->deleteLater();
-            loginProgress = 0;
-        }
+        Q_ASSERT(previousState==state_updating_parsers);
+        Q_ASSERT(progressBar);
+        progressBar->cancel();
+        progressBar->deleteLater();
+        progressBar = 0;
         if (settings.value("preferences/update_automatically", false).toBool())
             updateClicked();
         mainWin->setReaderReady(true, false);
-    } else if(newState==state_quitting) {
-        qDebug() << Q_FUNC_INFO << "Quitting";
-
-        if(currentState==state_ready)
-            cancelClicked();
-
-        mainWin->setReaderReady(false, false);
     }
-
-    currentState = newState;
 }
 
 void Siilihai::tryLogin() {
-    if (!loginProgress) {
-        loginProgress = new QProgressDialog("Logging in..", "Cancel", 0, 100,
-                                            mainWin);
-        loginProgress->setWindowModality(Qt::WindowModal);
-        loginProgress->setValue(0);
-        connect(loginProgress, SIGNAL(canceled()), this, SLOT(haltSiilihai()));
-    }
+    Q_ASSERT(currentState==state_started || currentState==state_offline);
+    changeState(state_login);
+
     connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this,
             SLOT(loginFinished(bool, QString,bool)));
     protocol.login(settings.value("account/username", "").toString(),
@@ -132,17 +160,23 @@ void Siilihai::tryLogin() {
 
 void Siilihai::haltSiilihai() {
     qDebug() << Q_FUNC_INFO;
-    if(usettings.syncEnabled && !endSyncDone) {
+    cancelClicked();
+    qDeleteAll(engines.values());
+    engines.clear();
+    if(usettings.syncEnabled && !endSyncDone && currentState == state_ready) {
         qDebug() << "Sync enabled - running end sync";
         changeState(state_endsync);
         syncmaster.endSync();
     } else {
-        qDebug() << "Sync not enabled - quitting";
-        changeState(state_quitting);
+        qDebug() << "Not syncing - quitting";
         settings.sync();
+        if(progressBar)
+            progressBar->deleteLater();
         mainWin->deleteLater();
         mainWin = 0;
-        QCoreApplication::quit();
+        progressBar = 0;
+
+        //QApplication::quit();
     }
 }
 
@@ -161,41 +195,46 @@ void Siilihai::syncFinished(bool success){
 
 void Siilihai::offlineModeSet(bool newOffline) {
     qDebug() << Q_FUNC_INFO << newOffline;
-    if(currentState == state_offline && !newOffline) {
-        tryLogin();
-    } else if(currentState == state_ready && newOffline) {
+    if(newOffline && currentState == state_ready) {
         changeState(state_offline);
-    } else {
-        Q_ASSERT(false); // @todo NOT impossible state, fix later
+    } else if(!newOffline && currentState == state_offline) {
+        tryLogin();
     }
 }
 
 void Siilihai::loginFinished(bool success, QString motd, bool sync) {
     qDebug() << Q_FUNC_INFO << success;
+    disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this,
+               SLOT(loginFinished(bool, QString,bool)));
+    if(!progressBar) { // Make sure this exists. If  user logs in first time, it might not!
+        progressBar = new QProgressDialog("Logged in", "Cancel", 0, 100,
+                                          mainWin);
+        progressBar->setWindowModality(Qt::WindowModal);
+        progressBar->setValue(0);
+        connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
+    }
+
     if (success) {
         connect(&protocol, SIGNAL(listSubscriptionsFinished(QList<int>)), this,
                 SLOT(listSubscriptionsFinished(QList<int>)));
         connect(&protocol, SIGNAL(sendParserReportFinished(bool)), this,
                 SLOT(sendParserReportFinished(bool)));
         connect(&protocol, SIGNAL(subscribeForumFinished(bool)), this, SLOT(subscribeForumFinished(bool)));
-
         usettings.syncEnabled = sync;
         qDebug() << "Server says user wants to sync: " << sync;
         settings.setValue("preferences/sync_enabled", usettings.syncEnabled);
         settings.sync();
-        if (loginProgress)
-            loginProgress->setValue(30);
+        progressBar->setValue(30);
         if(usettings.syncEnabled) {
             changeState(state_startsyncing);
         } else {
             changeState(state_updating_parsers);
         }
     } else {
-        if (loginProgress) {
-            loginProgress->cancel();
-            loginProgress->deleteLater();
-            loginProgress = 0;
-        }
+        progressBar->cancel();
+        progressBar->deleteLater();
+        progressBar = 0;
+
         QMessageBox msgBox(mainWin);
         msgBox.setModal(true);
         if (motd.length() > 0) {
@@ -213,8 +252,8 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
     qDebug() << Q_FUNC_INFO << "count of subscribed forums " << serversSubscriptions.size();
     disconnect(&protocol, SIGNAL(listSubscriptionsFinished(QList<int>)), this,
                SLOT(listSubscriptionsFinished(QList<int>)));
-    if (loginProgress)
-        loginProgress->setValue(50);
+    if (progressBar)
+        progressBar->setValue(50);
 
     QList<ForumSubscription*> unsubscribedForums;
     foreach(ForumSubscription* sub, fdb.listSubscriptions()) {
@@ -268,8 +307,8 @@ void Siilihai::updateForumParser(ForumParser parser) {
                 engines[sub]->setParser(parser);
                 emit statusChanged(sub, false, -1);
                 if (parsersToUpdateLeft.size() < 2) {
-                    if (loginProgress)
-                        loginProgress->setValue(80);
+                    if (progressBar)
+                        progressBar->setValue(80);
                 }
 
             } else {
@@ -277,10 +316,14 @@ void Siilihai::updateForumParser(ForumParser parser) {
             }
         }
     }
-    if(parsersToUpdateLeft.isEmpty()) {
-        changeState(state_ready);
-    } else {
-        protocol.getParser(parsersToUpdateLeft.takeFirst()->parser());
+    if(currentState == state_updating_parsers) {
+        if(parsersToUpdateLeft.isEmpty()) {
+            changeState(state_ready);
+        } else {
+            protocol.getParser(parsersToUpdateLeft.takeFirst()->parser());
+            if (progressBar)
+                progressBar->setValue(90);
+        }
     }
 }
 
@@ -293,11 +336,6 @@ void Siilihai::subscribeForum() {
             SLOT(forumAdded(ForumParser, ForumSubscription*)));
 }
 
-Siilihai::~Siilihai() {
-    if (mainWin)
-        mainWin->deleteLater();
-    mainWin = 0;
-}
 
 void Siilihai::loginWizardFinished() {
     loginWizard->deleteLater();
@@ -361,8 +399,12 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
-    //connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
-     //       SLOT(showSubscribeGroup(ForumSubscription*)));
+    /*
+      FFUU, can't do this!
+    connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
+            SLOT(showSubscribeGroup(ForumSubscription*)));
+
+*/
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
     connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), this,
             SLOT(statusChanged(ForumSubscription*, bool, float)));
@@ -389,6 +431,8 @@ void Siilihai::errorDialog(QString message) {
 
 void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
     Q_ASSERT(forum);
+    qDebug() << Q_FUNC_INFO << forum->toString();
+    // @todo stupid logic to prevent dialog from synced groups.
     if (currentState == state_ready) {
         groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
         groupSubscriptionDialog->setModal(false);
@@ -516,5 +560,18 @@ void Siilihai::settingsChanged(bool byUser) {
     usettings.syncEnabled = settings.value("preferences/sync_enabled", false).toBool();
     if(byUser) {
         protocol.setUserSettings(&usettings);
+    }
+}
+
+void Siilihai::cancelProgress() {
+    qDebug() << Q_FUNC_INFO;
+    if(currentState==state_login) {
+        loginFinished(false,QString::null,false);
+    } else if(currentState==state_updating_parsers || currentState==state_startsyncing) {
+        changeState(state_offline);
+    } else if(currentState==state_endsync) {
+        haltSiilihai();
+    } else {
+        Q_ASSERT(false);
     }
 }

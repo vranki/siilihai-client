@@ -14,36 +14,36 @@
 #include "ui_subscribeforum_verify.h"
 
 class SubscribeWizard: public QWizard {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QString &baseUrl);
-	~SubscribeWizard();
-	QWizardPage *createIntroPage();
-	QWizardPage *createLoginPage();
-	QWizardPage *createVerifyPage();
+    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QString &baseUrl);
+    ~SubscribeWizard();
+    QWizardPage *createIntroPage();
+    QWizardPage *createLoginPage();
+    QWizardPage *createVerifyPage();
 signals:
-	void forumAdded(ForumParser fp, ForumSubscription *fs);
+    void forumAdded(ForumParser fp, ForumSubscription *fs);
 
 public slots:
-	void listParsersFinished(QList <ForumParser> parsers);
-	void updateParserList();
-	void pageChanged(int id);
-	void wizardAccepted();
-	void getParserFinished(ForumParser parser);
-	void comboItemChanged(int id);
+    void listParsersFinished(QList <ForumParser> parsers);
+    void updateParserList();
+    void pageChanged(int id);
+    void wizardAccepted();
+    void getParserFinished(ForumParser parser);
+    void comboItemChanged(int id);
 private:
-	QWizard wizard;
-	SiilihaiProtocol &protocol;
-	QProgressDialog *progress;
-	QSettings settings;
+    QWizard wizard;
+    SiilihaiProtocol &protocol;
+    QProgressDialog *progress;
+    QSettings settings;
     Ui::SubscribeForm subscribeForm;
     Ui::SubscribeForumLoginForm subscribeForumLogin;
     Ui::SubscribeForumVerify subscribeForumVerify;
     QList <ForumParser> allParsers;
     QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
     ForumParser *selectedParser;
-	ForumParser parser;
+    ForumParser parser;
 };
 
 #endif // SubscribeWizard_H

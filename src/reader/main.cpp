@@ -6,8 +6,8 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationName("Siilihai");
     QCoreApplication::setOrganizationDomain("siilihai.com");
     QCoreApplication::setApplicationName("Siilihai client");
-    QApplication app(argc, argv);
-    Siilihai sh;
+    Siilihai sh(argc, argv);
     QTimer::singleShot(0, &sh, SLOT(launchSiilihai()));
-    return app.exec();
+    //sh.launchSiilihai();
+    return sh.exec();
 }

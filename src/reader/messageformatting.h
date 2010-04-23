@@ -1,10 +1,3 @@
-/*
- * messageformatting.h
- *
- *  Created on: Nov 7, 2009
- *      Author: vranki
- */
-
 #ifndef MESSAGEFORMATTING_H_
 #define MESSAGEFORMATTING_H_
 
@@ -13,10 +6,10 @@
 
 class MessageFormatting {
 public:
-	MessageFormatting();
-	virtual ~MessageFormatting();
-	static QString stripHtml(QString &txt);
-	static QString sanitize(QString &txt); // strip html and newlines
+    MessageFormatting();
+    virtual ~MessageFormatting();
+    static QString stripHtml(QString &txt);
+    static QString sanitize(QString &txt); // strip html and newlines
 };
 
 #endif /* MESSAGEFORMATTING_H_ */

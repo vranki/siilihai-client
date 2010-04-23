@@ -187,7 +187,7 @@ void MainWindow::setReaderReady(bool ready, bool readerOffline) {
     ui.actionWork_offline->setChecked(offline);
     flw->setEnabled(readerReady || offline);
     if (!ready) {
-        ui.statusbar->showMessage("Starting up, please wait..", 2000);
+        ui.statusbar->showMessage("Please wait..", 2000);
     } else {
         if (!offline) {
             ui.statusbar->showMessage("Siilihai is ready", 2000);

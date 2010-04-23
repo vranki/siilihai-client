@@ -33,6 +33,7 @@ signals:
 	void messageSelected(ForumMessage *msg);
 private:
         QString messageSubject(ForumMessage *msg);
+        void swapMessages(ForumMessage *m1, ForumMessage *m2);
         void updateList();
         void clearList();
         void addThread(ForumThread *thread);

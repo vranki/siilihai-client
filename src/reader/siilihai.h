@@ -1,6 +1,7 @@
 #ifndef SIILIHAI_H_
 #define SIILIHAI_H_
 #include <QObject>
+#include <QApplication>
 #include <QSettings>
 #include <QtSql>
 #include <QDir>
@@ -31,32 +32,35 @@ class ParserMaker;
 #define DATABASE_FILE "/.siilihai.db"
 #define BASEURL "http://www.siilihai.com/"
 
-// Login process:
-//        ,----------------.>
-// started -> startsync -> update parsers -> ready -> endsync -> quitting
-//         '> offline -> quitting
+// State chart:
+//                 ,------>-------.
+// started -> login ->startsync -> update parsers -> ready -> endsync -> quit
+//              | ^       |              |            |                   ^
+//              v |   .-------------<-----------------'                   |
+//             offline ------------------------>--------------------------'
+//
 
-
-class Siilihai: public QObject {
+class Siilihai: public QApplication {
     Q_OBJECT
 
     enum siilihai_states {
         state_started,
+        state_login,
         state_startsyncing,
         state_offline,
         state_updating_parsers,
         state_ready,
-        state_endsync,
-        state_quitting
+        state_endsync
     } currentState;
 
 public:
-    Siilihai();
+    Siilihai(int& argc, char** argv);
     virtual ~Siilihai();
 public slots:
     void loginWizardFinished();
     void launchSiilihai();
     void haltSiilihai();
+    void cancelProgress();
     void forumAdded(ForumParser fp, ForumSubscription *fs);
     void loginFinished(bool success, QString motd, bool sync);
     void subscribeForum();
@@ -88,6 +92,7 @@ private:
     void launchMainWindow();
     void tryLogin();
     bool endSyncDone;
+    bool firstRun;
     LoginWizard *loginWizard;
     SubscribeWizard *subscribeWizard;
     MainWindow *mainWin;
@@ -100,7 +105,7 @@ private:
     QSettings settings;
     QList<ForumSubscription*> parsersToUpdateLeft;
     ParserMaker *parserMaker;
-    QProgressDialog *loginProgress;
+    QProgressDialog *progressBar;
     GroupSubscriptionDialog *groupSubscriptionDialog;
     SyncMaster syncmaster;
     UserSettings usettings;

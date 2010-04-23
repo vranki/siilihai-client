@@ -123,19 +123,19 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
     QTreeWidgetItem *threadItem = threadWidget(message->thread());
     Q_ASSERT(threadItem);
 
-//    QStringList messageHeader;
-    // @todo slow
-    QString orderString = QString().number(message->ordernum());
-    while(orderString.length() < 4) orderString = "0"+orderString;
+    QString orderString;
+    if(message->ordernum() >=0) {
+        orderString = QString().number(message->ordernum()).rightJustified(4, '0');
+    }
 
     QTreeWidgetItem *item = 0;
     if(message->ordernum()==0) { // First message - update thread item!
         item = threadItem;
-        qDebug() << "updated the thread item";
+        qDebug() << Q_FUNC_INFO << "setting the thread item";
     } else { // Reply message - create new item
         item = new QTreeWidgetItem(threadItem);
         item->setText(3, orderString);
-        qDebug() << "created as new item";
+        qDebug() << Q_FUNC_INFO << "created as new item";
     }
 
     forumMessages[item] = message;
@@ -153,8 +153,10 @@ void ThreadListWidget::addThread(ForumThread *thread) {
     QString threadSubject = thread->name();//messageSubject(thread->name());
     QString lc = thread->lastchange();
     QString author = "";
-    QString orderString = QString().number(thread->ordernum());
-    while(orderString.length() < 4) orderString = "0"+orderString;
+    QString orderString;
+    if(thread->ordernum() >=0) {
+        orderString = QString().number(thread->ordernum()).rightJustified(4, '0');
+    }
 
     QTreeWidgetItem *threadItem = new QTreeWidgetItem(this);
     threadItem->setText(0, threadSubject);
@@ -222,6 +224,16 @@ void ThreadListWidget::messageUpdated(ForumMessage *msg) {
 
     QTreeWidgetItem *twi = messageWidget(msg);
     if(twi) {
+        if(msg->ordernum() ==0) {
+            qDebug() << Q_FUNC_INFO << "Horror! Must swap message with thread header!";
+            QTreeWidgetItem *threadItem = threadWidget(msg->thread());
+            Q_ASSERT(threadItem);
+            ForumMessage *oldThreadMessage = forumMessages[threadItem];
+            swapMessages(msg, oldThreadMessage);
+
+            updateMessageRead(messageWidget(oldThreadMessage));
+            updateMessageItem(messageWidget(oldThreadMessage), oldThreadMessage);
+        }
         updateMessageRead(messageWidget(msg));
         updateMessageItem(messageWidget(msg), msg);
     } else {
@@ -316,6 +328,11 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
 }
 
 void ThreadListWidget::updateMessageItem(QTreeWidgetItem *item, ForumMessage *message) {
+    QString orderString;
+    orderString = QString().number(message->ordernum()).rightJustified(4, '0');
+    QString oldOrderString = item->text(3);
+    item->setText(3, orderString);
+
     QString subject = messageSubject(message);
     QString lc = message->lastchange();
     lc = MessageFormatting::sanitize(lc);
@@ -325,4 +342,18 @@ void ThreadListWidget::updateMessageItem(QTreeWidgetItem *item, ForumMessage *me
     item->setText(1, lc);
     item->setText(2, author);
     messageSubjects[item] = subject;
+
+    if(oldOrderString != orderString)
+        sortItems(3, Qt::AscendingOrder);
 }
+
+void ThreadListWidget::swapMessages(ForumMessage *m1, ForumMessage *m2) {
+    qDebug() << Q_FUNC_INFO << "Swapping " << m1->toString() << " with " << m2->toString();
+
+    QTreeWidgetItem *i1 = messageWidget(m1);
+    QTreeWidgetItem *i2 = messageWidget(m2);
+
+    forumMessages[i1] = m2;
+    forumMessages[i2] = m1;
+}
+
