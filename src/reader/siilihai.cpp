@@ -121,7 +121,8 @@ void Siilihai::changeState(siilihai_states newState) {
         Q_ASSERT(!progressBar);
         progressBar = new QProgressDialog("Synchronizing with server", "Cancel", 0, 100,
                                           mainWin);
-        progressBar->setWindowModality(Qt::WindowModal);
+        //progressBar->setWindowModality(Qt::Window);
+        progressBar->setModal(false);
         progressBar->setValue(0);
         connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
     } else if(newState==state_updating_parsers) {
