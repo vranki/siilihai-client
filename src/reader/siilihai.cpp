@@ -12,16 +12,13 @@ Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv), fdb(this)
 }
 
 Siilihai::~Siilihai() {
-    /*
     if (mainWin)
         mainWin->deleteLater();
     mainWin = 0;
-    */
 }
 
 void Siilihai::launchSiilihai() {
     currentState = state_started;
-    connect(this, SIGNAL(lastWindowClosed()), this, SLOT(quit()));
     mainWin = new MainWindow(pdb, fdb, &settings);
     firstRun = settings.value("first_run", true).toBool();
 
@@ -177,7 +174,7 @@ void Siilihai::haltSiilihai() {
         mainWin = 0;
         progressBar = 0;
 
-        //QApplication::quit();
+        quit();
     }
 }
 
@@ -281,20 +278,6 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
             subscribeForum();
             changeState(state_ready);
         }
-    } else { // Update parser def's
-        /*
-        foreach(ForumSubscription *sub, fdb.listSubscriptions()) {
-            parsersToUpdateLeft.append(sub);
-            emit statusChanged(sub, true, -1);
-        }
-        */
-        /*
-        if (!parsersToUpdateLeft.isEmpty()) {
-            protocol.getParser(parsersToUpdateLeft.at(0)->parser());
-        } else {
-            readerReady = true;
-        }
-        */
     }
 }
 
@@ -374,6 +357,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(settingsChanged(bool)), this, SLOT(settingsChanged(bool)));
     mainWin->setReaderReady(false, currentState==state_offline);
     mainWin->show();
+    setQuitOnLastWindowClosed(true);
 }
 
 void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
@@ -400,12 +384,8 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
-    /*
-      FFUU, can't do this!
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
             SLOT(showSubscribeGroup(ForumSubscription*)));
-
-*/
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
     connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), this,
             SLOT(statusChanged(ForumSubscription*, bool, float)));

@@ -129,7 +129,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
     }
 
     QTreeWidgetItem *item = 0;
-    if(message->ordernum()==0) { // First message - update thread item!
+    if(message->ordernum() == 0) { // First message - update thread item!
         item = threadItem;
         qDebug() << Q_FUNC_INFO << "setting the thread item";
     } else { // Reply message - create new item
@@ -224,13 +224,19 @@ void ThreadListWidget::messageUpdated(ForumMessage *msg) {
 
     QTreeWidgetItem *twi = messageWidget(msg);
     if(twi) {
-        if(msg->ordernum() ==0) {
+        if(msg->ordernum() == 0) {
             qDebug() << Q_FUNC_INFO << "Horror! Must swap message with thread header!";
             QTreeWidgetItem *threadItem = threadWidget(msg->thread());
             Q_ASSERT(threadItem);
             ForumMessage *oldThreadMessage = forumMessages[threadItem];
-            swapMessages(msg, oldThreadMessage);
-
+            if(!oldThreadMessage) {
+                // Ok, weird situation but there is no thread message (yet)
+                // Just set this message as thread message
+                oldThreadMessage = msg;
+                forumMessages[threadItem] = msg;
+            } else {
+                swapMessages(msg, oldThreadMessage);
+            }
             updateMessageRead(messageWidget(oldThreadMessage));
             updateMessageItem(messageWidget(oldThreadMessage), oldThreadMessage);
         }
@@ -245,7 +251,6 @@ QTreeWidgetItem* ThreadListWidget::messageWidget(ForumMessage *msg) {
     foreach(QTreeWidgetItem *twi, forumMessages.keys()) {
         if(forumMessages.value(twi) == msg) {
             return twi;
-
         }
     }
     return 0;
@@ -317,6 +322,8 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
         return;
     if (!forumMessages.contains(item)) {
         qDebug() << "A thread with no messages. Broken parser?.";
+        if(forumThreads.contains(item))
+            qDebug() << "The thrad in question is " << forumThreads.value(item);
         emit messageSelected(0);
         return;
     }

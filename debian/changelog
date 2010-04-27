@@ -1,8 +1,8 @@
 siilihai-client (0.9.0-1) karmic; urgency=low
 
-  * (not yet released)
+  * Initial support for syncing. Various bugfixes.
 
- -- Ville Ranki <ville.ranki@iki.fi>  Wed, 07 Apr 2010 20:29:43 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 27 Apr 2010 20:29:43 +0300
 
 siilihai-client (0.8.2-1) karmic; urgency=low
 
