@@ -17,6 +17,7 @@
 #include "threadlistpatterneditor.h"
 #include "grouplistpatterneditor.h"
 #include "messagelistpatterneditor.h"
+#include "../reader/credentialsdialog.h"
 
 #include "ui_parsermaker.h"
 
@@ -43,6 +44,7 @@ public slots:
 	void loginFinished(bool success);
 	void networkFailure(QString txt);
 	void helpClicked();
+        void getAuthentication(ForumSubscription*,QAuthenticator*);
 signals:
 	void parserSaved(ForumParser savedParser);
 

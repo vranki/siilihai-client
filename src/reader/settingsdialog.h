@@ -14,7 +14,7 @@ public:
     SettingsDialog(QWidget *parent, QSettings *s);
     ~SettingsDialog();
 public slots:
-	void closeClicked();
+    void closeClicked();
 
 private:
     Ui::SettingsDialogClass ui;

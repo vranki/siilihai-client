@@ -16,7 +16,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     connect(&fdb, SIGNAL(groupDeleted(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
-    //hideColumn(3);
+    hideColumn(3);
 }
 
 ThreadListWidget::~ThreadListWidget() {
@@ -323,7 +323,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
     if (!forumMessages.contains(item)) {
         qDebug() << "A thread with no messages. Broken parser?.";
         if(forumThreads.contains(item))
-            qDebug() << "The thrad in question is " << forumThreads.value(item);
+            qDebug() << "The thread in question is " << forumThreads.value(item)->toString();
         emit messageSelected(0);
         return;
     }
@@ -336,7 +336,12 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
 
 void ThreadListWidget::updateMessageItem(QTreeWidgetItem *item, ForumMessage *message) {
     QString orderString;
-    orderString = QString().number(message->ordernum()).rightJustified(4, '0');
+    // Orderstring is thread's order if first message, or messages if not:
+    if(message->ordernum() == 0) {
+        orderString = QString().number(message->thread()->ordernum()).rightJustified(4, '0');
+    } else if(message->ordernum() > 0) {
+        orderString = QString().number(message->ordernum()).rightJustified(4, '0');
+    }
     QString oldOrderString = item->text(3);
     item->setText(3, orderString);
 

@@ -20,6 +20,7 @@ HEADERS += messageviewwidget.h \
     subscribewizard.h \
     mainwindow.h \
     siilihai.h \
+    credentialsdialog.h \
     loginwizard.h
 SOURCES += messageviewwidget.cpp \
     messageformatting.cpp \
@@ -33,6 +34,7 @@ SOURCES += messageviewwidget.cpp \
     mainwindow.cpp \
     siilihai.cpp \
     loginwizard.cpp \
+    credentialsdialog.cpp \
     main.cpp
 DEPENDPATH = ../parsermaker
 BINDIR = $$PREFIX/bin
@@ -46,10 +48,9 @@ FORMS = settingsdialog.ui \
     subscribeforum_verify.ui \
     subscribeforum_login.ui \
     subscribeforum.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    credentialsdialog.ui
 RESOURCES = ../../siilihairesources.qrc
 LIBS += -L../parsermaker \
     -lsiilihai
-!exists(/etc/libosso) {
-    LIBS += -lsiilihai-parsermaker
-}
+!exists(/etc/libosso):LIBS += -lsiilihai-parsermaker

@@ -140,9 +140,9 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->cancel();
         progressBar->deleteLater();
         progressBar = 0;
-        if (settings.value("preferences/update_automatically", false).toBool())
-            updateClicked();
         mainWin->setReaderReady(true, false);
+        if (settings.value("preferences/update_automatically", true).toBool())
+            updateClicked();
     }
 }
 
@@ -393,6 +393,8 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
             SLOT(setForumStatus(ForumSubscription*, bool, float)));
     connect(pe, SIGNAL(updateFailure(QString)), this,
             SLOT(errorDialog(QString)));
+    connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)),
+            this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
     parsersToUpdateLeft.append(sub);
 }
 
@@ -555,4 +557,10 @@ void Siilihai::cancelProgress() {
     } else {
         Q_ASSERT(false);
     }
+}
+
+void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
+    CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator);
+    creds->setModal(true);
+    creds->exec();
 }

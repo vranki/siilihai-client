@@ -22,6 +22,7 @@
 #include "groupsubscriptiondialog.h"
 #include "forumlistwidget.h"
 #include "reportparser.h"
+#include "credentialsdialog.h"
 
 #ifndef Q_WS_HILDON
 #include "../parsermaker/parsermaker.h"
@@ -86,6 +87,7 @@ public slots:
     void subscribeForumFinished(bool success);
     void userSettingsReceived(bool success, UserSettings *newSettings);
     void settingsChanged(bool byUser);
+    void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
 
 private:
     void changeState(siilihai_states newState);
