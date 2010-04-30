@@ -165,6 +165,7 @@ void ParserMaker::parserLoaded(ForumParser p) {
     ui.threadListPageStart->setText(QString().number(p.thread_list_page_start));
     ui.threadListPageIncrement->setText(QString().number(
             p.thread_list_page_increment));
+    ui.viewMessagePath->setText(p.view_message_path);
     ui.charset->setEditText(p.charset);
     ui.loginPath->setText(p.login_path);
     ui.loginTypeCombo->setCurrentIndex(p.login_type);
@@ -323,7 +324,7 @@ void ParserMaker::helpClicked() {
 
 
 void ParserMaker::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
-    CredentialsDialog *creds = new CredentialsDialog(this, fsub, authenticator);
+    CredentialsDialog *creds = new CredentialsDialog(this, fsub, authenticator, 0);
     creds->setModal(true);
     creds->exec();
 }

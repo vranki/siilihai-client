@@ -30,6 +30,7 @@ void GroupListPatternEditor::testPageSpanning() {
 }
 
 void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups) {
+    groupSelected(0);
     qDeleteAll(listGroups);
     listGroups.clear();
     ui.resultsTable->clear();
@@ -65,7 +66,7 @@ void GroupListPatternEditor::resultCellActivated(int row, int column) {
     } else {
         qDebug() << "Unknown id @ row " << row;
     }
-    emit(groupSelected(selectedGroup));
+    emit groupSelected(selectedGroup);
 }
 
 void GroupListPatternEditor::parserUpdated() {

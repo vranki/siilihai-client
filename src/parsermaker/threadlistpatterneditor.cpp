@@ -74,12 +74,12 @@ void ThreadListPatternEditor::resultCellActivated(int row, int column) {
     } else {
         qDebug() << "Unknown id @ row " << row;
     }
-    emit(threadSelected(selectedThread));
+    emit threadSelected(selectedThread);
 }
 
 void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*>& threads, ForumGroup *group) {
     Q_UNUSED(group);
-
+    emit threadSelected(0);
     qDeleteAll(listThreads);
     listThreads.clear();
     ui.resultsTable->clear();
@@ -110,6 +110,7 @@ void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*>& threads, 
 }
 
 void ThreadListPatternEditor::parserUpdated() {
+    // @todo bug: currentGroup is sometimes not in scope. Fix!
     if (currentGroup) {
         ui.urlLabel->setText(session.getThreadListUrl(currentGroup));
     } else {

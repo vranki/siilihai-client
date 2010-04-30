@@ -391,8 +391,8 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
             SLOT(statusChanged(ForumSubscription*, bool, float)));
     connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), mainWin,
             SLOT(setForumStatus(ForumSubscription*, bool, float)));
-    connect(pe, SIGNAL(updateFailure(QString)), this,
-            SLOT(errorDialog(QString)));
+    connect(pe, SIGNAL(updateFailure(ForumSubscription*, QString)), this,
+            SLOT(updateFailure(ForumSubscription*, QString)));
     connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)),
             this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
     parsersToUpdateLeft.append(sub);
@@ -560,7 +560,25 @@ void Siilihai::cancelProgress() {
 }
 
 void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
-    CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator);
-    creds->setModal(true);
-    creds->exec();
+    bool failed = false;
+    QString gname = QString().number(fsub->parser());
+    settings.beginGroup("authentication");
+    qDebug() << settings.contains(QString("authentication/%1/username").arg(gname)) <<
+            settings.contains(QString("%1/username").arg(gname));
+    if(settings.contains(QString("%1/username").arg(gname))) {
+        authenticator->setUser(settings.value(QString("%1/username").arg(gname)).toString());
+        authenticator->setPassword(settings.value(QString("%1/password").arg(gname)).toString());
+        if(settings.value(QString("authentication/%1/failed").arg(gname)).toString() == "true") failed = true;
+        qDebug() << "Failed: " << settings.value(QString("%1/failed").arg(gname)).toString();
+    }
+    settings.endGroup();
+    if(authenticator->user().isNull() || failed) {
+        CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, &settings);
+        creds->setModal(true);
+        creds->exec();
+    }
+}
+void Siilihai::updateFailure(ForumSubscription* sub, QString msg) {
+    settings.setValue(QString("authentication/%1/failed").arg(sub->parser()), "true");
+    errorDialog(sub->alias() + "\n" + msg);
 }
