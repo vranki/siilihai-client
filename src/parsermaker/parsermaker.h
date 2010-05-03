@@ -17,7 +17,7 @@
 #include "threadlistpatterneditor.h"
 #include "grouplistpatterneditor.h"
 #include "messagelistpatterneditor.h"
-#include "../reader/credentialsdialog.h"
+#include "../common/credentialsdialog.h"
 
 #include "ui_parsermaker.h"
 

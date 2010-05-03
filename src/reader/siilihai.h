@@ -22,7 +22,7 @@
 #include "groupsubscriptiondialog.h"
 #include "forumlistwidget.h"
 #include "reportparser.h"
-#include "credentialsdialog.h"
+#include "../common/credentialsdialog.h"
 
 #ifndef Q_WS_HILDON
 #include "../parsermaker/parsermaker.h"
