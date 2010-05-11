@@ -92,8 +92,13 @@ void Siilihai::changeState(siilihai_states newState) {
 
     if(newState==state_offline) {
         qDebug() << Q_FUNC_INFO << "Offline";
-        Q_ASSERT(previousState==state_login || previousState==state_ready);
+        Q_ASSERT(previousState==state_login || previousState==state_ready || previousState==state_started);
         mainWin->setReaderReady(true, true);
+        if(progressBar) { // exists if canceling dureing login process
+            progressBar->cancel();
+            progressBar->deleteLater();
+            progressBar = 0;
+        }
     } else if(newState==state_login) {
         qDebug() << Q_FUNC_INFO << "Login";
         if(!progressBar) {

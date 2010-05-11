@@ -27,7 +27,7 @@ QWidget(parent), session(ses), parser(par), subscription(fos), editTimeout(this)
     ui.resultsTable->setSelectionMode(QAbstractItemView::SingleSelection);
     ui.resultsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui.sourceTextEdit->setFontFamily("monospace");
-    groupListCursor = ui.sourceTextEdit->textCursor();
+    patternEditorCursor = ui.sourceTextEdit->textCursor();
     pageSpanningTest = false;
     editTimeout.setSingleShot(true);
     subscription = downloadSubscription = fos;
@@ -99,13 +99,12 @@ void PatternEditor::dataMatched(int pos, QString data, PatternMatchType type) {
         Q_ASSERT(false);
     }
 
-    groupListCursor.setPosition(groupListCursor.position() + data.length(),
+    patternEditorCursor.setPosition(patternEditorCursor.position() + data.length(),
                                 QTextCursor::KeepAnchor);
-    QTextCharFormat fmt = groupListCursor.charFormat();
-    ;
+    QTextCharFormat fmt = patternEditorCursor.charFormat();
     fmt.setForeground(QBrush(color));
-    groupListCursor.setCharFormat(fmt);
-    groupListCursor.setPosition(groupListCursor.position(),
+    patternEditorCursor.setCharFormat(fmt);
+    patternEditorCursor.setPosition(patternEditorCursor.position(),
                                 QTextCursor::MoveAnchor);
 }
 
@@ -115,7 +114,7 @@ void PatternEditor::dataMatchingStart(QString &html) {
     if (ui.sourceTextEdit->toPlainText().length() == 0) {
         ui.sourceTextEdit->setPlainText(html);
     }
-    groupListCursor.setPosition(0, QTextCursor::MoveAnchor);
+    patternEditorCursor.setPosition(0, QTextCursor::MoveAnchor);
     pageSpanningTest = false;
 }
 

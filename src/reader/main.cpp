@@ -8,6 +8,5 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationName("Siilihai client");
     Siilihai sh(argc, argv);
     QTimer::singleShot(0, &sh, SLOT(launchSiilihai()));
-    //sh.launchSiilihai();
     return sh.exec();
 }

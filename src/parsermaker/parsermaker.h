@@ -30,37 +30,44 @@ public:
     ~ParserMaker();
 
 public slots:
-	void updateState();
-	void openClicked();
-	void newFromRequestClicked();
-	void saveClicked();
-	void saveAsNewClicked();
-	void testForumUrlClicked();
-	void parserLoaded(ForumParser p);
-	void saveParserFinished(int newId, QString message);
-	void requestSelected(ForumRequest req);
-	void tryLogin();
-	void tryWithoutLogin();
-	void loginFinished(bool success);
-	void networkFailure(QString txt);
-	void helpClicked();
-        void getAuthentication(ForumSubscription*,QAuthenticator*);
+    void updateState();
+    void openClicked();
+    void newFromRequestClicked();
+    void saveClicked();
+    void saveAsNewClicked();
+    void testForumUrlClicked();
+    void parserLoaded(ForumParser p);
+    void saveParserFinished(int newId, QString message);
+    void requestSelected(ForumRequest req);
+    void tryLogin();
+    void tryWithoutLogin();
+    void loginFinished(bool success);
+    void networkFailure(QString txt);
+    void helpClicked();
+    void getAuthentication(ForumSubscription*,QAuthenticator*);
+    void dataMatchingStart(QString &html);
+    void dataMatchingEnd();
+    void dataMatched(int pos, QString data, PatternMatchType type);
+
 signals:
-	void parserSaved(ForumParser savedParser);
+    void parserSaved(ForumParser savedParser);
 
 private:
-	void closeEvent(QCloseEvent *event);
-	Ui::ParserMakerWindow ui;
+    void closeEvent(QCloseEvent *event);
+    Ui::ParserMakerWindow ui;
     ParserDatabase &pdb;
-	QSettings &settings;
-	SiilihaiProtocol &protocol;
-	ForumParser parser;
-	ForumSession session;
-	ForumSubscription subscription;
-	PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;
-	ForumGroup *selectedGroup;
-	ForumThread *selectedThread;
-	bool loginWithoutCredentials;
+    QSettings &settings;
+    SiilihaiProtocol &protocol;
+    ForumParser parser;
+    ForumSession session;
+    ForumSubscription subscription;
+    PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;
+    ForumGroup *selectedGroup;
+    ForumThread *selectedThread;
+    bool loginWithoutCredentials;
+    PatternMatcher *loginMatcher;
+    QTextCursor loginEditorCursor;
+
 };
 
 #endif // PARSERMAKER_H

@@ -44,12 +44,11 @@ private slots:
 protected:
 
 	Ui::PatternEditorClass ui;
-	QTextCursor groupListCursor;
+        QTextCursor patternEditorCursor;
 	ForumSession &session;
 	ForumParser &parser, downloadParser;
 	PatternMatcher *matcher;
 	ForumSubscription *subscription, *downloadSubscription;
-        // QHash<int, QString> listIds;
 	bool pageSpanningTest;
 	QTimer editTimeout;
 };

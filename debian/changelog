@@ -1,3 +1,15 @@
+siilihai-client (0.9.2-3) karmic; urgency=low
+
+  * Ubuntu Lucid Lynx release
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 03 May 2010 20:29:43 +0300
+
+siilihai-client (0.9.2-2) karmic; urgency=low
+
+  * Fixed build, re-uploading to ppa
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 03 May 2010 20:29:43 +0300
+
 siilihai-client (0.9.2-1) karmic; urgency=low
 
   * Support for HTTP authentication to forums

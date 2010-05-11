@@ -4,6 +4,8 @@ ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s,
                          SiilihaiProtocol &p) :
 QMainWindow(parent), pdb(pd), settings(s), protocol(p) {
     ui.setupUi(this);
+    loginMatcher = new PatternMatcher(this, true);
+
     groupListEditor = new GroupListPatternEditor(session, parser, &subscription,
                                                  this);
     ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(),
@@ -58,6 +60,12 @@ QMainWindow(parent), pdb(pd), settings(s), protocol(p) {
             SLOT(networkFailure(QString)));
     connect(&session, SIGNAL(getAuthentication(ForumSubscription*,QAuthenticator*)),
             this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
+
+    connect(loginMatcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
+            this, SLOT(dataMatched(int, QString, PatternMatchType)));
+    connect(loginMatcher, SIGNAL(dataMatchingStart(QString&)), this,
+            SLOT(dataMatchingStart(QString&)));
+    connect(loginMatcher, SIGNAL(dataMatchingEnd()), this, SLOT(dataMatchingEnd()));
 
     subscription.setLatestThreads(100);
     subscription.setLatestMessages(100);
@@ -128,6 +136,8 @@ void ParserMaker::updateState() {
     threadListEditor->parserUpdated();
     messageListEditor->parserUpdated();
 
+    ui.tryLoginButton->setEnabled(true);
+    ui.tryWithoutLoginButton->setEnabled(true);
     // session.initialize(parser, subscription);
 }
 
@@ -245,6 +255,7 @@ void ParserMaker::closeEvent(QCloseEvent *event) {
 
 void ParserMaker::tryLogin() {
     session.clearAuthentications();
+    session.initialize(parser, &subscription, 0);
     loginWithoutCredentials = false;
     updateState();
     connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit,
@@ -256,6 +267,7 @@ void ParserMaker::tryLogin() {
 
 void ParserMaker::tryWithoutLogin() {
     session.clearAuthentications();
+    session.initialize(parser, &subscription, 0);
     loginWithoutCredentials = true;
     updateState();
     connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit,
@@ -327,4 +339,67 @@ void ParserMaker::getAuthentication(ForumSubscription *fsub, QAuthenticator *aut
     CredentialsDialog *creds = new CredentialsDialog(this, fsub, authenticator, 0);
     creds->setModal(true);
     creds->exec();
+}
+
+
+void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
+    QString myData = ui.loginTextEdit->toPlainText().mid(pos, data.length());
+    static int mismatches = 0;
+    if(myData != data && mismatches < 5) {
+        for(int i=0;i<data.length();i++) {
+            if(myData[i] != data[i]) {
+                int preDisplay = i-5;
+                int postDisplay = i + 30;
+                if(preDisplay < 0) preDisplay = 0;
+                if(postDisplay > data.length()) postDisplay = data.length();
+                qDebug() << "Data MisMatch at pos " << i << " pre " << preDisplay << ": \n" <<
+                        myData.mid(preDisplay, postDisplay-preDisplay) <<
+                        "\n != \n" << data.mid(preDisplay, postDisplay-preDisplay);
+                qDebug() << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toAscii() <<  ") != "
+                        << data.at(i) << "(" << (int) data.at(i).toAscii() << ")";
+                i = data.length();
+                mismatches++;
+            }
+        }
+
+        qDebug() << "Position: " << pos << " match type = " << type;
+    }
+
+    QColor color;
+
+    switch (type) {
+    case PMTMatch:
+        color = Qt::blue;
+        break;
+    case PMTNoMatch:
+        color = Qt::black;
+        break;
+    case PMTTag:
+        color = Qt::green;
+        break;
+    case PMTIgnored:
+        color = Qt::darkGray;
+        break;
+    default:
+        Q_ASSERT(false);
+    }
+
+    loginEditorCursor.setPosition(loginEditorCursor.position() + data.length(),
+                                QTextCursor::KeepAnchor);
+    QTextCharFormat fmt = loginEditorCursor.charFormat();
+    fmt.setForeground(QBrush(color));
+    loginEditorCursor.setCharFormat(fmt);
+    loginEditorCursor.setPosition(loginEditorCursor.position(),
+                                QTextCursor::MoveAnchor);
+}
+
+
+void ParserMaker::dataMatchingStart(QString &html) {
+    if (ui.loginTextEdit->toPlainText().length() == 0) {
+        ui.loginTextEdit->setPlainText(html);
+    }
+    loginEditorCursor.setPosition(0, QTextCursor::MoveAnchor);
+}
+
+void ParserMaker::dataMatchingEnd() {
 }
