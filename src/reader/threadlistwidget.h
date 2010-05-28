@@ -23,14 +23,16 @@ public slots:
         void updateMessageItem(QTreeWidgetItem *item, ForumMessage *msg);
         void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
         void messageFound(ForumMessage *msg);
-        void threadFound(ForumThread *thread);
         void messageUpdated(ForumMessage *msg);
         void messageDeleted(ForumMessage *msg);
+        void threadFound(ForumThread *thread);
+        void threadUpdated(ForumThread *thread);
         void threadDeleted(ForumThread *thread);
         void groupUpdated(ForumGroup *grp);
         void groupDeleted(ForumGroup *grp);
 signals:
 	void messageSelected(ForumMessage *msg);
+        void moreMessagesRequested(ForumThread *thread);
 private:
         QString messageSubject(ForumMessage *msg);
         void swapMessages(ForumMessage *m1, ForumMessage *m2);
@@ -39,10 +41,11 @@ private:
         void addThread(ForumThread *thread);
         void addMessage(ForumMessage *msg);
 	void updateThreadUnreads(QTreeWidgetItem* threadItem);
+        void addShowMoreButton(ForumThread *thread);
         QTreeWidgetItem* messageWidget(ForumMessage *msg);
         QTreeWidgetItem* threadWidget(ForumThread *thread);
-//        QList<QPair<QTreeWidgetItem*, ForumThread*> > threadItems; // First messages in thread, representing the whole thread. QTWI has no parent.
-	QHash<QTreeWidgetItem*, ForumMessage*> forumMessages;
+        QHash<QTreeWidgetItem*, ForumThread*> showMoreItems;
+        QHash<QTreeWidgetItem*, ForumMessage*> forumMessages;
         QHash<QTreeWidgetItem*, ForumThread*> forumThreads;
         QHash<QTreeWidgetItem*, QString> messageSubjects;
         ForumGroup *currentGroup;

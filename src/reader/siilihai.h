@@ -89,6 +89,7 @@ public slots:
     void settingsChanged(bool byUser);
     void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
     void updateFailure(ForumSubscription* sub, QString msg);
+    void moreMessagesRequested(ForumThread* thread);
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();

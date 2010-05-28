@@ -7,9 +7,8 @@ MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
 PatternEditor(ses, par, fos, parent) {
     setEnabled(false);
     connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage*>&,
-                                                  ForumThread*)), this,
-            SLOT(listMessagesFinished(QList<ForumMessage*>&,
-                                      ForumThread*)));
+                                                  ForumThread*, bool)),
+            this, SLOT(listMessagesFinished(QList<ForumMessage*>&, ForumThread*, bool)));
     ui.patternLabel->setText(
             "<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
     subscription = fos;
@@ -82,7 +81,7 @@ void MessageListPatternEditor::resultCellActivated(int row, int column) {
 }
 
 void MessageListPatternEditor::listMessagesFinished(
-        QList<ForumMessage*> &messages, ForumThread *thread) {
+        QList<ForumMessage*> &messages, ForumThread *thread, bool more) {
     Q_UNUSED(thread);
 
     //qDeleteAll(listMessages);

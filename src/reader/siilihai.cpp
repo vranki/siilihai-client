@@ -360,6 +360,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(haltRequest()), this,
             SLOT(haltSiilihai()));
     connect(mainWin, SIGNAL(settingsChanged(bool)), this, SLOT(settingsChanged(bool)));
+    connect(mainWin, SIGNAL(moreMessagesRequested(ForumThread*)), this, SLOT(moreMessagesRequested(ForumThread*)));
     mainWin->setReaderReady(false, currentState==state_offline);
     mainWin->show();
     setQuitOnLastWindowClosed(true);
@@ -586,4 +587,18 @@ void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authen
 void Siilihai::updateFailure(ForumSubscription* sub, QString msg) {
     settings.setValue(QString("authentication/%1/failed").arg(sub->parser()), "true");
     errorDialog(sub->alias() + "\n" + msg);
+}
+
+void Siilihai::moreMessagesRequested(ForumThread* thread){
+    Q_ASSERT(thread);
+    ParserEngine *engine = engines[thread->group()->subscription()];
+    Q_ASSERT(engine);
+    if(engine->isBusy()) return;
+
+    // @todo Q_ASSERT(!thread->getAllMessages());
+    thread->setGetMessagesCount(thread->getMessagesCount() + 30);
+    fdb.updateThread(thread);
+    qDebug() << Q_FUNC_INFO << " getMessagesCount() now " << thread->getMessagesCount();
+    fdb.updateThread(thread);
+    engine->updateThread(thread);
 }

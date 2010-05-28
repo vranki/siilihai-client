@@ -47,6 +47,7 @@ signals:
     void offlineModeSet(bool ol);
     void haltRequest();
     void settingsChanged(bool byUser);
+    void moreMessagesRequested(ForumThread* thread);
 public slots:
     void subscribeForumSlot();
     void unsubscribeForumSlot();

@@ -58,6 +58,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
             SLOT(groupSelected(ForumGroup*)));
     connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this,
             SLOT(messageSelected(ForumMessage*)));
+    connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
     ui.topFrame->layout()->addWidget(tlw);
 
 

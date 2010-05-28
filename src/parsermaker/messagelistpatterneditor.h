@@ -26,7 +26,7 @@ public slots:
     void resultCellActivated(int row, int column);
     virtual void parserUpdated();
     virtual void listMessagesFinished(QList<ForumMessage*> &messages,
-                                      ForumThread *thread);
+                                      ForumThread *thread, bool more);
     virtual void patternChanged();
 
 signals:

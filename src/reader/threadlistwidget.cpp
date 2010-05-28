@@ -7,8 +7,9 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     QStringList headers;
     headers << "Subject" << "Date" << "Author" << "Ordernum";
     setHeaderLabels(headers);
-    connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
     connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
+    connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
+    connect(&fdb, SIGNAL(threadUpdated(ForumThread*)), this, SLOT(threadUpdated(ForumThread*)));
     connect(&fdb, SIGNAL(threadDeleted(ForumThread*)), this, SLOT(threadDeleted(ForumThread*)));
     connect(&fdb, SIGNAL(messageDeleted(ForumMessage*)), this, SLOT(messageDeleted(ForumMessage*)));
     connect(&fdb, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
@@ -70,9 +71,39 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
     }
 }
 
+void ThreadListWidget::threadUpdated(ForumThread *thread) {
+    // Find if we have show more button item:
+    QTreeWidgetItem *item = 0;
+    foreach(ForumThread *shThread, showMoreItems.values()) {
+        if(shThread == thread) {
+            item = showMoreItems.key(shThread);
+        }
+    }
+
+    if(thread->hasMoreMessages() && !item) { // Need to add show more-button
+        addShowMoreButton(thread);
+    } else if(!thread->hasMoreMessages() && item) { // Need to delete show more-button
+        Q_ASSERT(item->parent());
+        item->parent()->removeChild(item);
+        delete item;
+        showMoreItems.remove(item);
+    }
+    // @todo update other thread fields such as subject etc
+    resizeColumnToContents(0);
+    resizeColumnToContents(1);
+    resizeColumnToContents(2);
+}
+
+void ThreadListWidget::addShowMoreButton(ForumThread *thread) {
+    // Add the show more-item
+    QTreeWidgetItem *showMoreItem = new QTreeWidgetItem(threadWidget(thread));
+    showMoreItem->setText(0, "Show More messages");
+    showMoreItem->setText(3, "999999"); // Always the last one
+    showMoreItems[showMoreItem] = thread;
+}
+
 void ThreadListWidget::threadDeleted(ForumThread *thread) {
     if(thread->group() != currentGroup) return;
-
     // Actually NOP, as deleting the last message will remove the thread.
     // @todo check that all messages have been removed here!
     return;
@@ -125,7 +156,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
 
     QString orderString;
     if(message->ordernum() >=0) {
-        orderString = QString().number(message->ordernum()).rightJustified(4, '0');
+        orderString = QString().number(message->ordernum()).rightJustified(6, '0');
     }
 
     QTreeWidgetItem *item = 0;
@@ -155,7 +186,7 @@ void ThreadListWidget::addThread(ForumThread *thread) {
     QString author = "";
     QString orderString;
     if(thread->ordernum() >=0) {
-        orderString = QString().number(thread->ordernum()).rightJustified(4, '0');
+        orderString = QString().number(thread->ordernum()).rightJustified(6, '0');
     }
 
     QTreeWidgetItem *threadItem = new QTreeWidgetItem(this);
@@ -166,10 +197,15 @@ void ThreadListWidget::addThread(ForumThread *thread) {
 
     forumThreads[threadItem] = thread;
     addTopLevelItem(threadItem);
+    if(thread->hasMoreMessages()) {
+        addShowMoreButton(thread);
+    }
+
     sortItems(3, Qt::AscendingOrder);
     resizeColumnToContents(0);
     resizeColumnToContents(1);
     resizeColumnToContents(2);
+
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
@@ -293,7 +329,6 @@ void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
 
 void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
     if(threadItem) {
-
         ForumMessage *message = forumMessages.value(threadItem);
         // message is 0 if a thread doesn't yet have its first message.
         if(!message) return;
@@ -302,7 +337,9 @@ void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
             unreads++; // Also count first message
 
         for(int i=0;i<threadItem->childCount();i++) {
-            if(!forumMessages.value(threadItem->child(i))->read())
+            ForumMessage *msg = forumMessages.value(threadItem->child(i));
+            // msg is 0 if the child is "Show more" button etc
+            if(msg && !msg->read())
                 unreads++;
         }
 
@@ -316,10 +353,17 @@ void ThreadListWidget::updateThreadUnreads(QTreeWidgetItem* threadItem) {
 
 void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
                                        QTreeWidgetItem *prev) {
-    qDebug() << Q_FUNC_INFO << "selected " << item << prev;
     Q_UNUSED(prev);
     if (!item)
         return;
+    if(showMoreItems.contains(item)) {
+        item->parent()->removeChild(item);
+        delete item;
+        ForumThread *thread = showMoreItems.value(item);
+        showMoreItems.remove(item);
+        emit moreMessagesRequested(thread);
+        return;
+    }
     if (!forumMessages.contains(item)) {
         qDebug() << "A thread with no messages. Broken parser?.";
         if(forumThreads.contains(item))
@@ -338,9 +382,9 @@ void ThreadListWidget::updateMessageItem(QTreeWidgetItem *item, ForumMessage *me
     QString orderString;
     // Orderstring is thread's order if first message, or messages if not:
     if(message->ordernum() == 0) {
-        orderString = QString().number(message->thread()->ordernum()).rightJustified(4, '0');
+        orderString = QString().number(message->thread()->ordernum()).rightJustified(6, '0');
     } else if(message->ordernum() > 0) {
-        orderString = QString().number(message->ordernum()).rightJustified(4, '0');
+        orderString = QString().number(message->ordernum()).rightJustified(6, '0');
     }
     QString oldOrderString = item->text(3);
     item->setText(3, orderString);
