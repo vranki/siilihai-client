@@ -2,8 +2,8 @@
 
 SubscribeWizard::SubscribeWizard(QWidget *parent,
                                  SiilihaiProtocol &proto,
-                                 QString &baseUrl) :
-QWizard(parent), protocol(proto) {
+                                 QString &baseUrl, QSettings &sett) :
+QWizard(parent), protocol(proto), settings(sett) {
     selectedParser = 0;
     setWizardStyle(QWizard::ModernStyle);
 #ifndef Q_WS_HILDON
@@ -26,14 +26,14 @@ QWizard(parent), protocol(proto) {
             SLOT(comboItemChanged(int)));
     protocol.setBaseURL(baseUrl);
     progress = 0;
-    show();
     protocol.listParsers();
     subscribeForm.forumList->addItem(QString(
             "Downloading list of available forums..."));
+    subscribeForm.pagePreview->hide();
+    show();
 }
 
 SubscribeWizard::~SubscribeWizard() {
-
 }
 
 QWizardPage *SubscribeWizard::createIntroPage() {
@@ -48,6 +48,7 @@ QWizardPage *SubscribeWizard::createIntroPage() {
     subscribeForm.setupUi(widget);
     layout->addWidget(widget);
     page->setLayout(layout);
+    connect(subscribeForm.forumList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(forumClicked(QListWidgetItem*)));
     return page;
 }
 
@@ -202,6 +203,10 @@ void SubscribeWizard::getParserFinished(ForumParser fp) {
 }
 
 void SubscribeWizard::wizardAccepted() {
+    if(!parser.isSane()) {
+        qDebug() << "Parsed not sane (yet), please hold on..";
+        return;
+    }
     QString user = QString::null;
     QString pass = QString::null;
 
@@ -215,8 +220,8 @@ void SubscribeWizard::wizardAccepted() {
     fs.setAlias(subscribeForumVerify.forumName->text());
     fs.setUsername(user);
     fs.setPassword(pass);
-    fs.setLatestThreads(subscribeForumVerify.latestThreadsEdit->text().toInt());
-    fs.setLatestMessages(subscribeForumVerify.latestMessagesEdit->text().toInt());
+    fs.setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
+    fs.setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
 
     Q_ASSERT(parser.isSane());
     emit(forumAdded(parser, &fs));
@@ -224,4 +229,11 @@ void SubscribeWizard::wizardAccepted() {
 
 void SubscribeWizard::comboItemChanged(int id) {
     updateParserList();
+}
+
+void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {
+    ForumParser *fp = listWidgetItemForum.value(newItem);
+    if(!fp) return;
+    subscribeForm.pagePreview->show();
+    subscribeForm.pagePreview->load(QUrl(fp->forum_url));
 }

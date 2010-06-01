@@ -84,7 +84,7 @@ public slots:
     void syncFinished(bool success);
     void subscriptionFound(ForumSubscription* sub);
     void subscriptionDeleted(ForumSubscription* sub);
-    void subscribeForumFinished(bool success);
+    void subscribeForumFinished(ForumSubscription *sub, bool success);
     void userSettingsReceived(bool success, UserSettings *newSettings);
     void settingsChanged(bool byUser);
     void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);

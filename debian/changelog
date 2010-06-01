@@ -1,3 +1,12 @@
+siilihai-client (0.9.4-1) lucid; urgency=low
+
+  * UI fixes and improvements
+  * Show More-button
+  * Download limits configuration moved to settings
+  * A bit faster unsubscribe
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 01 Jun 2010 20:29:43 +0300
+
 siilihai-client (0.9.3-2) lucid; urgency=low
 
   * WTF, looks like i forgot to change the actual dist from karmic to lucid last time.

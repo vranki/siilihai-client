@@ -17,7 +17,7 @@ class SubscribeWizard: public QWizard {
     Q_OBJECT
 
 public:
-    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QString &baseUrl);
+    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QString &baseUrl, QSettings &sett);
     ~SubscribeWizard();
     QWizardPage *createIntroPage();
     QWizardPage *createLoginPage();
@@ -32,11 +32,12 @@ public slots:
     void wizardAccepted();
     void getParserFinished(ForumParser parser);
     void comboItemChanged(int id);
+    void forumClicked(QListWidgetItem* newItem);
 private:
     QWizard wizard;
     SiilihaiProtocol &protocol;
+    QSettings &settings;
     QProgressDialog *progress;
-    QSettings settings;
     Ui::SubscribeForm subscribeForm;
     Ui::SubscribeForumLoginForm subscribeForumLogin;
     Ui::SubscribeForumVerify subscribeForumVerify;

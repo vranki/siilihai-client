@@ -6,64 +6,105 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>517</width>
-    <height>486</height>
+    <width>666</width>
+    <height>516</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Search</string>
-       </property>
-      </widget>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Search</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="searchString"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="displayLabel">
+         <property name="text">
+          <string>Display</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="displayCombo">
+         <item>
+          <property name="text">
+           <string>Only Public forums</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Public and Private forums</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Development/testing forums</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>All forums</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="searchString"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="displayLabel">
-       <property name="text">
-        <string>Display</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="displayCombo">
-       <item>
-        <property name="text">
-         <string>Only Public forums</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Public and Private forums</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Development/testing forums</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>All forums</string>
-        </property>
-       </item>
-      </widget>
+     <item>
+      <widget class="QListWidget" name="forumList"/>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QListWidget" name="forumList"/>
+    <widget class="QWebView" name="pagePreview">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>400</height>
+      </size>
+     </property>
+     <property name="baseSize">
+      <size>
+       <width>400</width>
+       <height>400</height>
+      </size>
+     </property>
+     <property name="url">
+      <url>
+       <string>about:blank</string>
+      </url>
+     </property>
+     <property name="zoomFactor">
+      <double>0.029999999329448</double>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

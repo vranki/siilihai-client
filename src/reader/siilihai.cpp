@@ -222,9 +222,9 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
                 SLOT(listSubscriptionsFinished(QList<int>)));
         connect(&protocol, SIGNAL(sendParserReportFinished(bool)), this,
                 SLOT(sendParserReportFinished(bool)));
-        connect(&protocol, SIGNAL(subscribeForumFinished(bool)), this, SLOT(subscribeForumFinished(bool)));
+        connect(&protocol, SIGNAL(subscribeForumFinished(ForumSubscription*, bool)), this,
+                SLOT(subscribeForumFinished(ForumSubscription*,bool)));
         usettings.syncEnabled = sync;
-        qDebug() << "Server says user wants to sync: " << sync;
         settings.setValue("preferences/sync_enabled", usettings.syncEnabled);
         settings.sync();
         progressBar->setValue(30);
@@ -318,7 +318,7 @@ void Siilihai::updateForumParser(ForumParser parser) {
 
 
 void Siilihai::subscribeForum() {
-    subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl);
+    subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, settings);
     subscribeWizard->setModal(true);
     connect(subscribeWizard,
             SIGNAL(forumAdded(ForumParser, ForumSubscription*)), this,
@@ -373,6 +373,7 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
         subscribeWizard = 0;
     }
     ForumSubscription *newSubscription = 0;
+
     if (!pdb.storeParser(fp) || !(newSubscription = fdb.addForum(fs))) {
         QMessageBox msgBox(mainWin);
         msgBox.setText(
@@ -526,10 +527,11 @@ void Siilihai::sendParserReportFinished(bool success) {
     }
 }
 
-void Siilihai::subscribeForumFinished(bool success) {
+void Siilihai::subscribeForumFinished(ForumSubscription *sub, bool success) {
     qDebug() << Q_FUNC_INFO << success;
     if (!success) {
         errorDialog("Subscribing to forum failed. Please check network connection.");
+        fdb.deleteForum(sub);
     }
 }
 
@@ -596,7 +598,8 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
     if(engine->isBusy()) return;
 
     // @todo Q_ASSERT(!thread->getAllMessages());
-    thread->setGetMessagesCount(thread->getMessagesCount() + 30);
+    thread->setGetMessagesCount(thread->getMessagesCount() +
+                                settings.value("preferences/show_more_count", 30).toInt());
     fdb.updateThread(thread);
     qDebug() << Q_FUNC_INFO << " getMessagesCount() now " << thread->getMessagesCount();
     fdb.updateThread(thread);

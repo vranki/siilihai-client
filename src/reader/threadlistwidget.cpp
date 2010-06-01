@@ -83,10 +83,15 @@ void ThreadListWidget::threadUpdated(ForumThread *thread) {
     if(thread->hasMoreMessages() && !item) { // Need to add show more-button
         addShowMoreButton(thread);
     } else if(!thread->hasMoreMessages() && item) { // Need to delete show more-button
+        if(!item->parent()) {
+            qDebug() << Q_FUNC_INFO << "WTF!! Found a show more button WITHOUT parent!";
+            qDebug() << item->text(0) << item->text(1) << item->text(2) << item->text(3);
+        }
         Q_ASSERT(item->parent());
         item->parent()->removeChild(item);
         delete item;
         showMoreItems.remove(item);
+        sortItems(3, Qt::AscendingOrder);
     }
     // @todo update other thread fields such as subject etc
     resizeColumnToContents(0);
@@ -100,26 +105,30 @@ void ThreadListWidget::addShowMoreButton(ForumThread *thread) {
     showMoreItem->setText(0, "Show More messages");
     showMoreItem->setText(3, "999999"); // Always the last one
     showMoreItems[showMoreItem] = thread;
+    sortItems(3, Qt::AscendingOrder);
 }
 
 void ThreadListWidget::threadDeleted(ForumThread *thread) {
     if(thread->group() != currentGroup) return;
-    // Actually NOP, as deleting the last message will remove the thread.
-    // @todo check that all messages have been removed here!
-    return;
+    // Remeber, this is recursive ie. deletes messages also!
 
     QTreeWidgetItem *threadItem = threadWidget(thread);
     // Q_ASSERT(messageItem); should exist always?
     if(threadItem) {
-        if(threadItem->parent()) { // Is a standard message
-            threadItem->parent()->removeChild(threadItem);
-        } else { // Is a thread's first
-            takeTopLevelItem(indexOfTopLevelItem(threadItem));
-            // @todo i really hope this works if this is deleted first!
+        Q_ASSERT(!threadItem->parent()); // Item should always be root item
+        for(int i=threadItem->childCount()-1;i >= 0; i--) {
+            QTreeWidgetItem *child = threadItem->child(i);
+            if(showMoreItems.contains(child)) {
+                showMoreItems.remove(child);
+            } else {
+                messageDeleted(forumMessages.value(child));
+                QCoreApplication::processEvents(); // Keep UI responsive
+            }
         }
-        forumMessages.remove(threadItem);
+        takeTopLevelItem(indexOfTopLevelItem(threadItem));
+        forumThreads.remove(threadItem);
         messageSubjects.remove(threadItem);
-        // delete threadItem; NOT needed, as messageDeleted() deletes the item when first msg is deleted!
+        delete threadItem;
     } else {
         qDebug() << Q_FUNC_INFO << "Message item not found for some reason for " << thread->toString();
     }
@@ -173,6 +182,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
 
     updateMessageItem(item, message);
     updateMessageRead(item);
+    sortItems(3, Qt::AscendingOrder);
     resizeColumnToContents(0);
     resizeColumnToContents(1);
     resizeColumnToContents(2);
@@ -409,7 +419,9 @@ void ThreadListWidget::swapMessages(ForumMessage *m1, ForumMessage *m2) {
     QTreeWidgetItem *i1 = messageWidget(m1);
     QTreeWidgetItem *i2 = messageWidget(m2);
 
+    Q_ASSERT(!showMoreItems.value(i1));
+    Q_ASSERT(!showMoreItems.value(i2));
+
     forumMessages[i1] = m2;
     forumMessages[i2] = m1;
 }
-

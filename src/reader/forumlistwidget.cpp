@@ -29,6 +29,10 @@ void ForumListWidget::forumItemSelected(int i) {
         }
         Q_ASSERT(sub);
     }
+
+    foreach(ForumGroup *grp, fdb.listGroups(sub))
+        groupUpdated(grp);
+
     emit forumSelected(sub);
 }
 
@@ -116,7 +120,7 @@ void ForumListWidget::groupUpdated(ForumGroup *grp) {
     Q_ASSERT(lw);
     QListWidgetItem *gItem = groupItem(grp);
     if(gItem && !grp->subscribed()) {
-        qDebug() << Q_FUNC_INFO << " deleting removed group from UI";
+        qDebug() << Q_FUNC_INFO << " deleting unsubscribed group from UI";
         lw->takeItem(lw->row(gItem));
         forumGroups.remove(gItem);
         delete gItem;
