@@ -361,6 +361,7 @@ void Siilihai::launchMainWindow() {
             SLOT(haltSiilihai()));
     connect(mainWin, SIGNAL(settingsChanged(bool)), this, SLOT(settingsChanged(bool)));
     connect(mainWin, SIGNAL(moreMessagesRequested(ForumThread*)), this, SLOT(moreMessagesRequested(ForumThread*)));
+    connect(mainWin, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SLOT(unsubscribeGroup(ForumGroup*)));
     mainWin->setReaderReady(false, currentState==state_offline);
     mainWin->show();
     setQuitOnLastWindowClosed(true);
@@ -437,7 +438,6 @@ void Siilihai::subscribeGroupDialogFinished() {
     if (currentState == state_ready) {
         QList<ForumGroup*> newGroups = fdb.listGroups(groupSubscriptionDialog->subscription());
         protocol.subscribeGroups(newGroups);
-        qDebug() << "SFD finished, updating list";
         updateClicked();
     }
     groupSubscriptionDialog->deleteLater();
@@ -604,4 +604,12 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
     qDebug() << Q_FUNC_INFO << " getMessagesCount() now " << thread->getMessagesCount();
     fdb.updateThread(thread);
     engine->updateThread(thread);
+}
+
+void Siilihai::unsubscribeGroup(ForumGroup *group) {
+    qDebug() << "Unsubscribe from " << group->toString();
+    group->setSubscribed(false);
+    fdb.updateGroup(group);
+    QList<ForumGroup*> newGroups = fdb.listGroups(group->subscription());
+    protocol.subscribeGroups(newGroups);
 }

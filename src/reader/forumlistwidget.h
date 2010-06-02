@@ -8,6 +8,10 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QScrollArea>
+#include <QAction>
+#include <QMenu>
+#include <QContextMenuEvent>
+#include <QMessageBox>
 
 #include <siilihai/parserdatabase.h>
 #include <siilihai/forumdatabase.h>
@@ -36,10 +40,19 @@ public slots:
         void groupDeleted(ForumGroup *grp);
         void subscriptionDeleted(ForumSubscription *sub);
         void messageUpdated(ForumMessage *grp);
+        void unsubscribeGroupClicked();
+        void markAllReadClicked(bool un=false);
+        void markAllUnreadClicked();
+        void groupSubscriptionsClicked();
 signals:
 	void groupSelected(ForumGroup *grp);
         void forumSelected(ForumSubscription *sub);
-
+        void unsubscribeGroup(ForumGroup *grp);
+        void groupSubscriptions(ForumSubscription *sub);
+        void unsubscribeForum();
+        void forumProperties();
+protected:
+        void contextMenuEvent(QContextMenuEvent * event);
 private:
         QListWidgetItem *groupItem(ForumGroup *grp);
 	ForumDatabase &fdb;
@@ -48,6 +61,13 @@ private:
 	QHash<ForumSubscription*, Favicon*> forumIcons;
 	QHash<QListWidgetItem*, ForumGroup*> forumGroups;
         QHash<ForumSubscription*, QListWidget*> forumSubscriptions;
-};
+        // Actions:
+        QAction *unsubscribeAction;
+        QAction *markReadAction;
+        QAction *markUnreadAction;
+        QAction *groupSubscriptionsAction;
+        QAction *unsubscribeForumAction;
+        QAction *forumPropertiesAction;
+    };
 
 #endif // FORUMLISTWIDGET_H

@@ -22,6 +22,7 @@
 #include "threadlistwidget.h"
 #include "messageviewwidget.h"
 #include "messageformatting.h"
+#include "forumproperties.h"
 
 #include "ui_mainwindow.h"
 
@@ -42,6 +43,7 @@ signals:
     void updateClicked(ForumSubscription *sub, bool force);
     void cancelClicked();
     void groupSubscriptions(ForumSubscription *sub);
+    void unsubscribeGroup(ForumGroup *group);
     void messageRead(ForumMessage message);
     void launchParserMaker();
     void offlineModeSet(bool ol);
@@ -69,6 +71,7 @@ public slots:
     void setReaderReady(bool ready, bool offline);
     void forumSelected(ForumSubscription *sub);
     void groupSelected(ForumGroup *grp);
+    void forumPropertiesSlot();
 private slots:
     void about();
     void settingsDialog();

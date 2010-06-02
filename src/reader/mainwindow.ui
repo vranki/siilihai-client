@@ -205,7 +205,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuForum">
@@ -224,6 +224,7 @@
     <addaction name="actionMark_forum_as_unread"/>
     <addaction name="separator"/>
     <addaction name="actionReport_broken_or_working"/>
+    <addaction name="actionForumProperties"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -406,8 +407,16 @@
     <string>Work offline</string>
    </property>
   </action>
+  <action name="actionForumProperties">
+   <property name="text">
+    <string>Properties..</string>
+   </property>
+  </action>
  </widget>
  <resources>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
   <include location="../../siilihairesources.qrc"/>
  </resources>
  <connections/>

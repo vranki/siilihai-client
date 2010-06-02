@@ -11,11 +11,31 @@ QToolBox(parent), fdb(f), pdb(p) {
     connect(&f, SIGNAL(groupDeleted(ForumGroup *)), this, SLOT(groupDeleted(ForumGroup *)));
     connect(&f, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
     connect(&f, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
+
+    markReadAction = new QAction("Mark all messages read", this);
+    markReadAction->setToolTip("Mark all messages in selected group as read");
+    connect(markReadAction, SIGNAL(triggered()), this, SLOT(markAllReadClicked()));
+    markUnreadAction = new QAction("Mark all messages unread", this);
+    markUnreadAction->setToolTip("Mark all messages in selected group as unread");
+    connect(markUnreadAction, SIGNAL(triggered()), this, SLOT(markAllUnreadClicked()));
+    unsubscribeAction = new QAction("Unsubscribe group..", this);
+    unsubscribeAction->setToolTip("Unsubscribe from the selected group");
+    connect(unsubscribeAction, SIGNAL(triggered()), this, SLOT(unsubscribeGroupClicked()));
+    groupSubscriptionsAction = new QAction("Group subscriptions..", this);
+    groupSubscriptionsAction->setToolTip("Subscribe and unsubscribe to groups in this forum");
+    connect(groupSubscriptionsAction, SIGNAL(triggered()), this, SLOT(groupSubscriptionsClicked()));
+    unsubscribeForumAction = new QAction("Unsubscribe forum..",this);
+    unsubscribeForumAction->setToolTip("Unsubscribe from the forum");
+    connect(unsubscribeForumAction, SIGNAL(triggered()), this, SIGNAL(unsubscribeForum()));
+    forumPropertiesAction = new QAction("Forum properties..", this);
+    forumPropertiesAction->setToolTip("View and edit detailed information about the forum");
+    connect(forumPropertiesAction, SIGNAL(triggered()), this, SIGNAL(forumProperties()));
 }
 
 ForumListWidget::~ForumListWidget() {
 
 }
+
 void ForumListWidget::forumItemSelected(int i) {
     qDebug() << Q_FUNC_INFO << " selected forum index " << i;
     ForumSubscription *sub = 0;
@@ -177,3 +197,57 @@ QListWidgetItem * ForumListWidget::groupItem(ForumGroup *grp) {
     return 0;
 }
 
+void ForumListWidget::contextMenuEvent(QContextMenuEvent *event) {
+    QListWidget *lw = qobject_cast<QListWidget*>(currentWidget());
+
+    // @todo could use lw->itemAt(event->pos()) to detect when
+    // not clicking on item.
+    if(lw) {
+        QMenu menu(this);
+        if(lw->itemAt(lw->mapFromGlobal(event->globalPos()))) {
+            menu.addAction(markReadAction);
+            menu.addAction(markUnreadAction);
+            menu.addSeparator();
+            menu.addAction(unsubscribeAction);
+        }
+        menu.addAction(groupSubscriptionsAction);
+        menu.addSeparator();
+        menu.addAction(forumPropertiesAction);
+        menu.addAction(unsubscribeForumAction);
+        menu.exec(event->globalPos());
+    }
+}
+
+void ForumListWidget::unsubscribeGroupClicked() {
+    if(currentGroup) {
+        QMessageBox msgBox;
+        msgBox.setText("Really unsubscribe from group?");
+        msgBox.setInformativeText(currentGroup->name());
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+        if(msgBox.exec()==QMessageBox::Yes)
+            emit unsubscribeGroup(currentGroup);
+    }
+}
+
+void ForumListWidget::markAllReadClicked(bool un) {
+    if(currentGroup) {
+        foreach(ForumThread *thread, fdb.listThreads(currentGroup)) {
+            foreach(ForumMessage *msg, fdb.listMessages(thread)) {
+                if(msg->read() == un) {
+                    msg->setRead(!un);
+                    fdb.updateMessage(msg);
+                    QCoreApplication::processEvents();
+                }
+            }
+        }
+    }
+}
+
+void ForumListWidget::markAllUnreadClicked() {
+    markAllReadClicked(true);
+}
+
+void ForumListWidget::groupSubscriptionsClicked() {
+    if(getSelectedForum()) emit groupSubscriptions(getSelectedForum());
+}

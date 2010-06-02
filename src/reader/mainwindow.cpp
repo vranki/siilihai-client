@@ -41,6 +41,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
             SLOT(markGroupUnread()));
     connect(ui.actionWork_offline, SIGNAL(toggled(bool)), this,
             SLOT(offlineClickedSlot()));
+    connect(ui.actionForumProperties, SIGNAL(triggered()), this, SLOT(forumPropertiesSlot()));
     connect(ui.updateButton, SIGNAL(clicked()), this, SLOT(updateClickedSlot()));
     connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
     connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
@@ -56,6 +57,10 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     tlw = new ThreadListWidget(this, fdb);
     connect(flw, SIGNAL(groupSelected(ForumGroup*)), tlw,
             SLOT(groupSelected(ForumGroup*)));
+    connect(flw, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SIGNAL(unsubscribeGroup(ForumGroup*)));
+    connect(flw, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SIGNAL(groupSubscriptions(ForumSubscription*)));
+    connect(flw, SIGNAL(unsubscribeForum()), this, SLOT(unsubscribeForumSlot()));
+    connect(flw, SIGNAL(forumProperties()), this, SLOT(forumPropertiesSlot()));
     connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this,
             SLOT(messageSelected(ForumMessage*)));
     connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
@@ -228,6 +233,14 @@ void MainWindow::markForumRead(bool read) {
 void MainWindow::markForumUnread() {
     markForumRead(false);
 }
+
+void MainWindow::forumPropertiesSlot( ) {
+    if (flw->getSelectedForum()) {
+        ForumProperties fp(this, flw->getSelectedForum(), fdb);
+        fp.exec();
+    }
+}
+
 
 void MainWindow::markGroupRead(bool read) {
     qDebug() << Q_FUNC_INFO;

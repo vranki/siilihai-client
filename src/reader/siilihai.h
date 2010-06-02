@@ -90,6 +90,7 @@ public slots:
     void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
     void updateFailure(ForumSubscription* sub, QString msg);
     void moreMessagesRequested(ForumThread* thread);
+    void unsubscribeGroup(ForumGroup *group);
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();
