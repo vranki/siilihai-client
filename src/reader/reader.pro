@@ -21,7 +21,8 @@ HEADERS += messageviewwidget.h \
     mainwindow.h \
     siilihai.h \
     loginwizard.h \
-    forumproperties.h
+    forumproperties.h \
+    threadproperties.h
 SOURCES += messageviewwidget.cpp \
     messageformatting.cpp \
     threadlistwidget.cpp \
@@ -35,7 +36,8 @@ SOURCES += messageviewwidget.cpp \
     siilihai.cpp \
     loginwizard.cpp \
     main.cpp \
-    forumproperties.cpp
+    forumproperties.cpp \
+    threadproperties.cpp
 DEPENDPATH = ../parsermaker \
     ../common
 BINDIR = $$PREFIX/bin
@@ -50,7 +52,8 @@ FORMS = settingsdialog.ui \
     subscribeforum_login.ui \
     subscribeforum.ui \
     mainwindow.ui \
-    forumproperties.ui
+    forumproperties.ui \
+    threadproperties.ui
 RESOURCES = ../../siilihairesources.qrc
 LIBS += -L../parsermaker \
     -L../common \

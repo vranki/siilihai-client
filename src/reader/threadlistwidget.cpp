@@ -18,6 +18,19 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
     hideColumn(3);
+
+    markReadAction = new QAction("Mark thread read", this);
+    markReadAction->setToolTip("Marks all messages in this thread read");
+    connect(markReadAction, SIGNAL(triggered()), this, SLOT(markReadClicked()));
+    markUnreadAction = new QAction("Mark thread unread", this);
+    markUnreadAction->setToolTip("Marks all messages in this thread as unread");
+    connect(markUnreadAction, SIGNAL(triggered()), this, SLOT(markUnreadClicked()));
+    threadPropertiesAction = new QAction("Thread properties", this);
+    threadPropertiesAction->setToolTip("Information and settings for selected thread");
+    connect(threadPropertiesAction, SIGNAL(triggered()), this, SLOT(threadPropertiesClicked()));
+    viewInBrowserAction = new QAction("View in browser", this);
+    viewInBrowserAction->setToolTip("View the message in external browser");
+    connect(viewInBrowserAction, SIGNAL(triggered()), this, SLOT(viewInBrowserClicked()));
 }
 
 ThreadListWidget::~ThreadListWidget() {
@@ -72,6 +85,7 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
 }
 
 void ThreadListWidget::threadUpdated(ForumThread *thread) {
+    if(thread->group() != currentGroup) return;
     // Find if we have show more button item:
     QTreeWidgetItem *item = 0;
     foreach(ForumThread *shThread, showMoreItems.values()) {
@@ -101,7 +115,9 @@ void ThreadListWidget::threadUpdated(ForumThread *thread) {
 
 void ThreadListWidget::addShowMoreButton(ForumThread *thread) {
     // Add the show more-item
-    QTreeWidgetItem *showMoreItem = new QTreeWidgetItem(threadWidget(thread));
+    QTreeWidgetItem *threadItem = threadWidget(thread);
+    Q_ASSERT(threadItem);
+    QTreeWidgetItem *showMoreItem = new QTreeWidgetItem(threadItem);
     showMoreItem->setText(0, "Show More messages");
     showMoreItem->setText(3, "999999"); // Always the last one
     showMoreItems[showMoreItem] = thread;
@@ -157,6 +173,7 @@ void ThreadListWidget::threadFound(ForumThread *thread) {
 
 void ThreadListWidget::addMessage(ForumMessage *message) {
     Q_ASSERT(message);
+    Q_ASSERT(message->thread()->group() == currentGroup);
     qDebug() << Q_FUNC_INFO << message->toString();
     QPair<QTreeWidgetItem*, ForumThread*> threadPair;
 
@@ -190,6 +207,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
 
 void ThreadListWidget::addThread(ForumThread *thread) {
     Q_ASSERT(thread);
+    Q_ASSERT(thread->group() == currentGroup);
     qDebug() << Q_FUNC_INFO << thread->toString();
     QString threadSubject = thread->name();//messageSubject(thread->name());
     QString lc = thread->lastchange();
@@ -303,12 +321,7 @@ QTreeWidgetItem* ThreadListWidget::messageWidget(ForumMessage *msg) {
 }
 
 QTreeWidgetItem* ThreadListWidget::threadWidget(ForumThread *thread) {
-    foreach(QTreeWidgetItem *twi, forumThreads.keys()) {
-        if(forumThreads[twi] == thread) {
-            return twi;
-        }
-    }
-    return 0;
+    return forumThreads.key(thread);
 }
 
 void ThreadListWidget::updateMessageRead(QTreeWidgetItem *item) {
@@ -371,6 +384,8 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
         delete item;
         ForumThread *thread = showMoreItems.value(item);
         showMoreItems.remove(item);
+        // Select the last message in thread (hope this works always)
+        setCurrentItem(forumMessages.key(fdb.listMessages(thread).last()));
         emit moreMessagesRequested(thread);
         return;
     }
@@ -424,4 +439,43 @@ void ThreadListWidget::swapMessages(ForumMessage *m1, ForumMessage *m2) {
 
     forumMessages[i1] = m2;
     forumMessages[i2] = m1;
+}
+
+
+void ThreadListWidget::contextMenuEvent(QContextMenuEvent *event) {
+    if(itemAt(event->pos())) {
+        QMenu menu(this);
+        menu.addAction(viewInBrowserAction);
+        menu.addAction(markReadAction);
+        menu.addAction(markUnreadAction);
+        menu.addAction(threadPropertiesAction);
+        menu.exec(event->globalPos());
+    }
+}
+
+void ThreadListWidget::markReadClicked(bool read) {
+    ForumMessage *threadMessage = forumMessages.value(currentItem());
+    if(threadMessage) {
+        foreach(ForumMessage *msg, fdb.listMessages(threadMessage->thread())) {
+            if(msg->read() != read) {
+                fdb.markMessageRead(msg, read);
+                QCoreApplication::processEvents();
+            }
+        }
+    }
+}
+
+void ThreadListWidget::markUnreadClicked() {
+    markReadClicked(false);
+}
+
+void ThreadListWidget::threadPropertiesClicked() {
+    ForumMessage *threadMessage = forumMessages.value(currentItem());
+    if(threadMessage) {
+        emit threadProperties(threadMessage->thread());
+    }
+}
+
+void ThreadListWidget::viewInBrowserClicked() {
+    emit viewInBrowser();
 }

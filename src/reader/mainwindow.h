@@ -23,6 +23,7 @@
 #include "messageviewwidget.h"
 #include "messageformatting.h"
 #include "forumproperties.h"
+#include "threadproperties.h"
 
 #include "ui_mainwindow.h"
 
@@ -72,6 +73,7 @@ public slots:
     void forumSelected(ForumSubscription *sub);
     void groupSelected(ForumGroup *grp);
     void forumPropertiesSlot();
+    void threadPropertiesSlot(ForumThread *thread);
 private slots:
     void about();
     void settingsDialog();

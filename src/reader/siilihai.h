@@ -34,11 +34,11 @@ class ParserMaker;
 #define BASEURL "http://www.siilihai.com/"
 
 // State chart:
-//                 ,------>-------.
-// started -> login ->startsync -> update parsers -> ready -> endsync -> quit
-//              | ^       |              |            |                   ^
-//              v |   .-------------<-----------------'                   |
-//             offline ------------------------>--------------------------'
+//                 ,------>--------.
+// started -> login -> startsync -> updating_parsers -> ready -> endsync -> quit
+//              | ^       |              |               |                   ^
+//              v |   .-------------<--------------------'                   |
+//             offline ------------------------>-----------------------------'
 //
 
 class Siilihai: public QApplication {
@@ -81,7 +81,7 @@ public slots:
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
     void offlineModeSet(bool newOffline);
-    void syncFinished(bool success);
+    void syncFinished(bool success, QString message);
     void subscriptionFound(ForumSubscription* sub);
     void subscriptionDeleted(ForumSubscription* sub);
     void subscribeForumFinished(ForumSubscription *sub, bool success);

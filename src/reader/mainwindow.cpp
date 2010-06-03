@@ -64,6 +64,8 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this,
             SLOT(messageSelected(ForumMessage*)));
     connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
+    connect(tlw, SIGNAL(viewInBrowser()), this, SLOT(viewInBrowserClickedSlot()));
+    connect(tlw, SIGNAL(threadProperties(ForumThread *)), this, SLOT(threadPropertiesSlot(ForumThread *)));
     ui.topFrame->layout()->addWidget(tlw);
 
 
@@ -239,6 +241,13 @@ void MainWindow::forumPropertiesSlot( ) {
         ForumProperties fp(this, flw->getSelectedForum(), fdb);
         fp.exec();
     }
+}
+
+void MainWindow::threadPropertiesSlot(ForumThread *thread ) {
+    Q_ASSERT(thread);
+    ThreadProperties fp(this, thread, fdb);
+    connect(&fp, SIGNAL(updateNeeded(ForumSubscription*)), this, SLOT(updateSelectedClickedSlot()));
+    fp.exec();
 }
 
 

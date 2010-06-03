@@ -45,7 +45,7 @@ void Siilihai::launchSiilihai() {
     }
     baseUrl = settings.value("network/baseurl", BASEURL).toString();
     settingsChanged(false);
-    connect(&syncmaster, SIGNAL(syncFinished(bool)), this, SLOT(syncFinished(bool)));
+    connect(&syncmaster, SIGNAL(syncFinished(bool, QString)), this, SLOT(syncFinished(bool, QString)));
     protocol.setBaseURL(baseUrl);
 
     int mySchema = settings.value("forum_database_schema", 0).toInt();
@@ -92,7 +92,10 @@ void Siilihai::changeState(siilihai_states newState) {
 
     if(newState==state_offline) {
         qDebug() << Q_FUNC_INFO << "Offline";
-        Q_ASSERT(previousState==state_login || previousState==state_ready || previousState==state_started);
+        Q_ASSERT(previousState==state_login || previousState==state_startsyncing || previousState==state_ready || previousState==state_started);
+        if(previousState==state_startsyncing)
+            syncmaster.cancel();
+
         mainWin->setReaderReady(true, true);
         if(progressBar) { // exists if canceling dureing login process
             progressBar->cancel();
@@ -183,10 +186,10 @@ void Siilihai::haltSiilihai() {
     }
 }
 
-void Siilihai::syncFinished(bool success){
+void Siilihai::syncFinished(bool success, QString message){
     qDebug() << Q_FUNC_INFO << success;
     if (!success) {
-        errorDialog("Syncing status to server failed. Please check network connection!");
+        errorDialog(QString("Syncing status to server failed.\n\n%1").arg(message));
     }
     if(currentState == state_startsyncing) {
         changeState(state_updating_parsers);

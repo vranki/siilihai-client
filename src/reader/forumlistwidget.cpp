@@ -235,8 +235,7 @@ void ForumListWidget::markAllReadClicked(bool un) {
         foreach(ForumThread *thread, fdb.listThreads(currentGroup)) {
             foreach(ForumMessage *msg, fdb.listMessages(thread)) {
                 if(msg->read() == un) {
-                    msg->setRead(!un);
-                    fdb.updateMessage(msg);
+                    fdb.markMessageRead(msg, !un);
                     QCoreApplication::processEvents();
                 }
             }

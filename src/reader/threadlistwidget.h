@@ -4,6 +4,9 @@
 #include <QTreeWidget>
 #include <QList>
 #include <QPair>
+#include <QMenu>
+#include <QContextMenuEvent>
+
 #include <siilihai/forumgroup.h>
 #include <siilihai/forumthread.h>
 #include <siilihai/forummessage.h>
@@ -30,9 +33,18 @@ public slots:
         void threadDeleted(ForumThread *thread);
         void groupUpdated(ForumGroup *grp);
         void groupDeleted(ForumGroup *grp);
+        void markReadClicked(bool read=true);
+        void markUnreadClicked();
+        void threadPropertiesClicked();
+        void viewInBrowserClicked();
 signals:
 	void messageSelected(ForumMessage *msg);
         void moreMessagesRequested(ForumThread *thread);
+        void viewInBrowser();
+        void threadProperties(ForumThread *thread);
+protected:
+        void contextMenuEvent(QContextMenuEvent * event);
+
 private:
         QString messageSubject(ForumMessage *msg);
         void swapMessages(ForumMessage *m1, ForumMessage *m2);
@@ -50,6 +62,11 @@ private:
         QHash<QTreeWidgetItem*, QString> messageSubjects;
         ForumGroup *currentGroup;
 	ForumDatabase &fdb;
+        // Actions:
+        QAction *markReadAction;
+        QAction *markUnreadAction;
+        QAction *threadPropertiesAction;
+        QAction *viewInBrowserAction;
 };
 
 #endif /* THREADLISTWIDGET_H_ */
