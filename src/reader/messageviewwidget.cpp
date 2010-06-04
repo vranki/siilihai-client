@@ -17,15 +17,13 @@ ForumMessage* MessageViewWidget::currentMessage() {
 }
 
 void MessageViewWidget::messageSelected(ForumMessage *msg) {
+    displayedMessage = msg;
     if (!msg) {
         webView.load(QUrl("file:///usr/share/siilihai/blankmessage/index.html"));
         return;
     }
     qDebug() << Q_FUNC_INFO << msg->toString() << "ordernum: " << msg->ordernum();
-    // Keep it simple, stupid:
-    displayedMessage = msg;
-    // @todo to db?
-    displayedMessage->setRead(true);
+
 
     QString bodyToShow = msg->body();
     QString styleHtml = "  <style type=\"text/css\">#siilihai-header {"

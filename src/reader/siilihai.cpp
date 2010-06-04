@@ -55,6 +55,7 @@ void Siilihai::launchSiilihai() {
         fdb.resetDatabase();
     }
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
+    connect(&fdb, SIGNAL(subscriptionUpdated(ForumSubscription*)), this, SLOT(subscriptionUpdated(ForumSubscription*)));
     connect(&fdb, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
     connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
             SLOT(updateForumParser(ForumParser)));
@@ -277,7 +278,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
     }
     foreach (ForumSubscription *sub, unsubscribedForums) {
         qDebug() << "Deleting forum " << sub->toString() << "as server says it's not subscribed";
-        fdb.deleteForum(sub);
+        fdb.deleteSubscription(sub);
         pdb.deleteParser(sub->parser());
     }
 
@@ -378,7 +379,7 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
     }
     ForumSubscription *newSubscription = 0;
 
-    if (!pdb.storeParser(fp) || !(newSubscription = fdb.addForum(fs))) {
+    if (!pdb.storeParser(fp) || !(newSubscription = fdb.addSubscription(fs))) {
         QMessageBox msgBox(mainWin);
         msgBox.setText(
                 "Error: Unable to subscribe to forum. Are you already subscribed?");
@@ -406,7 +407,22 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
             SLOT(updateFailure(ForumSubscription*, QString)));
     connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)),
             this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
+    connect(pe, SIGNAL(loginFinished(ForumSubscription*,bool)), this, SLOT(forumLoginFinished(ForumSubscription*,bool)));
     parsersToUpdateLeft.append(sub);
+    if(sub->authenticated() && sub->username().length()==0) {
+        QAuthenticator authenticator;
+        CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, &authenticator, NULL);
+        creds->setModal(true);
+        creds->exec();
+        if(authenticator.user().length() > 0) {
+            sub->setUsername(authenticator.user());
+            sub->setPassword(authenticator.password());
+            fdb.updateSubscription(sub);
+        } else {
+            sub->setAuthenticated(false);
+        }
+        protocol.subscribeForum(sub);
+    }
 }
 
 void Siilihai::subscriptionDeleted(ForumSubscription *sub) {
@@ -491,7 +507,7 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
         msgBox.setDefaultButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::Yes) {
             protocol.subscribeForum(fs, true);
-            fdb.deleteForum(fs);
+            fdb.deleteSubscription(fs);
             pdb.deleteParser(fs->parser());
         }
     }
@@ -534,7 +550,7 @@ void Siilihai::subscribeForumFinished(ForumSubscription *sub, bool success) {
     qDebug() << Q_FUNC_INFO << success;
     if (!success) {
         errorDialog("Subscribing to forum failed. Please check network connection.");
-        fdb.deleteForum(sub);
+        fdb.deleteSubscription(sub);
     }
 }
 
@@ -615,4 +631,17 @@ void Siilihai::unsubscribeGroup(ForumGroup *group) {
     fdb.updateGroup(group);
     QList<ForumGroup*> newGroups = fdb.listGroups(group->subscription());
     protocol.subscribeGroups(newGroups);
+}
+
+void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {
+    qDebug() << Q_FUNC_INFO << sub->toString() << success;
+    if(!success)
+        QMessageBox::critical(mainWin, "Error",
+                              QString("Login to %1 failed. Please check credentials.").arg(sub->alias()),
+                              QMessageBox::Ok);
+}
+
+void Siilihai::subscriptionUpdated(ForumSubscription *fs) {
+    qDebug() << Q_FUNC_INFO;
+    // protocol.subscribeForum(fs); EI VOI TÄSÄ KUN MUUTEN FLOODAA AINA NIITÄ
 }

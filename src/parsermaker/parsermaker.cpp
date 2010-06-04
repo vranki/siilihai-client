@@ -53,9 +53,11 @@ QMainWindow(parent), pdb(pd), settings(s), protocol(p) {
     connect(ui.tryLoginButton, SIGNAL(clicked()), this, SLOT(tryLogin()));
     connect(ui.tryWithoutLoginButton, SIGNAL(clicked()), this,
             SLOT(tryWithoutLogin()));
+    connect(ui.verifyLoginPattern, SIGNAL(textEdited(QString)), this,
+            SLOT(updateState()));
     connect(ui.helpButton, SIGNAL(clicked()), this, SLOT(helpClicked()));
-    connect(&session, SIGNAL(loginFinished(bool)), this,
-            SLOT(loginFinished(bool)));
+    connect(&session, SIGNAL(loginFinished(ForumSubscription *,bool)), this,
+            SLOT(loginFinished(ForumSubscription *, bool)));
     connect(&session, SIGNAL(networkFailure(QString)), this,
             SLOT(networkFailure(QString)));
     connect(&session, SIGNAL(getAuthentication(ForumSubscription*,QAuthenticator*)),
@@ -277,20 +279,20 @@ void ParserMaker::tryWithoutLogin() {
     ui.tryWithoutLoginButton->setEnabled(false);
 }
 
-void ParserMaker::loginFinished(bool success) {
+void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
     if (loginWithoutCredentials) {
         if (success) {
-            ui.loginResultLabel->setText("Login was successful. This is wrong.");
+            ui.loginResultLabel->setText("Search string found - login was successful. This is wrong.");
         } else {
             ui.loginResultLabel->setText(
-                    "Login was not successful, as expected.");
+                    "Search string not found, as expected.");
         }
     } else {
         if (success) {
-            ui.loginResultLabel->setText("Login was successful, as expected.");
+            ui.loginResultLabel->setText("Search string found - login was successful, as expected.");
         } else {
             ui.loginResultLabel->setText(
-                    "Login was not successful. This is wrong.");
+                    "Search string not found. This is wrong.");
         }
     }
 

@@ -41,7 +41,7 @@ public slots:
     void requestSelected(ForumRequest req);
     void tryLogin();
     void tryWithoutLogin();
-    void loginFinished(bool success);
+    void loginFinished(ForumSubscription *sub, bool success);
     void networkFailure(QString txt);
     void helpClicked();
     void getAuthentication(ForumSubscription*,QAuthenticator*);

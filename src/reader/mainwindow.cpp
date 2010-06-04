@@ -238,7 +238,7 @@ void MainWindow::markForumUnread() {
 
 void MainWindow::forumPropertiesSlot( ) {
     if (flw->getSelectedForum()) {
-        ForumProperties fp(this, flw->getSelectedForum(), fdb);
+        ForumProperties fp(this, flw->getSelectedForum(), fdb, pdb);
         fp.exec();
     }
 }
