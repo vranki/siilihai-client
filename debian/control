@@ -2,7 +2,7 @@ Source: siilihai-client
 Section: net
 Priority: extra
 Maintainer: Ville Ranki <ville.ranki@iki.fi>
-Build-Depends: debhelper (>= 5), libqt4-dev, libsiilihai (>=0.9.4), libqt4-sql-sqlite
+Build-Depends: debhelper (>= 5), libqt4-dev, libsiilihai (>=0.9.6), libqt4-sql-sqlite
 Standards-Version: 3.8.0
 Homepage: http://www.siilihai.com/
 

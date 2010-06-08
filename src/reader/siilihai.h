@@ -83,7 +83,7 @@ public slots:
     void offlineModeSet(bool newOffline);
     void syncFinished(bool success, QString message);
     void subscriptionFound(ForumSubscription* sub);
-    void subscriptionUpdated(ForumSubscription *fs);
+    // void subscriptionUpdated(ForumSubscription *fs);
     void subscriptionDeleted(ForumSubscription* sub);
     void subscribeForumFinished(ForumSubscription *sub, bool success);
     void userSettingsReceived(bool success, UserSettings *newSettings);
@@ -93,6 +93,8 @@ public slots:
     void moreMessagesRequested(ForumThread* thread);
     void unsubscribeGroup(ForumGroup *group);
     void forumLoginFinished(ForumSubscription *sub, bool success);
+    void forumUpdateNeeded(ForumSubscription *sub);
+
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();

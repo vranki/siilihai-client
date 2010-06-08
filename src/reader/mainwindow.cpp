@@ -239,6 +239,7 @@ void MainWindow::markForumUnread() {
 void MainWindow::forumPropertiesSlot( ) {
     if (flw->getSelectedForum()) {
         ForumProperties fp(this, flw->getSelectedForum(), fdb, pdb);
+        connect(&fp, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SIGNAL(forumUpdateNeeded(ForumSubscription*)));
         fp.exec();
     }
 }

@@ -55,7 +55,6 @@ void Siilihai::launchSiilihai() {
         fdb.resetDatabase();
     }
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
-    connect(&fdb, SIGNAL(subscriptionUpdated(ForumSubscription*)), this, SLOT(subscriptionUpdated(ForumSubscription*)));
     connect(&fdb, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
     connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
             SLOT(updateForumParser(ForumParser)));
@@ -93,9 +92,13 @@ void Siilihai::changeState(siilihai_states newState) {
 
     if(newState==state_offline) {
         qDebug() << Q_FUNC_INFO << "Offline";
-        Q_ASSERT(previousState==state_login || previousState==state_startsyncing || previousState==state_ready || previousState==state_started);
+        Q_ASSERT(previousState==state_login || previousState==state_startsyncing
+                 || previousState==state_updating_parsers
+                 || previousState==state_ready || previousState==state_started);
         if(previousState==state_startsyncing)
             syncmaster.cancel();
+        if(previousState==state_updating_parsers)
+            parsersToUpdateLeft.clear();
 
         mainWin->setReaderReady(true, true);
         if(progressBar) { // exists if canceling dureing login process
@@ -292,7 +295,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
 
 // Stores the parser if subscribed to it and updates the engine
 void Siilihai::updateForumParser(ForumParser parser) {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << parser.id;
     if (parser.isSane()) {
         foreach(ForumSubscription *sub, engines.keys()) { // Find subscription that uses parser
             if (sub->parser() == parser.id) {
@@ -303,9 +306,6 @@ void Siilihai::updateForumParser(ForumParser parser) {
                     if (progressBar)
                         progressBar->setValue(80);
                 }
-
-            } else {
-                qDebug() << "WTF: Not subscribed to this forum, won't update.";
             }
         }
     }
@@ -319,7 +319,6 @@ void Siilihai::updateForumParser(ForumParser parser) {
         }
     }
 }
-
 
 void Siilihai::subscribeForum() {
     subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, settings);
@@ -366,6 +365,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(settingsChanged(bool)), this, SLOT(settingsChanged(bool)));
     connect(mainWin, SIGNAL(moreMessagesRequested(ForumThread*)), this, SLOT(moreMessagesRequested(ForumThread*)));
     connect(mainWin, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SLOT(unsubscribeGroup(ForumGroup*)));
+    connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
     mainWin->setReaderReady(false, currentState==state_offline);
     mainWin->show();
     setQuitOnLastWindowClosed(true);
@@ -641,7 +641,7 @@ void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {
                               QMessageBox::Ok);
 }
 
-void Siilihai::subscriptionUpdated(ForumSubscription *fs) {
+void Siilihai::forumUpdateNeeded(ForumSubscription *fs) {
     qDebug() << Q_FUNC_INFO;
-    // protocol.subscribeForum(fs); EI VOI TÄSÄ KUN MUUTEN FLOODAA AINA NIITÄ
+    protocol.subscribeForum(fs);
 }

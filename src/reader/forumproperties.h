@@ -16,7 +16,7 @@ public:
     ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f, ParserDatabase &p);
     ~ForumProperties();
 signals:
-    void updateNeeded(ForumSubscription *sub);
+    void forumUpdateNeeded(ForumSubscription *sub);
 
 private slots:
     void saveChanges();

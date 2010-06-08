@@ -76,5 +76,5 @@ void ForumProperties::saveChanges() {
     }
     fdb.updateSubscription(fs);
     if(update)
-        emit updateNeeded(fs);
+        emit forumUpdateNeeded(fs);
 }

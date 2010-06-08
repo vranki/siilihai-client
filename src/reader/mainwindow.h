@@ -51,6 +51,8 @@ signals:
     void haltRequest();
     void settingsChanged(bool byUser);
     void moreMessagesRequested(ForumThread* thread);
+    void forumUpdateNeeded(ForumSubscription *sub);
+
 public slots:
     void subscribeForumSlot();
     void unsubscribeForumSlot();
