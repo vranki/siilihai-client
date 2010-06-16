@@ -1,3 +1,22 @@
+siilihai-client (0.9.8-2) lucid; urgency=low
+
+  * Fixes possible crasher when using "show more" button
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 16 Wed 2010 20:29:43 +0300
+
+siilihai-client (0.9.8-1) lucid; urgency=low
+
+  * Minor changes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 16 Wed 2010 20:29:43 +0300
+
+siilihai-client (0.9.7-1) lucid; urgency=low
+
+  * Sync improvements
+  * Other bugfixes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 15 Jun 2010 20:29:43 +0300
+
 siilihai-client (0.9.6-1) lucid; urgency=low
 
   * Sync improvements

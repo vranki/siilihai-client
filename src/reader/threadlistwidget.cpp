@@ -7,6 +7,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     QStringList headers;
     headers << "Subject" << "Date" << "Author" << "Ordernum";
     setHeaderLabels(headers);
+    setSelectionMode(QAbstractItemView::SingleSelection);
     connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
     connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
     connect(&fdb, SIGNAL(threadUpdated(ForumThread*)), this, SLOT(threadUpdated(ForumThread*)));
@@ -121,6 +122,7 @@ void ThreadListWidget::addShowMoreButton(ForumThread *thread) {
     showMoreItem->setText(0, "Show More messages");
     showMoreItem->setText(3, "999999"); // Always the last one
     showMoreItems[showMoreItem] = thread;
+    Q_ASSERT(showMoreItems[showMoreItem]->parent());
     sortItems(3, Qt::AscendingOrder);
 }
 
@@ -129,7 +131,6 @@ void ThreadListWidget::threadDeleted(ForumThread *thread) {
     // Remeber, this is recursive ie. deletes messages also!
 
     QTreeWidgetItem *threadItem = threadWidget(thread);
-    // Q_ASSERT(messageItem); should exist always?
     if(threadItem) {
         Q_ASSERT(!threadItem->parent()); // Item should always be root item
         for(int i=threadItem->childCount()-1;i >= 0; i--) {
@@ -146,7 +147,7 @@ void ThreadListWidget::threadDeleted(ForumThread *thread) {
         messageSubjects.remove(threadItem);
         delete threadItem;
     } else {
-        qDebug() << Q_FUNC_INFO << "Message item not found for some reason for " << thread->toString();
+        qDebug() << Q_FUNC_INFO << "Thread item not found for some reason for " << thread->toString();
     }
 }
 
@@ -244,6 +245,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
     }
     if(currentGroup != fg) {
         currentGroup = fg;
+        clearSelection();
         updateList();
     }
 }
@@ -288,7 +290,8 @@ void ThreadListWidget::messageUpdated(ForumMessage *msg) {
 
     QTreeWidgetItem *twi = messageWidget(msg);
     if(twi) {
-        if(msg->ordernum() == 0) {
+        // Check if message is first AND it is not as thread message
+        if(msg->ordernum() == 0 && threadWidget(msg->thread()) != twi) {
             qDebug() << Q_FUNC_INFO << "Horror! Must swap message with thread header!";
             QTreeWidgetItem *threadItem = threadWidget(msg->thread());
             Q_ASSERT(threadItem);
@@ -383,9 +386,8 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
         item->parent()->removeChild(item);
         delete item;
         ForumThread *thread = showMoreItems.value(item);
-        showMoreItems.remove(item);
         // Select the last message in thread (hope this works always)
-        setCurrentItem(forumMessages.key(fdb.listMessages(thread).last()));
+        clearSelection();
         emit moreMessagesRequested(thread);
         return;
     }

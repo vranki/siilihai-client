@@ -176,7 +176,6 @@ void MainWindow::setForumStatus(ForumSubscription *forum, bool reloading, float 
         ui.statusbar->showMessage("Forums updated", 5000);
     }
 
-    flw->setForumStatus(forum, reloading, progress);
     updateEnabledButtons();
 }
 

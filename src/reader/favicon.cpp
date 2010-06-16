@@ -1,17 +1,20 @@
 #include "favicon.h"
 
-Favicon::Favicon(QObject *parent, ForumSubscription *s) :
+Favicon::Favicon(QObject *parent, ParserEngine *pe) :
 	QObject(parent) {
-    forum = s;
+    engine = pe;
     currentProgress = 0;
     reloading = false;
-    Q_ASSERT(forum);
+    connect(engine, SIGNAL(statusChanged(ForumSubscription*,bool,float)),
+            this, SLOT(engineStatusChanged(ForumSubscription*,bool,float)));
+    Q_ASSERT(engine);
 }
 
 Favicon::~Favicon() {
 }
 
 void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
+    qDebug() << Q_FUNC_INFO << "Fetching icon " << url.toString() << " for " << engine->subscription()->toString();
     currentpic = alt;
     blinkAngle = 0;
     QNetworkRequest req(url);
@@ -27,15 +30,17 @@ void Favicon::replyReceived(QNetworkReply *reply) {
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray bytes = reply->readAll();
         currentpic.loadFromData(bytes);
-        emit iconChanged(forum, QIcon(currentpic));
+        emit iconChanged(engine, QIcon(currentpic));
     }
     reply->deleteLater();
 }
 
 void Favicon::update() {
+    return;
     QPixmap outPic(currentpic);
-    if (false && reloading) {
+    if (reloading) {
         // Slower FPS for Maemo
+        outPic.scroll(sinf(blinkAngle)*5, 0, outPic.rect());
 #ifdef Q_WS_HILDON
         QTimer::singleShot(120, this, SLOT(update()));
         blinkAngle += 0.1;
@@ -43,6 +48,7 @@ void Favicon::update() {
         QTimer::singleShot(25, this, SLOT(update()));
         blinkAngle += 0.05;
 #endif
+        /*
         QPainter painter(&outPic);
         painter.setPen(QColor(255, 255, 255, 64));
         painter.setBrush(QColor(255, 255, 255, 128));
@@ -51,7 +57,8 @@ void Favicon::update() {
         painter.setPen(QColor(0, 0, 0, 64));
         painter.setBrush(QColor(0, 0, 0, 128));
         painter.drawPie(rect, blinkAngle * 5760 - (5760/2), 1000);
-        /*
+*/
+/*
 		painter.setBrush(QColor(0, 0, 0, 200));
 
 		if (currentProgress >= 0) {
@@ -64,12 +71,21 @@ void Favicon::update() {
 			painter.drawRects(&rect, 1);
 		}
 		*/
-        painter.end();
+  //      painter.end();
     }
-    emit iconChanged(forum, QIcon(outPic));
+    emit iconChanged(engine, QIcon(outPic));
 }
 
+void Favicon::engineStatusChanged(ForumSubscription* fs,bool reloading,float progress) {
+    if(reloading) {
+        emit iconChanged(engine, QIcon(":data/view-refresh.png"));
+    } else {
+        emit iconChanged(engine, QIcon(currentpic));
+    }
+}
+/*
 void Favicon::setReloading(bool rel, float progress) {
+    return;
     if (rel != reloading || currentProgress != progress) {
         currentProgress = progress;
         if (currentProgress > 1)
@@ -79,3 +95,4 @@ void Favicon::setReloading(bool rel, float progress) {
         update();
     }
 }
+*/

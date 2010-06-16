@@ -119,7 +119,7 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->setValue(5);
     } else if(newState==state_startsyncing) {
         qDebug() << Q_FUNC_INFO << "Startsync";
-        if(usettings.syncEnabled)
+        if(usettings.syncEnabled())
             syncmaster.startSync();
         Q_ASSERT(progressBar);
         progressBar->setValue(50);
@@ -169,11 +169,11 @@ void Siilihai::tryLogin() {
 }
 
 void Siilihai::haltSiilihai() {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << Q_FUNC_INFO << "sync enabled:" << usettings.syncEnabled();
     cancelClicked();
     qDeleteAll(engines.values());
     engines.clear();
-    if(usettings.syncEnabled && !endSyncDone && currentState == state_ready) {
+    if(usettings.syncEnabled() && !endSyncDone && currentState == state_ready) {
         qDebug() << "Sync enabled - running end sync";
         changeState(state_endsync);
         syncmaster.endSync();
@@ -231,11 +231,11 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
                 SLOT(sendParserReportFinished(bool)));
         connect(&protocol, SIGNAL(subscribeForumFinished(ForumSubscription*, bool)), this,
                 SLOT(subscribeForumFinished(ForumSubscription*,bool)));
-        usettings.syncEnabled = sync;
-        settings.setValue("preferences/sync_enabled", usettings.syncEnabled);
+        usettings.setSyncEnabled(sync);
+        settings.setValue("preferences/sync_enabled", usettings.syncEnabled());
         settings.sync();
         progressBar->setValue(30);
-        if(usettings.syncEnabled) {
+        if(usettings.syncEnabled()) {
             changeState(state_startsyncing);
         } else {
             changeState(state_updating_parsers);
@@ -286,7 +286,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
     }
 
     if (fdb.listSubscriptions().isEmpty()) { // Display subscribe dialog if none subscribed
-        if(!usettings.syncEnabled) {
+        if(!usettings.syncEnabled()) {
             subscribeForum();
             changeState(state_ready);
         }
@@ -338,7 +338,7 @@ void Siilihai::loginWizardFinished() {
     } else {
         launchMainWindow();
         settingsChanged(false);
-        loginFinished(true, QString(), usettings.syncEnabled);
+        loginFinished(true, QString(), usettings.syncEnabled());
     }
 }
 
@@ -396,6 +396,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
+    mainWin->forumList()->addParserEngine(pe);
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
             SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
@@ -559,15 +560,15 @@ void Siilihai::userSettingsReceived(bool success, UserSettings *newSettings) {
     if (!success) {
         errorDialog("Getting settings failed. Please check network connection.");
     } else {
-        usettings = *newSettings;
-        settings.setValue("preferences/sync_enabled", usettings.syncEnabled);
+        usettings.setSyncEnabled(newSettings->syncEnabled());
+        settings.setValue("preferences/sync_enabled", usettings.syncEnabled());
         settings.sync();
         settingsChanged(false);
     }
 }
 
 void Siilihai::settingsChanged(bool byUser) {
-    usettings.syncEnabled = settings.value("preferences/sync_enabled", false).toBool();
+    usettings.setSyncEnabled(settings.value("preferences/sync_enabled", false).toBool());
     if(byUser) {
         protocol.setUserSettings(&usettings);
     }

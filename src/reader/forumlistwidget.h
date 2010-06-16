@@ -16,6 +16,7 @@
 #include <siilihai/parserdatabase.h>
 #include <siilihai/forumdatabase.h>
 #include <siilihai/forumsubscription.h>
+#include <siilihai/parserengine.h>
 #include <siilihai/forumgroup.h>
 
 #include "favicon.h"
@@ -29,12 +30,11 @@ public:
         void updateReadCounts(ForumGroup *grp);
 	ForumSubscription *getSelectedForum();
 	ForumGroup *getSelectedGroup();
-	void setForumStatus(ForumSubscription* forum, bool reloading, float progress);
+        void addParserEngine(ParserEngine *pe);
 public slots:
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
 	void forumItemSelected(int i);
-	void iconUpdated(ForumSubscription *sub, QIcon newIcon);
-	void subscriptionFound(ForumSubscription *sub);
+        void iconUpdated(ParserEngine* en, QIcon newIcon);
 	void groupFound(ForumGroup *grp);
         void groupUpdated(ForumGroup *grp);
         void groupDeleted(ForumGroup *grp);
@@ -55,12 +55,13 @@ protected:
         void contextMenuEvent(QContextMenuEvent * event);
 private:
         QListWidgetItem *groupItem(ForumGroup *grp);
+        ParserEngine* engineOf(ForumSubscription *sub);
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
 	ForumGroup *currentGroup;
-	QHash<ForumSubscription*, Favicon*> forumIcons;
+        QHash<ParserEngine*, Favicon*> forumIcons;
 	QHash<QListWidgetItem*, ForumGroup*> forumGroups;
-        QHash<ForumSubscription*, QListWidget*> forumSubscriptions;
+        QHash<ParserEngine*, QListWidget*> parserEngines;
         // Actions:
         QAction *unsubscribeAction;
         QAction *markReadAction;
