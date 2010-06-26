@@ -22,7 +22,10 @@ HEADERS += messageviewwidget.h \
     siilihai.h \
     loginwizard.h \
     forumproperties.h \
-    threadproperties.h
+    threadproperties.h \
+    threadlistmessageitem.h \
+    threadlistthreaditem.h \
+    threadlistshowmoreitem.h
 SOURCES += messageviewwidget.cpp \
     messageformatting.cpp \
     threadlistwidget.cpp \
@@ -37,7 +40,10 @@ SOURCES += messageviewwidget.cpp \
     loginwizard.cpp \
     main.cpp \
     forumproperties.cpp \
-    threadproperties.cpp
+    threadproperties.cpp \
+    threadlistmessageitem.cpp \
+    threadlistthreaditem.cpp \
+    threadlistshowmoreitem.cpp
 DEPENDPATH = ../parsermaker \
     ../common
 BINDIR = $$PREFIX/bin

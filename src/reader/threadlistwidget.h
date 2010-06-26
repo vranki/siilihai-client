@@ -13,6 +13,9 @@
 #include <siilihai/forumdatabase.h>
 
 #include "messageformatting.h"
+#include "threadlistmessageitem.h"
+#include "threadlistthreaditem.h"
+#include "threadlistshowmoreitem.h"
 
 class ThreadListWidget : public QTreeWidget {
 	Q_OBJECT
@@ -22,8 +25,6 @@ public:
 	virtual ~ThreadListWidget();
 public slots:
 	void groupSelected(ForumGroup *fg);
-	void updateMessageRead(QTreeWidgetItem *item);
-        void updateMessageItem(QTreeWidgetItem *item, ForumMessage *msg);
         void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
         void messageFound(ForumMessage *msg);
         void messageUpdated(ForumMessage *msg);
@@ -52,14 +53,12 @@ private:
         void clearList();
         void addThread(ForumThread *thread);
         void addMessage(ForumMessage *msg);
-	void updateThreadUnreads(QTreeWidgetItem* threadItem);
+        void updateThreadUnreads(ThreadListThreadItem* threadItem);
         void addShowMoreButton(ForumThread *thread);
-        QTreeWidgetItem* messageWidget(ForumMessage *msg);
-        QTreeWidgetItem* threadWidget(ForumThread *thread);
-        QHash<QTreeWidgetItem*, ForumThread*> showMoreItems;
-        QHash<QTreeWidgetItem*, ForumMessage*> forumMessages;
-        QHash<QTreeWidgetItem*, ForumThread*> forumThreads;
-        QHash<QTreeWidgetItem*, QString> messageSubjects;
+        QHash<ThreadListShowMoreItem*, ForumThread*> showMoreItems;
+        QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
+        QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
+        //QHash<ThreadListMessageItem*, QString> messageSubjects;
         ForumGroup *currentGroup;
 	ForumDatabase &fdb;
         // Actions:

@@ -7,6 +7,4 @@ SUBDIRS = common
         SUBDIRS += parsermaker reader
 }
 
-exists(/etc/libosso) {
-        SUBDIRS += reader
-}
+SUBDIRS += reader

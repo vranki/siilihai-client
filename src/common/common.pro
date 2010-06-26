@@ -8,14 +8,14 @@ QT += core \
     xml \
     sql
 
+FORMS += credentialsdialog.ui
 HEADERS += credentialsdialog.h
 SOURCES += credentialsdialog.cpp
-FORMS = credentialsdialog.ui
 
 BINDIR = $$PREFIX/bin
 LIBDIR = $$PREFIX/lib
 DATADIR = $$PREFIX/share
 target.path = $$LIBDIR
 INSTALLS += target
-RESOURCES = ../../siilihairesources.qrc
+RESOURCES += ../../siilihairesources.qrc
 LIBS += -lsiilihai
