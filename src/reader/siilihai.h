@@ -83,7 +83,6 @@ public slots:
     void offlineModeSet(bool newOffline);
     void syncFinished(bool success, QString message);
     void subscriptionFound(ForumSubscription* sub);
-    // void subscriptionUpdated(ForumSubscription *fs);
     void subscriptionDeleted(ForumSubscription* sub);
     void subscribeForumFinished(ForumSubscription *sub, bool success);
     void userSettingsReceived(bool success, UserSettings *newSettings);
@@ -94,7 +93,7 @@ public slots:
     void unsubscribeGroup(ForumGroup *group);
     void forumLoginFinished(ForumSubscription *sub, bool success);
     void forumUpdateNeeded(ForumSubscription *sub);
-
+    void syncProgress(float progress);
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();
@@ -106,6 +105,7 @@ private:
     MainWindow *mainWin;
     SiilihaiProtocol protocol;
     QHash <ForumSubscription*, ParserEngine*> engines;
+    QList <ForumSubscription*> subscriptionsNeedingCredentials;
     QSqlDatabase db;
     ForumDatabase fdb;
     ParserDatabase pdb;

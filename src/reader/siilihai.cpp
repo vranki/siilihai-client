@@ -9,6 +9,7 @@ Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv), fdb(this)
     subscribeWizard = 0;
     endSyncDone = false;
     firstRun = true;
+    srand ( time(NULL) );
 }
 
 Siilihai::~Siilihai() {
@@ -46,6 +47,7 @@ void Siilihai::launchSiilihai() {
     baseUrl = settings.value("network/baseurl", BASEURL).toString();
     settingsChanged(false);
     connect(&syncmaster, SIGNAL(syncFinished(bool, QString)), this, SLOT(syncFinished(bool, QString)));
+    connect(&syncmaster, SIGNAL(syncProgress(float)), this, SLOT(syncProgress(float)));
     protocol.setBaseURL(baseUrl);
 
     int mySchema = settings.value("forum_database_schema", 0).toInt();
@@ -122,7 +124,7 @@ void Siilihai::changeState(siilihai_states newState) {
         if(usettings.syncEnabled())
             syncmaster.startSync();
         Q_ASSERT(progressBar);
-        progressBar->setValue(50);
+        progressBar->setValue(10);
         progressBar->setLabelText("Downloading message read status");
     } else if(newState==state_endsync) {
         qDebug() << Q_FUNC_INFO << "Endsync";
@@ -152,6 +154,21 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->cancel();
         progressBar->deleteLater();
         progressBar = 0;
+        while(!subscriptionsNeedingCredentials.isEmpty()) {
+            ForumSubscription *sub = subscriptionsNeedingCredentials.takeFirst();
+            QAuthenticator authenticator;
+            CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, &authenticator, NULL);
+            creds->setModal(true);
+            creds->exec();
+            if(authenticator.user().length() > 0) {
+                sub->setUsername(authenticator.user());
+                sub->setPassword(authenticator.password());
+                fdb.updateSubscription(sub);
+            } else {
+                sub->setAuthenticated(false);
+            }
+            protocol.subscribeForum(sub);
+        }
         mainWin->setReaderReady(true, false);
         if (settings.value("preferences/update_automatically", true).toBool())
             updateClicked();
@@ -304,7 +321,7 @@ void Siilihai::updateForumParser(ForumParser parser) {
                 emit statusChanged(sub, false, -1);
                 if (parsersToUpdateLeft.size() < 2) {
                     if (progressBar)
-                        progressBar->setValue(80);
+                        progressBar->setValue(90);
                 }
             }
         }
@@ -315,7 +332,7 @@ void Siilihai::updateForumParser(ForumParser parser) {
         } else {
             protocol.getParser(parsersToUpdateLeft.takeFirst()->parser());
             if (progressBar)
-                progressBar->setValue(90);
+                progressBar->setValue(85);
         }
     }
 }
@@ -411,18 +428,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     connect(pe, SIGNAL(loginFinished(ForumSubscription*,bool)), this, SLOT(forumLoginFinished(ForumSubscription*,bool)));
     parsersToUpdateLeft.append(sub);
     if(sub->authenticated() && sub->username().length()==0) {
-        QAuthenticator authenticator;
-        CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, &authenticator, NULL);
-        creds->setModal(true);
-        creds->exec();
-        if(authenticator.user().length() > 0) {
-            sub->setUsername(authenticator.user());
-            sub->setPassword(authenticator.password());
-            fdb.updateSubscription(sub);
-        } else {
-            sub->setAuthenticated(false);
-        }
-        protocol.subscribeForum(sub);
+        subscriptionsNeedingCredentials.append(sub);
     }
 }
 
@@ -627,7 +633,6 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
 }
 
 void Siilihai::unsubscribeGroup(ForumGroup *group) {
-    qDebug() << "Unsubscribe from " << group->toString();
     group->setSubscribed(false);
     fdb.updateGroup(group);
     QList<ForumGroup*> newGroups = fdb.listGroups(group->subscription());
@@ -645,4 +650,13 @@ void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {
 void Siilihai::forumUpdateNeeded(ForumSubscription *fs) {
     qDebug() << Q_FUNC_INFO;
     protocol.subscribeForum(fs);
+}
+
+void Siilihai::syncProgress(float progress) {
+    if(progressBar) {
+        if(currentState==state_startsyncing)
+            progressBar->setValue(10 + progress * 70);
+        else if(currentState==state_startsyncing)
+            progressBar->setValue(progress * 100);
+    }
 }

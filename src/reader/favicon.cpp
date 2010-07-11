@@ -14,13 +14,14 @@ Favicon::~Favicon() {
 }
 
 void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
-    qDebug() << Q_FUNC_INFO << "Fetching icon " << url.toString() << " for " << engine->subscription()->toString();
-    currentpic = alt;
+//    qDebug() << Q_FUNC_INFO << "Fetching icon " << url.toString() << " for " << engine->subscription()->toString();
+    currentpic = QIcon(alt);
     blinkAngle = 0;
     QNetworkRequest req(url);
     connect(&nam, SIGNAL(finished(QNetworkReply*)), this,
             SLOT(replyReceived(QNetworkReply*)));
     nam.get(req);
+    emit iconChanged(engine, currentpic);
     update();
 }
 
@@ -29,14 +30,17 @@ void Favicon::replyReceived(QNetworkReply *reply) {
                SLOT(replyReceived(QNetworkReply*)));
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray bytes = reply->readAll();
-        currentpic.loadFromData(bytes);
-        emit iconChanged(engine, QIcon(currentpic));
+        QPixmap iconPixmap;
+        iconPixmap.loadFromData(bytes);
+        currentpic = QIcon(iconPixmap);
+        emit iconChanged(engine, currentpic);
     }
     reply->deleteLater();
 }
 
 void Favicon::update() {
     return;
+    /*
     QPixmap outPic(currentpic);
     if (reloading) {
         // Slower FPS for Maemo
@@ -48,6 +52,7 @@ void Favicon::update() {
         QTimer::singleShot(25, this, SLOT(update()));
         blinkAngle += 0.05;
 #endif
+        */
         /*
         QPainter painter(&outPic);
         painter.setPen(QColor(255, 255, 255, 64));
@@ -72,15 +77,15 @@ void Favicon::update() {
 		}
 		*/
   //      painter.end();
-    }
-    emit iconChanged(engine, QIcon(outPic));
+   // }
+   // emit iconChanged(engine, QIcon(outPic));
 }
 
 void Favicon::engineStatusChanged(ForumSubscription* fs,bool reloading,float progress) {
     if(reloading) {
         emit iconChanged(engine, QIcon(":data/view-refresh.png"));
     } else {
-        emit iconChanged(engine, QIcon(currentpic));
+        emit iconChanged(engine, currentpic);
     }
 }
 /*

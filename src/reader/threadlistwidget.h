@@ -23,6 +23,7 @@ class ThreadListWidget : public QTreeWidget {
 public:
 	ThreadListWidget(QWidget *parent, ForumDatabase &f);
 	virtual ~ThreadListWidget();
+        virtual void keyPressEvent ( QKeyEvent * event );
 public slots:
 	void groupSelected(ForumGroup *fg);
         void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);

@@ -1,3 +1,15 @@
+siilihai-client (0.9.10-1) lucid; urgency=low
+
+  * Optimized syncing, minor bug fixes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 11 Jul 2010 20:29:43 +0300
+
+siilihai-client (0.9.9-1) lucid; urgency=low
+
+  * Enhanced sync stuff and thread list widget
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 27 Jun 2010 20:29:43 +0300
+
 siilihai-client (0.9.8-2) lucid; urgency=low
 
   * Fixes possible crasher when using "show more" button

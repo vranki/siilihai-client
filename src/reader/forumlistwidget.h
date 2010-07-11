@@ -56,6 +56,7 @@ protected:
 private:
         QListWidgetItem *groupItem(ForumGroup *grp);
         ParserEngine* engineOf(ForumSubscription *sub);
+
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
 	ForumGroup *currentGroup;

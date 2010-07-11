@@ -36,7 +36,7 @@ ForumListWidget::~ForumListWidget() {
 }
 
 void ForumListWidget::forumItemSelected(int i) {
-    qDebug() << Q_FUNC_INFO << " selected forum index " << i;
+   // qDebug() << Q_FUNC_INFO << " selected forum index " << i;
     ForumSubscription *sub = 0;
     if(i != -1) {
         QHashIterator<ParserEngine*, QListWidget*> it(parserEngines);
@@ -63,8 +63,7 @@ ForumSubscription* ForumListWidget::getSelectedForum() {
     ForumSubscription *sub = 0;
     QListWidget *curWidget = static_cast<QListWidget*> (currentWidget());
     if(curWidget) {
-        sub = parserEngines.key(curWidget)->subscription();
-        Q_ASSERT(sub);
+        sub = parserEngines.key(curWidget)->subscription(); // Can be NULL when quitting
     }
     return sub;
 }
@@ -81,8 +80,8 @@ ForumGroup* ForumListWidget::getSelectedGroup() {
 }
 
 void ForumListWidget::iconUpdated(ParserEngine* en, QIcon newIcon) {
-    qDebug() << Q_FUNC_INFO << " setting icon for engine " << en->subscription()->toString()
-            << " pos " << indexOf(parserEngines[en]);
+//    qDebug() << Q_FUNC_INFO << " setting icon for engine " << en->subscription()->toString()
+ //           << " pos " << indexOf(parserEngines[en]);
     setItemIcon(indexOf(parserEngines[en]), newIcon);
 }
 
@@ -90,13 +89,12 @@ ParserEngine* ForumListWidget::engineOf(ForumSubscription *sub) {
     foreach(ParserEngine *en, parserEngines.keys()) {
         if(en->subscription() == sub) return en;
     }
-    Q_ASSERT(0);
     return 0;
 }
 
 void ForumListWidget::groupSelected(QListWidgetItem* item,
                                     QListWidgetItem *prev) {
-    qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
+   // qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
     currentGroup = forumGroups[item];
     emit groupSelected(currentGroup);
 }
@@ -121,7 +119,7 @@ void ForumListWidget::addParserEngine(ParserEngine *pe) {
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
     Q_ASSERT(grp);
-    qDebug() << Q_FUNC_INFO << grp->toString();
+    // qDebug() << Q_FUNC_INFO << grp->toString();
     if(!grp->subscribed()) return;
     QListWidget *lw = parserEngines[engineOf(grp->subscription())];
     QListWidgetItem *lwi = new QListWidgetItem(lw);
@@ -134,11 +132,12 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
 
 void ForumListWidget::groupUpdated(ForumGroup *grp) {
     Q_ASSERT(grp);
-    QListWidget *lw = parserEngines[engineOf(grp->subscription())];
+    if(!engineOf(grp->subscription())) return; // May happen while quitting
+    QListWidget *lw = parserEngines.value(engineOf(grp->subscription()));
     Q_ASSERT(lw);
     QListWidgetItem *gItem = groupItem(grp);
     if(gItem && !grp->subscribed()) {
-        qDebug() << Q_FUNC_INFO << " deleting unsubscribed group from UI";
+       // qDebug() << Q_FUNC_INFO << " deleting unsubscribed group from UI";
         lw->takeItem(lw->row(gItem));
         forumGroups.remove(gItem);
         delete gItem;
@@ -151,10 +150,18 @@ void ForumListWidget::groupUpdated(ForumGroup *grp) {
         QString title = grp->name();
         if (unread > 0)
             title = title + " (" + QString().number(unread) + ")";
-        qDebug() << Q_FUNC_INFO << " Updating group title to " << title;
+       // qDebug() << Q_FUNC_INFO << " Updating group title to " << title;
         gItem->setText(title);
+
+        // Update subscription message count
+        title = grp->subscription()->alias();
+        int unreads = fdb.unreadIn(grp->subscription());
+        if(unreads > 0)
+            title = QString("%1 (%2)").arg(title).arg(unreads);
+        setItemText(indexOf(lw), title);
+
     } else if(!gItem && grp->subscribed()) {
-        qDebug() << Q_FUNC_INFO << " adding subscribed group to UI";
+       // qDebug() << Q_FUNC_INFO << " adding subscribed group to UI";
         groupFound(grp);
     }
 }

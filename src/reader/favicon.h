@@ -33,7 +33,8 @@ private:
     ParserEngine *engine;
     bool reloading;
     QNetworkAccessManager nam;
-    QPixmap currentpic;
+    QIcon currentpic;
+//    QPixmap iconPixmap;
     float currentProgress;
     float blinkAngle;
 };

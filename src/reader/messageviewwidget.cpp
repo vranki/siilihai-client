@@ -54,3 +54,7 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
 void MessageViewWidget::linkClicked ( const QUrl & url) {
     QDesktopServices::openUrl(url);
 }
+
+bool MessageViewWidget::scrollDown() {
+    return false;
+}

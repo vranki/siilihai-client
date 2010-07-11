@@ -32,6 +32,8 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     viewInBrowserAction = new QAction("View in browser", this);
     viewInBrowserAction->setToolTip("View the message in external browser");
     connect(viewInBrowserAction, SIGNAL(triggered()), this, SLOT(viewInBrowserClicked()));
+
+    grabKeyboard();
 }
 
 ThreadListWidget::~ThreadListWidget() {
@@ -40,7 +42,7 @@ ThreadListWidget::~ThreadListWidget() {
 void ThreadListWidget::messageDeleted(ForumMessage *msg) {
     Q_ASSERT(msg);
     if(msg->thread()->group() != currentGroup) return;
-    qDebug() << Q_FUNC_INFO << msg->toString();
+  //  qDebug() << Q_FUNC_INFO << msg->toString();
 
     ThreadListMessageItem *messageItem = forumMessages.key(msg);
     Q_ASSERT(messageItem); // should exist always?
@@ -85,7 +87,7 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
 }
 
 void ThreadListWidget::threadUpdated(ForumThread *thread) {
-    qDebug() << Q_FUNC_INFO << thread->toString() << " has more: " << thread->hasMoreMessages();
+    // qDebug() << Q_FUNC_INFO << thread->toString() << " has more: " << thread->hasMoreMessages();
     if(thread->group() != currentGroup) return;
     // Find if we have show more button item:
     ThreadListShowMoreItem *showMoreItem = showMoreItems.key(thread);
@@ -160,7 +162,7 @@ void ThreadListWidget::threadFound(ForumThread *thread) {
 void ThreadListWidget::addMessage(ForumMessage *message) {
     Q_ASSERT(message);
     Q_ASSERT(message->thread()->group() == currentGroup);
-    qDebug() << Q_FUNC_INFO << message->toString();
+    // qDebug() << Q_FUNC_INFO << message->toString();
     QPair<QTreeWidgetItem*, ForumThread*> threadPair;
 
     ThreadListThreadItem *threadItem = forumThreads.key(message->thread());
@@ -170,7 +172,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
     if(message->ordernum() == 0) { // First message - update thread item!
         item = threadItem;
         threadItem->setMessage(message);
-        qDebug() << Q_FUNC_INFO << "setting the thread item";
+        // qDebug() << Q_FUNC_INFO << "setting the thread item";
     } else { // Reply message - create new item
         item = new ThreadListMessageItem(threadItem, message);
     }
@@ -194,7 +196,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
 void ThreadListWidget::addThread(ForumThread *thread) {
     Q_ASSERT(thread);
     Q_ASSERT(thread->group() == currentGroup);
-    qDebug() << Q_FUNC_INFO << thread->toString();
+   // qDebug() << Q_FUNC_INFO << thread->toString();
 
     ThreadListThreadItem *threadItem = new ThreadListThreadItem(this, thread);
 
@@ -291,7 +293,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
         showMoreItems.remove(smItem);
         delete smItem;
         // Select the last message in thread (hope this works always)
-        clearSelection();
+        setCurrentItem(0);
         emit moreMessagesRequested(thread);
     } else if (dynamic_cast<ThreadListMessageItem*> (item)) {
         ThreadListMessageItem* msgItem = dynamic_cast<ThreadListMessageItem*> (item);
@@ -359,4 +361,42 @@ void ThreadListWidget::threadPropertiesClicked() {
 
 void ThreadListWidget::viewInBrowserClicked() {
     emit viewInBrowser();
+}
+
+void ThreadListWidget::keyPressEvent ( QKeyEvent * event ) {
+    if(event->key()==Qt::Key_Space) {
+        QTreeWidgetItem *item = currentItem();
+        QTreeWidgetItem *newItem = 0;
+        ThreadListMessageItem *mi = 0;
+        bool isShowMore = false;
+
+        // Find next unread item
+        if(item) {
+            do {
+                if(item->childCount()) {
+                    // Is a thread item with child
+                    newItem = item->child(0);
+                } else if(item->parent()) {
+                    // Is a message item
+                    QTreeWidgetItem *nextItem = item->parent()->child(item->parent()->indexOfChild(item) + 1);
+                    if(nextItem) {
+                        // ..and has a next item after it
+                        newItem = nextItem;
+                    } else {
+                        // ..and is last in thread
+                        newItem = topLevelItem(indexOfTopLevelItem(item->parent()) + 1);
+                    }
+                } else {
+                    // Is a thread item without child
+                    newItem = topLevelItem(indexOfTopLevelItem(item) + 1);
+                }
+                item = newItem;
+                mi = dynamic_cast<ThreadListMessageItem*> (newItem);
+                isShowMore = dynamic_cast<ThreadListShowMoreItem*> (newItem);
+            } while(isShowMore || (mi && mi->message()->read()));
+            if(mi) setCurrentItem(mi);
+        }
+    } else {
+        QTreeWidget::keyPressEvent(event);
+    }
 }
