@@ -36,6 +36,7 @@ public:
     ~MainWindow();
     ForumListWidget* forumList();
     ThreadListWidget* threadList();
+
 signals:
     void subscribeForum();
     void unsubscribeForum(ForumSubscription *sub);
@@ -82,7 +83,8 @@ private slots:
     void settingsDialogAccepted();
     void messageSelected(ForumMessage *msg);
     void updateEnabledButtons();
-
+protected:
+    bool eventFilter(QObject *object, QEvent *event);
 private:
     void closeEvent(QCloseEvent *event);
 

@@ -1,3 +1,9 @@
+siilihai-client (0.9.11-1) lucid; urgency=low
+
+  * Fixed keyboard presses being stolen
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 12 Jul 2010 20:29:43 +0300
+
 siilihai-client (0.9.10-1) lucid; urgency=low
 
   * Optimized syncing, minor bug fixes

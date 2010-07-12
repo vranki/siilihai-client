@@ -10,6 +10,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     viewAsGroup.addAction(ui.actionHTML);
     viewAsGroup.addAction(ui.actionText);
     viewAsGroup.addAction(ui.actionWeb_Page);
+
     ui.actionWeb_Page->setChecked(true);
 
     connect(ui.actionSubscribe_to, SIGNAL(triggered()), this,
@@ -73,6 +74,10 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     ui.horizontalSplitter->addWidget(mvw);
     connect(tlw, SIGNAL(messageSelected(ForumMessage*)), mvw,
             SLOT(messageSelected(ForumMessage*)));
+
+    flw->installEventFilter(this);
+    tlw->installEventFilter(this);
+    mvw->installEventFilter(this);
 
     if (!restoreGeometry(settings->value("reader_geometry").toByteArray()))
         showMaximized();
@@ -304,4 +309,19 @@ void MainWindow::groupSelected(ForumGroup *fg) {
     hideClickedSlot();
 #endif
     updateEnabledButtons();
+}
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+ {
+    if(event->type() == QEvent::KeyPress) {
+        if (object == tlw || object == flw || object == mvw ) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            if (keyEvent->key() == Qt::Key_Space) {
+                tlw->selectNextUnread();
+                return true;
+            } else
+                return false;
+        }
+    }
+    return false;
 }
