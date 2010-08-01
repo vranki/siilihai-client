@@ -6,8 +6,8 @@ build: build-stamp
 build-stamp:
 	dh_testdir
 	# Add here commands to compile the package.
-	qmake -recursive
-	make
+	qmake PREFIX=/usr -recursive
+	$(MAKE)
 	touch $@
 
 clean:

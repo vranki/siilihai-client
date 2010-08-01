@@ -1,5 +1,14 @@
 TEMPLATE = app
 TARGET = siilihai
+
+isEmpty(PREFIX) {
+  PREFIX = /usr
+}
+BINDIR = $$PREFIX/bin
+LIBDIR = $$PREFIX/lib
+DATADIR = $$PREFIX/share
+
+
 QMAKE_CXXFLAGS += -g \
     -O0
 CONFIG += debug
@@ -44,11 +53,8 @@ SOURCES += messageviewwidget.cpp \
     threadlistmessageitem.cpp \
     threadlistthreaditem.cpp \
     threadlistshowmoreitem.cpp
-DEPENDPATH = ../parsermaker \
+DEPENDPATH += ../parsermaker \
     ../common
-BINDIR = $$PREFIX/bin
-LIBDIR = $$PREFIX/lib
-DATADIR = $$PREFIX/share
 target.path = $$BINDIR
 INSTALLS += target
 FORMS = settingsdialog.ui \
