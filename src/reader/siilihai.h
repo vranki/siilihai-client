@@ -8,6 +8,9 @@
 #include <QMessageBox>
 #include <QNetworkProxy>
 #include <QProgressDialog>
+
+#include <time.h>
+
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/forumdatabase.h>
 #include <siilihai/parserdatabase.h>

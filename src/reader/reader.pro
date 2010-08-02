@@ -67,6 +67,16 @@ FORMS = settingsdialog.ui \
     forumproperties.ui \
     threadproperties.ui
 RESOURCES = ../../siilihairesources.qrc
+
+win32 {
+    LIBS += -L../../../libsiilihai/src/debug
+    LIBS += -L../common/debug
+    LIBS += -L../parsermaker/debug
+    INCLUDEPATH += ../../../libsiilihai
+    DEPENDPATH += ../../../libsiilihai/src/debug
+    DEPENDPATH += -L../common/debug
+}
+
 LIBS += -L../parsermaker \
     -L../common \
     -lsiilihai \
