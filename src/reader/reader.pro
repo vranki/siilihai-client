@@ -4,20 +4,26 @@ TARGET = siilihai
 isEmpty(PREFIX) {
   PREFIX = /usr
 }
+
 BINDIR = $$PREFIX/bin
-LIBDIR = $$PREFIX/lib
 DATADIR = $$PREFIX/share
 
+!contains(QMAKE_HOST.arch, x86_64) {
+   LIBDIR = $$PREFIX/lib
+} else {
+   LIBDIR = $$PREFIX/lib64
+}
 
-QMAKE_CXXFLAGS += -g \
-    -O0
+QMAKE_CXXFLAGS += -g -O0
 CONFIG += debug
+
 QT += core \
     webkit \
     gui \
     network \
     xml \
     sql
+
 HEADERS += messageviewwidget.h \
     messageformatting.h \
     threadlistwidget.h \
