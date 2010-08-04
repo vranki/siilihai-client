@@ -47,8 +47,12 @@ void ThreadListThreadItem::updateUnreads() {
     }
 
     QString threadSubject = messageSubject;
+    QString moreString = QString::null;
+    if(thread()->hasMoreMessages()) moreString = "+";
     if (unreads) {
-        threadSubject += " (" + QString().number(unreads) + ")";
+        threadSubject += " (" + QString().number(unreads) + moreString + ")";
+    } else if(!moreString.isNull()) {
+        threadSubject += " (" + moreString + ")";
     }
     setText(0, threadSubject);
 }

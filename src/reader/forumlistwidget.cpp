@@ -10,6 +10,7 @@ QToolBox(parent), fdb(f), pdb(p) {
     connect(&f, SIGNAL(groupDeleted(ForumGroup *)), this, SLOT(groupDeleted(ForumGroup *)));
     connect(&f, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
     connect(&f, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
+    connect(&f, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
 
     markReadAction = new QAction("Mark all messages read", this);
     markReadAction->setToolTip("Mark all messages in selected group as read");

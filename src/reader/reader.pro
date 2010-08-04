@@ -14,7 +14,6 @@ DATADIR = $$PREFIX/share
    LIBDIR = $$PREFIX/lib64
 }
 
-QMAKE_CXXFLAGS += -g -O0
 CONFIG += debug
 
 QT += core \
@@ -41,6 +40,7 @@ HEADERS += messageviewwidget.h \
     threadlistmessageitem.h \
     threadlistthreaditem.h \
     threadlistshowmoreitem.h
+
 SOURCES += messageviewwidget.cpp \
     messageformatting.cpp \
     threadlistwidget.cpp \
@@ -59,6 +59,7 @@ SOURCES += messageviewwidget.cpp \
     threadlistmessageitem.cpp \
     threadlistthreaditem.cpp \
     threadlistshowmoreitem.cpp
+
 DEPENDPATH += ../parsermaker \
     ../common
 target.path = $$BINDIR

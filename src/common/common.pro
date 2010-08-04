@@ -1,6 +1,5 @@
 TEMPLATE = lib
 TARGET = siilihai-common
-QMAKE_CXXFLAGS += -g -O0
 CONFIG += debug
 QT += core \
     gui \
