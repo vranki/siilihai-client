@@ -1,10 +1,16 @@
+siilihai-client (0.9.12-2) lucid; urgency=low
+
+  * Fixed build of last version
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Fri, 06 Aug 2010 20:29:43 +0300
+
 siilihai-client (0.9.12-1) lucid; urgency=low
 
   * Minor build fixes
-  * + sign in message count if more available (NR)
+  * + sign in message count if more available
   * Possible fix for unread messages not always displayed in forum list
 
- -- Ville Ranki <ville.ranki@iki.fi>  Mon, 12 Jul 2010 20:29:43 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Fri, 06 Aug 2010 20:29:43 +0300
 
 siilihai-client (0.9.11-1) lucid; urgency=low
 

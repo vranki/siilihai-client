@@ -46,4 +46,4 @@ win32 {
     DEPENDPATH += -L../common/debug
 }
 
-LIBS += -lsiilihai -lsiilihai-common
+LIBS += -lsiilihai -L../common -lsiilihai-common
