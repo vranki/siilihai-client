@@ -36,6 +36,7 @@ void GroupSubscriptionDialog::apply() {
         if(itemChecked != group->subscribed()) {
             group->setSubscribed(itemChecked);
             group->setChangeset(0);
+            group->setHasChanged(true);
             fdb->updateGroup(group);
         }
     }
