@@ -1,6 +1,13 @@
 #include "siilihai.h"
 
-Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv), fdb(this), pdb(this), syncmaster(this, fdb, protocol) {
+Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv),
+fdb(this),
+pdb(this),
+syncmaster(this, fdb, protocol)
+#ifdef STORE_FILES_IN_APP_DIR
+,settings(QDir::currentPath() + "/siilihai_settings.ini", QSettings::IniFormat, this)
+#endif
+{
     loginWizard = 0;
     mainWin = 0;
     parserMaker = 0;
@@ -21,11 +28,12 @@ Siilihai::~Siilihai() {
 void Siilihai::launchSiilihai() {
     currentState = state_started;
     mainWin = new MainWindow(pdb, fdb, &settings);
-    firstRun = settings.value("first_run", true).toBool();
-
-    settings.setValue("first_run", false);
     db = QSqlDatabase::addDatabase("QSQLITE");
+#ifdef STORE_FILES_IN_APP_DIR
+    db.setDatabaseName(QDir::currentPath() + DATABASE_FILE);
+#else
     db.setDatabaseName(QDir::homePath() + DATABASE_FILE);
+#endif
     if (!db.open()) {
         QMessageBox msgBox(mainWin);
         msgBox.setText("Error: Unable to open database.");
@@ -33,6 +41,9 @@ void Siilihai::launchSiilihai() {
         haltSiilihai();
         return;
     }
+    firstRun = settings.value("first_run", true).toBool();
+
+    settings.setValue("first_run", false);
     QString proxy = settings.value("preferences/http_proxy", "").toString();
     if (proxy.length() > 0) {
         QUrl proxyUrl = QUrl(proxy);

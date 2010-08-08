@@ -113,13 +113,13 @@ private:
     ForumDatabase fdb;
     ParserDatabase pdb;
     QString baseUrl;
-    QSettings settings;
     QList<ForumSubscription*> parsersToUpdateLeft;
     ParserMaker *parserMaker;
     QProgressDialog *progressBar;
     GroupSubscriptionDialog *groupSubscriptionDialog;
-    SyncMaster syncmaster;
     UserSettings usettings;
+    SyncMaster syncmaster;
+    QSettings settings;
 };
 
 #endif /* SIILIHAI_H_ */

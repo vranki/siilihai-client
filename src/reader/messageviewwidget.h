@@ -5,6 +5,7 @@
 #include <QWebView>
 #include <QVBoxLayout>
 #include <QDesktopServices>
+#include <QDir>
 
 #include <siilihai/forummessage.h>
 #include "messageformatting.h"

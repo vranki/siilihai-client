@@ -19,7 +19,11 @@ ForumMessage* MessageViewWidget::currentMessage() {
 void MessageViewWidget::messageSelected(ForumMessage *msg) {
     displayedMessage = msg;
     if (!msg) {
+#ifdef STORE_FILES_IN_APP_DIR
+        webView.load(QUrl("file://" + QDir::currentPath() + "/data/blankmessage/index.html"));
+#else
         webView.load(QUrl("file:///usr/share/siilihai/blankmessage/index.html"));
+#endif
         return;
     }
     qDebug() << Q_FUNC_INFO << msg->toString() << "ordernum: " << msg->ordernum();
