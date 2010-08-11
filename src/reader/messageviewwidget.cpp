@@ -53,6 +53,7 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         baseUrl = baseUrl.left(i + 1);
     }
     webView.setContent(html.toUtf8(), QString("text/html"), QUrl(baseUrl));
+    msg->setRead(true);
 }
 
 void MessageViewWidget::linkClicked ( const QUrl & url) {

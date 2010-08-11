@@ -3,19 +3,25 @@
 
 #include "siilihai/forummessage.h"
 #include "siilihai/forumthread.h"
-
+#include "threadlistshowmoreitem.h"
 #include "threadlistmessageitem.h"
+#include <QObject>
 
 class ThreadListThreadItem : public ThreadListMessageItem
 {
+    Q_OBJECT
+
 public:
     ThreadListThreadItem(QTreeWidget *tree, ForumThread *thread);
     void setMessage(ForumMessage *message);
     ForumThread* thread();
+public slots:
     void updateUnreads();
     virtual void updateItem();
+    void threadDeleted();
 private:
     ForumThread *thr;
+    ThreadListShowMoreItem* showMoreItem;
 };
 
 #endif // THREADLISTTHREADITEM_H

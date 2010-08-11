@@ -381,9 +381,6 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this,
             SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(mainWin, SIGNAL(reportClicked(ForumSubscription*)), this, SLOT(reportClicked(ForumSubscription*)));
-    connect(mainWin->threadList(),
-            SIGNAL(messageSelected(ForumMessage*)), &fdb,
-            SLOT(markMessageRead(ForumMessage*)));
     connect(mainWin, SIGNAL(launchParserMaker()), this,
             SLOT(launchParserMaker()));
     connect(mainWin, SIGNAL(offlineModeSet(bool)), this,
@@ -637,9 +634,7 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
     // @todo Q_ASSERT(!thread->getAllMessages());
     thread->setGetMessagesCount(thread->getMessagesCount() +
                                 settings.value("preferences/show_more_count", 30).toInt());
-    fdb.updateThread(thread);
-    qDebug() << Q_FUNC_INFO << " getMessagesCount() now " << thread->getMessagesCount();
-    fdb.updateThread(thread);
+    // qDebug() << Q_FUNC_INFO << " getMessagesCount() now " << thread->getMessagesCount();
     engine->updateThread(thread);
 }
 

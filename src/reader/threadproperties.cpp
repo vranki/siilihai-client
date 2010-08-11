@@ -40,7 +40,6 @@ void ThreadProperties::saveChanges() {
             thread->group()->setLastchange("UPDATE_NEEDED");
             fdb.updateGroup(thread->group());
         }
-        fdb.updateThread(thread);
         emit updateNeeded(thread->group()->subscription());
     }
 }

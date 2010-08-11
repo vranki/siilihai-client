@@ -1,3 +1,9 @@
+siilihai-client (0.9.14-1) lucid; urgency=low
+
+  * Architecture changes(NR)
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 08 Aug 2010 20:29:43 +0300
+
 siilihai-client (0.9.13-1) lucid; urgency=low
 
   * Path fixes for windows version. Now installs db and settings in siilihai's dir.

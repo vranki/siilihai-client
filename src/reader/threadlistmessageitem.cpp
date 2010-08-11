@@ -1,6 +1,6 @@
 #include "threadlistmessageitem.h"
 
-ThreadListMessageItem::ThreadListMessageItem(QTreeWidget *tree) : QTreeWidgetItem(tree) {
+ThreadListMessageItem::ThreadListMessageItem(QTreeWidget *tree) : QObject(tree), QTreeWidgetItem(tree) {
     msg = 0;
 }
 
@@ -14,12 +14,14 @@ ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem,
     }
     setText(0, "Call updateItem()");
     setText(3, orderString);
+    connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
+    connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
+    connect(msg, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 }
 
 ForumMessage* ThreadListMessageItem::message() {
     return msg;
 }
-
 
 void ThreadListMessageItem::updateItem() {
     QString orderString;

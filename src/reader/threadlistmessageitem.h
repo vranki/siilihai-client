@@ -4,15 +4,20 @@
 #include <QTreeWidgetItem>
 #include <siilihai/forummessage.h>
 #include "messageformatting.h"
+#include <QObject>
 
-class ThreadListMessageItem : public QTreeWidgetItem
+class ThreadListMessageItem :  public QObject, public QTreeWidgetItem
 {
+    Q_OBJECT
 public:
     ThreadListMessageItem(QTreeWidget *tree);
     ThreadListMessageItem(ThreadListMessageItem *threadItem, ForumMessage *message);
     virtual ForumMessage *message();
-    virtual void updateItem();
+
+public slots:
     void updateRead();
+    virtual void updateItem();
+
 protected:
     QString createMessageSubject();
     ForumMessage *msg;

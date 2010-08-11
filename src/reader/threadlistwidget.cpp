@@ -10,10 +10,10 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     setSelectionMode(QAbstractItemView::SingleSelection);
     connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
     connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
-    connect(&fdb, SIGNAL(threadUpdated(ForumThread*)), this, SLOT(threadUpdated(ForumThread*)));
-    connect(&fdb, SIGNAL(threadDeleted(ForumThread*)), this, SLOT(threadDeleted(ForumThread*)));
-    connect(&fdb, SIGNAL(messageDeleted(ForumMessage*)), this, SLOT(messageDeleted(ForumMessage*)));
-    connect(&fdb, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
+ //   connect(&fdb, SIGNAL(threadUpdated(ForumThread*)), this, SLOT(threadUpdated(ForumThread*)));
+  //  connect(&fdb, SIGNAL(threadDeleted(ForumThread*)), this, SLOT(threadDeleted(ForumThread*)));
+  //  connect(&fdb, SIGNAL(messageDeleted(ForumMessage*)), this, SLOT(messageDeleted(ForumMessage*)));
+//    connect(&fdb, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
     connect(&fdb, SIGNAL(groupUpdated(ForumGroup*)), this, SLOT(groupUpdated(ForumGroup*)));
     connect(&fdb, SIGNAL(groupDeleted(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
@@ -37,6 +37,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 ThreadListWidget::~ThreadListWidget() {
 }
 
+/*
 void ThreadListWidget::messageDeleted(ForumMessage *msg) {
     Q_ASSERT(msg);
     if(msg->thread()->group() != currentGroup) return;
@@ -46,95 +47,13 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
     Q_ASSERT(messageItem); // should exist always?
     if(dynamic_cast<ThreadListThreadItem*>(messageItem)) { // Is Thread item
         Q_ASSERT(false); // Never delete the thread item.
-        /*
-        // Remove child items
-        QList<QTreeWidgetItem *> childItems = messageItem->takeChildren();
-        // Remove the item itself
-        takeTopLevelItem(indexOfTopLevelItem(messageItem));
-
-        QTreeWidgetItem *newThreadFirstItem = 0;
-        // Find out which is the next first message in thread:
-        QList<ForumMessage*> messages = fdb.listMessages(msg->thread());
-        foreach(ForumMessage* message, messages) {
-            qDebug() << "Checking for next msg " << message << " on= " << message->ordernum() << ", wanted:" << msg->ordernum()+1;
-            if(message->ordernum() <= msg->ordernum() + 1) {
-                newThreadFirstItem = messageWidget(message);
-                qDebug() << "..Selected this";
-            }
-        }
-        if(newThreadFirstItem) {
-            addTopLevelItem(newThreadFirstItem);
-            forumThreads[newThreadFirstItem] = msg->thread();
-        }
-        Q_ASSERT(newThreadFirstItem);
-        foreach(ForumMessage* message, messages) {
-            if(message->ordernum() > msg->ordernum() + 1){
-                // Add as child
-                QTreeWidgetItem *childItem = messageWidget(message);
-                Q_ASSERT(childItem);
-                newThreadFirstItem->addChild(childItem);
-            }
-        }
-        forumThreads.remove(messageItem);
-        */
     } else {
         messageItem->parent()->removeChild(messageItem);
         forumMessages.remove(messageItem);
     }
     delete messageItem;
 }
-
-void ThreadListWidget::threadUpdated(ForumThread *thread) {
-    // qDebug() << Q_FUNC_INFO << thread->toString() << " has more: " << thread->hasMoreMessages();
-    if(thread->group() != currentGroup) return;
-    // Find if we have show more button item:
-    ThreadListShowMoreItem *showMoreItem = showMoreItems.key(thread);
-
-    if(thread->hasMoreMessages() && !showMoreItem) { // Need to add show more-button
-        addShowMoreButton(thread);
-    } else if(!thread->hasMoreMessages() && showMoreItem) { // Need to delete show more-button
-        showMoreItem->threadItem()->removeChild(showMoreItem);
-        delete showMoreItem;
-        showMoreItems.remove(showMoreItem);
-        sortItems(3, Qt::AscendingOrder);
-    }
-    // @todo update other thread fields such as subject etc
-    resizeColumnToContents(0);
-    resizeColumnToContents(1);
-    resizeColumnToContents(2);
-}
-
-void ThreadListWidget::addShowMoreButton(ForumThread *thread) {
-    // Add the show more-item
-    ThreadListThreadItem *threadItem = forumThreads.key(thread);
-    Q_ASSERT(threadItem);
-    ThreadListShowMoreItem *showMoreItem = new ThreadListShowMoreItem(threadItem);
-    showMoreItems[showMoreItem] = thread;
-    sortItems(3, Qt::AscendingOrder);
-}
-
-void ThreadListWidget::threadDeleted(ForumThread *thread) {
-    if(thread->group() != currentGroup) return;
-    // Remeber, this is recursive ie. deletes messages also!
-
-    ThreadListThreadItem *threadItem = forumThreads.key(thread);
-    Q_ASSERT(threadItem);
-    Q_ASSERT(!threadItem->parent()); // Item should always be root item
-    for(int i=threadItem->childCount()-1;i >= 0; i--) {
-        QTreeWidgetItem *child = threadItem->child(i);
-        if(dynamic_cast<ThreadListShowMoreItem*>(child)) {
-            showMoreItems.remove(dynamic_cast<ThreadListShowMoreItem*>(child));
-        } else if(dynamic_cast<ThreadListMessageItem*>(child)){
-            messageDeleted((dynamic_cast<ThreadListMessageItem*>(child))->message());
-            QCoreApplication::processEvents(); // Keep UI responsive
-        } else {
-            Q_ASSERT(false); // Unknown type in thread!
-        }
-    }
-    takeTopLevelItem(indexOfTopLevelItem(threadItem));
-    forumThreads.remove(threadItem);
-    delete threadItem;
-}
+*/
 
 void ThreadListWidget::groupUpdated(ForumGroup *grp) {
     if(grp != currentGroup) return;
@@ -176,7 +95,6 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
     }
 
     forumMessages[item] = message;
-
     item->updateItem();
     item->updateRead();
 
@@ -200,10 +118,6 @@ void ThreadListWidget::addThread(ForumThread *thread) {
 
     forumThreads[threadItem] = thread;
     addTopLevelItem(threadItem);
-    if(thread->hasMoreMessages()) {
-        addShowMoreButton(thread);
-    }
-
     sortItems(3, Qt::AscendingOrder);
     resizeColumnToContents(0);
     resizeColumnToContents(1);
@@ -244,7 +158,7 @@ void ThreadListWidget::updateList() {
     resizeColumnToContents(1);
     resizeColumnToContents(2);
 }
-
+/*
 void ThreadListWidget::messageUpdated(ForumMessage *msg) {
     if(msg->thread()->group() != currentGroup) return;
 
@@ -255,29 +169,8 @@ void ThreadListWidget::messageUpdated(ForumMessage *msg) {
     if(!dynamic_cast<ThreadListThreadItem*> (currentMessageItem)) {
         forumThreads.key(msg->thread())->updateUnreads();
     }
-    /*
-    // Check if message is first AND it is not as thread message
-    if(msg->ordernum() == 0 && threadWidget(msg->thread()) != currentMessageItem) {
-        qDebug() << Q_FUNC_INFO << "Horror! Must swap message with thread header!";
-        QTreeWidgetItem *threadItem = threadWidget(msg->thread());
-        Q_ASSERT(threadItem);
-        ForumMessage *oldThreadMessage = forumMessages[threadItem];
-        if(!oldThreadMessage) {
-            // Ok, weird situation but there is no thread message (yet)
-            // Just set this message as thread message
-            oldThreadMessage = msg;
-            forumMessages[threadItem] = msg;
-        } else {
-            swapMessages(msg, oldThreadMessage);
-        }
-        updateMessageRead(messageWidget(oldThreadMessage));
-        updateMessageItem(messageWidget(oldThreadMessage), oldThreadMessage);
-    }
-    updateMessageRead(messageWidget(msg));
-    updateMessageItem(messageWidget(msg), msg);
-    */
 }
-
+*/
 
 void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
                                        QTreeWidgetItem *prev) {
@@ -286,13 +179,10 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
         return;
     if(dynamic_cast<ThreadListShowMoreItem*> (item)) {
         ThreadListShowMoreItem * smItem = dynamic_cast<ThreadListShowMoreItem*> (item);
-        ForumThread *thread = smItem->threadItem()->thread();
-        smItem->threadItem()->removeChild(smItem);
-        showMoreItems.remove(smItem);
-        delete smItem;
-        // Select the last message in thread (hope this works always)
-        setCurrentItem(0);
-        emit moreMessagesRequested(thread);
+        ThreadListThreadItem* tli = dynamic_cast<ThreadListThreadItem*> (smItem->parent());
+        //tli->deleteShowMore();
+        // was: delete show more button. is it needed?
+        emit moreMessagesRequested(tli->thread());
     } else if (dynamic_cast<ThreadListMessageItem*> (item)) {
         ThreadListMessageItem* msgItem = dynamic_cast<ThreadListMessageItem*> (item);
         ForumMessage *msg = msgItem->message();
@@ -337,10 +227,7 @@ void ThreadListWidget::markReadClicked(bool read) {
     ForumMessage *threadMessage = msgItem->message();
     if(threadMessage) {
         foreach(ForumMessage *msg, fdb.listMessages(threadMessage->thread())) {
-            if(msg->read() != read) {
-                fdb.markMessageRead(msg, read);
-                QCoreApplication::processEvents();
-            }
+            msg->setRead(read);
         }
     }
 }

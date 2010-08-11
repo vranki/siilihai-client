@@ -4,6 +4,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *threa
 {
     Q_ASSERT(thread);
     thr = thread;
+    showMoreItem = 0;
     Q_ASSERT(thread->isSane());
     QString threadSubject = thread->name();//messageSubject(thread->name());
     QString lc = thread->lastchange();
@@ -12,6 +13,10 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *threa
     if(thread->ordernum() >=0) {
         orderString = QString().number(thread->ordernum()).rightJustified(6, '0');
     }
+    connect(thr, SIGNAL(destroyed()), this, SLOT(threadDeleted()));
+    connect(thr, SIGNAL(changed(ForumThread*)), this, SLOT(updateItem()));
+    connect(thr, SIGNAL(unreadCountChanged(ForumThread *)), this, SLOT(updateUnreads()));
+
     setText(0, threadSubject);
     setText(1, MessageFormatting::sanitize(lc));
     setText(2, MessageFormatting::sanitize(author));
@@ -29,7 +34,14 @@ ForumThread* ThreadListThreadItem::thread() {
 
 void ThreadListThreadItem::updateItem() {
     ThreadListMessageItem::updateItem();
-    updateUnreads();
+
+    if(thr->hasMoreMessages() && !showMoreItem) { // Need to add show more-button
+        showMoreItem = new ThreadListShowMoreItem(this);
+    } else if(!thr->hasMoreMessages() && showMoreItem) { // Need to delete show more-button
+        removeChild(showMoreItem);
+        delete showMoreItem;
+        showMoreItem = 0;
+    }
 }
 
 void ThreadListThreadItem::updateUnreads() {
@@ -55,4 +67,24 @@ void ThreadListThreadItem::updateUnreads() {
         threadSubject += " (" + moreString + ")";
     }
     setText(0, threadSubject);
+}
+void ThreadListThreadItem::threadDeleted() {
+    ThreadListThreadItem *threadItem = this;
+    Q_ASSERT(!((QTreeWidgetItem*)threadItem)->parent()); // Item should always be root item
+    if(showMoreItem) {
+        removeChild(showMoreItem);
+        delete showMoreItem;
+        showMoreItem = 0;
+    }
+    for(int i=((QTreeWidgetItem*)threadItem)->childCount()-1;i >= 0; i--) {
+        QTreeWidgetItem *child = ((QTreeWidgetItem*)threadItem)->child(i);
+        if(dynamic_cast<ThreadListMessageItem*>(child)){
+            removeChild(child);
+            delete(child);
+        } else {
+            Q_ASSERT(false); // Unknown type in thread!
+        }
+    }
+    QTreeWidgetItem::parent()->removeChild(this);
+    deleteLater();
 }

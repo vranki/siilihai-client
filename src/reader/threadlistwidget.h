@@ -28,11 +28,11 @@ public slots:
 	void groupSelected(ForumGroup *fg);
         void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
         void messageFound(ForumMessage *msg);
-        void messageUpdated(ForumMessage *msg);
-        void messageDeleted(ForumMessage *msg);
+        // void messageUpdated(ForumMessage *msg);
+        // void messageDeleted(ForumMessage *msg);
         void threadFound(ForumThread *thread);
-        void threadUpdated(ForumThread *thread);
-        void threadDeleted(ForumThread *thread);
+        //void threadUpdated(ForumThread *thread);
+        //void threadDeleted(ForumThread *thread);
         void groupUpdated(ForumGroup *grp);
         void groupDeleted(ForumGroup *grp);
         void markReadClicked(bool read=true);
@@ -57,10 +57,8 @@ private:
         void addMessage(ForumMessage *msg);
         void updateThreadUnreads(ThreadListThreadItem* threadItem);
         void addShowMoreButton(ForumThread *thread);
-        QHash<ThreadListShowMoreItem*, ForumThread*> showMoreItems;
         QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
         QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
-        //QHash<ThreadListMessageItem*, QString> messageSubjects;
         ForumGroup *currentGroup;
 	ForumDatabase &fdb;
         // Actions:

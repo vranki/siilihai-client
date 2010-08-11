@@ -58,7 +58,6 @@ void ForumProperties::saveChanges() {
                 if(thread->getMessagesCount() != ui->messages_per_thread->value()) {
                     thread->setGetMessagesCount(ui->messages_per_thread->value());
                     thread->setLastchange("UPDATE_NEEDED");
-                    fdb.updateThread(thread);
                     grp->setLastchange("UPDATE_NEEDED");
                     fdb.updateGroup(grp);
                     update = true;

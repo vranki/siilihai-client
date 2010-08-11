@@ -9,7 +9,7 @@ QToolBox(parent), fdb(f), pdb(p) {
     connect(&f, SIGNAL(groupUpdated(ForumGroup *)), this, SLOT(groupUpdated(ForumGroup *)));
     connect(&f, SIGNAL(groupDeleted(ForumGroup *)), this, SLOT(groupDeleted(ForumGroup *)));
     connect(&f, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
-    connect(&f, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
+    //connect(&f, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
     connect(&f, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
 
     markReadAction = new QAction("Mark all messages read", this);
@@ -147,18 +147,17 @@ void ForumListWidget::groupUpdated(ForumGroup *grp) {
             emit groupSelected(currentGroup);
         }
     } else if(gItem && grp->subscribed()) {
-        int unread = fdb.unreadIn(grp);
         QString title = grp->name();
-        if (unread > 0)
-            title = title + " (" + QString().number(unread) + ")";
+        if (grp->unreadCount() > 0)
+            title = title + " (" + QString().number(grp->unreadCount()) + ")";
        // qDebug() << Q_FUNC_INFO << " Updating group title to " << title;
         gItem->setText(title);
 
         // Update subscription message count
         title = grp->subscription()->alias();
-        int unreads = fdb.unreadIn(grp->subscription());
-        if(unreads > 0)
-            title = QString("%1 (%2)").arg(title).arg(unreads);
+
+        if(grp->subscription()->unreadCount() > 0)
+            title = QString("%1 (%2)").arg(title).arg(grp->subscription()->unreadCount());
         setItemText(indexOf(lw), title);
 
     } else if(!gItem && grp->subscribed()) {
@@ -240,10 +239,7 @@ void ForumListWidget::markAllReadClicked(bool un) {
     if(currentGroup) {
         foreach(ForumThread *thread, fdb.listThreads(currentGroup)) {
             foreach(ForumMessage *msg, fdb.listMessages(thread)) {
-                if(msg->read() == un) {
-                    fdb.markMessageRead(msg, !un);
-                    QCoreApplication::processEvents();
-                }
+                msg->setRead(!un);
             }
         }
     }
