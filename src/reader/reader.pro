@@ -84,7 +84,6 @@ win32 {
     DEPENDPATH += -L../common/debug
     DEFINES += STORE_FILES_IN_APP_DIR
 }
-    DEFINES += STORE_FILES_IN_APP_DIR
 
 LIBS += -L../parsermaker \
     -L../common \

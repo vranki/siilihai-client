@@ -30,6 +30,7 @@ void Siilihai::launchSiilihai() {
     mainWin = new MainWindow(pdb, fdb, &settings);
     db = QSqlDatabase::addDatabase("QSQLITE");
 #ifdef STORE_FILES_IN_APP_DIR
+    qDebug() << Q_FUNC_INFO << "Loading settings & db from app directory (=Windows build)";
     db.setDatabaseName(QDir::currentPath() + DATABASE_FILE);
 #else
     db.setDatabaseName(QDir::homePath() + DATABASE_FILE);
