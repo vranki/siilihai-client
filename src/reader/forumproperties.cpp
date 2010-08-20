@@ -45,21 +45,19 @@ void ForumProperties::saveChanges() {
     fs->setAlias(ui->forumName->text());
     if(fs->latest_threads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
-        foreach(ForumGroup *grp, fdb.listGroups(fs)) {
+        foreach(ForumGroup *grp, *fs) {
             grp->setLastchange("UPDATE_NEEDED");
-            fdb.updateGroup(grp);
         }
         update = true;
     }
 
     if(fs->latest_messages() != ui->messages_per_thread->value()) {
-        foreach(ForumGroup *grp, fdb.listGroups(fs)) {
-            foreach(ForumThread *thread, fdb.listThreads(grp)) {
+        foreach(ForumGroup *grp, *fs) {
+            foreach(ForumThread *thread, *grp) {
                 if(thread->getMessagesCount() != ui->messages_per_thread->value()) {
                     thread->setGetMessagesCount(ui->messages_per_thread->value());
                     thread->setLastchange("UPDATE_NEEDED");
                     grp->setLastchange("UPDATE_NEEDED");
-                    fdb.updateGroup(grp);
                     update = true;
                 }
             }
@@ -73,7 +71,6 @@ void ForumProperties::saveChanges() {
         fs->setUsername(QString::null);
         fs->setPassword(QString::null);
     }
-    fdb.updateSubscription(fs);
     if(update)
         emit forumUpdateNeeded(fs);
 }

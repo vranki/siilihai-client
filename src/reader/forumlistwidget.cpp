@@ -6,11 +6,6 @@ QToolBox(parent), fdb(f), pdb(p) {
     connect(this, SIGNAL(currentChanged(int)), this,
             SLOT(forumItemSelected(int)));
     connect(&f, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
-    connect(&f, SIGNAL(groupUpdated(ForumGroup *)), this, SLOT(groupUpdated(ForumGroup *)));
-    connect(&f, SIGNAL(groupDeleted(ForumGroup *)), this, SLOT(groupDeleted(ForumGroup *)));
-    connect(&f, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
-    //connect(&f, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
-    connect(&f, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
 
     markReadAction = new QAction("Mark all messages read", this);
     markReadAction->setToolTip("Mark all messages in selected group as read");
@@ -49,17 +44,18 @@ void ForumListWidget::forumItemSelected(int i) {
         }
         Q_ASSERT(sub);
     }
-
+/*
+ @todo why this?
     foreach(ForumGroup *grp, fdb.listGroups(sub))
-        groupUpdated(grp);
-
+        groupChanged(grp);
+*/
     emit forumSelected(sub);
 }
-
+/*
 void ForumListWidget::messageUpdated(ForumMessage *msg) {
     groupUpdated(msg->thread()->group());
 }
-
+*/
 ForumSubscription* ForumListWidget::getSelectedForum() {
     ForumSubscription *sub = 0;
     QListWidget *curWidget = static_cast<QListWidget*> (currentWidget());
@@ -107,6 +103,8 @@ void ForumListWidget::addParserEngine(ParserEngine *pe) {
     addItem(lw, pe->subscription()->alias());
     connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
             this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
+    connect(pe->subscription(), SIGNAL(unreadCountChanged(ForumSubscription*)), this, SLOT(updateSubscriptionLabel(ForumSubscription*)));
+    connect(pe->subscription(), SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
     QString fiUrl = pdb.getParser(pe->subscription()->parser()).forum_url;
     fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
@@ -120,25 +118,28 @@ void ForumListWidget::addParserEngine(ParserEngine *pe) {
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
     Q_ASSERT(grp);
-    // qDebug() << Q_FUNC_INFO << grp->toString();
+    connect(grp, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+    connect(grp, SIGNAL(unreadCountChanged(ForumGroup*)), this, SLOT(updateGroupLabel(ForumGroup*)));
+    connect(grp, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
+
     if(!grp->subscribed()) return;
     QListWidget *lw = parserEngines[engineOf(grp->subscription())];
     QListWidgetItem *lwi = new QListWidgetItem(lw);
     lwi->setIcon(QIcon(":/data/folder.png"));
     lw->addItem(lwi);
     forumGroups[lwi] = grp;
-    groupUpdated(grp);
+    groupChanged(grp); // Set title etc.
 }
 
 
-void ForumListWidget::groupUpdated(ForumGroup *grp) {
+void ForumListWidget::groupChanged(ForumGroup *grp) {
     Q_ASSERT(grp);
     if(!engineOf(grp->subscription())) return; // May happen while quitting
     QListWidget *lw = parserEngines.value(engineOf(grp->subscription()));
     Q_ASSERT(lw);
     QListWidgetItem *gItem = groupItem(grp);
     if(gItem && !grp->subscribed()) {
-       // qDebug() << Q_FUNC_INFO << " deleting unsubscribed group from UI";
+        // delete unsubscribed group from UI
         lw->takeItem(lw->row(gItem));
         forumGroups.remove(gItem);
         delete gItem;
@@ -147,26 +148,38 @@ void ForumListWidget::groupUpdated(ForumGroup *grp) {
             emit groupSelected(currentGroup);
         }
     } else if(gItem && grp->subscribed()) {
-        QString title = grp->name();
-        if (grp->unreadCount() > 0)
-            title = title + " (" + QString().number(grp->unreadCount()) + ")";
-       // qDebug() << Q_FUNC_INFO << " Updating group title to " << title;
-        gItem->setText(title);
-
-        // Update subscription message count
-        title = grp->subscription()->alias();
-
-        if(grp->subscription()->unreadCount() > 0)
-            title = QString("%1 (%2)").arg(title).arg(grp->subscription()->unreadCount());
-        setItemText(indexOf(lw), title);
-
+        updateGroupLabel(grp);
     } else if(!gItem && grp->subscribed()) {
-       // qDebug() << Q_FUNC_INFO << " adding subscribed group to UI";
+        // Add subscribed group to UI
         groupFound(grp);
     }
 }
 
-void ForumListWidget::groupDeleted(ForumGroup *grp) {
+void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
+    QListWidget *lw = parserEngines.value(engineOf(sub));
+    // Update subscription message count
+    QString title = sub->alias();
+
+    if(sub->unreadCount() > 0)
+        title = QString("%1 (%2)").arg(title).arg(sub->unreadCount());
+    setItemText(indexOf(lw), title);
+}
+
+void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
+    Q_ASSERT(grp);
+    if(!grp->subscribed()) return;
+    if(!engineOf(grp->subscription())) return; // May happen while quittinq
+    QListWidget *lw = parserEngines.value(engineOf(grp->subscription()));
+    Q_ASSERT(lw);
+    QListWidgetItem *gItem = groupItem(grp);
+    QString title = grp->name();
+    if (grp->unreadCount() > 0)
+        title = title + " (" + QString().number(grp->unreadCount()) + ")";
+    gItem->setText(title);
+}
+
+void ForumListWidget::groupDeleted(QObject* g) {
+    ForumGroup *grp = static_cast<ForumGroup*> (g);
     if(!grp->subscribed()) return;
     if(currentGroup==grp) {
         currentGroup = 0;
@@ -181,7 +194,8 @@ void ForumListWidget::groupDeleted(ForumGroup *grp) {
     delete item;
 }
 
-void ForumListWidget::subscriptionDeleted(ForumSubscription *sub) {
+void ForumListWidget::subscriptionDeleted(QObject *s) {
+    ForumSubscription *sub = static_cast<ForumSubscription*>(s);
     if(currentGroup && currentGroup->subscription()==sub) {
         currentGroup = 0;
         emit forumSelected(0);
@@ -237,8 +251,8 @@ void ForumListWidget::unsubscribeGroupClicked() {
 
 void ForumListWidget::markAllReadClicked(bool un) {
     if(currentGroup) {
-        foreach(ForumThread *thread, fdb.listThreads(currentGroup)) {
-            foreach(ForumMessage *msg, fdb.listMessages(thread)) {
+        foreach(ForumThread *thread, *currentGroup) {
+            foreach(ForumMessage *msg, *thread) {
                 msg->setRead(!un);
             }
         }

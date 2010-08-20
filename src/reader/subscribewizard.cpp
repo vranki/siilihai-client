@@ -215,16 +215,16 @@ void SubscribeWizard::wizardAccepted() {
         pass = subscribeForumLogin.passwordEdit->text();
     }
 
-    ForumSubscription fs(this);
-    fs.setParser(parser.id);
-    fs.setAlias(subscribeForumVerify.forumName->text());
-    fs.setUsername(user);
-    fs.setPassword(pass);
-    fs.setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
-    fs.setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
+    ForumSubscription *fs = new ForumSubscription(); // Instance to be added to fdb
+    fs->setParser(parser.id);
+    fs->setAlias(subscribeForumVerify.forumName->text());
+    fs->setUsername(user);
+    fs->setPassword(pass);
+    fs->setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
+    fs->setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
 
     Q_ASSERT(parser.isSane());
-    emit(forumAdded(parser, &fs));
+    emit(forumAdded(parser, fs));
 }
 
 void SubscribeWizard::comboItemChanged(int id) {

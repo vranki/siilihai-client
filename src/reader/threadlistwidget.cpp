@@ -10,12 +10,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     setSelectionMode(QAbstractItemView::SingleSelection);
     connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
     connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
- //   connect(&fdb, SIGNAL(threadUpdated(ForumThread*)), this, SLOT(threadUpdated(ForumThread*)));
-  //  connect(&fdb, SIGNAL(threadDeleted(ForumThread*)), this, SLOT(threadDeleted(ForumThread*)));
-  //  connect(&fdb, SIGNAL(messageDeleted(ForumMessage*)), this, SLOT(messageDeleted(ForumMessage*)));
-//    connect(&fdb, SIGNAL(messageUpdated(ForumMessage*)), this, SLOT(messageUpdated(ForumMessage*)));
-    connect(&fdb, SIGNAL(groupUpdated(ForumGroup*)), this, SLOT(groupUpdated(ForumGroup*)));
-    connect(&fdb, SIGNAL(groupDeleted(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
+
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
     hideColumn(3);
@@ -55,15 +50,17 @@ void ThreadListWidget::messageDeleted(ForumMessage *msg) {
 }
 */
 
-void ThreadListWidget::groupUpdated(ForumGroup *grp) {
-    if(grp != currentGroup) return;
+void ThreadListWidget::groupChanged(ForumGroup *grp) {
+    Q_ASSERT(grp == currentGroup); // Should always be
+//    if(grp != currentGroup) return;
 
     if(!grp->subscribed()) {
         groupDeleted(grp);
     }
 }
 
-void ThreadListWidget::groupDeleted(ForumGroup *grp) {
+void ThreadListWidget::groupDeleted(QObject*g) {
+    ForumGroup *grp = static_cast<ForumGroup*>(g);
     if(grp == currentGroup)
         groupSelected(0);
 }
@@ -126,12 +123,15 @@ void ThreadListWidget::addThread(ForumThread *thread) {
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
     if(!fg) {
+        disconnect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
         currentGroup = 0;
         clearList();
         emit messageSelected(0);
     }
     if(currentGroup != fg) {
         currentGroup = fg;
+        connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+        connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         clearSelection();
         updateList();
     }
@@ -148,9 +148,9 @@ void ThreadListWidget::updateList() {
     clearList();
 
     QList<QTreeWidgetItem *> items;
-    foreach(ForumThread *thread, fdb.listThreads(currentGroup)) {
+    foreach(ForumThread *thread, *currentGroup) {
         addThread(thread);
-        foreach(ForumMessage *message, fdb.listMessages(thread)) {
+        foreach(ForumMessage *message, *thread) {
             addMessage(message);
         }
     }
@@ -226,7 +226,7 @@ void ThreadListWidget::markReadClicked(bool read) {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
     ForumMessage *threadMessage = msgItem->message();
     if(threadMessage) {
-        foreach(ForumMessage *msg, fdb.listMessages(threadMessage->thread())) {
+        foreach(ForumMessage *msg, *threadMessage->thread()) {
             msg->setRead(read);
         }
     }

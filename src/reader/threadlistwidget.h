@@ -33,8 +33,8 @@ public slots:
         void threadFound(ForumThread *thread);
         //void threadUpdated(ForumThread *thread);
         //void threadDeleted(ForumThread *thread);
-        void groupUpdated(ForumGroup *grp);
-        void groupDeleted(ForumGroup *grp);
+        void groupChanged(ForumGroup *grp);
+        void groupDeleted(QObject*);
         void markReadClicked(bool read=true);
         void markUnreadClicked();
         void threadPropertiesClicked();

@@ -175,7 +175,6 @@ void Siilihai::changeState(siilihai_states newState) {
             if(authenticator.user().length() > 0) {
                 sub->setUsername(authenticator.user());
                 sub->setPassword(authenticator.password());
-                fdb.updateSubscription(sub);
             } else {
                 sub->setAuthenticated(false);
             }
@@ -403,16 +402,15 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
         subscribeWizard->deleteLater();
         subscribeWizard = 0;
     }
-    ForumSubscription *newSubscription = 0;
-
-    if (!pdb.storeParser(fp) || !(newSubscription = fdb.addSubscription(fs))) {
+    fdb.addSubscription(fs);
+    if (!pdb.storeParser(fp)) {
         QMessageBox msgBox(mainWin);
         msgBox.setText(
                 "Error: Unable to subscribe to forum. Are you already subscribed?");
         msgBox.exec();
     } else {
-        protocol.subscribeForum(newSubscription);
-        engines[newSubscription]->updateGroupList();
+        protocol.subscribeForum(fs);
+        engines[fs]->updateGroupList();
     }
 }
 
@@ -471,8 +469,7 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 
 void Siilihai::subscribeGroupDialogFinished() {
     if (currentState == state_ready) {
-        QList<ForumGroup*> newGroups = fdb.listGroups(groupSubscriptionDialog->subscription());
-        protocol.subscribeGroups(newGroups);
+        protocol.subscribeGroups(*groupSubscriptionDialog->subscription());
         updateClicked();
     }
     groupSubscriptionDialog->deleteLater();
@@ -641,9 +638,8 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
 
 void Siilihai::unsubscribeGroup(ForumGroup *group) {
     group->setSubscribed(false);
-    fdb.updateGroup(group);
-    QList<ForumGroup*> newGroups = fdb.listGroups(group->subscription());
-    protocol.subscribeGroups(newGroups);
+    // QList<ForumGroup*> newGroups = fdb.listGroups(group->subscription());
+    protocol.subscribeGroups(*group->subscription());
 }
 
 void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {

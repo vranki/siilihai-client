@@ -36,14 +36,16 @@ public slots:
 	void forumItemSelected(int i);
         void iconUpdated(ParserEngine* en, QIcon newIcon);
 	void groupFound(ForumGroup *grp);
-        void groupUpdated(ForumGroup *grp);
-        void groupDeleted(ForumGroup *grp);
-        void subscriptionDeleted(ForumSubscription *sub);
-        void messageUpdated(ForumMessage *grp);
+        void groupChanged(ForumGroup *grp);
+        void groupDeleted(QObject*);
+        void subscriptionDeleted(QObject*);
+       // void messageUpdated(ForumMessage *grp);
         void unsubscribeGroupClicked();
         void markAllReadClicked(bool un=false);
         void markAllUnreadClicked();
         void groupSubscriptionsClicked();
+        void updateSubscriptionLabel(ForumSubscription *sub);
+        void updateGroupLabel(ForumGroup *grp);
 signals:
 	void groupSelected(ForumGroup *grp);
         void forumSelected(ForumSubscription *sub);

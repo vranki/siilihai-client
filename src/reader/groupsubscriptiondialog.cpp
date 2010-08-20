@@ -30,14 +30,13 @@ void GroupSubscriptionDialog::selectNone() {
 }
 
 void GroupSubscriptionDialog::apply() {
-    foreach(ForumGroup *group, fdb->listGroups(forum)) {
+    foreach(ForumGroup *group, *forum) {
         QListWidgetItem *item = listItems[group];
         bool itemChecked = (item->checkState()==Qt::Checked);
         if(itemChecked != group->subscribed()) {
             group->setSubscribed(itemChecked);
             group->setChangeset(0);
             group->setHasChanged(true);
-            fdb->updateGroup(group);
         }
     }
     close();
@@ -49,7 +48,7 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
 
     ui.listWidget->clear();
     listItems.clear();
-    foreach(ForumGroup *group, fdb->listGroups(forum)) {
+    foreach(ForumGroup *group, *forum) {
         QListWidgetItem *newItem = new QListWidgetItem();
         newItem->setText(group->name());
         newItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
