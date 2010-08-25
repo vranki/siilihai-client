@@ -148,9 +148,9 @@ void ThreadListWidget::updateList() {
     clearList();
 
     QList<QTreeWidgetItem *> items;
-    foreach(ForumThread *thread, *currentGroup) {
+    foreach(ForumThread *thread, currentGroup->threads()) {
         addThread(thread);
-        foreach(ForumMessage *message, *thread) {
+        foreach(ForumMessage *message, thread->messages()) {
             addMessage(message);
         }
     }
@@ -226,7 +226,7 @@ void ThreadListWidget::markReadClicked(bool read) {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
     ForumMessage *threadMessage = msgItem->message();
     if(threadMessage) {
-        foreach(ForumMessage *msg, *threadMessage->thread()) {
+        foreach(ForumMessage *msg, threadMessage->thread()->messages()) {
             msg->setRead(read);
         }
     }

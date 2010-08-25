@@ -469,7 +469,7 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 
 void Siilihai::subscribeGroupDialogFinished() {
     if (currentState == state_ready) {
-        protocol.subscribeGroups(*groupSubscriptionDialog->subscription());
+        protocol.subscribeGroups(groupSubscriptionDialog->subscription()->groups());
         updateClicked();
     }
     groupSubscriptionDialog->deleteLater();
@@ -639,7 +639,7 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
 void Siilihai::unsubscribeGroup(ForumGroup *group) {
     group->setSubscribed(false);
     // QList<ForumGroup*> newGroups = fdb.listGroups(group->subscription());
-    protocol.subscribeGroups(*group->subscription());
+    protocol.subscribeGroups(group->subscription()->groups());
 }
 
 void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {

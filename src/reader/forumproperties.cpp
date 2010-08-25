@@ -8,8 +8,8 @@ ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDat
     ui->setupUi(this);
     fs = s;
     ui->forumName->setText(fs->alias());
-    ui->threads_per_group->setValue(fs->latest_threads());
-    ui->messages_per_thread->setValue(fs->latest_messages());
+    ui->threads_per_group->setValue(fs->latestThreads());
+    ui->messages_per_thread->setValue(fs->latestMessages());
     if(pdb.getParser(fs->parser()).supportsLogin()) {
         ui->authenticationGroupbox->setEnabled(true);
         if(fs->username().length()>0)  {
@@ -43,17 +43,17 @@ void ForumProperties::changeEvent(QEvent *e)
 void ForumProperties::saveChanges() {
     bool update = false;
     fs->setAlias(ui->forumName->text());
-    if(fs->latest_threads() != ui->threads_per_group->value()) {
+    if(fs->latestThreads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
-        foreach(ForumGroup *grp, *fs) {
+        foreach(ForumGroup *grp, fs->groups()) {
             grp->setLastchange("UPDATE_NEEDED");
         }
         update = true;
     }
 
-    if(fs->latest_messages() != ui->messages_per_thread->value()) {
-        foreach(ForumGroup *grp, *fs) {
-            foreach(ForumThread *thread, *grp) {
+    if(fs->latestMessages() != ui->messages_per_thread->value()) {
+        foreach(ForumGroup *grp, fs->groups()) {
+            foreach(ForumThread *thread, grp->threads()) {
                 if(thread->getMessagesCount() != ui->messages_per_thread->value()) {
                     thread->setGetMessagesCount(ui->messages_per_thread->value());
                     thread->setLastchange("UPDATE_NEEDED");

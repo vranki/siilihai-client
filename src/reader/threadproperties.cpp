@@ -9,7 +9,7 @@ ThreadProperties::ThreadProperties(QWidget *parent, ForumThread *th, ForumDataba
     ui->thName->setText(thread->name());
     ui->thLastchange->setText(thread->lastchange());
     ui->thId->setText(thread->id());
-    ui->thMessageCount->setText(QString::number(thread->count()));
+    ui->thMessageCount->setText(QString::number(thread->messages().count()));
     ui->thMessagesPerThread->setValue(thread->getMessagesCount());
     connect(this, SIGNAL(accepted()), this, SLOT(saveChanges()));
 }
@@ -27,7 +27,7 @@ void ThreadProperties::saveChanges() {
         // If count is LESS than before, delete extra messages!
         if(thread->getMessagesCount() < oldMessagesCount) {
             QList<ForumMessage*> messagesToDelete;
-            foreach(ForumMessage *msg, *thread) {
+            foreach(ForumMessage *msg, thread->messages()) {
                 if(msg->ordernum() >= thread->getMessagesCount())
                     messagesToDelete.prepend(msg);
             }

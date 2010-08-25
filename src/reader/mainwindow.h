@@ -46,7 +46,7 @@ signals:
     void cancelClicked();
     void groupSubscriptions(ForumSubscription *sub);
     void unsubscribeGroup(ForumGroup *group);
-    void messageRead(ForumMessage message);
+//    void messageRead(ForumMessage *message);
     void launchParserMaker();
     void offlineModeSet(bool ol);
     void haltRequest();

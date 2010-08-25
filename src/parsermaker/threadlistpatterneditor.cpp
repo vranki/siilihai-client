@@ -95,8 +95,8 @@ void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*>& threads, 
     foreach (ForumThread *thread, threads) {
         QTableWidgetItem *newItem = new QTableWidgetItem(thread->id());
         ui.resultsTable->setItem(row, 0, newItem);
-        listThreads[row] = new ForumThread(*thread);
-
+        listThreads[row] = new ForumThread(currentGroup);
+        listThreads[row]->copyFrom(thread);
         newItem = new QTableWidgetItem(thread->name());
         ui.resultsTable->setItem(row, 1, newItem);
         newItem = new QTableWidgetItem(thread->lastchange());

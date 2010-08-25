@@ -45,7 +45,8 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups) {
     foreach (ForumGroup *group, groups) {
         QTableWidgetItem *newItem = new QTableWidgetItem(group->id());
         ui.resultsTable->setItem(row, 0, newItem);
-        listGroups[row] = new ForumGroup(*group);
+        listGroups[row] = new ForumGroup(subscription);
+        listGroups[row]->copyFrom(group);
         newItem = new QTableWidgetItem(group->name());
         ui.resultsTable->setItem(row, 1, newItem);
         newItem = new QTableWidgetItem(group->lastchange());
