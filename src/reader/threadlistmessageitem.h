@@ -17,6 +17,7 @@ public:
 public slots:
     void updateRead();
     virtual void updateItem();
+    void messageDeleted();
 
 protected:
     QString createMessageSubject();

@@ -32,24 +32,6 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 ThreadListWidget::~ThreadListWidget() {
 }
 
-/*
-void ThreadListWidget::messageDeleted(ForumMessage *msg) {
-    Q_ASSERT(msg);
-    if(msg->thread()->group() != currentGroup) return;
-    //  qDebug() << Q_FUNC_INFO << msg->toString();
-
-    ThreadListMessageItem *messageItem = forumMessages.key(msg);
-    Q_ASSERT(messageItem); // should exist always?
-    if(dynamic_cast<ThreadListThreadItem*>(messageItem)) { // Is Thread item
-        Q_ASSERT(false); // Never delete the thread item.
-    } else {
-        messageItem->parent()->removeChild(messageItem);
-        forumMessages.remove(messageItem);
-    }
-    delete messageItem;
-}
-*/
-
 void ThreadListWidget::groupChanged(ForumGroup *grp) {
     Q_ASSERT(grp == currentGroup); // Should always be
 //    if(grp != currentGroup) return;
@@ -91,7 +73,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
         item = new ThreadListMessageItem(threadItem, message);
     }
 
-    forumMessages[item] = message;
+    // forumMessages[item] = message;
     item->updateItem();
     item->updateRead();
 
@@ -139,15 +121,22 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 
 void ThreadListWidget::clearList() {
     clear();
-    forumMessages.clear();
-    forumThreads.clear();
+    while(!forumMessages.isEmpty()) {
+        ThreadListMessageItem * it = forumMessages.begin().key();
+        it->messageDeleted();
+        forumMessages.remove(it);
+    }
+    while(!forumThreads.isEmpty()) {
+        ThreadListThreadItem * it = forumThreads.begin().key();
+        it->threadDeleted();
+        forumThreads.remove(it);
+    }
 }
 
 void ThreadListWidget::updateList() {
     if(!currentGroup) return;
     clearList();
 
-    QList<QTreeWidgetItem *> items;
     foreach(ForumThread *thread, currentGroup->threads()) {
         addThread(thread);
         foreach(ForumMessage *message, thread->messages()) {
@@ -158,19 +147,6 @@ void ThreadListWidget::updateList() {
     resizeColumnToContents(1);
     resizeColumnToContents(2);
 }
-/*
-void ThreadListWidget::messageUpdated(ForumMessage *msg) {
-    if(msg->thread()->group() != currentGroup) return;
-
-    ThreadListMessageItem *currentMessageItem = forumMessages.key(msg);
-    Q_ASSERT(currentMessageItem);
-    currentMessageItem->updateItem();
-    currentMessageItem->updateRead();
-    if(!dynamic_cast<ThreadListThreadItem*> (currentMessageItem)) {
-        forumThreads.key(msg->thread())->updateUnreads();
-    }
-}
-*/
 
 void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
                                        QTreeWidgetItem *prev) {
@@ -186,10 +162,14 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
     } else if (dynamic_cast<ThreadListMessageItem*> (item)) {
         ThreadListMessageItem* msgItem = dynamic_cast<ThreadListMessageItem*> (item);
         ForumMessage *msg = msgItem->message();
-        Q_ASSERT(msg);
-        Q_ASSERT(msg->isSane());
-        emit messageSelected(msg);
-        msgItem->updateRead();
+        if(!msg) {
+            qDebug() << "Thread item with no message? Broken parser?";
+        } else {
+            Q_ASSERT(msg);
+            Q_ASSERT(msg->isSane());
+            emit messageSelected(msg);
+            msgItem->updateRead();
+        }
     } else {
         qDebug() << "A thread with no messages. Broken parser?.";
         //if(forumThreads.contains(item))

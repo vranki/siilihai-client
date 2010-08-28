@@ -24,6 +24,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *threa
 }
 
 void ThreadListThreadItem::setMessage(ForumMessage *message) {
+    Q_ASSERT(message);
     msg = message;
     updateItem();
 }

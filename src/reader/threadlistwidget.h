@@ -6,6 +6,7 @@
 #include <QPair>
 #include <QMenu>
 #include <QContextMenuEvent>
+#include <QObject>
 
 #include <siilihai/forumgroup.h>
 #include <siilihai/forumthread.h>
@@ -28,11 +29,7 @@ public slots:
 	void groupSelected(ForumGroup *fg);
         void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
         void messageFound(ForumMessage *msg);
-        // void messageUpdated(ForumMessage *msg);
-        // void messageDeleted(ForumMessage *msg);
         void threadFound(ForumThread *thread);
-        //void threadUpdated(ForumThread *thread);
-        //void threadDeleted(ForumThread *thread);
         void groupChanged(ForumGroup *grp);
         void groupDeleted(QObject*);
         void markReadClicked(bool read=true);
@@ -57,8 +54,8 @@ private:
         void addMessage(ForumMessage *msg);
         void updateThreadUnreads(ThreadListThreadItem* threadItem);
         void addShowMoreButton(ForumThread *thread);
-        QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
-        QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
+        //QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
+        //QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
         ForumGroup *currentGroup;
 	ForumDatabase &fdb;
         // Actions:

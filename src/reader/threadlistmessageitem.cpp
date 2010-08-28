@@ -7,6 +7,8 @@ ThreadListMessageItem::ThreadListMessageItem(QTreeWidget *tree) : QObject(tree),
 ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem,
                                              ForumMessage *message) : QTreeWidgetItem(threadItem)
 {
+    Q_ASSERT(message);
+    Q_ASSERT(message->isSane());
     msg = message;
     QString orderString;
     if(message->ordernum() >=0) {
@@ -16,7 +18,7 @@ ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem,
     setText(3, orderString);
     connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
     connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
-    connect(msg, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+    connect(msg, SIGNAL(destroyed()), this, SLOT(messageDeleted()));
 }
 
 ForumMessage* ThreadListMessageItem::message() {
@@ -83,4 +85,11 @@ QString ThreadListMessageItem::createMessageSubject() {
     }
     subj = MessageFormatting::sanitize(subj);
     return subj;
+}
+
+void ThreadListMessageItem::messageDeleted() {
+    disconnect(msg);
+    QTreeWidgetItem *p = QTreeWidgetItem::parent();
+    p->removeChild(this);
+    deleteLater();
 }
