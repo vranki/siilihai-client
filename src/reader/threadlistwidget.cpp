@@ -33,8 +33,7 @@ ThreadListWidget::~ThreadListWidget() {
 }
 
 void ThreadListWidget::groupChanged(ForumGroup *grp) {
-    Q_ASSERT(grp == currentGroup); // Should always be
-//    if(grp != currentGroup) return;
+    if(grp != currentGroup) return;
 
     if(!grp->subscribed()) {
         groupDeleted(grp);
@@ -73,7 +72,7 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
         item = new ThreadListMessageItem(threadItem, message);
     }
 
-    // forumMessages[item] = message;
+    forumMessages[item] = message;
     item->updateItem();
     item->updateRead();
 
@@ -120,7 +119,10 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 }
 
 void ThreadListWidget::clearList() {
+    forumMessages.clear();
+    forumThreads.clear();
     clear();
+    /*
     while(!forumMessages.isEmpty()) {
         ThreadListMessageItem * it = forumMessages.begin().key();
         it->messageDeleted();
@@ -130,7 +132,7 @@ void ThreadListWidget::clearList() {
         ThreadListThreadItem * it = forumThreads.begin().key();
         it->threadDeleted();
         forumThreads.remove(it);
-    }
+    }*/
 }
 
 void ThreadListWidget::updateList() {

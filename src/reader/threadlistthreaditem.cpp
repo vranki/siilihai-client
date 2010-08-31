@@ -69,6 +69,7 @@ void ThreadListThreadItem::updateUnreads() {
     }
     setText(0, threadSubject);
 }
+
 void ThreadListThreadItem::threadDeleted() {
     ThreadListThreadItem *threadItem = this;
     Q_ASSERT(!((QTreeWidgetItem*)threadItem)->parent()); // Item should always be root item

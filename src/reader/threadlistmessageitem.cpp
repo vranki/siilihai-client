@@ -88,8 +88,14 @@ QString ThreadListMessageItem::createMessageSubject() {
 }
 
 void ThreadListMessageItem::messageDeleted() {
-    disconnect(msg);
+    disconnect(this);
+    msg = 0;
     QTreeWidgetItem *p = QTreeWidgetItem::parent();
     p->removeChild(this);
     deleteLater();
+}
+
+ThreadListMessageItem::~ThreadListMessageItem() {
+    disconnect(this);
+    msg = 0;
 }

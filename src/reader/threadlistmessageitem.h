@@ -12,6 +12,7 @@ class ThreadListMessageItem :  public QObject, public QTreeWidgetItem
 public:
     ThreadListMessageItem(QTreeWidget *tree);
     ThreadListMessageItem(ThreadListMessageItem *threadItem, ForumMessage *message);
+    ~ThreadListMessageItem();
     virtual ForumMessage *message();
 
 public slots:

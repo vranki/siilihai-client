@@ -54,8 +54,9 @@ private:
         void addMessage(ForumMessage *msg);
         void updateThreadUnreads(ThreadListThreadItem* threadItem);
         void addShowMoreButton(ForumThread *thread);
-        //QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
-        //QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
+        // Helpers to quickly find correct items
+        QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
+        QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
         ForumGroup *currentGroup;
 	ForumDatabase &fdb;
         // Actions:

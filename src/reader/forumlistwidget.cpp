@@ -5,7 +5,7 @@ ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f,
 QToolBox(parent), fdb(f), pdb(p) {
     connect(this, SIGNAL(currentChanged(int)), this,
             SLOT(forumItemSelected(int)));
-    connect(&f, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
+    connect(&fdb, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
 
     markReadAction = new QAction("Mark all messages read", this);
     markReadAction->setToolTip("Mark all messages in selected group as read");
@@ -117,6 +117,7 @@ void ForumListWidget::addParserEngine(ParserEngine *pe) {
 }
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
+    qDebug() << Q_FUNC_INFO << grp->toString();
     Q_ASSERT(grp);
     connect(grp, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
     connect(grp, SIGNAL(unreadCountChanged(ForumGroup*)), this, SLOT(updateGroupLabel(ForumGroup*)));
@@ -124,6 +125,7 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
 
     if(!grp->subscribed()) return;
     QListWidget *lw = parserEngines[engineOf(grp->subscription())];
+    Q_ASSERT(lw);
     QListWidgetItem *lwi = new QListWidgetItem(lw);
     lwi->setIcon(QIcon(":/data/folder.png"));
     lw->addItem(lwi);
