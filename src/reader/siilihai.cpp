@@ -469,8 +469,8 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 
 void Siilihai::subscribeGroupDialogFinished() {
     if (currentState == state_ready) {
-        protocol.subscribeGroups(groupSubscriptionDialog->subscription()->groups());
-        updateClicked();
+        protocol.updateGroupSubscriptions(groupSubscriptionDialog->subscription());
+        engines.value(groupSubscriptionDialog->subscription())->updateForum();
     }
     groupSubscriptionDialog->deleteLater();
     groupSubscriptionDialog = 0;
@@ -638,8 +638,7 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
 
 void Siilihai::unsubscribeGroup(ForumGroup *group) {
     group->setSubscribed(false);
-    // QList<ForumGroup*> newGroups = fdb.listGroups(group->subscription());
-    protocol.subscribeGroups(group->subscription()->groups());
+    protocol.updateGroupSubscriptions(group->subscription());
 }
 
 void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {

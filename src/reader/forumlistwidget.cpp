@@ -168,6 +168,7 @@ void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
 }
 
 void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
+    qDebug() << Q_FUNC_INFO;
     Q_ASSERT(grp);
     if(!grp->subscribed()) return;
     if(!engineOf(grp->subscription())) return; // May happen while quittinq
