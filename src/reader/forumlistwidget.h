@@ -39,7 +39,6 @@ public slots:
         void groupChanged(ForumGroup *grp);
         void groupDeleted(QObject*);
         void subscriptionDeleted(QObject*);
-       // void messageUpdated(ForumMessage *grp);
         void unsubscribeGroupClicked();
         void markAllReadClicked(bool un=false);
         void markAllUnreadClicked();

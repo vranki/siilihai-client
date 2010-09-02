@@ -60,7 +60,7 @@ void ThreadListMessageItem::updateRead() {
     }
     */
     QFont myFont = font(0);
-    if (msg->read()) {
+    if (msg->isRead()) {
         myFont.setBold(false);
         setIcon(0, QIcon(":/data/emblem-mail.png"));
     } else {
@@ -77,8 +77,8 @@ void ThreadListMessageItem::updateRead() {
 
 QString ThreadListMessageItem::createMessageSubject() {
     QString subj;
-    if(msg->subject().length() > msg->thread()->name().length()) {
-        subj = msg->subject();
+    if(msg->name().length() > msg->thread()->name().length()) {
+        subj = msg->name();
     } else {
         subj = msg->thread()->name();
         if(msg->ordernum() > 0) subj = "Re: " + subj;

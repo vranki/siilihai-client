@@ -102,7 +102,7 @@ void MessageListPatternEditor::listMessagesFinished(
         //listMessages[tableRow] = fm;
         bodies[tableRow] = fm->body();
 
-        newItem = new QTableWidgetItem(fm->subject());
+        newItem = new QTableWidgetItem(fm->name());
         ui.resultsTable->setItem(tableRow, 1, newItem);
         newItem = new QTableWidgetItem(fm->author());
         ui.resultsTable->setItem(tableRow, 2, newItem);

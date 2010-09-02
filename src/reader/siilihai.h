@@ -86,7 +86,7 @@ public slots:
     void offlineModeSet(bool newOffline);
     void syncFinished(bool success, QString message);
     void subscriptionFound(ForumSubscription* sub);
-    void subscriptionDeleted(ForumSubscription* sub);
+    void subscriptionDeleted(QObject* subobj);
     void subscribeForumFinished(ForumSubscription *sub, bool success);
     void userSettingsReceived(bool success, UserSettings *newSettings);
     void settingsChanged(bool byUser);

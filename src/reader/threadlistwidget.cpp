@@ -115,6 +115,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         clearSelection();
         updateList();
+        setCurrentItem(topLevelItem(0));
     }
 }
 
@@ -138,10 +139,14 @@ void ThreadListWidget::clearList() {
 void ThreadListWidget::updateList() {
     if(!currentGroup) return;
     clearList();
-
-    foreach(ForumThread *thread, currentGroup->threads()) {
+    // Add the threads and messages in order
+    QList<ForumThread*> threads = currentGroup->threads().values();
+    qSort(threads);
+    foreach(ForumThread *thread, threads) {
         addThread(thread);
-        foreach(ForumMessage *message, thread->messages()) {
+        QList<ForumMessage*> messages = thread->messages().values();
+        qSort(messages);
+        foreach(ForumMessage *message, messages) {
             addMessage(message);
         }
     }
@@ -259,7 +264,7 @@ void ThreadListWidget::selectNextUnread() {
             item = newItem;
             mi = dynamic_cast<ThreadListMessageItem*> (newItem);
             isShowMore = dynamic_cast<ThreadListShowMoreItem*> (newItem);
-        } while(isShowMore || (mi && mi->message()->read()));
+        } while(isShowMore || (mi && mi->message()->isRead()));
         if(mi) setCurrentItem(mi);
     }
 }

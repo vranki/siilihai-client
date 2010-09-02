@@ -67,6 +67,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
     connect(tlw, SIGNAL(viewInBrowser()), this, SLOT(viewInBrowserClickedSlot()));
     connect(tlw, SIGNAL(threadProperties(ForumThread *)), this, SLOT(threadPropertiesSlot(ForumThread *)));
+    connect(ui.nextUnreadButton, SIGNAL(clicked()), tlw, SLOT(selectNextUnread()));
     ui.topFrame->layout()->addWidget(tlw);
 
 

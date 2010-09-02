@@ -129,7 +129,7 @@
                    <normaloff>:/data/view-refresh.png</normaloff>:/data/view-refresh.png</iconset>
                  </property>
                  <property name="toolButtonStyle">
-                  <enum>Qt::ToolButtonTextUnderIcon</enum>
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
                  </property>
                 </widget>
                </item>
@@ -149,7 +149,7 @@
                    <normaloff>:/data/process-stop.png</normaloff>:/data/process-stop.png</iconset>
                  </property>
                  <property name="toolButtonStyle">
-                  <enum>Qt::ToolButtonTextUnderIcon</enum>
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
                  </property>
                 </widget>
                </item>
@@ -169,7 +169,21 @@
                    <normaloff>:/data/emblem-web.png</normaloff>:/data/emblem-web.png</iconset>
                  </property>
                  <property name="toolButtonStyle">
-                  <enum>Qt::ToolButtonTextUnderIcon</enum>
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="nextUnreadButton">
+                 <property name="text">
+                  <string>Next Unread</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../siilihairesources.qrc">
+                   <normaloff>:/data/go-last.png</normaloff>:/data/go-last.png</iconset>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
                  </property>
                 </widget>
                </item>
@@ -205,7 +219,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuForum">

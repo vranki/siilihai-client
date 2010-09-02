@@ -117,7 +117,7 @@ void ForumListWidget::addParserEngine(ParserEngine *pe) {
 }
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
-    qDebug() << Q_FUNC_INFO << grp->toString();
+    // qDebug() << Q_FUNC_INFO << grp->toString();
     Q_ASSERT(grp);
     connect(grp, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
     connect(grp, SIGNAL(unreadCountChanged(ForumGroup*)), this, SLOT(updateGroupLabel(ForumGroup*)));
@@ -168,7 +168,7 @@ void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
 }
 
 void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     Q_ASSERT(grp);
     if(!grp->subscribed()) return;
     if(!engineOf(grp->subscription())) return; // May happen while quittinq

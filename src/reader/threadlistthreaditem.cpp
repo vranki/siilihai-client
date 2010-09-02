@@ -47,8 +47,10 @@ void ThreadListThreadItem::updateItem() {
 
 void ThreadListThreadItem::updateUnreads() {
     if(!msg) return;
-    int unreads = 0;
-    if(!msg->read())
+    if(!thr) return;
+    int unreads = thr->unreadCount();
+/*
+    if(!msg->isRead())
         unreads++; // Also count first message
 
     for(int i=0;i<childCount();i++) {
@@ -58,7 +60,7 @@ void ThreadListThreadItem::updateUnreads() {
                 unreads++;
         }
     }
-
+*/
     QString threadSubject = messageSubject;
     QString moreString = QString::null;
     if(thread()->hasMoreMessages()) moreString = "+";

@@ -69,7 +69,6 @@ void Siilihai::launchSiilihai() {
         fdb.resetDatabase();
     }
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
-    connect(&fdb, SIGNAL(subscriptionDeleted(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
     connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
             SLOT(updateForumParser(ForumParser)));
     connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this,
@@ -415,6 +414,8 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
 }
 
 void Siilihai::subscriptionFound(ForumSubscription *sub) {
+    connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
+
     ParserEngine *pe = new ParserEngine(&fdb, this);
     ForumParser parser = pdb.getParser(sub->parser());
     pe->setParser(parser);
@@ -439,8 +440,9 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     }
 }
 
-void Siilihai::subscriptionDeleted(ForumSubscription *sub) {
-    Q_ASSERT(engines.contains(sub));
+void Siilihai::subscriptionDeleted(QObject* subobj) {
+    ForumSubscription *sub = qobject_cast<ForumSubscription*> (subobj);
+    if(!engines.contains(sub)) return; // Possible when quitting
     engines[sub]->cancelOperation();
     engines[sub]->deleteLater();
     engines.remove(sub);
@@ -509,6 +511,8 @@ void Siilihai::reportClicked(ForumSubscription* forum) {
 }
 
 void Siilihai::statusChanged(ForumSubscription* forum, bool reloading, float progress) {
+    if(!reloading)
+        fdb.recalcUnreads(forum);
 }
 
 void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
