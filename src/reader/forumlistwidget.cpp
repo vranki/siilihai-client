@@ -136,6 +136,7 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
 
 void ForumListWidget::groupChanged(ForumGroup *grp) {
     Q_ASSERT(grp);
+    qDebug() << Q_FUNC_INFO << grp->toString();
     if(!engineOf(grp->subscription())) return; // May happen while quitting
     QListWidget *lw = parserEngines.value(engineOf(grp->subscription()));
     Q_ASSERT(lw);

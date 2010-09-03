@@ -35,6 +35,7 @@ class ParserMaker;
 
 #define DATABASE_FILE "/.siilihai.db"
 #define BASEURL "http://www.siilihai.com/"
+#define MAX_CONCURRENT_UPDATES 2
 
 // State chart:
 //                 ,------>--------.
@@ -114,6 +115,7 @@ private:
     ParserDatabase pdb;
     QString baseUrl;
     QList<ForumSubscription*> parsersToUpdateLeft;
+    QList<ForumSubscription*> subscriptionsToUpdateLeft;
     ParserMaker *parserMaker;
     QProgressDialog *progressBar;
     GroupSubscriptionDialog *groupSubscriptionDialog;

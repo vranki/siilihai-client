@@ -4,6 +4,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 	QTreeWidget(parent), fdb(f) {
     setColumnCount(3);
     currentGroup = 0;
+    disableSortAndResize = false;
     QStringList headers;
     headers << "Subject" << "Date" << "Author" << "Ordernum";
     setHeaderLabels(headers);
@@ -80,11 +81,12 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
     if(!dynamic_cast<ThreadListThreadItem*> (item)) {
         forumThreads.key(message->thread())->updateUnreads();
     }
-
-    sortItems(3, Qt::AscendingOrder);
-    resizeColumnToContents(0);
-    resizeColumnToContents(1);
-    resizeColumnToContents(2);
+    if(!disableSortAndResize) {
+        sortItems(3, Qt::AscendingOrder);
+        resizeColumnToContents(0);
+        resizeColumnToContents(1);
+        resizeColumnToContents(2);
+    }
 }
 
 void ThreadListWidget::addThread(ForumThread *thread) {
@@ -96,10 +98,12 @@ void ThreadListWidget::addThread(ForumThread *thread) {
 
     forumThreads[threadItem] = thread;
     addTopLevelItem(threadItem);
-    sortItems(3, Qt::AscendingOrder);
-    resizeColumnToContents(0);
-    resizeColumnToContents(1);
-    resizeColumnToContents(2);
+    if(!disableSortAndResize) {
+        sortItems(3, Qt::AscendingOrder);
+        resizeColumnToContents(0);
+        resizeColumnToContents(1);
+        resizeColumnToContents(2);
+    }
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
@@ -123,17 +127,6 @@ void ThreadListWidget::clearList() {
     forumMessages.clear();
     forumThreads.clear();
     clear();
-    /*
-    while(!forumMessages.isEmpty()) {
-        ThreadListMessageItem * it = forumMessages.begin().key();
-        it->messageDeleted();
-        forumMessages.remove(it);
-    }
-    while(!forumThreads.isEmpty()) {
-        ThreadListThreadItem * it = forumThreads.begin().key();
-        it->threadDeleted();
-        forumThreads.remove(it);
-    }*/
 }
 
 void ThreadListWidget::updateList() {
@@ -142,6 +135,7 @@ void ThreadListWidget::updateList() {
     // Add the threads and messages in order
     QList<ForumThread*> threads = currentGroup->threads().values();
     qSort(threads);
+    disableSortAndResize = true;
     foreach(ForumThread *thread, threads) {
         addThread(thread);
         QList<ForumMessage*> messages = thread->messages().values();
@@ -150,6 +144,8 @@ void ThreadListWidget::updateList() {
             addMessage(message);
         }
     }
+    disableSortAndResize = false;
+    sortItems(3, Qt::AscendingOrder);
     resizeColumnToContents(0);
     resizeColumnToContents(1);
     resizeColumnToContents(2);

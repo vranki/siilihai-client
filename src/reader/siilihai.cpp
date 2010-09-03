@@ -136,7 +136,11 @@ void Siilihai::changeState(siilihai_states newState) {
             syncmaster.startSync();
         Q_ASSERT(progressBar);
         progressBar->setValue(10);
-        progressBar->setLabelText("Downloading message read status");
+        if(firstRun) {
+            progressBar->setLabelText("Downloading message read status.\nOn first run this may take a few minutes.");
+        } else {
+            progressBar->setLabelText("Downloading message read status");
+        }
     } else if(newState==state_endsync) {
         qDebug() << Q_FUNC_INFO << "Endsync";
         mainWin->setReaderReady(false, false);
@@ -401,8 +405,9 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
         subscribeWizard->deleteLater();
         subscribeWizard = 0;
     }
-    fdb.addSubscription(fs);
-    if (!pdb.storeParser(fp)) {
+    ForumSubscription *newFs = new ForumSubscription(&fdb, false);
+    newFs->copyFrom(fs);
+    if(!fdb.addSubscription(fs) || !pdb.storeParser(fp)) {
         QMessageBox msgBox(mainWin);
         msgBox.setText(
                 "Error: Unable to subscribe to forum. Are you already subscribed?");
@@ -479,12 +484,24 @@ void Siilihai::subscribeGroupDialogFinished() {
 }
 
 void Siilihai::forumUpdated(ForumSubscription* forum) {
-    qDebug() << Q_FUNC_INFO << "Forum " << forum->toString() << " has been updated";
+    qDebug() << Q_FUNC_INFO << "Forum " << forum->toString() << " has been updated. Left: " << subscriptionsToUpdateLeft.size();
+    subscriptionsToUpdateLeft.removeOne(forum);
+    if(!subscriptionsToUpdateLeft.isEmpty()) {
+        engines.value(subscriptionsToUpdateLeft.first())->updateForum();
+        subscriptionsToUpdateLeft.removeOne(subscriptionsToUpdateLeft.first());
+    }
 }
 
 void Siilihai::updateClicked() {
-    foreach(ParserEngine* engine, engines.values())
-        engine->updateForum();
+    int parsersUpdating = 0;
+    foreach(ParserEngine* engine, engines.values()) {
+        if(parsersUpdating <= MAX_CONCURRENT_UPDATES) {
+            engine->updateForum();
+            parsersUpdating++;
+        } else {
+            subscriptionsToUpdateLeft.append(engine->subscription());
+        }
+    }
 }
 
 void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
@@ -637,11 +654,13 @@ void Siilihai::moreMessagesRequested(ForumThread* thread){
     thread->setGetMessagesCount(thread->getMessagesCount() +
                                 settings.value("preferences/show_more_count", 30).toInt());
     // qDebug() << Q_FUNC_INFO << " getMessagesCount() now " << thread->getMessagesCount();
+    thread->commitChanges();
     engine->updateThread(thread);
 }
 
 void Siilihai::unsubscribeGroup(ForumGroup *group) {
     group->setSubscribed(false);
+    group->commitChanges();
     protocol.updateGroupSubscriptions(group->subscription());
 }
 

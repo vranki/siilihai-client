@@ -37,6 +37,7 @@ void GroupSubscriptionDialog::apply() {
             group->setSubscribed(itemChecked);
             group->setChangeset(0);
             group->setHasChanged(true);
+            group->commitChanges();
         }
     }
     close();

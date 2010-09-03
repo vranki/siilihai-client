@@ -45,8 +45,9 @@ void ForumProperties::saveChanges() {
     fs->setAlias(ui->forumName->text());
     if(fs->latestThreads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
-        foreach(ForumGroup *grp, fs->groups()) {
-            grp->setLastchange("UPDATE_NEEDED");
+        foreach(ForumGroup *group, fs->groups()) {
+            group->setLastchange("UPDATE_NEEDED");
+            group->commitChanges();
         }
         update = true;
     }
@@ -57,7 +58,9 @@ void ForumProperties::saveChanges() {
                 if(thread->getMessagesCount() != ui->messages_per_thread->value()) {
                     thread->setGetMessagesCount(ui->messages_per_thread->value());
                     thread->setLastchange("UPDATE_NEEDED");
+                    thread->commitChanges();
                     grp->setLastchange("UPDATE_NEEDED");
+                    grp->commitChanges();
                     update = true;
                 }
             }

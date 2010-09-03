@@ -26,6 +26,7 @@ ForumMessage* ThreadListMessageItem::message() {
 }
 
 void ThreadListMessageItem::updateItem() {
+    if(!msg) return; // Possible when this is a ThreadItem and message has not yet been set!
     QString orderString;
     // Orderstring is thread's order if first message, or messages if not:
     if(msg->ordernum() == 0) {

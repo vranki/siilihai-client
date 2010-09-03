@@ -39,6 +39,8 @@ void ThreadProperties::saveChanges() {
             thread->setLastchange("UPDATE_NEEDED");
             thread->group()->setLastchange("UPDATE_NEEDED");
         }
+        thread->commitChanges();
+        thread->group()->commitChanges();
         emit updateNeeded(thread->group()->subscription());
     }
 }

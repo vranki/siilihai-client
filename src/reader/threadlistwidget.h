@@ -64,6 +64,7 @@ private:
         QAction *markUnreadAction;
         QAction *threadPropertiesAction;
         QAction *viewInBrowserAction;
+        bool disableSortAndResize; // Don't sort or resize while doing long add
 };
 
 #endif /* THREADLISTWIDGET_H_ */

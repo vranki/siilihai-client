@@ -26,6 +26,11 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *threa
 void ThreadListThreadItem::setMessage(ForumMessage *message) {
     Q_ASSERT(message);
     msg = message;
+    connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
+    connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
+    // Not safe, as it would delete this
+    // connect(msg, SIGNAL(destroyed()), this, SLOT(messageDeleted()));
+
     updateItem();
 }
 
