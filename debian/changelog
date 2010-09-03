@@ -1,8 +1,10 @@
 siilihai-client (0.9.14-1) lucid; urgency=low
 
-  * Architecture changes(NR)
+  * Major architectural change
+  * Performance optimizations
+  * Next unread-button
 
- -- Ville Ranki <ville.ranki@iki.fi>  Sun, 08 Aug 2010 20:29:43 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Fri, 03 Sep 2010 20:29:43 +0300
 
 siilihai-client (0.9.13-1) lucid; urgency=low
 

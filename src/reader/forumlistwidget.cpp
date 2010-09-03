@@ -191,7 +191,7 @@ void ForumListWidget::groupDeleted(QObject* g) {
     }
     QListWidgetItem *item = groupItem(grp);
     Q_ASSERT(item);
-    QListWidget *lw = parserEngines[engineOf(grp->subscription())];
+    QListWidget *lw = parserEngines[engineOf(grp->subscription())]; // @todo crashes!
     Q_ASSERT(lw);
     lw->removeItemWidget(item);
     forumGroups.remove(item);

@@ -22,6 +22,7 @@ public slots:
 private:
     ForumThread *thr;
     ThreadListShowMoreItem* showMoreItem;
+    QTreeWidget *treeWidget;
 };
 
 #endif // THREADLISTTHREADITEM_H

@@ -234,6 +234,6 @@ void SubscribeWizard::comboItemChanged(int id) {
 void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {
     ForumParser *fp = listWidgetItemForum.value(newItem);
     if(!fp) return;
-    subscribeForm.pagePreview->show();
-    subscribeForm.pagePreview->load(QUrl(fp->forum_url));
+    //subscribeForm.pagePreview->show(); sucks!
+    //subscribeForm.pagePreview->load(QUrl(fp->forum_url));
 }

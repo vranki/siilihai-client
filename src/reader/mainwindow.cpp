@@ -305,6 +305,7 @@ void MainWindow::forumSelected(ForumSubscription *sub) {
 }
 
 void MainWindow::groupSelected(ForumGroup *fg) {
+    if(!fg) return;
     qDebug() << Q_FUNC_INFO << fg->toString() << " unreads " << fg->unreadCount();
 #ifdef Q_WS_HILDON
     hideClickedSlot();

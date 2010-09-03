@@ -5,7 +5,9 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *threa
     Q_ASSERT(thread);
     thr = thread;
     showMoreItem = 0;
+    treeWidget = tree;
     Q_ASSERT(thread->isSane());
+    Q_ASSERT(treeWidget);
     QString threadSubject = thread->name();//messageSubject(thread->name());
     QString lc = thread->lastchange();
     QString author = "";
@@ -94,6 +96,6 @@ void ThreadListThreadItem::threadDeleted() {
             Q_ASSERT(false); // Unknown type in thread!
         }
     }
-    QTreeWidgetItem::parent()->removeChild(this);
+    treeWidget->takeTopLevelItem(treeWidget->indexOfTopLevelItem(this));
     deleteLater();
 }

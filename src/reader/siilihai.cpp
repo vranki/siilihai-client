@@ -407,14 +407,15 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
     }
     ForumSubscription *newFs = new ForumSubscription(&fdb, false);
     newFs->copyFrom(fs);
-    if(!fdb.addSubscription(fs) || !pdb.storeParser(fp)) {
+    fs = 0;
+    if(!fdb.addSubscription(newFs) || !pdb.storeParser(fp)) {
         QMessageBox msgBox(mainWin);
         msgBox.setText(
                 "Error: Unable to subscribe to forum. Are you already subscribed?");
         msgBox.exec();
     } else {
-        protocol.subscribeForum(fs);
-        engines[fs]->updateGroupList();
+        protocol.subscribeForum(newFs);
+        engines[newFs]->updateGroupList();
     }
 }
 
@@ -446,9 +447,10 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
 }
 
 void Siilihai::subscriptionDeleted(QObject* subobj) {
-    ForumSubscription *sub = qobject_cast<ForumSubscription*> (subobj);
+    qDebug() << Q_FUNC_INFO;
+    ForumSubscription *sub = static_cast<ForumSubscription*> (subobj);
     if(!engines.contains(sub)) return; // Possible when quitting
-    engines[sub]->cancelOperation();
+    engines[sub]->cancelOperation(); // Crashes here!!
     engines[sub]->deleteLater();
     engines.remove(sub);
 }
