@@ -213,9 +213,15 @@ void MainWindow::setReaderReady(bool ready, bool readerOffline) {
 }
 
 void MainWindow::about() {
+    QString aboutText = "<h1>Siilihai</h1><p> by Ville Ranki &lt;ville.ranki@iki.fi&gt;</p> "
+                        "<p>Artwork by Gnome project and SJ</p><p>Released under GNU GPLv3</p>"
+                        "<p>Version: <b>Development</b> (Date)</p>";
+#ifdef SIILIHAI_CLIENT_VERSION
+    aboutText.replace("Development", SIILIHAI_CLIENT_VERSION);
+    aboutText.replace("Date", __DATE__);
+#endif
     QMessageBox::about(this, "About Siilihai",
-                       "<h1>Siilihai</h1><p> by Ville Ranki &lt;ville.ranki@iki.fi&gt;</p> "
-                       "<p>Artwork by Gnome project and SJ</p><p>Released under GNU GPLv3</p>");
+                       aboutText);
 }
 
 void MainWindow::settingsDialog() {

@@ -6,6 +6,7 @@ build: build-stamp
 build-stamp:
 	dh_testdir
 	# Add here commands to compile the package.
+	cat debian/changelog | grep siilihai-client | head -n 1 | sed s/\).*/\"/ | sed s/siilihai-client\ \(/#define\ SIILIHAI_CLIENT_VERSION\ \"/ > siilihai-version.h
 	qmake PREFIX=/usr -recursive
 	$(MAKE)
 	touch $@

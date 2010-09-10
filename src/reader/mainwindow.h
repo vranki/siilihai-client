@@ -17,6 +17,10 @@
 #include <siilihai/forumthread.h>
 #include <siilihai/forummessage.h>
 
+#ifdef INCLUDE_SIILIHAI_VERSION
+#include "../../siilihai-version.h"
+#endif
+
 #include "forumlistwidget.h"
 #include "settingsdialog.h"
 #include "threadlistwidget.h"

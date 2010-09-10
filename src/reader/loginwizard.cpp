@@ -144,6 +144,7 @@ void LoginWizard::registerFinished(bool success, QString motd, bool sync) {
         settings.setValue("account/username", registerUser.text().trimmed());
         settings.setValue("account/password", registerPass.text().trimmed());
         settings.setValue("preferences/sync_enabled", sync);
+        settings.setValue("account/registered_here", true);
         settings.sync();
     }
 }

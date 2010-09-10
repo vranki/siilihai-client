@@ -14,6 +14,10 @@ DATADIR = $$PREFIX/share
    LIBDIR = $$PREFIX/lib64
 }
 
+exists(../../siilihai-version.h) {
+     DEFINES += INCLUDE_SIILIHAI_VERSION
+}
+
 CONFIG += debug
 
 QT += core \
