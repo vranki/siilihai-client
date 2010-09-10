@@ -427,7 +427,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
-    mainWin->forumList()->addParserEngine(pe);
+    mainWin->forumList()->addSubscription(sub);
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
             SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));

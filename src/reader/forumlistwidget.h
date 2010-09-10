@@ -30,11 +30,11 @@ public:
         void updateReadCounts(ForumGroup *grp);
 	ForumSubscription *getSelectedForum();
 	ForumGroup *getSelectedGroup();
-        void addParserEngine(ParserEngine *pe);
+        void addSubscription(ForumSubscription *sub); // subscription's parser MUST be set!
 public slots:
 	void groupSelected(QListWidgetItem* item, QListWidgetItem *prev);
 	void forumItemSelected(int i);
-        void iconUpdated(ParserEngine* en, QIcon newIcon);
+        void iconUpdated(ForumSubscription* en, QIcon newIcon);
 	void groupFound(ForumGroup *grp);
         void groupChanged(ForumGroup *grp);
         void groupDeleted(QObject*);
@@ -55,15 +55,12 @@ signals:
 protected:
         void contextMenuEvent(QContextMenuEvent * event);
 private:
-        QListWidgetItem *groupItem(ForumGroup *grp);
-        ParserEngine* engineOf(ForumSubscription *sub);
-
 	ForumDatabase &fdb;
 	ParserDatabase &pdb;
 	ForumGroup *currentGroup;
-        QHash<ParserEngine*, Favicon*> forumIcons;
-	QHash<QListWidgetItem*, ForumGroup*> forumGroups;
-        QHash<ParserEngine*, QListWidget*> parserEngines;
+        QMap<ForumSubscription*, Favicon*> forumIcons;
+        QMap<QListWidgetItem*, ForumGroup*> forumGroups;
+        QMap<ForumSubscription*, QListWidget*> listWidgets;
         // Actions:
         QAction *unsubscribeAction;
         QAction *markReadAction;

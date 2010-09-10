@@ -19,7 +19,7 @@ class Favicon : public QObject {
     Q_OBJECT
 
 public:
-    Favicon(QObject *parent, ParserEngine *pe);
+    Favicon(QObject *parent, ForumSubscription *fs);
     void fetchIcon(const QUrl &url, const QPixmap &alt);
     //void setReloading(bool rel, float progress = 0);
     virtual ~Favicon();
@@ -28,9 +28,9 @@ public slots:
     void update();
     void engineStatusChanged(ForumSubscription* fs,bool reloading,float progress);
 signals:
-    void iconChanged(ParserEngine *e, QIcon newIcon);
+    void iconChanged(ForumSubscription *e, QIcon newIcon);
 private:
-    ParserEngine *engine;
+    ForumSubscription *subscription;
     bool reloading;
     QNetworkAccessManager nam;
     QIcon currentpic;

@@ -1,13 +1,12 @@
 #include "favicon.h"
 
-Favicon::Favicon(QObject *parent, ParserEngine *pe) :
+Favicon::Favicon(QObject *parent, ForumSubscription *sub) :
 	QObject(parent) {
-    engine = pe;
+    subscription = sub;
     currentProgress = 0;
     reloading = false;
-    connect(engine, SIGNAL(statusChanged(ForumSubscription*,bool,float)),
+    connect(subscription->parserEngine(), SIGNAL(statusChanged(ForumSubscription*,bool,float)),
             this, SLOT(engineStatusChanged(ForumSubscription*,bool,float)));
-    Q_ASSERT(engine);
 }
 
 Favicon::~Favicon() {
@@ -21,7 +20,7 @@ void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
     connect(&nam, SIGNAL(finished(QNetworkReply*)), this,
             SLOT(replyReceived(QNetworkReply*)));
     nam.get(req);
-    emit iconChanged(engine, currentpic);
+    emit iconChanged(subscription, currentpic);
     update();
 }
 
@@ -33,7 +32,7 @@ void Favicon::replyReceived(QNetworkReply *reply) {
         QPixmap iconPixmap;
         iconPixmap.loadFromData(bytes);
         currentpic = QIcon(iconPixmap);
-        emit iconChanged(engine, currentpic);
+        emit iconChanged(subscription, currentpic);
     }
     reply->deleteLater();
 }
@@ -83,9 +82,9 @@ void Favicon::update() {
 
 void Favicon::engineStatusChanged(ForumSubscription* fs,bool reloading,float progress) {
     if(reloading) {
-        emit iconChanged(engine, QIcon(":data/view-refresh.png"));
+        emit iconChanged(subscription, QIcon(":data/view-refresh.png"));
     } else {
-        emit iconChanged(engine, currentpic);
+        emit iconChanged(subscription, currentpic);
     }
 }
 /*
