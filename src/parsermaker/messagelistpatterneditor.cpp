@@ -83,9 +83,7 @@ void MessageListPatternEditor::resultCellActivated(int row, int column) {
 void MessageListPatternEditor::listMessagesFinished(
         QList<ForumMessage*> &messages, ForumThread *thread, bool more) {
     Q_UNUSED(thread);
-
-    //qDeleteAll(listMessages);
-    //listMessages.clear();
+    Q_UNUSED(more);
     bodies.clear();
     ui.resultsTable->clear();
     ui.resultsTable->setRowCount(messages.size());

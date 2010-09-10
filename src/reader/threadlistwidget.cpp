@@ -108,8 +108,10 @@ void ThreadListWidget::addThread(ForumThread *thread) {
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
     if(!fg) {
-        disconnect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
-        currentGroup = 0;
+        if(currentGroup) {
+            disconnect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+            currentGroup = 0;
+        }
         clearList();
         emit messageSelected(0);
     }

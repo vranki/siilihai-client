@@ -415,7 +415,9 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
         msgBox.exec();
     } else {
         protocol.subscribeForum(newFs);
-        engines[newFs]->updateGroupList();
+        ParserEngine *newEngine = engines.value(newFs);
+        newEngine->setParser(fp);
+        newEngine->updateGroupList();
     }
 }
 

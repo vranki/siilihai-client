@@ -148,3 +148,4 @@ void PatternEditor::listMessagesFinished(QList<ForumMessage*> messages,
 void PatternEditor::listThreadsFinished(QList<ForumThread*> threads,
                                         ForumGroup *group) {
 }
+

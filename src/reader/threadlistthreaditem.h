@@ -19,6 +19,7 @@ public slots:
     void updateUnreads();
     virtual void updateItem();
     void threadDeleted();
+    void threadMessageDeleted(); // Called when the message is deleted
 private:
     ForumThread *thr;
     ThreadListShowMoreItem* showMoreItem;

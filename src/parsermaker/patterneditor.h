@@ -27,9 +27,9 @@ public slots:
 	virtual void downloadList() = 0;
 	virtual void testPageSpanning() = 0;
 	virtual void patternChanged() = 0;
-	virtual void listGroupsFinished(QList<ForumGroup*> groups);
-	virtual void listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group);
-	virtual void listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread);
+        virtual void listGroupsFinished(QList<ForumGroup*> groups);
+        virtual void listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group);
+        virtual void listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread);
 	virtual void resultCellActivated(int row, int column)=0;
 
 	void viewInBrowser();

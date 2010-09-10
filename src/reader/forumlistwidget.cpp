@@ -163,6 +163,10 @@ void ForumListWidget::groupDeleted(QObject* g) {
         emit groupSelected(0);
     }
     QListWidgetItem *item = forumGroups.key(grp);
+    if(!item) {
+        qDebug() << Q_FUNC_INFO << " item for group " << grp << "doesn't exist, why??";
+        return;
+    }
     Q_ASSERT(item);
     QListWidget *lw = listWidgets.value(grp->subscription());
     Q_ASSERT(lw);

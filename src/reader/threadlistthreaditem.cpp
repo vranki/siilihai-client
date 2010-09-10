@@ -8,7 +8,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *threa
     treeWidget = tree;
     Q_ASSERT(thread->isSane());
     Q_ASSERT(treeWidget);
-    QString threadSubject = thread->name();//messageSubject(thread->name());
+    QString threadSubject = thread->name();
     QString lc = thread->lastchange();
     QString author = "";
     QString orderString;
@@ -30,8 +30,7 @@ void ThreadListThreadItem::setMessage(ForumMessage *message) {
     msg = message;
     connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
     connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
-    // Not safe, as it would delete this
-    // connect(msg, SIGNAL(destroyed()), this, SLOT(messageDeleted()));
+    connect(msg, SIGNAL(destroyed()), this, SLOT(threadMessageDeleted()));
 
     updateItem();
 }
@@ -56,18 +55,6 @@ void ThreadListThreadItem::updateUnreads() {
     if(!msg) return;
     if(!thr) return;
     int unreads = thr->unreadCount();
-/*
-    if(!msg->isRead())
-        unreads++; // Also count first message
-
-    for(int i=0;i<childCount();i++) {
-        ThreadListMessageItem* messageItem = dynamic_cast<ThreadListMessageItem*>(child(i));
-        if(messageItem) {
-            if(!messageItem->message()->read())
-                unreads++;
-        }
-    }
-*/
     QString threadSubject = messageSubject;
     QString moreString = QString::null;
     if(thread()->hasMoreMessages()) moreString = "+";
@@ -98,4 +85,8 @@ void ThreadListThreadItem::threadDeleted() {
     }
     treeWidget->takeTopLevelItem(treeWidget->indexOfTopLevelItem(this));
     deleteLater();
+}
+
+void ThreadListThreadItem::threadMessageDeleted() {
+    msg = 0;
 }
