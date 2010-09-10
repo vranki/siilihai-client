@@ -590,7 +590,8 @@ void Siilihai::subscribeForumFinished(ForumSubscription *sub, bool success) {
     qDebug() << Q_FUNC_INFO << success;
     if (!success) {
         errorDialog("Subscribing to forum failed. Please check network connection.");
-        fdb.deleteSubscription(sub);
+        if(fdb.getSubscription(sub->parser()))
+            fdb.deleteSubscription(sub);
     }
 }
 
