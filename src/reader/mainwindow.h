@@ -91,7 +91,6 @@ protected:
     bool eventFilter(QObject *object, QEvent *event);
 private:
     void closeEvent(QCloseEvent *event);
-
     ForumListWidget *flw;
     ThreadListWidget *tlw;
     MessageViewWidget *mvw;

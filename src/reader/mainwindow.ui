@@ -122,7 +122,7 @@
                   <string>Update all foruns</string>
                  </property>
                  <property name="text">
-                  <string>Refresh</string>
+                  <string>Update</string>
                  </property>
                  <property name="icon">
                   <iconset resource="../../siilihairesources.qrc">
@@ -268,7 +268,7 @@
      </property>
      <addaction name="actionHTML"/>
      <addaction name="actionText"/>
-     <addaction name="actionWeb_Page"/>
+     <addaction name="actionHTML_Source"/>
     </widget>
     <addaction name="menuView_as"/>
    </widget>
@@ -424,6 +424,11 @@
   <action name="actionForumProperties">
    <property name="text">
     <string>Properties..</string>
+   </property>
+  </action>
+  <action name="actionHTML_Source">
+   <property name="text">
+    <string>HTML Source</string>
    </property>
   </action>
  </widget>

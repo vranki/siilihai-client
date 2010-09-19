@@ -11,6 +11,7 @@ ThreadProperties::ThreadProperties(QWidget *parent, ForumThread *th, ForumDataba
     ui->thId->setText(thread->id());
     ui->thMessageCount->setText(QString::number(thread->messages().count()));
     ui->thMessagesPerThread->setValue(thread->getMessagesCount());
+    ui->thLastPage->setText(QString::number(thread->getLastPage()));
     connect(this, SIGNAL(accepted()), this, SLOT(saveChanges()));
 }
 

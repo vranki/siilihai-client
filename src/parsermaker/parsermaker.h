@@ -59,6 +59,7 @@ private:
     QSettings &settings;
     SiilihaiProtocol &protocol;
     ForumParser parser;
+    QNetworkAccessManager nam;
     ForumSession session;
     ForumSubscription subscription;
     PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;

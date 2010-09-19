@@ -36,12 +36,14 @@ public slots:
         void markUnreadClicked();
         void threadPropertiesClicked();
         void viewInBrowserClicked();
+        void forceUpdateThreadClicked();
         void selectNextUnread();
 signals:
 	void messageSelected(ForumMessage *msg);
         void moreMessagesRequested(ForumThread *thread);
         void viewInBrowser();
         void threadProperties(ForumThread *thread);
+        void updateThread(ForumThread *thread, bool force);
 protected:
         void contextMenuEvent(QContextMenuEvent * event);
 
@@ -64,6 +66,7 @@ private:
         QAction *markUnreadAction;
         QAction *threadPropertiesAction;
         QAction *viewInBrowserAction;
+        QAction *forceUpdateThreadAction;
         bool disableSortAndResize; // Don't sort or resize while doing long add
 };
 

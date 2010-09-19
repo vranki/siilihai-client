@@ -9,7 +9,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     settings = s;
     viewAsGroup.addAction(ui.actionHTML);
     viewAsGroup.addAction(ui.actionText);
-    viewAsGroup.addAction(ui.actionWeb_Page);
+    viewAsGroup.addAction(ui.actionHTML_Source);
 
     ui.actionWeb_Page->setChecked(true);
 
@@ -75,6 +75,10 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     ui.horizontalSplitter->addWidget(mvw);
     connect(tlw, SIGNAL(messageSelected(ForumMessage*)), mvw,
             SLOT(messageSelected(ForumMessage*)));
+    connect(ui.actionHTML, SIGNAL(triggered()), mvw, SLOT(viewAsHTML()));
+    connect(ui.actionText, SIGNAL(triggered()), mvw, SLOT(viewAsText()));
+    connect(ui.actionHTML_Source, SIGNAL(triggered()), mvw, SLOT(viewAsSource()));
+    ui.actionHTML->setChecked(true);
 
     flw->installEventFilter(this);
     tlw->installEventFilter(this);

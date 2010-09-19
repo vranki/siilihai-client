@@ -8,6 +8,7 @@
 #include <QDir>
 
 #include <siilihai/forummessage.h>
+#include <siilihai/parserengine.h>
 #include "messageformatting.h"
 
 class MessageViewWidget : public QScrollArea {
@@ -21,10 +22,17 @@ public:
 public slots:
     void messageSelected(ForumMessage *msg);
     void linkClicked ( const QUrl & url);
+    void viewAsHTML();
+    void viewAsText();
+    void viewAsSource();
 private:
+    const static int VIEW_HTML=0;
+    const static int VIEW_TEXT=1;
+    const static int VIEW_SOURCE=2;
     QWebView webView;
     QVBoxLayout vbox;
     ForumMessage *displayedMessage;
+    int viewMode;
 };
 
 #endif /* MESSAGEVIEWWIDGET_H_ */

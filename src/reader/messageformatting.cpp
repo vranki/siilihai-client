@@ -24,3 +24,11 @@ QString MessageFormatting::stripHtml(QString &txt) {
     txt.replace("&nbsp;", " ");
     return txt;
 }
+
+QString MessageFormatting::replaceCharacters(QString &txt) {
+    txt.replace("&", "&amp;");
+    txt.replace("\"", "&quot;");
+    txt.replace("<", "&lt;");
+    txt.replace(">", "&gt;");
+    return txt;
+}

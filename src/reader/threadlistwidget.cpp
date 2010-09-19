@@ -28,6 +28,9 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     viewInBrowserAction = new QAction("View in browser", this);
     viewInBrowserAction->setToolTip("View the message in external browser");
     connect(viewInBrowserAction, SIGNAL(triggered()), this, SLOT(viewInBrowserClicked()));
+    forceUpdateThreadAction = new QAction("Force update of thread", this);
+    forceUpdateThreadAction->setToolTip("Updates all messages in selected thread");
+    connect(forceUpdateThreadAction, SIGNAL(triggered()), this, SLOT(forceUpdateThreadClicked()));
 }
 
 ThreadListWidget::~ThreadListWidget() {
@@ -202,6 +205,7 @@ void ThreadListWidget::contextMenuEvent(QContextMenuEvent *event) {
         menu.addAction(viewInBrowserAction);
         menu.addAction(markReadAction);
         menu.addAction(markUnreadAction);
+        menu.addAction(forceUpdateThreadAction);
         menu.addAction(threadPropertiesAction);
         menu.exec(event->globalPos());
     }
@@ -264,5 +268,12 @@ void ThreadListWidget::selectNextUnread() {
             isShowMore = dynamic_cast<ThreadListShowMoreItem*> (newItem);
         } while(isShowMore || (mi && mi->message()->isRead()));
         if(mi) setCurrentItem(mi);
+    }
+}
+void ThreadListWidget::forceUpdateThreadClicked() {
+    ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
+    if(msgItem && msgItem->message() && msgItem->message()->thread()) {
+        msgItem->message()->thread()->setLastPage(0);
+        emit updateThread(msgItem->message()->thread(), true);
     }
 }
