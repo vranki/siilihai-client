@@ -80,13 +80,22 @@ FORMS = settingsdialog.ui \
 RESOURCES = ../../siilihairesources.qrc
 
 win32 {
+    INCLUDEPATH += ../../../libsiilihai
+    DEFINES += STORE_FILES_IN_APP_DIR
+}
+win32:debug {
     LIBS += -L../../../libsiilihai/src/debug
     LIBS += -L../common/debug
     LIBS += -L../parsermaker/debug
-    INCLUDEPATH += ../../../libsiilihai
     DEPENDPATH += ../../../libsiilihai/src/debug
     DEPENDPATH += -L../common/debug
-    DEFINES += STORE_FILES_IN_APP_DIR
+}
+win32:release {
+    LIBS += -L../../../libsiilihai/src
+    LIBS += -L../common
+    LIBS += -L../parsermaker
+    DEPENDPATH += ../../../libsiilihai/src
+    DEPENDPATH += -L../common
 }
 
 LIBS += -L../parsermaker \

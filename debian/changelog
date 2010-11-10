@@ -1,3 +1,21 @@
+siilihai-client (1.0.0-1) maverick; urgency=low
+
+  * 1.0 release
+  * Debug disabled
+  * Updated to Ubuntu Maverick
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 10 Nov 2010 20:29:43 +0300
+
+siilihai-client (0.9.15-2) lucid; urgency=low
+
+  * Faster updating of long threads
+  * Force update of thread (to get changed messages)
+  * View modes implemented: html, text and source
+  * Image loading on http authenticated pages works now
+  * Quoted text now looks different on most forums
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 20 Sep 2010 20:29:43 +0300
+
 siilihai-client (0.9.15-1) lucid; urgency=low
 
   * Faster updating of long threads

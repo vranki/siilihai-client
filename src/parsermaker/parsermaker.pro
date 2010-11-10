@@ -38,12 +38,21 @@ FORMS = openrequestdialog.ui \
     parsermaker.ui
 RESOURCES = ../../siilihairesources.qrc
 
+
 win32 {
+    INCLUDEPATH += ../../../libsiilihai
+}
+win32:debug {
     LIBS += -L../../../libsiilihai/src/debug
     LIBS += -L../common/debug
-    INCLUDEPATH += ../../../libsiilihai
     DEPENDPATH += ../../../libsiilihai/src/debug
     DEPENDPATH += -L../common/debug
+}
+win32:release {
+    LIBS += -L../../../libsiilihai/src
+    LIBS += -L../common
+    DEPENDPATH += ../../../libsiilihai/src
+    DEPENDPATH += -L../common
 }
 
 LIBS += -lsiilihai -L../common -lsiilihai-common

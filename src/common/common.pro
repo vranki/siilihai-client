@@ -25,9 +25,15 @@ INSTALLS += target
 RESOURCES += ../../siilihairesources.qrc
 
 win32 {
-    LIBS += -L../../../libsiilihai/src/debug
     INCLUDEPATH += ../../../libsiilihai
+}
+win32:debug {
+    LIBS += -L../../../libsiilihai/src/debug
     DEPENDPATH += ../../../libsiilihai/src/debug
+}
+win32:release {
+    LIBS += -L../../../libsiilihai/src
+    DEPENDPATH += ../../../libsiilihai/src
 }
 
 LIBS += -lsiilihai
