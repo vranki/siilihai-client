@@ -1,12 +1,10 @@
 #include "siilihai.h"
 
 Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv),
-fdb(this),
-pdb(this),
-syncmaster(this, fdb, protocol)
-#ifdef STORE_FILES_IN_APP_DIR
-,settings(QDir::currentPath() + "/siilihai_settings.ini", QSettings::IniFormat, this)
-#endif
+    fdb(this), pdb(this), syncmaster(this, fdb, protocol)
+  #ifdef STORE_FILES_IN_APP_DIR
+  ,settings(QDir::currentPath() + "/siilihai_settings.ini", QSettings::IniFormat, this)
+  #endif
 {
     loginWizard = 0;
     mainWin = 0;
@@ -73,7 +71,7 @@ void Siilihai::launchSiilihai() {
             SLOT(updateForumParser(ForumParser)));
     connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this,
             SLOT(userSettingsReceived(bool,UserSettings*)));
-    if(fdb.openDatabase()) {
+    if(fdb.openDatabase(&db)) {
         settings.setValue("forum_database_schema", fdb.schemaVersion());
     } else {
         errorDialog("Error opening Siilihai's database!\nSee console for details. Sorry.");
@@ -282,7 +280,7 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
             msgBox.setText(motd);
         } else {
             msgBox.setText(
-                    "Error: Login failed. Check your username, password and network connection.\nWorking offline.");
+                        "Error: Login failed. Check your username, password and network connection.\nWorking offline.");
         }
         msgBox.exec();
         changeState(state_offline);
@@ -306,7 +304,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
         }
         if (!found) {
             qDebug() << "Server says not subscribed to "
-                    << sub->toString();
+                     << sub->toString();
             unsubscribedForums.append(sub);
         }
     }
@@ -414,7 +412,7 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
     if(!fdb.addSubscription(newFs) || !pdb.storeParser(fp)) {
         QMessageBox msgBox(mainWin);
         msgBox.setText(
-                "Error: Unable to subscribe to forum. Are you already subscribed?");
+                    "Error: Unable to subscribe to forum. Are you already subscribed?");
         msgBox.exec();
     } else {
         protocol.subscribeForum(newFs);
@@ -513,7 +511,7 @@ void Siilihai::updateClicked() {
 
 void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
     qDebug() << Q_FUNC_INFO << "Update selected clicked, updating forum " << sub->toString()
-            << ", force=" << force;
+             << ", force=" << force;
     Q_ASSERT(engines.contains(sub));
     engines[sub]->updateForum(force);
 }
@@ -633,7 +631,7 @@ void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authen
     QString gname = QString().number(fsub->parser());
     settings.beginGroup("authentication");
     qDebug() << settings.contains(QString("authentication/%1/username").arg(gname)) <<
-            settings.contains(QString("%1/username").arg(gname));
+                settings.contains(QString("%1/username").arg(gname));
     if(settings.contains(QString("%1/username").arg(gname))) {
         authenticator->setUser(settings.value(QString("%1/username").arg(gname)).toString());
         authenticator->setPassword(settings.value(QString("%1/password").arg(gname)).toString());

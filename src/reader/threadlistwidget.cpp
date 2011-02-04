@@ -171,7 +171,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
         ThreadListMessageItem* msgItem = dynamic_cast<ThreadListMessageItem*> (item);
         ForumMessage *msg = msgItem->message();
         if(!msg) {
-            qDebug() << "Thread item with no message? Broken parser?";
+            qDebug() << Q_FUNC_INFO << "Thread item with no message? Broken parser?";
         } else {
             Q_ASSERT(msg);
             Q_ASSERT(msg->isSane());
@@ -179,7 +179,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
             msgItem->updateRead();
         }
     } else {
-        qDebug() << "A thread with no messages. Broken parser?.";
+        qDebug() << Q_FUNC_INFO << "A thread with no messages. Broken parser?.";
         //if(forumThreads.contains(item))
         //    qDebug() << "The thread in question is " << forumThreads.value(item)->toString();
         emit messageSelected(0);
@@ -245,6 +245,7 @@ void ThreadListWidget::selectNextUnread() {
 
     // Find next unread item
     if(item) {
+        bool isRead = true;
         do {
             if(item->childCount()) {
                 // Is a thread item with child
@@ -266,7 +267,11 @@ void ThreadListWidget::selectNextUnread() {
             item = newItem;
             mi = dynamic_cast<ThreadListMessageItem*> (newItem);
             isShowMore = dynamic_cast<ThreadListShowMoreItem*> (newItem);
-        } while(isShowMore || (mi && mi->message()->isRead()));
+            isRead = true;
+            if(mi && mi->message() && mi->message())
+                isRead = mi->message()->isRead();
+            ForumMessage *message = mi->message(); // Shouldn't be 0 but sometimes is
+        } while(isShowMore || isRead);
         if(mi) setCurrentItem(mi);
     }
 }
