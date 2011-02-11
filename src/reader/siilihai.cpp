@@ -533,8 +533,6 @@ void Siilihai::reportClicked(ForumSubscription* forum) {
 }
 
 void Siilihai::statusChanged(ForumSubscription* forum, bool reloading, float progress) {
-    if(!reloading)
-        fdb.recalcUnreads(forum);
 }
 
 void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {

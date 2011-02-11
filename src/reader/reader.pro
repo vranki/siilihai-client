@@ -7,6 +7,7 @@ isEmpty(PREFIX) {
 
 BINDIR = $$PREFIX/bin
 DATADIR = $$PREFIX/share
+DESTDIR = .
 
 !contains(QMAKE_HOST.arch, x86_64) {
    LIBDIR = $$PREFIX/lib

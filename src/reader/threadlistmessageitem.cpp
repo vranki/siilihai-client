@@ -1,4 +1,5 @@
 #include "threadlistmessageitem.h"
+#include <siilihai/forumthread.h>
 
 ThreadListMessageItem::ThreadListMessageItem(QTreeWidget *tree) : QObject(tree), QTreeWidgetItem(tree) {
     msg = 0;

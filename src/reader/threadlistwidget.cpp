@@ -143,7 +143,7 @@ void ThreadListWidget::updateList() {
     disableSortAndResize = true;
     foreach(ForumThread *thread, threads) {
         addThread(thread);
-        QList<ForumMessage*> messages = thread->messages().values();
+        QList<ForumMessage*> messages = thread->values();
         qSort(messages);
         foreach(ForumMessage *message, messages) {
             addMessage(message);
@@ -156,8 +156,7 @@ void ThreadListWidget::updateList() {
     resizeColumnToContents(2);
 }
 
-void ThreadListWidget::messageSelected(QTreeWidgetItem* item,
-                                       QTreeWidgetItem *prev) {
+void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {
     Q_UNUSED(prev);
     if (!item)
         return;
@@ -215,7 +214,7 @@ void ThreadListWidget::markReadClicked(bool read) {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
     ForumMessage *threadMessage = msgItem->message();
     if(threadMessage) {
-        foreach(ForumMessage *msg, threadMessage->thread()->messages()) {
+        foreach(ForumMessage *msg, threadMessage->thread()->values()) {
             msg->setRead(read);
         }
     }
@@ -238,7 +237,32 @@ void ThreadListWidget::viewInBrowserClicked() {
 }
 
 void ThreadListWidget::selectNextUnread() {
-    QTreeWidgetItem *item = currentItem();
+    QTreeWidgetItem *newItem = currentItem();
+    ThreadListMessageItem *mi = 0;
+    while(newItem) {
+        if(newItem->childCount()) { // Thread item
+            newItem = newItem->child(0);
+        } else if(newItem->parent()) { // A message item
+            QTreeWidgetItem *nextChild = newItem->parent()->child(newItem->parent()->indexOfChild(newItem) + 1);
+            if(!nextChild) { // Jump to next parent
+                newItem = topLevelItem(indexOfTopLevelItem(newItem->parent()) + 1);
+                if(!newItem) return; // No more threads to search
+            } else {
+                newItem = nextChild;
+            }
+        } else { // Single message thread
+            newItem = topLevelItem(indexOfTopLevelItem(newItem) + 1);
+            if(!newItem) return; // No more threads to search
+        }
+        ThreadListMessageItem *mi = dynamic_cast<ThreadListMessageItem*> (newItem);
+        if(mi && mi->message()) {
+            if(!mi->message()->isRead()) {
+                setCurrentItem(newItem);
+                return;
+            }
+        }
+    }
+    /*
     QTreeWidgetItem *newItem = 0;
     ThreadListMessageItem *mi = 0;
     bool isShowMore = false;
@@ -262,18 +286,24 @@ void ThreadListWidget::selectNextUnread() {
                 }
             } else {
                 // Is a thread item without child
-                newItem = topLevelItem(indexOfTopLevelItem(item) + 1);
+                qDebug() << Q_FUNC_INFO << "Top level item without child";
+                newItem = 0;
+                if(indexOfTopLevelItem(item) + 1 < topLevelItemCount())
+                    newItem = topLevelItem(indexOfTopLevelItem(item) + 1);
             }
             item = newItem;
-            mi = dynamic_cast<ThreadListMessageItem*> (newItem);
-            isShowMore = dynamic_cast<ThreadListShowMoreItem*> (newItem);
-            isRead = true;
-            if(mi && mi->message() && mi->message())
-                isRead = mi->message()->isRead();
-            ForumMessage *message = mi->message(); // Shouldn't be 0 but sometimes is
-        } while(isShowMore || isRead);
+            if(item) {
+                mi = dynamic_cast<ThreadListMessageItem*> (newItem);
+                isShowMore = dynamic_cast<ThreadListShowMoreItem*> (newItem);
+                isRead = true;
+                if(mi && mi->message() && mi->message())
+                    isRead = mi->message()->isRead();
+                ForumMessage *message = mi->message(); // Shouldn't be 0 but sometimes is
+            }
+        } while(item && (isShowMore || isRead));
         if(mi) setCurrentItem(mi);
     }
+    */
 }
 void ThreadListWidget::forceUpdateThreadClicked() {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());

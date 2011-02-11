@@ -12,7 +12,7 @@ class ThreadListThreadItem : public ThreadListMessageItem
     Q_OBJECT
 
 public:
-    ThreadListThreadItem(QTreeWidget *tree, ForumThread *thread);
+    ThreadListThreadItem(QTreeWidget *tree, ForumThread *_thread);
     void setMessage(ForumMessage *message);
     ForumThread* thread();
 public slots:
@@ -21,7 +21,7 @@ public slots:
     void threadDeleted();
     void threadMessageDeleted(); // Called when the message is deleted
 private:
-    ForumThread *thr;
+    ForumThread *_thread;
     ThreadListShowMoreItem* showMoreItem;
     QTreeWidget *treeWidget;
 };

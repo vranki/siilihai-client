@@ -1,23 +1,23 @@
 #include "threadlistthreaditem.h"
 
-ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *thread) : ThreadListMessageItem(tree)
+ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemThread) : ThreadListMessageItem(tree)
 {
-    Q_ASSERT(thread);
-    thr = thread;
+    Q_ASSERT(itemThread);
+    _thread = itemThread;
     showMoreItem = 0;
     treeWidget = tree;
-    Q_ASSERT(thread->isSane());
+    Q_ASSERT(_thread->isSane());
     Q_ASSERT(treeWidget);
-    QString threadSubject = thread->name();
-    QString lc = thread->lastchange();
+    QString threadSubject = _thread->name();
+    QString lc = _thread->lastchange();
     QString author = "";
     QString orderString;
-    if(thread->ordernum() >=0) {
-        orderString = QString().number(thread->ordernum()).rightJustified(6, '0');
+    if(_thread->ordernum() >=0) {
+        orderString = QString().number(_thread->ordernum()).rightJustified(6, '0');
     }
-    connect(thr, SIGNAL(destroyed()), this, SLOT(threadDeleted()));
-    connect(thr, SIGNAL(changed(ForumThread*)), this, SLOT(updateItem()));
-    connect(thr, SIGNAL(unreadCountChanged(ForumThread *)), this, SLOT(updateUnreads()));
+    connect(_thread, SIGNAL(destroyed()), this, SLOT(threadDeleted()));
+    connect(_thread, SIGNAL(changed(ForumThread*)), this, SLOT(updateItem()));
+    connect(_thread, SIGNAL(unreadCountChanged(ForumThread *)), this, SLOT(updateUnreads()));
 
     setText(0, threadSubject);
     setText(1, MessageFormatting::sanitize(lc));
@@ -36,15 +36,15 @@ void ThreadListThreadItem::setMessage(ForumMessage *message) {
 }
 
 ForumThread* ThreadListThreadItem::thread() {
-    return thr;
+    return _thread;
 }
 
 void ThreadListThreadItem::updateItem() {
     ThreadListMessageItem::updateItem();
 
-    if(thr->hasMoreMessages() && !showMoreItem) { // Need to add show more-button
+    if(_thread->hasMoreMessages() && !showMoreItem) { // Need to add show more-button
         showMoreItem = new ThreadListShowMoreItem(this);
-    } else if(!thr->hasMoreMessages() && showMoreItem) { // Need to delete show more-button
+    } else if(!_thread->hasMoreMessages() && showMoreItem) { // Need to delete show more-button
         removeChild(showMoreItem);
         delete showMoreItem;
         showMoreItem = 0;
@@ -53,8 +53,8 @@ void ThreadListThreadItem::updateItem() {
 
 void ThreadListThreadItem::updateUnreads() {
     if(!msg) return;
-    if(!thr) return;
-    int unreads = thr->unreadCount();
+    if(!_thread) return;
+    int unreads = _thread->unreadCount();
     QString threadSubject = messageSubject;
     QString moreString = QString::null;
     if(thread()->hasMoreMessages()) moreString = "+";

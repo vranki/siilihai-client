@@ -64,8 +64,7 @@ void ForumListWidget::iconUpdated(ForumSubscription* en, QIcon newIcon) {
     setItemIcon(indexOf(listWidgets[en]), newIcon);
 }
 
-void ForumListWidget::groupSelected(QListWidgetItem* item,
-                                    QListWidgetItem *prev) {
+void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
    // qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
     currentGroup = forumGroups[item];
     emit groupSelected(currentGroup);
@@ -225,7 +224,7 @@ void ForumListWidget::unsubscribeGroupClicked() {
 void ForumListWidget::markAllReadClicked(bool un) {
     if(currentGroup) {
         foreach(ForumThread *thread, currentGroup->threads()) {
-            foreach(ForumMessage *msg, thread->messages()) {
+            foreach(ForumMessage *msg, thread->values()) {
                 msg->setRead(!un);
             }
         }
