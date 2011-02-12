@@ -1,7 +1,8 @@
-siilihai-client (0.9.16-2) maverick; urgency=low
+siilihai-client (0.9.16-3) maverick; urgency=low
 
   * Updated to Ubuntu Maverick
   * Huge speed improvements
+  * Bug fixes
 
  -- Ville Ranki <ville.ranki@iki.fi>  Fri, 12 Feb 2011 20:29:43 +0300
 
