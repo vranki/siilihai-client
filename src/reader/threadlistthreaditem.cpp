@@ -48,6 +48,7 @@ void ThreadListThreadItem::updateItem() {
         removeChild(showMoreItem);
         delete showMoreItem;
         showMoreItem = 0;
+        updateUnreads();
     }
 }
 

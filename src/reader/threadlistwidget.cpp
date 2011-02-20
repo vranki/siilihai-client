@@ -185,19 +185,6 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *p
     }
 }
 
-
-void ThreadListWidget::swapMessages(ForumMessage *m1, ForumMessage *m2) {
-    qDebug() << Q_FUNC_INFO << "Swapping " << m1->toString() << " with " << m2->toString();
-    /*
-    QTreeWidgetItem *i1 = messageWidget(m1);
-    QTreeWidgetItem *i2 = messageWidget(m2);
-
-    forumMessages[i1] = m2;
-    forumMessages[i2] = m1;
-*/
-}
-
-
 void ThreadListWidget::contextMenuEvent(QContextMenuEvent *event) {
     if(itemAt(event->pos())) {
         QMenu menu(this);

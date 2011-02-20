@@ -1,10 +1,8 @@
 #include "forumlistwidget.h"
 
-ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f,
-                                 ParserDatabase &p) :
-QToolBox(parent), fdb(f), pdb(p) {
-    connect(this, SIGNAL(currentChanged(int)), this,
-            SLOT(forumItemSelected(int)));
+ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDatabase &p) :
+    QToolBox(parent), fdb(f), pdb(p) {
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(forumItemSelected(int)));
     connect(&fdb, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
 
     markReadAction = new QAction("Mark all messages read", this);
@@ -32,9 +30,14 @@ ForumListWidget::~ForumListWidget() {
 }
 
 void ForumListWidget::forumItemSelected(int i) {
+    QListWidget *curWidget = static_cast<QListWidget*> (currentWidget());
     ForumSubscription *sub = 0;
-    if(i >= 0)
+    if(i >= 0) {
         sub = listWidgets.key(static_cast<QListWidget*> (widget(i)));
+        if(listWidgets.value(sub)->currentItem()) {
+            groupSelected(listWidgets.value(sub)->currentItem(), 0);
+        }
+    }
     emit forumSelected(sub);
 }
 
@@ -74,8 +77,7 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     QListWidget *lw = new QListWidget(this);
     listWidgets[sub] = lw;
     addItem(lw, sub->alias());
-    connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)),
-            this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
+    connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)), this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
     connect(sub, SIGNAL(unreadCountChanged(ForumSubscription*)), this, SLOT(updateSubscriptionLabel(ForumSubscription*)));
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 

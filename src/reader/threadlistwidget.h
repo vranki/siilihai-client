@@ -49,13 +49,13 @@ protected:
 
 private:
         QString messageSubject(ForumMessage *msg);
-        void swapMessages(ForumMessage *m1, ForumMessage *m2);
         void updateList();
         void clearList();
         void addThread(ForumThread *thread);
         void addMessage(ForumMessage *msg);
         void updateThreadUnreads(ThreadListThreadItem* threadItem);
         void addShowMoreButton(ForumThread *thread);
+
         // Helpers to quickly find correct items
         QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
         QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
