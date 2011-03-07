@@ -163,8 +163,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *p
     if(dynamic_cast<ThreadListShowMoreItem*> (item)) {
         ThreadListShowMoreItem * smItem = dynamic_cast<ThreadListShowMoreItem*> (item);
         ThreadListThreadItem* tli = dynamic_cast<ThreadListThreadItem*> (smItem->parent());
-        //tli->deleteShowMore();
-        // was: delete show more button. is it needed?
+        setCurrentItem(prev);
         emit moreMessagesRequested(tli->thread());
     } else if (dynamic_cast<ThreadListMessageItem*> (item)) {
         ThreadListMessageItem* msgItem = dynamic_cast<ThreadListMessageItem*> (item);

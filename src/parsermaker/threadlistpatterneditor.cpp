@@ -127,7 +127,7 @@ void ThreadListPatternEditor::parserUpdated() {
 
     if(errors.length()==0) {
         errors = "Pattern is ok.\nRemember to test also\nmulti page spanning.\n"
-                 "When finished, choose a thread and proceed to\nGroup List tab.";
+                 "When finished, choose a thread and proceed to\nMessage List tab.";
     }
     ui.errorLabel->setText(errors);
     ui.warningLabel->setText(warnings);
