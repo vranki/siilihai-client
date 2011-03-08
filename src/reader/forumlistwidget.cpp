@@ -34,9 +34,15 @@ void ForumListWidget::forumItemSelected(int i) {
     ForumSubscription *sub = 0;
     if(i >= 0) {
         sub = listWidgets.key(static_cast<QListWidget*> (widget(i)));
+        if(sub->groups().isEmpty()) {
+            emit groupSelected(0);
+        } else { // Select the first group
+            emit groupSelected(*sub->groups().begin());
+            static_cast<QListWidget*> (widget(i))->setCurrentRow(0);
+        }/*
         if(listWidgets.value(sub)->currentItem()) {
             groupSelected(listWidgets.value(sub)->currentItem(), 0);
-        }
+        }*/
     }
     emit forumSelected(sub);
 }
