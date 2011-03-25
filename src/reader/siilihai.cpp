@@ -62,8 +62,7 @@ void Siilihai::launchSiilihai() {
 
     int mySchema = settings.value("forum_database_schema", 0).toInt();
     if(!firstRun && fdb.schemaVersion() != mySchema) {
-        errorDialog("The database schema has been changed. Your forum database will be reset."
-                    " Sorry. ");
+        errorDialog("The database schema has been changed. Your forum database will be reset. Sorry. ");
         fdb.resetDatabase();
     }
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
@@ -74,7 +73,9 @@ void Siilihai::launchSiilihai() {
     if(fdb.openDatabase(&db)) {
         settings.setValue("forum_database_schema", fdb.schemaVersion());
     } else {
-        errorDialog("Error opening Siilihai's database!\nSee console for details. Sorry.");
+        errorDialog("Error opening Siilihai's database!\nSee console for details. Sorry.\n\nYou can delete ~/.siilihai.db to reset database.");
+        haltSiilihai();
+        return;
     }
     pdb.openDatabase();
 

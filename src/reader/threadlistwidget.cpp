@@ -295,6 +295,7 @@ void ThreadListWidget::forceUpdateThreadClicked() {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
     if(msgItem && msgItem->message() && msgItem->message()->thread()) {
         msgItem->message()->thread()->setLastPage(0);
+        msgItem->message()->thread()->markToBeUpdated();
         emit updateThread(msgItem->message()->thread(), true);
     }
 }

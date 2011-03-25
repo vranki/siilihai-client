@@ -6,20 +6,17 @@ QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this,
     ui.setupUi(this);
     loginMatcher = new PatternMatcher(this, true);
 
-    groupListEditor = new GroupListPatternEditor(session, parser, &subscription,
-                                                 this);
+    groupListEditor = new GroupListPatternEditor(session, parser, &subscription, this);
     ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(),
                          groupListEditor->tabName());
-    threadListEditor = new ThreadListPatternEditor(session, parser,
-                                                   &subscription, this);
+    threadListEditor = new ThreadListPatternEditor(session, parser, &subscription, this);
     ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(),
                          threadListEditor->tabName());
     threadListEditor->setEnabled(false);
-    messageListEditor = new MessageListPatternEditor(session, parser,
-                                                     &subscription, this);
-    ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(),
-                         messageListEditor->tabName());
+    messageListEditor = new MessageListPatternEditor(session, parser, &subscription, this);
+    ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(), messageListEditor->tabName());
     messageListEditor->setEnabled(false);
+
     connect(groupListEditor, SIGNAL(groupSelected(ForumGroup*)),
             threadListEditor, SLOT(setGroup(ForumGroup*)));
     connect(threadListEditor, SIGNAL(threadSelected(ForumThread*)),
@@ -91,8 +88,7 @@ void ParserMaker::updateState() {
     parser.forum_url = ui.forumUrl->text();
     parser.forum_software = ui.forumSoftware->text();
     parser.parser_type = ui.parserType->currentIndex();
-    parser.login_type
-            = (ForumParser::ForumLoginType) ui.loginTypeCombo->currentIndex();
+    parser.login_type = (ForumParser::ForumLoginType) ui.loginTypeCombo->currentIndex();
     parser.login_path = ui.loginPath->text();
     parser.verify_login_pattern = ui.verifyLoginPattern->text();
     parser.login_parameters = ui.loginParameters->text();
@@ -100,11 +96,9 @@ void ParserMaker::updateState() {
     parser.view_thread_path = ui.viewThreadPath->text();
     parser.view_message_path = ui.viewMessagePath->text();
     parser.view_thread_page_start = ui.viewThreadPageStart->text().toInt();
-    parser.view_thread_page_increment
-            = ui.viewThreadPageIncrement->text().toInt();
+    parser.view_thread_page_increment = ui.viewThreadPageIncrement->text().toInt();
     parser.thread_list_page_start = ui.threadListPageStart->text().toInt();
-    parser.thread_list_page_increment
-            = ui.threadListPageIncrement->text().toInt();
+    parser.thread_list_page_increment = ui.threadListPageIncrement->text().toInt();
 
     parser.group_list_pattern = groupListEditor->pattern();
     parser.thread_list_pattern = threadListEditor->pattern();
@@ -115,10 +109,10 @@ void ParserMaker::updateState() {
     ui.saveChangesButton->setEnabled(mayWork && parser.id > 0);
     ui.saveAsNewButton->setEnabled(mayWork);
 
+    ui.loginUrlLabel->setText(ui.loginPath->text());
     ui.loginTypeCombo->setEnabled(ui.loginPath->text().length() > 0);
     ui.tryLoginButton->setEnabled(parser.supportsLogin());
     ui.tryWithoutLoginButton->setEnabled(parser.supportsLogin());
-    ui.loginUrlLabel->setText(session.getLoginUrl());
 
     ui.baseUrlTL->setText(parser.forumUrlWithoutEnd());
     ui.baseUrlVT->setText(parser.forumUrlWithoutEnd());
@@ -140,20 +134,17 @@ void ParserMaker::updateState() {
 
     ui.tryLoginButton->setEnabled(true);
     ui.tryWithoutLoginButton->setEnabled(true);
-    // session.initialize(parser, subscription);
 }
 
 void ParserMaker::openClicked() {
     DownloadDialog *dlg = new DownloadDialog(this, protocol);
-    connect(dlg, SIGNAL(parserLoaded(ForumParser)), this,
-            SLOT(parserLoaded(ForumParser)));
+    connect(dlg, SIGNAL(parserLoaded(ForumParser)), this, SLOT(parserLoaded(ForumParser)));
     dlg->show();
 }
 
 void ParserMaker::newFromRequestClicked() {
     OpenRequestDialog *dlg = new OpenRequestDialog(this, protocol);
-    connect(dlg, SIGNAL(requestSelected(ForumRequest)), this,
-            SLOT(requestSelected(ForumRequest)));
+    connect(dlg, SIGNAL(requestSelected(ForumRequest)), this, SLOT(requestSelected(ForumRequest)));
     dlg->show();
 }
 
@@ -198,8 +189,7 @@ void ParserMaker::saveClicked() {
     updateState();
     QMessageBox msgBox(this);
     msgBox.setText("Are you sure you want to save changes?");
-    msgBox.setInformativeText(
-            "Note: This will fail, if you don't have rights to make changes to this parser.");
+    msgBox.setInformativeText("Note: This will fail, if you don't have rights to make changes to this parser.");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     if (msgBox.exec() == QMessageBox::Yes) {
@@ -213,7 +203,7 @@ void ParserMaker::saveAsNewClicked() {
     msgBox.setText("This will upload parser as a new parser to Siilihai.");
     msgBox.setDetailedText(
             "Your parser will initially be marked 'new'. New parsers "
-            "are not visible in public lists until another user has verified them "
+            "may not be visible in public lists until another user has verified them "
             "as working. You should ask another user or Siilihai staff to check "
             "your parser.");
     msgBox.setInformativeText("Are you sure you wish to do this?");
@@ -284,15 +274,13 @@ void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
         if (success) {
             ui.loginResultLabel->setText("Search string found - login was successful. This is wrong.");
         } else {
-            ui.loginResultLabel->setText(
-                    "Search string not found, as expected.");
+            ui.loginResultLabel->setText("Search string not found, as expected.");
         }
     } else {
         if (success) {
             ui.loginResultLabel->setText("Search string found - login was successful, as expected.");
         } else {
-            ui.loginResultLabel->setText(
-                    "Search string not found. This is wrong.");
+            ui.loginResultLabel->setText("Search string not found. This is wrong.");
         }
     }
 
@@ -345,6 +333,7 @@ void ParserMaker::getAuthentication(ForumSubscription *fsub, QAuthenticator *aut
 
 
 void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
+    // Horrible debugging, this still has bugs
     QString myData = ui.loginTextEdit->toPlainText().mid(pos, data.length());
     static int mismatches = 0;
     if(myData != data && mismatches < 5) {
@@ -391,8 +380,7 @@ void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
     QTextCharFormat fmt = loginEditorCursor.charFormat();
     fmt.setForeground(QBrush(color));
     loginEditorCursor.setCharFormat(fmt);
-    loginEditorCursor.setPosition(loginEditorCursor.position(),
-                                QTextCursor::MoveAnchor);
+    loginEditorCursor.setPosition(loginEditorCursor.position(), QTextCursor::MoveAnchor);
 }
 
 
