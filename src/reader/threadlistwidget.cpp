@@ -293,9 +293,17 @@ void ThreadListWidget::selectNextUnread() {
 }
 void ThreadListWidget::forceUpdateThreadClicked() {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
-    if(msgItem && msgItem->message() && msgItem->message()->thread()) {
-        msgItem->message()->thread()->setLastPage(0);
-        msgItem->message()->thread()->markToBeUpdated();
-        emit updateThread(msgItem->message()->thread(), true);
+    ForumThread *thread = 0;
+    if(msgItem) {
+        if(msgItem->message() && msgItem->message()->thread()) {
+            thread = msgItem->message()->thread();
+        } else if(!msgItem->message()) {
+            ThreadListThreadItem *threadItem = dynamic_cast<ThreadListThreadItem*> (currentItem());
+            if(threadItem) {
+                thread = threadItem->thread();
+            }
+        }
     }
+    if(thread)
+        emit updateThread(thread, true);
 }

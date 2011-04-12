@@ -395,7 +395,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(moreMessagesRequested(ForumThread*)), this, SLOT(moreMessagesRequested(ForumThread*)));
     connect(mainWin, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SLOT(unsubscribeGroup(ForumGroup*)));
     connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
-    connect(mainWin->threadList(), SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateClicked()));
+    connect(mainWin->threadList(), SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
     mainWin->setReaderReady(false, currentState==state_offline);
     mainWin->show();
     setQuitOnLastWindowClosed(true);
@@ -511,10 +511,17 @@ void Siilihai::updateClicked() {
 }
 
 void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
-    qDebug() << Q_FUNC_INFO << "Update selected clicked, updating forum " << sub->toString()
-             << ", force=" << force;
+    qDebug() << Q_FUNC_INFO << "Update selected clicked, updating forum " << sub->toString() << ", force=" << force;
     Q_ASSERT(engines.contains(sub));
     engines[sub]->updateForum(force);
+}
+
+void Siilihai::updateThread(ForumThread* thread, bool force) {
+    ForumSubscription *sub = thread->group()->subscription();
+    Q_ASSERT(sub);
+    qDebug() << Q_FUNC_INFO << "updating thread " << thread->toString() << " in " << sub->toString() << ", force=" << force;
+    Q_ASSERT(engines.contains(sub));
+    engines[sub]->updateThread(thread, force);
 }
 
 void Siilihai::cancelClicked() {
@@ -629,13 +636,11 @@ void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authen
     bool failed = false;
     QString gname = QString().number(fsub->parser());
     settings.beginGroup("authentication");
-    qDebug() << settings.contains(QString("authentication/%1/username").arg(gname)) <<
-                settings.contains(QString("%1/username").arg(gname));
     if(settings.contains(QString("%1/username").arg(gname))) {
         authenticator->setUser(settings.value(QString("%1/username").arg(gname)).toString());
         authenticator->setPassword(settings.value(QString("%1/password").arg(gname)).toString());
         if(settings.value(QString("authentication/%1/failed").arg(gname)).toString() == "true") failed = true;
-        qDebug() << "Failed: " << settings.value(QString("%1/failed").arg(gname)).toString();
+        qDebug() << Q_FUNC_INFO << "Failed: " << settings.value(QString("%1/failed").arg(gname)).toString();
     }
     settings.endGroup();
     if(authenticator->user().isNull() || failed) {
@@ -690,3 +695,4 @@ void Siilihai::syncProgress(float progress) {
             progressBar->setValue(progress * 100);
     }
 }
+

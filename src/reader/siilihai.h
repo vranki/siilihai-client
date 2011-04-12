@@ -75,6 +75,7 @@ public slots:
     void forumUpdated(ForumSubscription* forumid);
     void updateClicked();
     void updateClicked(ForumSubscription* forumid, bool force=false);
+    void updateThread(ForumThread* thread, bool force=false);
     void cancelClicked();
     void reportClicked(ForumSubscription* forumid);
     void statusChanged(ForumSubscription* forumid, bool reloading, float progress);

@@ -5,11 +5,12 @@ ThreadListMessageItem::ThreadListMessageItem(QTreeWidget *tree) : QObject(tree),
     msg = 0;
 }
 
-ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem,
-                                             ForumMessage *message) : QTreeWidgetItem(threadItem)
+ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem, ForumMessage *message) : QTreeWidgetItem(threadItem)
 {
     Q_ASSERT(message);
     Q_ASSERT(message->isSane());
+    Q_ASSERT(message->thread());
+    Q_ASSERT(message->thread()->isSane());
     msg = message;
     QString orderString;
     if(message->ordernum() >=0) {

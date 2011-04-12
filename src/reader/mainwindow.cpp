@@ -73,8 +73,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
 
     mvw = new MessageViewWidget(this);
     ui.horizontalSplitter->addWidget(mvw);
-    connect(tlw, SIGNAL(messageSelected(ForumMessage*)), mvw,
-            SLOT(messageSelected(ForumMessage*)));
+    connect(tlw, SIGNAL(messageSelected(ForumMessage*)), mvw, SLOT(messageSelected(ForumMessage*)));
     connect(ui.actionHTML, SIGNAL(triggered()), mvw, SLOT(viewAsHTML()));
     connect(ui.actionText, SIGNAL(triggered()), mvw, SLOT(viewAsText()));
     connect(ui.actionHTML_Source, SIGNAL(triggered()), mvw, SLOT(viewAsSource()));
@@ -109,8 +108,7 @@ MainWindow::~MainWindow() {
 void MainWindow::closeEvent(QCloseEvent *event) {
     settings->setValue("reader_geometry", saveGeometry());
     settings->setValue("reader_splitter_size", ui.forumsSplitter->saveState());
-    settings->setValue("reader_horizontal_splitter_size",
-                       ui.horizontalSplitter->saveState());
+    settings->setValue("reader_horizontal_splitter_size", ui.horizontalSplitter->saveState());
     event->ignore();
     emit haltRequest();
 }

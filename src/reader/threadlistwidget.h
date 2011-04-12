@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 #include <QObject>
+#include <QMessageBox>
 
 #include <siilihai/forumgroup.h>
 #include <siilihai/forumthread.h>
