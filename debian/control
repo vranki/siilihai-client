@@ -2,14 +2,14 @@ Source: siilihai-client
 Section: net
 Priority: extra
 Maintainer: Ville Ranki <ville.ranki@iki.fi>
-Build-Depends: debhelper (>= 5), libqt4-dev, libqtwebkit-dev, libsiilihai (>=0.9.16), libqt4-sql-sqlite
+Build-Depends: debhelper (>= 5), libqt4-dev, libqtwebkit-dev, libsiilihai (>=0.9.19), libqt4-sql-sqlite
 Standards-Version: 3.8.0
 Homepage: http://www.siilihai.com/
 
 Package: siilihai-client
 XB-Maemo-Display-Name: Siilihai Web Forum Reader
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai (>=0.9.16), libqtwebkit4, libqt4-sql-sqlite
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai (>=0.9.19), libqtwebkit4, libqt4-sql-sqlite
 Description: Siilihai web forum reader application
  Graphical web forum reader application. See www.siilihai.com for details.
 XB-Maemo-Icon-26:
