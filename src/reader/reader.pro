@@ -19,8 +19,6 @@ exists(../../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
 }
 
-CONFIG += debug
-
 QT += core \
     webkit \
     gui \
@@ -92,11 +90,11 @@ win32:debug {
     DEPENDPATH += -L../common/debug
 }
 win32:release {
-    LIBS += -L../../../libsiilihai/src
-    LIBS += -L../common
-    LIBS += -L../parsermaker
-    DEPENDPATH += ../../../libsiilihai/src
-    DEPENDPATH += -L../common
+    LIBS += -L../../../libsiilihai/src/release
+    LIBS += -L../common/release
+    LIBS += -L../parsermaker/release
+    DEPENDPATH += ../../../libsiilihai/src/release
+    DEPENDPATH += -L../common/release
 }
 
 LIBS += -L../parsermaker \

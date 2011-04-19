@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = siilihai-common
-CONFIG += debug
+
 QT += core \
     gui \
     network \
@@ -32,8 +32,8 @@ win32:debug {
     DEPENDPATH += ../../../libsiilihai/src/debug
 }
 win32:release {
-    LIBS += -L../../../libsiilihai/src
-    DEPENDPATH += ../../../libsiilihai/src
+    LIBS += -L../../../libsiilihai/src/release
+    DEPENDPATH += ../../../libsiilihai/src/release
 }
 
 LIBS += -lsiilihai

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = siilihai-parsermaker
-CONFIG += debug
+
 QT += core \
     gui \
     network \
@@ -49,10 +49,10 @@ win32:debug {
     DEPENDPATH += -L../common/debug
 }
 win32:release {
-    LIBS += -L../../../libsiilihai/src
-    LIBS += -L../common
-    DEPENDPATH += ../../../libsiilihai/src
-    DEPENDPATH += -L../common
+    LIBS += -L../../../libsiilihai/src/release
+    LIBS += -L../common/release
+    DEPENDPATH += ../../../libsiilihai/src/release
+    DEPENDPATH += -L../common/release
 }
 
 LIBS += -lsiilihai -L../common -lsiilihai-common
