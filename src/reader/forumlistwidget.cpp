@@ -1,7 +1,7 @@
 #include "forumlistwidget.h"
 
 ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDatabase &p) :
-    QToolBox(parent), fdb(f), pdb(p) {
+    QToolBox(parent), fdb(f), pdb(p), currentGroup(0) {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(forumItemSelected(int)));
     connect(&fdb, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
 
