@@ -63,9 +63,10 @@ SOURCES += messageviewwidget.cpp \
     threadlistthreaditem.cpp \
     threadlistshowmoreitem.cpp
 
-DEPENDPATH += ../parsermaker \
-    ../common
+DEPENDPATH += ../parsermaker ../common
+
 target.path = $$BINDIR
+
 INSTALLS += target
 FORMS = settingsdialog.ui \
     reportparser.ui \
@@ -81,6 +82,7 @@ RESOURCES = ../../siilihairesources.qrc
 win32 {
     INCLUDEPATH += ../../../libsiilihai
     DEFINES += STORE_FILES_IN_APP_DIR
+    message("Win32 build - storing files in app dir")
 }
 win32:debug {
     LIBS += -L../../../libsiilihai/src/debug
@@ -100,5 +102,5 @@ win32:release {
 LIBS += -L../parsermaker \
     -L../common \
     -lsiilihai \
-    -lsiilihai-common
-!exists(/etc/libosso):LIBS += -lsiilihai-parsermaker
+    -lsiilihai-common \
+    -lsiilihai-parsermaker
