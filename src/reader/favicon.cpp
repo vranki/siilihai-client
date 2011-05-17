@@ -17,8 +17,7 @@ void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
     currentpic = QIcon(alt);
     blinkAngle = 0;
     QNetworkRequest req(url);
-    connect(&nam, SIGNAL(finished(QNetworkReply*)), this,
-            SLOT(replyReceived(QNetworkReply*)));
+    connect(&nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyReceived(QNetworkReply*)), Qt::UniqueConnection);
     nam.get(req);
     emit iconChanged(subscription, currentpic);
     update();

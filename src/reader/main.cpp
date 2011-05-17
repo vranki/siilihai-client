@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <QCoreApplication>
 #include "siilihai.h"
 
 int main(int argc, char *argv[]) {

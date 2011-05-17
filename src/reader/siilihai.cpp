@@ -199,9 +199,9 @@ void Siilihai::tryLogin() {
 }
 
 void Siilihai::haltSiilihai() {
-    qDebug() << Q_FUNC_INFO << "sync enabled:" << usettings.syncEnabled();
     cancelClicked();
-    qDeleteAll(engines.values());
+    foreach(ParserEngine *engine, engines.values())
+        engine->deleteLater();
     engines.clear();
     if(usettings.syncEnabled() && !endSyncDone && currentState == state_ready) {
         qDebug() << "Sync enabled - running end sync";
