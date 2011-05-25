@@ -1,20 +1,23 @@
 #include "favicon.h"
 
 Favicon::Favicon(QObject *parent, ForumSubscription *sub) :
-	QObject(parent) {
+    QObject(parent) {
     subscription = sub;
     currentProgress = 0;
     reloading = false;
     connect(subscription->parserEngine(), SIGNAL(statusChanged(ForumSubscription*,bool,float)),
             this, SLOT(engineStatusChanged(ForumSubscription*,bool,float)));
+    connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(update()));
+    blinkTimer.setInterval(100);
+    blinkTimer.setSingleShot(false);
 }
 
 Favicon::~Favicon() {
 }
 
 void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
-//    qDebug() << Q_FUNC_INFO << "Fetching icon " << url.toString() << " for " << engine->subscription()->toString();
-    currentpic = QIcon(alt);
+    //    qDebug() << Q_FUNC_INFO << "Fetching icon " << url.toString() << " for " << engine->subscription()->toString();
+    currentpic = alt;
     blinkAngle = 0;
     QNetworkRequest req(url);
     connect(&nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyReceived(QNetworkReply*)), Qt::UniqueConnection);
@@ -24,65 +27,48 @@ void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
 }
 
 void Favicon::replyReceived(QNetworkReply *reply) {
-    disconnect(&nam, SIGNAL(finished(QNetworkReply*)), this,
-               SLOT(replyReceived(QNetworkReply*)));
+    disconnect(&nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyReceived(QNetworkReply*)));
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray bytes = reply->readAll();
         QPixmap iconPixmap;
         iconPixmap.loadFromData(bytes);
-        currentpic = QIcon(iconPixmap);
-        emit iconChanged(subscription, currentpic);
+        if(!iconPixmap.isNull()) {
+            currentpic = iconPixmap;
+            emit iconChanged(subscription, currentpic);
+        }
     }
     reply->deleteLater();
 }
 
 void Favicon::update() {
-    return;
-    /*
     QPixmap outPic(currentpic);
-    if (reloading) {
-        // Slower FPS for Maemo
-        outPic.scroll(sinf(blinkAngle)*5, 0, outPic.rect());
-#ifdef Q_WS_HILDON
-        QTimer::singleShot(120, this, SLOT(update()));
-        blinkAngle += 0.1;
-#else
-        QTimer::singleShot(25, this, SLOT(update()));
-        blinkAngle += 0.05;
-#endif
-        */
-        /*
-        QPainter painter(&outPic);
-        painter.setPen(QColor(255, 255, 255, 64));
-        painter.setBrush(QColor(255, 255, 255, 128));
-        QRect rect(0, 0, outPic.width(), outPic.height());
-        painter.drawPie(rect, blinkAngle * 5760, 1000);
-        painter.setPen(QColor(0, 0, 0, 64));
-        painter.setBrush(QColor(0, 0, 0, 128));
-        painter.drawPie(rect, blinkAngle * 5760 - (5760/2), 1000);
-*/
-/*
-		painter.setBrush(QColor(0, 0, 0, 200));
+    blinkAngle -= 0.05;
 
-		if (currentProgress >= 0) {
-			rect.setRect(0, outPic.height() - 8, outPic.width(), 8);
-			painter.drawRects(&rect, 1);
+    QPainter painter(&outPic);
 
-			float barLength = (float) outPic.width() * currentProgress;
-			painter.setBrush(QColor(0, 0, 128, 128));
-			rect.setRect(0, outPic.height() - 8, barLength, 8);
-			painter.drawRects(&rect, 1);
-		}
-		*/
-  //      painter.end();
-   // }
-   // emit iconChanged(engine, QIcon(outPic));
+    QRect rect(0, 0, outPic.width(), outPic.height());
+    painter.setBrush(QColor(0, 0, 0, 64));
+    rect.setRect(0, 0, outPic.height(), outPic.width());
+    painter.drawRects(&rect, 1);
+
+    painter.setPen(QColor(255, 255, 255, 64));
+    painter.setBrush(QColor(255, 255, 255, 128));
+    painter.drawPie(rect, blinkAngle * 5760, 1500);
+    painter.setPen(QColor(0, 0, 0, 64));
+    painter.setBrush(QColor(0, 0, 0, 128));
+    painter.drawPie(rect, blinkAngle * 5760 - (5760/2), 1500);
+
+    emit iconChanged(subscription, QIcon(outPic));
 }
 
 void Favicon::engineStatusChanged(ForumSubscription* fs,bool reloading,float progress) {
     if(reloading) {
-        emit iconChanged(subscription, QIcon(":data/view-refresh.png"));
+        update();
+        blinkTimer.start();
+        //        emit iconChanged(subscription, QIcon(":data/view-refresh.png"));
     } else {
+        blinkAngle = 0;
+        blinkTimer.stop();
         emit iconChanged(subscription, currentpic);
     }
 }

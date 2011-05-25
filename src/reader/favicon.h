@@ -33,10 +33,10 @@ private:
     ForumSubscription *subscription;
     bool reloading;
     QNetworkAccessManager nam;
-    QIcon currentpic;
-//    QPixmap iconPixmap;
+    QPixmap currentpic;
     float currentProgress;
     float blinkAngle;
+    QTimer blinkTimer;
 };
 
 #endif /* FAVICON_H_ */
