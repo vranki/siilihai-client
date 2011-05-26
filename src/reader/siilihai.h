@@ -99,6 +99,7 @@ public slots:
     void forumLoginFinished(ForumSubscription *sub, bool success);
     void forumUpdateNeeded(ForumSubscription *sub);
     void syncProgress(float progress);
+    void unregisterSiilihai();
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();

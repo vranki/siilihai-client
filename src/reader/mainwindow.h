@@ -57,7 +57,7 @@ signals:
     void settingsChanged(bool byUser);
     void moreMessagesRequested(ForumThread* thread);
     void forumUpdateNeeded(ForumSubscription *sub);
-
+    void unregisterSiilihai();
 public slots:
     void subscribeForumSlot();
     void unsubscribeForumSlot();
@@ -85,6 +85,7 @@ private slots:
     void about();
     void settingsDialog();
     void settingsDialogAccepted();
+    void userAccountSettings();
     void messageSelected(ForumMessage *msg);
     void updateEnabledButtons();
 protected:

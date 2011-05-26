@@ -247,13 +247,11 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
     disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this,
                SLOT(loginFinished(bool, QString,bool)));
     if(!progressBar) { // Make sure this exists. If  user logs in first time, it might not!
-        progressBar = new QProgressDialog("Logged in", "Cancel", 0, 100,
-                                          mainWin);
+        progressBar = new QProgressDialog("Logged in", "Cancel", 0, 100, mainWin);
         progressBar->setWindowModality(Qt::WindowModal);
         progressBar->setValue(0);
         connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
     }
-
     if (success) {
         connect(&protocol, SIGNAL(listSubscriptionsFinished(QList<int>)), this,
                 SLOT(listSubscriptionsFinished(QList<int>)));
@@ -280,8 +278,7 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
         if (motd.length() > 0) {
             msgBox.setText(motd);
         } else {
-            msgBox.setText(
-                        "Error: Login failed. Check your username, password and network connection.\nWorking offline.");
+            msgBox.setText("Error: Login failed. Check your username, password and network connection.\nWorking offline.");
         }
         msgBox.exec();
         changeState(state_offline);
@@ -396,6 +393,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SLOT(unsubscribeGroup(ForumGroup*)));
     connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
     connect(mainWin->threadList(), SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
+    connect(mainWin, SIGNAL(unregisterSiilihai()), this, SLOT(unregisterSiilihai()));
     mainWin->setReaderReady(false, currentState==state_offline);
     mainWin->show();
     setQuitOnLastWindowClosed(true);
@@ -696,3 +694,14 @@ void Siilihai::syncProgress(float progress) {
     }
 }
 
+void Siilihai::unregisterSiilihai() {
+    cancelClicked();
+    fdb.resetDatabase();
+    settings.remove("account/username");
+    settings.remove("account/password");
+    settings.remove("first_run");
+    fdb.storeDatabase();
+    usettings.setSyncEnabled(false);
+    QMessageBox::information(mainWin, "Unregister successful", "Siilihai has been unregistered and will now quit.");
+    haltSiilihai();
+}

@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "useraccountdialog.h"
 
 MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
                        QWidget *parent) :
@@ -42,6 +43,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
             SLOT(markGroupUnread()));
     connect(ui.actionWork_offline, SIGNAL(toggled(bool)), this,
             SLOT(offlineClickedSlot()));
+    connect(ui.actionUserAccount, SIGNAL(triggered()), this, SLOT(userAccountSettings()));
     connect(ui.actionForumProperties, SIGNAL(triggered()), this, SLOT(forumPropertiesSlot()));
     connect(ui.updateButton, SIGNAL(clicked()), this, SLOT(updateClickedSlot()));
     connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
@@ -334,4 +336,11 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
         }
     }
     return false;
+}
+
+
+void MainWindow::userAccountSettings() {
+    UserAccountDialog accountDialog(this, settings);
+    connect(&accountDialog, SIGNAL(unregisterSiilihai()), this, SIGNAL(unregisterSiilihai()));
+    accountDialog.exec();
 }

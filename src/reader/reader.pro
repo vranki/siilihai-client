@@ -42,7 +42,8 @@ HEADERS += messageviewwidget.h \
     threadproperties.h \
     threadlistmessageitem.h \
     threadlistthreaditem.h \
-    threadlistshowmoreitem.h
+    threadlistshowmoreitem.h \
+    useraccountdialog.h
 
 SOURCES += messageviewwidget.cpp \
     messageformatting.cpp \
@@ -61,7 +62,8 @@ SOURCES += messageviewwidget.cpp \
     threadproperties.cpp \
     threadlistmessageitem.cpp \
     threadlistthreaditem.cpp \
-    threadlistshowmoreitem.cpp
+    threadlistshowmoreitem.cpp \
+    useraccountdialog.cpp
 
 DEPENDPATH += ../parsermaker ../common
 
@@ -76,7 +78,8 @@ FORMS = settingsdialog.ui \
     subscribeforum.ui \
     mainwindow.ui \
     forumproperties.ui \
-    threadproperties.ui
+    threadproperties.ui \
+    useraccountdialog.ui
 RESOURCES = ../../siilihairesources.qrc
 
 win32 {
