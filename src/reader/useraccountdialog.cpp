@@ -30,7 +30,7 @@ void UserAccountDialog::done(int result) {
 void UserAccountDialog::unregisterClicked() {
     QMessageBox msgBox(this);
     msgBox.setText("Really unregister?");
-    msgBox.setInformativeText("This will unsubscribe all forums and reset most things.");
+    msgBox.setInformativeText("This will reset local data. Use with caution.");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     if (msgBox.exec() == QMessageBox::Yes) {
