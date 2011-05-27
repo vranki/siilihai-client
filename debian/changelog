@@ -1,15 +1,15 @@
-siilihai-client (0.9.23-1) natty; urgency=low
+siilihai-client (0.9.23-2) natty; urgency=low
 
-  * Unregister functionality
+  * User account settings
   * Minor changes
 
- -- Ville Ranki <ville.ranki@iki.fi>  Sun, 8 May 2011 20:29:43 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 26 May 2011 20:29:43 +0300
 
-siilihai-client (0.9.22-1) maverick; urgency=low
+siilihai-client (0.9.23-1) natty; urgency=low
 
   * Fixed another crash on release build
 
- -- Ville Ranki <ville.ranki@iki.fi>  Sun, 8 May 2011 20:29:43 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 18 May 2011 20:29:43 +0300
 
 siilihai-client (0.9.21-1) maverick; urgency=low
 
