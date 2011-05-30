@@ -223,7 +223,7 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
     if (id > 0) {
         parser.id = id;
         if (message.isNull())
-            message = "Parser saved.";
+            message = "Parser saved. Restart Siilihai if you have already subscribed it.";
         emit(parserSaved(parser));
     } else {
         if (message.isNull())

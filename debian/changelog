@@ -1,3 +1,9 @@
+siilihai-client (0.9.24-1) natty; urgency=low
+
+  * A bit faster
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 26 May 2011 20:29:43 +0300
+
 siilihai-client (0.9.23-2) natty; urgency=low
 
   * User account settings
