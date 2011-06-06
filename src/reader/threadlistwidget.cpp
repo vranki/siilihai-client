@@ -39,7 +39,7 @@ ThreadListWidget::~ThreadListWidget() {
 void ThreadListWidget::groupChanged(ForumGroup *grp) {
     if(grp != currentGroup) return;
 
-    if(!grp->subscribed()) {
+    if(!grp->isSubscribed()) {
         groupDeleted(grp);
     }
 }

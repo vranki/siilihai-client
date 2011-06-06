@@ -156,8 +156,9 @@ void Siilihai::changeState(siilihai_states newState) {
         Q_ASSERT(progressBar);
         progressBar->setLabelText("Storing changes to local database");
         progressBar->setModal(true);
-        progressBar->setValue(50);
+        progressBar->setValue(75);
         fdb.storeDatabase();
+        mainWin->hide(); // Is this good?
     } else if(newState==state_updating_parsers) {
         qDebug() << Q_FUNC_INFO << "Update parsers";
         if(parsersToUpdateLeft.isEmpty()) {
@@ -215,10 +216,10 @@ void Siilihai::haltSiilihai() {
         changeState(state_endsync);
         syncmaster.endSync();
     } else {
-        if(currentState != state_storedb) {
+        if(currentState != state_storedb && fdb.isStored()) {
             changeState(state_storedb);
         } else {
-            qDebug() << "Not syncing - quitting";
+            qDebug() << "All done - quitting";
             settings.sync();
             if(progressBar)
                 progressBar->deleteLater();

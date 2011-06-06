@@ -104,7 +104,7 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
     connect(grp, SIGNAL(unreadCountChanged(ForumGroup*)), this, SLOT(updateGroupLabel(ForumGroup*)));
     connect(grp, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
 
-    if(!grp->subscribed()) return;
+    if(!grp->isSubscribed()) return;
     QListWidget *lw = listWidgets.value(grp->subscription());
     Q_ASSERT(lw);
     QListWidgetItem *lwi = new QListWidgetItem(lw);
@@ -121,7 +121,7 @@ void ForumListWidget::groupChanged(ForumGroup *grp) {
     QListWidget *lw = listWidgets.value(grp->subscription());
     Q_ASSERT(lw);
     QListWidgetItem *gItem = forumGroups.key(grp);
-    if(gItem && !grp->subscribed()) {
+    if(gItem && !grp->isSubscribed()) {
         // delete unsubscribed group from UI
         lw->takeItem(lw->row(gItem));
         forumGroups.remove(gItem);
@@ -130,9 +130,9 @@ void ForumListWidget::groupChanged(ForumGroup *grp) {
             currentGroup = 0;
             emit groupSelected(currentGroup);
         }
-    } else if(gItem && grp->subscribed()) {
+    } else if(gItem && grp->isSubscribed()) {
         updateGroupLabel(grp);
-    } else if(!gItem && grp->subscribed()) {
+    } else if(!gItem && grp->isSubscribed()) {
         // Add subscribed group to UI
         groupFound(grp);
     }
@@ -151,7 +151,7 @@ void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
 void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
     // qDebug() << Q_FUNC_INFO;
     Q_ASSERT(grp);
-    if(!grp->subscribed()) return;
+    if(!grp->isSubscribed()) return;
     if(!grp->subscription()) return; // May happen while quittinq
     QListWidget *lw = listWidgets.value(grp->subscription());
     Q_ASSERT(lw);
@@ -164,7 +164,7 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
 
 void ForumListWidget::groupDeleted(QObject* g) {
     ForumGroup *grp = static_cast<ForumGroup*> (g);
-    if(!grp->subscribed()) return;
+    if(!grp->isSubscribed()) return;
     if(currentGroup==grp) {
         currentGroup = 0;
         emit groupSelected(0);
