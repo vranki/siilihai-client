@@ -1,4 +1,5 @@
 #include "groupsubscriptiondialog.h"
+#include "siilihai/forumgroup.h"
 
 GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) :
 	QDialog(parent) {

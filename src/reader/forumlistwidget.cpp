@@ -231,7 +231,7 @@ void ForumListWidget::unsubscribeGroupClicked() {
 
 void ForumListWidget::markAllReadClicked(bool un) {
     if(currentGroup) {
-        foreach(ForumThread *thread, currentGroup->threads()) {
+        foreach(ForumThread *thread, currentGroup->values()) {
             foreach(ForumMessage *msg, thread->values()) {
                 msg->setRead(!un);
             }

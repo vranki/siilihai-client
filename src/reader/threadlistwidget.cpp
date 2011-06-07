@@ -146,7 +146,7 @@ void ThreadListWidget::updateList() {
     if(!currentGroup) return;
     clearList();
     // Add the threads and messages in order
-    QList<ForumThread*> threads = currentGroup->threads().values();
+    QList<ForumThread*> threads = currentGroup->values();
     qSort(threads);
     disableSortAndResize = true;
     qDebug() << Q_FUNC_INFO << "group" << currentGroup->toString() << "has" << threads.size() << "threads";
