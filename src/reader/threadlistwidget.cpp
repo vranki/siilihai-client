@@ -9,8 +9,6 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     headers << "Subject" << "Date" << "Author" << "Ordernum";
     setHeaderLabels(headers);
     setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
-    connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
@@ -92,12 +90,29 @@ void ThreadListWidget::addMessage(ForumMessage *message) {
     }
 }
 
+void ThreadListWidget::removeMessage(ForumMessage *message) {
+    ThreadListMessageItem *item = forumMessages.key(message, 0);
+    Q_ASSERT(item);
+    if(message->ordernum()==0) {
+        ThreadListThreadItem *threadItem = qobject_cast<ThreadListThreadItem*> (item);
+        Q_ASSERT(threadItem);
+        threadItem->setMessage(0);
+    } else {
+        item->deleteLater();
+    }
+    disconnect(message, 0, this, 0);
+    forumMessages.remove(item);
+}
+
 void ThreadListWidget::addThread(ForumThread *thread) {
     qDebug() << Q_FUNC_INFO << thread;
     Q_ASSERT(thread);
     qDebug() << Q_FUNC_INFO << thread->toString();
     Q_ASSERT(thread->group() == currentGroup);
-    qDebug() << Q_FUNC_INFO << "assert ohi";
+
+    connect(thread, SIGNAL(messageAdded(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
+    connect(thread, SIGNAL(messageRemoved(ForumMessage*)), this, SLOT(removeMessage(ForumMessage*)));
+
     ThreadListThreadItem *threadItem = new ThreadListThreadItem(this, thread);
 
     forumThreads[threadItem] = thread;
@@ -108,14 +123,20 @@ void ThreadListWidget::addThread(ForumThread *thread) {
         resizeColumnToContents(1);
         resizeColumnToContents(2);
     }
-    qDebug() << Q_FUNC_INFO << "ulos";
+}
+
+void ThreadListWidget::removeThread(ForumThread *thread) {
+    disconnect(thread, 0, this, 0);
+    ThreadListThreadItem *item = forumThreads.key(thread);
+    Q_ASSERT(item);
+    item->deleteLater();
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
     qDebug() << Q_FUNC_INFO << fg;
     if(!fg) {
         if(currentGroup) {
-            disconnect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+            disconnect(currentGroup, 0, this, 0);
             currentGroup = 0;
         }
         clearList();
@@ -123,12 +144,13 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
     }
     if(currentGroup != fg) {
         if(currentGroup) {
-            disconnect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
-            disconnect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
+            disconnect(currentGroup, 0, this, 0);
         }
         currentGroup = fg;
         connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
+        connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
+        connect(currentGroup, SIGNAL(threadRemoved(ForumThread*)), this, SLOT(removeThread(ForumThread*)));
         clearSelection();
         updateList();
         setCurrentItem(topLevelItem(0));
@@ -136,6 +158,10 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 }
 
 void ThreadListWidget::clearList() {
+    foreach(ForumMessage *fm, forumMessages.values())
+        disconnect(fm, 0, this, 0);
+    foreach(ForumThread *ft, forumThreads.values())
+        disconnect(ft, 0, this, 0);
     forumMessages.clear();
     forumThreads.clear();
     clear();
@@ -188,7 +214,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *p
             msgItem->updateRead();
         }
     } else {
-        qDebug() << Q_FUNC_INFO << "A thread with no messages. Broken parser?.";
+        qDebug() << Q_FUNC_INFO << "Selected an item which s not a showmore or message item. Broken parser?";
         //if(forumThreads.contains(item))
         //    qDebug() << "The thread in question is " << forumThreads.value(item)->toString();
         emit messageSelected(0);

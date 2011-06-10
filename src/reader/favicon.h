@@ -26,6 +26,7 @@ public:
 public slots:
     void replyReceived(QNetworkReply *reply);
     void update();
+    void subscriptionChanged(ForumSubscription *sub);
     void engineStatusChanged(ForumSubscription* fs,bool reloading,float progress);
 signals:
     void iconChanged(ForumSubscription *e, QIcon newIcon);

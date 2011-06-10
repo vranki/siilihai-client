@@ -47,15 +47,15 @@ void ForumProperties::saveChanges() {
     fs->setAlias(ui->forumName->text());
     if(fs->latestThreads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
-        foreach(ForumGroup *group, fs->groups()) {
-            group->setLastchange("UPDATE_NEEDED");
+        foreach(ForumGroup *group, fs->values()) {
+            group->markToBeUpdated();
             group->commitChanges();
         }
         update = true;
     }
 
     if(fs->latestMessages() != ui->messages_per_thread->value()) {
-        foreach(ForumGroup *grp, fs->groups()) {
+        foreach(ForumGroup *grp, fs->values()) {
             foreach(ForumThread *thread, grp->values()) {
                 if(thread->getMessagesCount() != ui->messages_per_thread->value()) {
                     thread->setGetMessagesCount(ui->messages_per_thread->value());

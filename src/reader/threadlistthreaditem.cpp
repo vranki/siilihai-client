@@ -26,12 +26,12 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
 }
 
 void ThreadListThreadItem::setMessage(ForumMessage *message) {
-    Q_ASSERT(message);
     msg = message;
-    connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
-    connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
-    connect(msg, SIGNAL(destroyed()), this, SLOT(threadMessageDeleted()));
-
+    if(message) {
+        connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
+        connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
+        connect(msg, SIGNAL(destroyed()), this, SLOT(threadMessageDeleted()));
+    }
     updateItem();
 }
 

@@ -3,7 +3,6 @@
 ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDatabase &p) :
     QToolBox(parent), fdb(f), pdb(p), currentGroup(0) {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(forumItemSelected(int)));
-    connect(&fdb, SIGNAL(groupFound(ForumGroup *)), this, SLOT(groupFound(ForumGroup *)));
 
     markReadAction = new QAction("Mark all messages read", this);
     markReadAction->setToolTip("Mark all messages in selected group as read");
@@ -23,6 +22,9 @@ ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDataba
     forumPropertiesAction = new QAction("Forum properties..", this);
     forumPropertiesAction->setToolTip("View and edit detailed information about the forum");
     connect(forumPropertiesAction, SIGNAL(triggered()), this, SIGNAL(forumProperties()));
+    connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(addSubscription(ForumSubscription*)));
+    foreach(ForumSubscription* sub, fdb.values())
+        addSubscription(sub);
 }
 
 ForumListWidget::~ForumListWidget() {
@@ -34,10 +36,10 @@ void ForumListWidget::forumItemSelected(int i) {
     ForumSubscription *sub = 0;
     if(i >= 0) {
         sub = listWidgets.key(static_cast<QListWidget*> (widget(i)));
-        if(sub->groups().isEmpty()) {
+        if(sub->isEmpty()) {
             emit groupSelected(0);
         } else { // Select the first group
-            emit groupSelected(*sub->groups().begin());
+            emit groupSelected(sub->values().first());
             static_cast<QListWidget*> (widget(i))->setCurrentRow(0);
         }/*
         if(listWidgets.value(sub)->currentItem()) {
@@ -75,11 +77,13 @@ void ForumListWidget::iconUpdated(ForumSubscription* en, QIcon newIcon) {
 
 void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
    // qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
-    currentGroup = forumGroups[item];
+    currentGroup = forumGroups.value(item);
     emit groupSelected(currentGroup);
 }
 
 void ForumListWidget::addSubscription(ForumSubscription *sub) {
+    if(listWidgets.value(sub)) return; // If already exists
+    qDebug() << Q_FUNC_INFO << sub->toString() << sub->alias();
     QListWidget *lw = new QListWidget(this);
     listWidgets[sub] = lw;
     addItem(lw, sub->alias());
@@ -87,22 +91,36 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     connect(sub, SIGNAL(unreadCountChanged(ForumSubscription*)), this, SLOT(updateSubscriptionLabel(ForumSubscription*)));
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
+    connect(sub, SIGNAL(groupAdded(ForumGroup*)), this, SLOT(groupFound(ForumGroup*)));
+    connect(sub, SIGNAL(groupRemoved(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
+
+    setupFavicon(sub);
+
+    foreach(ForumGroup *grp, sub->values())
+        groupFound(grp);
+}
+
+void ForumListWidget::subscriptionChanged(ForumSubscription *sub) {
+    updateSubscriptionLabel(sub);
+}
+
+void ForumListWidget::setupFavicon(ForumSubscription *sub) {
     QString fiUrl = pdb.getParser(sub->parser()).forum_url;
     fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
     fiUrl = fiUrl + "/favicon.ico";
     Favicon *fi = new Favicon(this, sub);
-    connect(fi, SIGNAL(iconChanged(ForumSubscription*, QIcon)), this,
-            SLOT(iconUpdated(ForumSubscription*, QIcon)));
+    connect(fi, SIGNAL(iconChanged(ForumSubscription*, QIcon)), this, SLOT(iconUpdated(ForumSubscription*, QIcon)));
     fi->fetchIcon(QUrl(QUrl(fiUrl)), QPixmap(":/data/emblem-web.png"));
     forumIcons[sub] = fi;
 }
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
-    // qDebug() << Q_FUNC_INFO << grp->toString();
     Q_ASSERT(grp);
     connect(grp, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
     connect(grp, SIGNAL(unreadCountChanged(ForumGroup*)), this, SLOT(updateGroupLabel(ForumGroup*)));
     connect(grp, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
+
+    qDebug() << Q_FUNC_INFO << grp->toString() << grp->isSubscribed();
 
     if(!grp->isSubscribed()) return;
     QListWidget *lw = listWidgets.value(grp->subscription());
@@ -162,8 +180,7 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
     gItem->setText(title);
 }
 
-void ForumListWidget::groupDeleted(QObject* g) {
-    ForumGroup *grp = static_cast<ForumGroup*> (g);
+void ForumListWidget::groupDeleted(ForumGroup *grp) {
     if(!grp->isSubscribed()) return;
     if(currentGroup==grp) {
         currentGroup = 0;
@@ -180,6 +197,11 @@ void ForumListWidget::groupDeleted(QObject* g) {
     lw->removeItemWidget(item);
     forumGroups.remove(item);
     delete item;
+}
+
+void ForumListWidget::groupDeleted(QObject* g) {
+    ForumGroup *grp = static_cast<ForumGroup*> (g);
+    if(g) groupDeleted(g);
 }
 
 void ForumListWidget::subscriptionDeleted(QObject *s) {

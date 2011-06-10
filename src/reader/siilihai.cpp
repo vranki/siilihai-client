@@ -305,7 +305,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
         progressBar->setValue(50);
 
     QList<ForumSubscription*> unsubscribedForums;
-    foreach(ForumSubscription* sub, fdb.listSubscriptions()) {
+    foreach(ForumSubscription* sub, fdb.values()) {
         bool found = false;
         foreach(int serverSubscriptionId, serversSubscriptions) {
             qDebug() << "Server says: subscribed to " << serverSubscriptionId;
@@ -324,7 +324,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
         pdb.deleteParser(sub->parser());
     }
 
-    if (fdb.listSubscriptions().isEmpty()) { // Display subscribe dialog if none subscribed
+    if (fdb.isEmpty()) { // Display subscribe dialog if none subscribed
         if(!usettings.syncEnabled()) {
             subscribeForum();
             changeState(state_ready);
@@ -440,7 +440,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
-    mainWin->forumList()->addSubscription(sub);
+//    mainWin->forumList()->addSubscription(sub);
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
             SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
@@ -600,7 +600,7 @@ void Siilihai::subscribeForumFinished(ForumSubscription *sub, bool success) {
     qDebug() << Q_FUNC_INFO << success;
     if (!success) {
         errorDialog("Subscribing to forum failed. Please check network connection.");
-        if(fdb.getSubscription(sub->parser()))
+        if(fdb.value(sub->parser()))
             fdb.deleteSubscription(sub);
     }
 }

@@ -29,8 +29,6 @@ public:
 public slots:
 	void groupSelected(ForumGroup *fg);
         void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
-        void messageFound(ForumMessage *msg);
-        void threadFound(ForumThread *thread);
         void groupChanged(ForumGroup *grp);
         void groupDeleted(QObject*);
         void markReadClicked(bool read=true);
@@ -39,6 +37,13 @@ public slots:
         void viewInBrowserClicked();
         void forceUpdateThreadClicked();
         void selectNextUnread();
+private slots:
+        void threadFound(ForumThread *thread);
+        void removeThread(ForumThread *thread);
+
+        void messageFound(ForumMessage *msg);
+        void removeMessage(ForumMessage *msg);
+
 signals:
 	void messageSelected(ForumMessage *msg);
         void moreMessagesRequested(ForumThread *thread);

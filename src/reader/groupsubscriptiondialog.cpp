@@ -31,7 +31,7 @@ void GroupSubscriptionDialog::selectNone() {
 }
 
 void GroupSubscriptionDialog::apply() {
-    foreach(ForumGroup *group, forum->groups()) {
+    foreach(ForumGroup *group, forum->values()) {
         QListWidgetItem *item = listItems[group];
         bool itemChecked = (item->checkState()==Qt::Checked);
         if(itemChecked != group->isSubscribed()) {
@@ -50,7 +50,7 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
 
     ui.listWidget->clear();
     listItems.clear();
-    foreach(ForumGroup *group, forum->groups()) {
+    foreach(ForumGroup *group, forum->values()) {
         QListWidgetItem *newItem = new QListWidgetItem();
         newItem->setText(group->name());
         newItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
