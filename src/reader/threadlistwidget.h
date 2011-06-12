@@ -23,7 +23,7 @@ class ThreadListWidget : public QTreeWidget {
 	Q_OBJECT
 
 public:
-	ThreadListWidget(QWidget *parent, ForumDatabase &f);
+        ThreadListWidget(QWidget *parent, ForumDatabase &f);
 	virtual ~ThreadListWidget();
 
 public slots:
@@ -66,7 +66,7 @@ private:
         QHash<ThreadListThreadItem*, ForumThread*> forumThreads;
         QHash<ThreadListMessageItem*, ForumMessage*> forumMessages;
         ForumGroup *currentGroup;
-	ForumDatabase &fdb;
+        ForumDatabase &fdb;
         // Actions:
         QAction *markReadAction;
         QAction *markUnreadAction;

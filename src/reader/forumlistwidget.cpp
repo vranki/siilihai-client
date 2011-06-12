@@ -135,7 +135,6 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
 
 void ForumListWidget::groupChanged(ForumGroup *grp) {
     Q_ASSERT(grp);
-    qDebug() << Q_FUNC_INFO << grp->toString();
     QListWidget *lw = listWidgets.value(grp->subscription());
     Q_ASSERT(lw);
     QListWidgetItem *gItem = forumGroups.key(grp);

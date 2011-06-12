@@ -1,5 +1,8 @@
 #include "groupsubscriptiondialog.h"
 #include "siilihai/forumgroup.h"
+#include "siilihai/parserengine.h"
+#include <siilihai/forumdatabase.h>
+#include <siilihai/forumsubscription.h>
 
 GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) :
 	QDialog(parent) {
@@ -12,8 +15,8 @@ GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) :
 }
 
 GroupSubscriptionDialog::~GroupSubscriptionDialog() {
-
 }
+
 void GroupSubscriptionDialog::selectAll() {
     QHashIterator<ForumGroup*, QListWidgetItem*> i(listItems);
     while (i.hasNext()) {
@@ -47,7 +50,10 @@ void GroupSubscriptionDialog::apply() {
 void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nforum) {
     fdb = db;
     forum = nforum;
-
+    if(forum->parserEngine()->state() == ParserEngine::PES_UPDATING) {
+        close();
+        return;
+    }
     ui.listWidget->clear();
     listItems.clear();
     foreach(ForumGroup *group, forum->values()) {

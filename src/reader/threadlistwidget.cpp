@@ -1,4 +1,5 @@
 #include "threadlistwidget.h"
+#include <QDebug>
 
 ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 	QTreeWidget(parent), fdb(f) {
@@ -105,7 +106,6 @@ void ThreadListWidget::removeMessage(ForumMessage *message) {
 }
 
 void ThreadListWidget::addThread(ForumThread *thread) {
-    qDebug() << Q_FUNC_INFO << thread;
     Q_ASSERT(thread);
     qDebug() << Q_FUNC_INFO << thread->toString();
     Q_ASSERT(thread->group() == currentGroup);

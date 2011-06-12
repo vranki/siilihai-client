@@ -47,8 +47,7 @@ void Siilihai::launchSiilihai() {
     if (proxy.length() > 0) {
         QUrl proxyUrl = QUrl(proxy);
         if (proxyUrl.isValid()) {
-            QNetworkProxy nproxy(QNetworkProxy::HttpProxy, proxyUrl.host(),
-                                 proxyUrl.port(0));
+            QNetworkProxy nproxy(QNetworkProxy::HttpProxy, proxyUrl.host(), proxyUrl.port(0));
             QNetworkProxy::setApplicationProxy(nproxy);
         } else {
             errorDialog("Warning: http proxy is not valid URL");
@@ -153,7 +152,11 @@ void Siilihai::changeState(siilihai_states newState) {
         connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
     } else if(newState==state_storedb) {
         qDebug() << Q_FUNC_INFO << "Storedb";
-        Q_ASSERT(progressBar);
+        if(!progressBar) {
+            progressBar = new QProgressDialog("Stroring changes", "Cancel", 0, 100, mainWin);
+            progressBar->setValue(0);
+            connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
+        }
         progressBar->setLabelText("Storing changes to local database");
         progressBar->setModal(true);
         progressBar->setValue(75);
@@ -191,6 +194,10 @@ void Siilihai::changeState(siilihai_states newState) {
             protocol.subscribeForum(sub);
         }
         mainWin->setReaderReady(true, false);
+        if (fdb.isEmpty()) { // Display subscribe dialog if none subscribed
+            subscribeForum();
+        }
+
         if (settings.value("preferences/update_automatically", true).toBool())
             updateClicked();
     }
@@ -297,6 +304,7 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
     }
 }
 
+// @todo never called?
 void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
     qDebug() << Q_FUNC_INFO << "count of subscribed forums " << serversSubscriptions.size();
     disconnect(&protocol, SIGNAL(listSubscriptionsFinished(QList<int>)), this,
@@ -313,8 +321,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
                 found = true;
         }
         if (!found) {
-            qDebug() << "Server says not subscribed to "
-                     << sub->toString();
+            qDebug() << "Server says not subscribed to " << sub->toString();
             unsubscribedForums.append(sub);
         }
     }
@@ -324,12 +331,6 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
         pdb.deleteParser(sub->parser());
     }
 
-    if (fdb.isEmpty()) { // Display subscribe dialog if none subscribed
-        if(!usettings.syncEnabled()) {
-            subscribeForum();
-            changeState(state_ready);
-        }
-    }
 }
 
 // Stores the parser if subscribed to it and updates the engine
@@ -440,7 +441,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
-//    mainWin->forumList()->addSubscription(sub);
+    //    mainWin->forumList()->addSubscription(sub);
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
             SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
@@ -660,11 +661,11 @@ void Siilihai::updateFailure(ForumSubscription* sub, QString msg) {
     errorDialog(sub->alias() + "\n" + msg);
 }
 
-void Siilihai::moreMessagesRequested(ForumThread* thread){
+void Siilihai::moreMessagesRequested(ForumThread* thread) {
     Q_ASSERT(thread);
     ParserEngine *engine = engines[thread->group()->subscription()];
     Q_ASSERT(engine);
-    if(engine->isBusy()) return;
+    if(engine->state() == ParserEngine::PES_UPDATING) return;
 
     thread->setGetMessagesCount(thread->getMessagesCount() +
                                 settings.value("preferences/show_more_count", 30).toInt());

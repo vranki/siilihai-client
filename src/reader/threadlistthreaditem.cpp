@@ -64,6 +64,7 @@ void ThreadListThreadItem::updateUnreads() {
     } else if(!moreString.isNull()) {
         threadSubject += " (" + moreString + ")";
     }
+    if(!message()) threadSubject += " (no messages, needs update)";
     setText(0, threadSubject);
 }
 

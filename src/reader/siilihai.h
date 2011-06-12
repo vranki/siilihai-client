@@ -12,7 +12,7 @@
 #include <time.h>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumdatabase.h>
+#include <siilihai/forumdatabasesql.h>
 #include <siilihai/parserdatabase.h>
 #include <siilihai/parserreport.h>
 #include <siilihai/parserengine.h>
@@ -115,7 +115,7 @@ private:
     QHash <ForumSubscription*, ParserEngine*> engines;
     QList <ForumSubscription*> subscriptionsNeedingCredentials;
     QSqlDatabase db;
-    ForumDatabase fdb;
+    ForumDatabaseSql fdb;
     ParserDatabase pdb;
     QString baseUrl;
     QList<ForumSubscription*> parsersToUpdateLeft;

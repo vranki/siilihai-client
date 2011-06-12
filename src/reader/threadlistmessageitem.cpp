@@ -50,6 +50,7 @@ void ThreadListMessageItem::updateItem() {
     if(oldOrderString != orderString) {
         setText(3, orderString);
     }
+    updateRead();
 }
 
 
