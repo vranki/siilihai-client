@@ -78,7 +78,7 @@ void Favicon::engineStateChanged(ParserEngine::ParserEngineState newState) {
 
         QPixmap outPic(currentpic);
         QPainter painter(&outPic);
-        painter.drawPixmap(0,0,outPic.width()/4,outPic.height()/4, QPixmap("qrc:data/dialog-error.png"));
+        painter.drawPixmap(0,0,outPic.width()/2,outPic.height()/2, QPixmap(":data/dialog-error.png"));
 
         emit iconChanged(subscription, QIcon(outPic));
     }
