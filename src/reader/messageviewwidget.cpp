@@ -40,7 +40,8 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         bodyToShow.replace("<img ", "\n<img ");
         bodyToShow = "<div class=\"monospace\">" + MessageFormatting::stripHtml(bodyToShow) + "</div>";
     } else if(viewMode == VIEW_SOURCE) {
-        bodyToShow = "<div class=\"monospace\">" + MessageFormatting::replaceCharacters(bodyToShow) + "</div>";
+        bodyToShow = "<div class=\"monospace\">" +
+                msg->toString() + ":<br />" + MessageFormatting::replaceCharacters(bodyToShow) + "</div>";
         bodyToShow.replace("\n", "<br />");
     }
     QString styleHtml = "  <style type=\"text/css\">#siilihai-header {"
