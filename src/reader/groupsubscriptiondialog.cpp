@@ -1,4 +1,8 @@
 #include "groupsubscriptiondialog.h"
+#include "siilihai/forumgroup.h"
+#include "siilihai/parserengine.h"
+#include <siilihai/forumdatabase.h>
+#include <siilihai/forumsubscription.h>
 
 GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) :
 	QDialog(parent) {
@@ -11,8 +15,8 @@ GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) :
 }
 
 GroupSubscriptionDialog::~GroupSubscriptionDialog() {
-
 }
+
 void GroupSubscriptionDialog::selectAll() {
     QHashIterator<ForumGroup*, QListWidgetItem*> i(listItems);
     while (i.hasNext()) {
@@ -30,10 +34,10 @@ void GroupSubscriptionDialog::selectNone() {
 }
 
 void GroupSubscriptionDialog::apply() {
-    foreach(ForumGroup *group, forum->groups()) {
+    foreach(ForumGroup *group, forum->values()) {
         QListWidgetItem *item = listItems[group];
         bool itemChecked = (item->checkState()==Qt::Checked);
-        if(itemChecked != group->subscribed()) {
+        if(itemChecked != group->isSubscribed()) {
             group->setSubscribed(itemChecked);
             group->setChangeset(0);
             group->setHasChanged(true);
@@ -46,14 +50,17 @@ void GroupSubscriptionDialog::apply() {
 void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nforum) {
     fdb = db;
     forum = nforum;
-
+    if(forum->parserEngine()->state() == ParserEngine::PES_UPDATING) {
+        close();
+        return;
+    }
     ui.listWidget->clear();
     listItems.clear();
-    foreach(ForumGroup *group, forum->groups()) {
+    foreach(ForumGroup *group, forum->values()) {
         QListWidgetItem *newItem = new QListWidgetItem();
         newItem->setText(group->name());
         newItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        if (group->subscribed()) {
+        if (group->isSubscribed()) {
             newItem->setCheckState(Qt::Checked);
         } else {
             newItem->setCheckState(Qt::Unchecked);

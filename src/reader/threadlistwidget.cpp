@@ -1,4 +1,5 @@
 #include "threadlistwidget.h"
+#include <QDebug>
 
 ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 	QTreeWidget(parent), fdb(f) {
@@ -9,8 +10,6 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
     headers << "Subject" << "Date" << "Author" << "Ordernum";
     setHeaderLabels(headers);
     setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(&fdb, SIGNAL(messageFound(ForumMessage*)), this, SLOT(messageFound(ForumMessage*)));
-    connect(&fdb, SIGNAL(threadFound(ForumThread*)), this, SLOT(threadFound(ForumThread*)));
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
@@ -39,83 +38,38 @@ ThreadListWidget::~ThreadListWidget() {
 void ThreadListWidget::groupChanged(ForumGroup *grp) {
     if(grp != currentGroup) return;
 
-    if(!grp->subscribed()) {
+    if(!grp->isSubscribed()) {
         groupDeleted(grp);
     }
 }
 
 void ThreadListWidget::groupDeleted(QObject*g) {
-    ForumGroup *grp = static_cast<ForumGroup*>(g);
+    ForumGroup *grp = dynamic_cast<ForumGroup*>(g);
     if(grp == currentGroup)
         groupSelected(0);
 }
 
-void ThreadListWidget::messageFound(ForumMessage *msg) {
-    if(msg->thread()->group() == currentGroup) addMessage(msg);
-}
-
-void ThreadListWidget::threadFound(ForumThread *thread) {
-    if(thread->group() == currentGroup) addThread(thread);
-}
-
-void ThreadListWidget::addMessage(ForumMessage *message) {
-    Q_ASSERT(message);
-    Q_ASSERT(message->thread()->group() == currentGroup);
-    // qDebug() << Q_FUNC_INFO << message->toString();
-    QPair<QTreeWidgetItem*, ForumThread*> threadPair;
-
-    ThreadListThreadItem *threadItem = forumThreads.key(message->thread());
-    Q_ASSERT(threadItem);
-
-    ThreadListMessageItem *item = 0;
-    if(message->ordernum() == 0) { // First message - update thread item!
-        item = threadItem;
-        threadItem->setMessage(message);
-        // qDebug() << Q_FUNC_INFO << "setting the thread item";
-    } else { // Reply message - create new item
-        item = new ThreadListMessageItem(threadItem, message);
-    }
-
-    forumMessages[item] = message;
-    item->updateItem();
-    item->updateRead();
-
-    // Update the thread item
-    if(!dynamic_cast<ThreadListThreadItem*> (item)) {
-        forumThreads.key(message->thread())->updateUnreads();
-    }
-    if(!disableSortAndResize) {
-        sortItems(3, Qt::AscendingOrder);
-        resizeColumnToContents(0);
-        resizeColumnToContents(1);
-        resizeColumnToContents(2);
-    }
-}
-
 void ThreadListWidget::addThread(ForumThread *thread) {
-    qDebug() << Q_FUNC_INFO << thread;
     Q_ASSERT(thread);
     qDebug() << Q_FUNC_INFO << thread->toString();
     Q_ASSERT(thread->group() == currentGroup);
-    qDebug() << Q_FUNC_INFO << "assert ohi";
-    ThreadListThreadItem *threadItem = new ThreadListThreadItem(this, thread);
 
-    forumThreads[threadItem] = thread;
+    ThreadListThreadItem *threadItem = new ThreadListThreadItem(this, thread);
     addTopLevelItem(threadItem);
+
     if(!disableSortAndResize) {
         sortItems(3, Qt::AscendingOrder);
         resizeColumnToContents(0);
         resizeColumnToContents(1);
         resizeColumnToContents(2);
     }
-    qDebug() << Q_FUNC_INFO << "ulos";
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
     qDebug() << Q_FUNC_INFO << fg;
     if(!fg) {
         if(currentGroup) {
-            disconnect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+            disconnect(currentGroup, 0, this, 0);
             currentGroup = 0;
         }
         clearList();
@@ -123,42 +77,46 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
     }
     if(currentGroup != fg) {
         if(currentGroup) {
-            disconnect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
-            disconnect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
+            disconnect(currentGroup, 0, this, 0);
         }
         currentGroup = fg;
-        connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
-        connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         clearSelection();
         updateList();
+        connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+        connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
+        connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(addThread(ForumThread*)));
+//        connect(currentGroup, SIGNAL(threadRemoved(ForumThread*)), this, SLOT(removeThread(ForumThread*)));
         setCurrentItem(topLevelItem(0));
     }
 }
 
 void ThreadListWidget::clearList() {
-    forumMessages.clear();
-    forumThreads.clear();
-    clear();
+    for(int t = topLevelItemCount() - 1; t>=0 ; t--) {
+        ThreadListThreadItem *threadItem = dynamic_cast<ThreadListThreadItem*> (topLevelItem(t));
+        threadItem->threadDeleted();
+    }
 }
 
 void ThreadListWidget::updateList() {
     qDebug() << Q_FUNC_INFO;
     if(!currentGroup) return;
-    clearList();
+    if(topLevelItemCount()) clearList();
     // Add the threads and messages in order
-    QList<ForumThread*> threads = currentGroup->threads().values();
+    QList<ForumThread*> threads = currentGroup->values();
     qSort(threads);
     disableSortAndResize = true;
     qDebug() << Q_FUNC_INFO << "group" << currentGroup->toString() << "has" << threads.size() << "threads";
     foreach(ForumThread *thread, threads) {
-        qDebug() << Q_FUNC_INFO << "adding" << thread;
+        qDebug() << Q_FUNC_INFO << "adding" << thread->toString();
         addThread(thread);
-        qDebug() << Q_FUNC_INFO << "added" << thread;
+        qDebug() << Q_FUNC_INFO << "added" << thread->toString();
+        /*
         QList<ForumMessage*> messages = thread->values();
         qSort(messages);
         foreach(ForumMessage *message, messages) {
             addMessage(message);
         }
+        */
     }
     disableSortAndResize = false;
     sortItems(3, Qt::AscendingOrder);
@@ -188,7 +146,7 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *p
             msgItem->updateRead();
         }
     } else {
-        qDebug() << Q_FUNC_INFO << "A thread with no messages. Broken parser?.";
+        qDebug() << Q_FUNC_INFO << "Selected an item which s not a showmore or message item. Broken parser?";
         //if(forumThreads.contains(item))
         //    qDebug() << "The thread in question is " << forumThreads.value(item)->toString();
         emit messageSelected(0);

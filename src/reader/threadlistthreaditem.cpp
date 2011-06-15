@@ -18,20 +18,34 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
     connect(_thread, SIGNAL(destroyed()), this, SLOT(threadDeleted()));
     connect(_thread, SIGNAL(changed(ForumThread*)), this, SLOT(updateItem()));
     connect(_thread, SIGNAL(unreadCountChanged(ForumThread *)), this, SLOT(updateUnreads()));
+    connect(_thread, SIGNAL(messageAdded(ForumMessage*)), this, SLOT(addMessage(ForumMessage*)));
+    connect(_thread, SIGNAL(messageRemoved(ForumMessage*)), this, SLOT(removeMessage(ForumMessage*)));
 
     setText(0, threadSubject);
     setText(1, MessageFormatting::sanitize(lc));
     setText(2, MessageFormatting::sanitize(author));
     setText(3, orderString);
+
+    QList<ForumMessage*> messages = _thread->values();
+    qSort(messages);
+    foreach(ForumMessage *msg, messages) {
+        addMessage(msg);
+    }
+    updateItem();
 }
-
+/*
+void ThreadListWidget::~ThreadListWidget(ForumThread *thread) {
+    disconnect(thread, 0, this, 0);
+    item->deleteLater();
+}
+*/
 void ThreadListThreadItem::setMessage(ForumMessage *message) {
-    Q_ASSERT(message);
     msg = message;
-    connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
-    connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
-    connect(msg, SIGNAL(destroyed()), this, SLOT(threadMessageDeleted()));
-
+    if(message) {
+        connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
+        connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
+        connect(msg, SIGNAL(destroyed()), this, SLOT(threadMessageDeleted()));
+    }
     updateItem();
 }
 
@@ -64,9 +78,11 @@ void ThreadListThreadItem::updateUnreads() {
     } else if(!moreString.isNull()) {
         threadSubject += " (" + moreString + ")";
     }
+    if(!message()) threadSubject += " (no messages, needs update)";
     setText(0, threadSubject);
 }
 
+// Commit suicide
 void ThreadListThreadItem::threadDeleted() {
     ThreadListThreadItem *threadItem = this;
     Q_ASSERT(!((QTreeWidgetItem*)threadItem)->parent()); // Item should always be root item
@@ -89,5 +105,60 @@ void ThreadListThreadItem::threadDeleted() {
 }
 
 void ThreadListThreadItem::threadMessageDeleted() {
-    msg = 0;
+    setMessage(0);
+}
+
+void ThreadListThreadItem::addMessage(ForumMessage *message) {
+    Q_ASSERT(message);
+    Q_ASSERT(message->thread() == thread());
+    Q_ASSERT(message->thread()->group() == _thread->group());
+
+    // DEBUG, check for dupclicates
+    for(int i=0;i<childCount();i++) {
+        ThreadListMessageItem *item = dynamic_cast<ThreadListMessageItem*> (child(i));
+        if(item) {
+            if(item->message() == message) {
+                Q_ASSERT(item->message() != message);
+                Q_ASSERT(item->message()->id() != message->id());
+            }
+        }
+    }
+
+    ThreadListMessageItem *item = 0;
+    if(message->ordernum() == 0) { // First message - update thread item!
+        Q_ASSERT(!this->message());
+        setMessage(message);
+        item = this;
+        updateUnreads();
+        // qDebug() << Q_FUNC_INFO << "setting the thread item";
+    } else { // Reply message - create new item
+        item = new ThreadListMessageItem(this, message);
+    }
+
+    item->updateItem();
+    item->updateRead();
+    /*
+    if(!disableSortAndResize) {
+        treeWidget->sortItems(3, Qt::AscendingOrder);
+        treeWidget->resizeColumnToContents(0);
+        treeWidget->resizeColumnToContents(1);
+        treeWidget->resizeColumnToContents(2);
+    }
+    */
+}
+
+void ThreadListThreadItem::removeMessage(ForumMessage *message) {
+    for(int i=0;i<childCount();i++) {
+        ThreadListMessageItem *item = dynamic_cast<ThreadListMessageItem*> (child(i));
+        if(item && item->message()==message) {
+            if(message->ordernum()==0) {
+                setMessage(0);
+                updateItem();
+            } else {
+                takeChild(i);
+                delete item;
+            }
+            return;
+        }
+    }
 }

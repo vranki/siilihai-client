@@ -47,8 +47,7 @@ void Siilihai::launchSiilihai() {
     if (proxy.length() > 0) {
         QUrl proxyUrl = QUrl(proxy);
         if (proxyUrl.isValid()) {
-            QNetworkProxy nproxy(QNetworkProxy::HttpProxy, proxyUrl.host(),
-                                 proxyUrl.port(0));
+            QNetworkProxy nproxy(QNetworkProxy::HttpProxy, proxyUrl.host(), proxyUrl.port(0));
             QNetworkProxy::setApplicationProxy(nproxy);
         } else {
             errorDialog("Warning: http proxy is not valid URL");
@@ -66,14 +65,17 @@ void Siilihai::launchSiilihai() {
         fdb.resetDatabase();
     }
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
-    connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
-            SLOT(updateForumParser(ForumParser)));
+    connect(&fdb, SIGNAL(databaseStored()), this, SLOT(databaseStored()), Qt::QueuedConnection);
+    connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this, SLOT(updateForumParser(ForumParser)));
     connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this,
             SLOT(userSettingsReceived(bool,UserSettings*)));
     if(fdb.openDatabase(&db)) {
         settings.setValue("forum_database_schema", fdb.schemaVersion());
     } else {
-        errorDialog("Error opening Siilihai's database!\nSee console for details. Sorry.\n\nYou can delete ~/.siilihai.db to reset database.");
+        errorDialog("Error opening Siilihai's database!\n"
+                    "See console for details. Sorry.\n\n"
+                    "Check that you're not running aother copy of Siilihai.\n"
+                    "You can delete ~/.siilihai.db to reset database.");
         haltSiilihai();
         return;
     }
@@ -144,12 +146,22 @@ void Siilihai::changeState(siilihai_states newState) {
         qDebug() << Q_FUNC_INFO << "Endsync";
         mainWin->setReaderReady(false, false);
         Q_ASSERT(!progressBar);
-        progressBar = new QProgressDialog("Synchronizing with server", "Cancel", 0, 100,
-                                          mainWin);
-        //progressBar->setWindowModality(Qt::Window);
-        progressBar->setModal(false);
+        progressBar = new QProgressDialog("Synchronizing with server", "Cancel", 0, 100, mainWin);
+        progressBar->setModal(true);
         progressBar->setValue(0);
         connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
+    } else if(newState==state_storedb) {
+        qDebug() << Q_FUNC_INFO << "Storedb";
+        if(!progressBar) {
+            progressBar = new QProgressDialog("Stroring changes", "Cancel", 0, 100, mainWin);
+            progressBar->setValue(0);
+            connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
+        }
+        progressBar->setLabelText("Storing changes to local database");
+        progressBar->setModal(true);
+        progressBar->setValue(75);
+        fdb.storeDatabase();
+        mainWin->hide(); // Is this good?
     } else if(newState==state_updating_parsers) {
         qDebug() << Q_FUNC_INFO << "Update parsers";
         if(parsersToUpdateLeft.isEmpty()) {
@@ -159,7 +171,6 @@ void Siilihai::changeState(siilihai_states newState) {
         Q_ASSERT(progressBar);
         progressBar->setValue(80);
         progressBar->setLabelText("Updating parser definitions");
-
         protocol.getParser(parsersToUpdateLeft.takeFirst()->parser());
     } else if(newState==state_ready) {
         qDebug() << Q_FUNC_INFO << "Ready";
@@ -183,6 +194,10 @@ void Siilihai::changeState(siilihai_states newState) {
             protocol.subscribeForum(sub);
         }
         mainWin->setReaderReady(true, false);
+        if (fdb.isEmpty()) { // Display subscribe dialog if none subscribed
+            subscribeForum();
+        }
+
         if (settings.value("preferences/update_automatically", true).toBool())
             updateClicked();
     }
@@ -208,15 +223,19 @@ void Siilihai::haltSiilihai() {
         changeState(state_endsync);
         syncmaster.endSync();
     } else {
-        qDebug() << "Not syncing - quitting";
-        settings.sync();
-        if(progressBar)
-            progressBar->deleteLater();
-        mainWin->deleteLater();
-        mainWin = 0;
-        progressBar = 0;
-
-        quit();
+        if(currentState != state_storedb && fdb.isStored()) {
+            changeState(state_storedb);
+        } else {
+            qDebug() << "All done - quitting";
+            settings.sync();
+            if(progressBar)
+                progressBar->deleteLater();
+            mainWin->deleteLater();
+            mainWin = 0;
+            progressBar = 0;
+            fdb.storeDatabase();
+            quit();
+        }
     }
 }
 
@@ -285,6 +304,7 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
     }
 }
 
+// @todo never called?
 void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
     qDebug() << Q_FUNC_INFO << "count of subscribed forums " << serversSubscriptions.size();
     disconnect(&protocol, SIGNAL(listSubscriptionsFinished(QList<int>)), this,
@@ -293,7 +313,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
         progressBar->setValue(50);
 
     QList<ForumSubscription*> unsubscribedForums;
-    foreach(ForumSubscription* sub, fdb.listSubscriptions()) {
+    foreach(ForumSubscription* sub, fdb.values()) {
         bool found = false;
         foreach(int serverSubscriptionId, serversSubscriptions) {
             qDebug() << "Server says: subscribed to " << serverSubscriptionId;
@@ -301,8 +321,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
                 found = true;
         }
         if (!found) {
-            qDebug() << "Server says not subscribed to "
-                     << sub->toString();
+            qDebug() << "Server says not subscribed to " << sub->toString();
             unsubscribedForums.append(sub);
         }
     }
@@ -312,12 +331,6 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
         pdb.deleteParser(sub->parser());
     }
 
-    if (fdb.listSubscriptions().isEmpty()) { // Display subscribe dialog if none subscribed
-        if(!usettings.syncEnabled()) {
-            subscribeForum();
-            changeState(state_ready);
-        }
-    }
 }
 
 // Stores the parser if subscribed to it and updates the engine
@@ -410,8 +423,7 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
     fs = 0;
     if(!fdb.addSubscription(newFs) || !pdb.storeParser(fp)) {
         QMessageBox msgBox(mainWin);
-        msgBox.setText(
-                    "Error: Unable to subscribe to forum. Are you already subscribed?");
+        msgBox.setText("Error: Unable to subscribe to forum. Are you already subscribed?");
         msgBox.exec();
     } else {
         protocol.subscribeForum(newFs);
@@ -429,14 +441,17 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
-    mainWin->forumList()->addSubscription(sub);
+    //    mainWin->forumList()->addSubscription(sub);
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
             SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
+        /*
     connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), this,
             SLOT(statusChanged(ForumSubscription*, bool, float)));
+
     connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), mainWin,
             SLOT(setForumStatus(ForumSubscription*, bool, float)));
+            */
     connect(pe, SIGNAL(updateFailure(ForumSubscription*, QString)), this,
             SLOT(updateFailure(ForumSubscription*, QString)));
     connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)),
@@ -452,7 +467,7 @@ void Siilihai::subscriptionDeleted(QObject* subobj) {
     qDebug() << Q_FUNC_INFO;
     ForumSubscription *sub = static_cast<ForumSubscription*> (subobj);
     if(!engines.contains(sub)) return; // Possible when quitting
-    engines[sub]->cancelOperation(); // Crashes here!!
+    engines[sub]->cancelOperation();
     engines[sub]->deleteLater();
     engines.remove(sub);
 }
@@ -488,7 +503,6 @@ void Siilihai::subscribeGroupDialogFinished() {
 }
 
 void Siilihai::forumUpdated(ForumSubscription* forum) {
-    qDebug() << Q_FUNC_INFO << "Forum " << forum->toString() << " has been updated. Left: " << subscriptionsToUpdateLeft.size();
     subscriptionsToUpdateLeft.removeOne(forum);
     if(!subscriptionsToUpdateLeft.isEmpty()) {
         engines.value(subscriptionsToUpdateLeft.first())->updateForum();
@@ -509,7 +523,6 @@ void Siilihai::updateClicked() {
 }
 
 void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
-    qDebug() << Q_FUNC_INFO << "Update selected clicked, updating forum " << sub->toString() << ", force=" << force;
     Q_ASSERT(engines.contains(sub));
     engines[sub]->updateForum(force);
 }
@@ -517,7 +530,6 @@ void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
 void Siilihai::updateThread(ForumThread* thread, bool force) {
     ForumSubscription *sub = thread->group()->subscription();
     Q_ASSERT(sub);
-    qDebug() << Q_FUNC_INFO << "updating thread " << thread->toString() << " in " << sub->toString() << ", force=" << force;
     Q_ASSERT(engines.contains(sub));
     engines[sub]->updateThread(thread, force);
 }
@@ -564,7 +576,6 @@ void Siilihai::launchParserMaker() {
                 SLOT(parserMakerClosed()));
         connect(parserMaker, SIGNAL(parserSaved(ForumParser)), this,
                 SLOT(updateForumParser(ForumParser)));
-
     } else {
         parserMaker->showNormal();
     }
@@ -593,7 +604,7 @@ void Siilihai::subscribeForumFinished(ForumSubscription *sub, bool success) {
     qDebug() << Q_FUNC_INFO << success;
     if (!success) {
         errorDialog("Subscribing to forum failed. Please check network connection.");
-        if(fdb.getSubscription(sub->parser()))
+        if(fdb.value(sub->parser()))
             fdb.deleteSubscription(sub);
     }
 }
@@ -625,6 +636,7 @@ void Siilihai::cancelProgress() {
         changeState(state_offline);
     } else if(currentState==state_endsync) {
         haltSiilihai();
+    } else if(currentState==state_storedb) { // Not allowed
     } else {
         Q_ASSERT(false);
     }
@@ -652,16 +664,14 @@ void Siilihai::updateFailure(ForumSubscription* sub, QString msg) {
     errorDialog(sub->alias() + "\n" + msg);
 }
 
-void Siilihai::moreMessagesRequested(ForumThread* thread){
+void Siilihai::moreMessagesRequested(ForumThread* thread) {
     Q_ASSERT(thread);
     ParserEngine *engine = engines[thread->group()->subscription()];
     Q_ASSERT(engine);
-    if(engine->isBusy()) return;
+    if(engine->state() == ParserEngine::PES_UPDATING) return;
 
-    // @todo Q_ASSERT(!thread->getAllMessages());
     thread->setGetMessagesCount(thread->getMessagesCount() +
                                 settings.value("preferences/show_more_count", 30).toInt());
-    // qDebug() << Q_FUNC_INFO << " getMessagesCount() now " << thread->getMessagesCount();
     thread->commitChanges();
     engine->updateThread(thread);
 }
@@ -703,5 +713,9 @@ void Siilihai::unregisterSiilihai() {
     fdb.storeDatabase();
     usettings.setSyncEnabled(false);
     QMessageBox::information(mainWin, "Unregister successful", "Siilihai has been unregistered and will now quit.");
+    haltSiilihai();
+}
+
+void Siilihai::databaseStored() {
     haltSiilihai();
 }

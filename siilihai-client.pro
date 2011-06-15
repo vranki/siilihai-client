@@ -18,8 +18,3 @@ icons.path = /usr/share/pixmaps
 icons.files = data/*.png
 
 INSTALLS += icons
-
-blankmessage.path = /usr/share/siilihai
-blankmessage.files = data/blankmessage
-
-INSTALLS += blankmessage

@@ -1,8 +1,7 @@
 #include "mainwindow.h"
 #include "useraccountdialog.h"
 
-MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s,
-                       QWidget *parent) :
+MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s, QWidget *parent) :
 QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     ui.setupUi(this);
     readerReady = false;

@@ -1,5 +1,7 @@
 #include "forumproperties.h"
 #include "ui_forumproperties.h"
+#include "siilihai/forumgroup.h"
+#include "siilihai/forumthread.h"
 
 ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f, ParserDatabase &p) :
     QDialog(parent),
@@ -45,21 +47,21 @@ void ForumProperties::saveChanges() {
     fs->setAlias(ui->forumName->text());
     if(fs->latestThreads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
-        foreach(ForumGroup *group, fs->groups()) {
-            group->setLastchange("UPDATE_NEEDED");
+        foreach(ForumGroup *group, fs->values()) {
+            group->markToBeUpdated();
             group->commitChanges();
         }
         update = true;
     }
 
     if(fs->latestMessages() != ui->messages_per_thread->value()) {
-        foreach(ForumGroup *grp, fs->groups()) {
-            foreach(ForumThread *thread, grp->threads()) {
+        foreach(ForumGroup *grp, fs->values()) {
+            foreach(ForumThread *thread, grp->values()) {
                 if(thread->getMessagesCount() != ui->messages_per_thread->value()) {
                     thread->setGetMessagesCount(ui->messages_per_thread->value());
-                    thread->setLastchange("UPDATE_NEEDED");
+                    thread->markToBeUpdated();
                     thread->commitChanges();
-                    grp->setLastchange("UPDATE_NEEDED");
+                    grp->markToBeUpdated();
                     grp->commitChanges();
                     update = true;
                 }

@@ -33,6 +33,7 @@ private:
     QVBoxLayout vbox;
     ForumMessage *displayedMessage;
     int viewMode;
+    QNetworkAccessManager nullNam; // Used when no msg is displayed
 };
 
 #endif /* MESSAGEVIEWWIDGET_H_ */

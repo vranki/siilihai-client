@@ -1,5 +1,7 @@
 #include "threadproperties.h"
 #include "ui_threadproperties.h"
+#include "siilihai/forummessage.h"
+#include "siilihai/forumgroup.h"
 
 ThreadProperties::ThreadProperties(QWidget *parent, ForumThread *th, ForumDatabase &fd) :
     QDialog(parent),
@@ -37,8 +39,8 @@ void ThreadProperties::saveChanges() {
             }
             thread->setHasMoreMessages(true);
         } else { // If count is MORE than before, mark thread&group needing update
-            thread->setLastchange("UPDATE_NEEDED");
-            thread->group()->setLastchange("UPDATE_NEEDED");
+            thread->markToBeUpdated();
+            thread->group()->markToBeUpdated();
         }
         thread->commitChanges();
         thread->group()->commitChanges();

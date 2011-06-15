@@ -23,6 +23,12 @@ ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem, 
     connect(msg, SIGNAL(destroyed()), this, SLOT(messageDeleted()));
 }
 
+
+ThreadListMessageItem::~ThreadListMessageItem() {
+    disconnect(this);
+    msg = 0;
+}
+
 ForumMessage* ThreadListMessageItem::message() {
     return msg;
 }
@@ -50,6 +56,7 @@ void ThreadListMessageItem::updateItem() {
     if(oldOrderString != orderString) {
         setText(3, orderString);
     }
+    updateRead();
 }
 
 
@@ -96,9 +103,4 @@ void ThreadListMessageItem::messageDeleted() {
     QTreeWidgetItem *p = QTreeWidgetItem::parent();
     p->removeChild(this);
     deleteLater();
-}
-
-ThreadListMessageItem::~ThreadListMessageItem() {
-    disconnect(this);
-    msg = 0;
 }

@@ -20,6 +20,8 @@ public slots:
     virtual void updateItem();
     void threadDeleted();
     void threadMessageDeleted(); // Called when the message is deleted
+    void addMessage(ForumMessage *msg);
+    void removeMessage(ForumMessage *msg);
 private:
     ForumThread *_thread;
     ThreadListShowMoreItem* showMoreItem;

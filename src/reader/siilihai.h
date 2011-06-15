@@ -12,7 +12,7 @@
 #include <time.h>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumdatabase.h>
+#include <siilihai/forumdatabasesql.h>
 #include <siilihai/parserdatabase.h>
 #include <siilihai/parserreport.h>
 #include <siilihai/parserengine.h>
@@ -39,7 +39,7 @@ class ParserMaker;
 
 // State chart:
 //                 ,------>--------.
-// started -> login -> startsync -> updating_parsers -> ready -> endsync -> quit
+// started -> login -> startsync -> updating_parsers -> ready -> endsync -> storedb -> quit
 //              | ^       |              |               |                   ^
 //              v |   .-------------<--------------------'                   |
 //             offline ------------------------>-----------------------------'
@@ -55,7 +55,8 @@ class Siilihai: public QApplication {
         state_offline,
         state_updating_parsers,
         state_ready,
-        state_endsync
+        state_endsync,
+        state_storedb
     } currentState;
 
 public:
@@ -100,6 +101,7 @@ public slots:
     void forumUpdateNeeded(ForumSubscription *sub);
     void syncProgress(float progress);
     void unregisterSiilihai();
+    void databaseStored();
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();
@@ -113,7 +115,7 @@ private:
     QHash <ForumSubscription*, ParserEngine*> engines;
     QList <ForumSubscription*> subscriptionsNeedingCredentials;
     QSqlDatabase db;
-    ForumDatabase fdb;
+    ForumDatabaseSql fdb;
     ParserDatabase pdb;
     QString baseUrl;
     QList<ForumSubscription*> parsersToUpdateLeft;

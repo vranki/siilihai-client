@@ -20,14 +20,10 @@ ForumMessage* MessageViewWidget::currentMessage() {
 void MessageViewWidget::messageSelected(ForumMessage *msg) {
     displayedMessage = msg;
     if (!msg) {
-#ifdef STORE_FILES_IN_APP_DIR
-        webView.load(QUrl("file://" + QDir::currentPath() + "/data/blankmessage/index.html"));
-#else
-        webView.load(QUrl("file:///usr/share/siilihai/blankmessage/index.html"));
-#endif
+        webView.page()->setNetworkAccessManager(&nullNam);
+        webView.load(QUrl("qrc:/data/blankmessage/index.html"));
         return;
     }
-    qDebug() << Q_FUNC_INFO << msg->toString() << "ordernum: " << msg->ordernum();
     QNetworkAccessManager *nam = msg->thread()->group()->subscription()->parserEngine()->networkAccessManager();
     if(webView.page()->networkAccessManager()!=nam) {
         webView.page()->setNetworkAccessManager(nam);
@@ -48,21 +44,21 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         bodyToShow.replace("\n", "<br />");
     }
     QString styleHtml = "  <style type=\"text/css\">#siilihai-header {"
-                        "color: white;"
-                        "margin: 3px;"
-                        "padding: 3px 3%;"
-                        "background: url(\"file:///usr/share/siilihai/blankmessage/small_gradient.png\") 0% 0% repeat-x;"
-                        "}"
-                        "div.monospace { font-family: \"Fixed\",\"monospace\"; }"
-                        "div.quotecontent { background: #EEEEEE; margin: 5px; }"
-                        "div.quote { background: #EEEEEE; margin: 5px; }"
-                        "blockquote { background: #EEEEEE; margin: 5px; }"
-                        "td.quote { background: #EEEEEE; margin: 5px; }"
-                        "</style>";
+            "color: white;"
+            "margin: 3px;"
+            "padding: 3px 3%;"
+            "background: url(\"qrc:/data/blankmessage/small_gradient.png\") 0% 0% repeat-x;"
+            "}"
+            "div.monospace { font-family: \"Fixed\",\"monospace\"; }"
+            "div.quotecontent { background: #EEEEEE; margin: 5px; }"
+            "div.quote { background: #EEEEEE; margin: 5px; }"
+            "blockquote { background: #EEEEEE; margin: 5px; }"
+            "td.quote { background: #EEEEEE; margin: 5px; }"
+            "</style>";
     QString author = msg->author();
     QString lastchange = msg->lastchange();
     QString headerHtml = "<div id=\"siilihai-header\">" + MessageFormatting::sanitize(author) + ", "
-                         + MessageFormatting::sanitize(lastchange) + ":</div>";
+            + MessageFormatting::sanitize(lastchange) + ":</div>";
     QString
             html =
             "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +

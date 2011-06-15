@@ -3,8 +3,9 @@
 
 #include <QtGui/QDialog>
 #include <QHash>
-#include <siilihai/forumdatabase.h>
-#include <siilihai/forumsubscription.h>
+class ForumDatabase;
+class ForumSubscription;
+class ForumGroup;
 
 #include "ui_groupsubscriptiondialog.h"
 

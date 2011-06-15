@@ -1,18 +1,23 @@
 #include "favicon.h"
 
-Favicon::Favicon(QObject *parent, ForumSubscription *sub) :
-    QObject(parent) {
+Favicon::Favicon(QObject *parent, ForumSubscription *sub) : QObject(parent) {
     subscription = sub;
     currentProgress = 0;
     reloading = false;
-    connect(subscription->parserEngine(), SIGNAL(statusChanged(ForumSubscription*,bool,float)),
-            this, SLOT(engineStatusChanged(ForumSubscription*,bool,float)));
+    connect(sub, SIGNAL(changed(ForumSubscription*)), this, SLOT(subscriptionChanged(ForumSubscription*)));
     connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(update()));
     blinkTimer.setInterval(100);
     blinkTimer.setSingleShot(false);
+    subscriptionChanged(sub);
 }
 
 Favicon::~Favicon() {
+}
+
+void Favicon::subscriptionChanged(ForumSubscription *sub) {
+    if(subscription->parserEngine())
+        connect(subscription->parserEngine(), SIGNAL(stateChanged(ParserEngine::ParserEngineState)),
+                this, SLOT(engineStateChanged(ParserEngine::ParserEngineState)));
 }
 
 void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
@@ -47,9 +52,6 @@ void Favicon::update() {
     QPainter painter(&outPic);
 
     QRect rect(0, 0, outPic.width(), outPic.height());
-    painter.setBrush(QColor(0, 0, 0, 64));
-    rect.setRect(0, 0, outPic.height(), outPic.width());
-    painter.drawRects(&rect, 1);
 
     painter.setPen(QColor(255, 255, 255, 64));
     painter.setBrush(QColor(255, 255, 255, 128));
@@ -61,15 +63,24 @@ void Favicon::update() {
     emit iconChanged(subscription, QIcon(outPic));
 }
 
-void Favicon::engineStatusChanged(ForumSubscription* fs,bool reloading,float progress) {
-    if(reloading) {
+void Favicon::engineStateChanged(ParserEngine::ParserEngineState newState) {
+    if(newState==ParserEngine::PES_UPDATING) {
         update();
         blinkTimer.start();
         //        emit iconChanged(subscription, QIcon(":data/view-refresh.png"));
-    } else {
+    } else if(newState==ParserEngine::PES_IDLE) {
         blinkAngle = 0;
         blinkTimer.stop();
         emit iconChanged(subscription, currentpic);
+    } else if(newState==ParserEngine::PES_ERROR) {
+        blinkAngle = 0;
+        blinkTimer.stop();
+
+        QPixmap outPic(currentpic);
+        QPainter painter(&outPic);
+        painter.drawPixmap(0,0,outPic.width()/2,outPic.height()/2, QPixmap(":data/dialog-error.png"));
+
+        emit iconChanged(subscription, QIcon(outPic));
     }
 }
 /*
