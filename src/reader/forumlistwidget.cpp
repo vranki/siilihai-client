@@ -32,26 +32,26 @@ ForumListWidget::~ForumListWidget() {
 }
 
 void ForumListWidget::forumItemSelected(int i) {
-    QListWidget *curWidget = static_cast<QListWidget*> (currentWidget());
+    QListWidget *curWidget = dynamic_cast<QListWidget*> (currentWidget());
     ForumSubscription *sub = 0;
+    ForumGroup *g = 0;
     if(i >= 0) {
-        sub = listWidgets.key(static_cast<QListWidget*> (widget(i)));
-        if(sub->isEmpty()) {
-            emit groupSelected(0);
-        } else { // Select the first group
-            emit groupSelected(sub->values().first());
-            static_cast<QListWidget*> (widget(i))->setCurrentRow(0);
-        }/*
-        if(listWidgets.value(sub)->currentItem()) {
-            groupSelected(listWidgets.value(sub)->currentItem(), 0);
-        }*/
+        sub = listWidgets.key(dynamic_cast<QListWidget*> (widget(i)));
+
+        foreach(ForumGroup *grp, sub->values()) {
+            if(!g && grp->isSubscribed())
+                g = grp;
+        }
+
     }
     emit forumSelected(sub);
+    emit groupSelected(g);
+    dynamic_cast<QListWidget*> (widget(i))->setCurrentRow(0);
 }
 
 ForumSubscription* ForumListWidget::getSelectedForum() {
     ForumSubscription *sub = 0;
-    QListWidget *curWidget = static_cast<QListWidget*> (currentWidget());
+    QListWidget *curWidget = dynamic_cast<QListWidget*> (currentWidget());
     if(curWidget) {
         sub = listWidgets.key(curWidget); // Can be NULL when quitting(?)
     }
@@ -59,7 +59,7 @@ ForumSubscription* ForumListWidget::getSelectedForum() {
 }
 
 ForumGroup* ForumListWidget::getSelectedGroup() {
-    QListWidget *lw = static_cast<QListWidget*> (currentWidget());
+    QListWidget *lw = dynamic_cast<QListWidget*> (currentWidget());
     if (lw) {
         QListWidgetItem* it = lw->currentItem();
         if (it) {
@@ -118,9 +118,7 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
     Q_ASSERT(grp);
     connect(grp, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
     connect(grp, SIGNAL(unreadCountChanged(ForumGroup*)), this, SLOT(updateGroupLabel(ForumGroup*)));
-    connect(grp, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
-
-    qDebug() << Q_FUNC_INFO << grp->toString() << grp->isSubscribed();
+    connect(grp, SIGNAL(destroyed(QObject*)), this, SLOT(groupDestroyed(QObject*)));
 
     if(!grp->isSubscribed()) return;
     QListWidget *lw = listWidgets.value(grp->subscription());
@@ -179,6 +177,11 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
     gItem->setText(title);
 }
 
+void ForumListWidget::groupDestroyed(QObject* g) {
+    ForumGroup *grp = dynamic_cast<ForumGroup*> (g);
+    if(grp) groupDeleted(grp);
+}
+
 void ForumListWidget::groupDeleted(ForumGroup *grp) {
     if(!grp->isSubscribed()) return;
     if(currentGroup==grp) {
@@ -198,13 +201,9 @@ void ForumListWidget::groupDeleted(ForumGroup *grp) {
     delete item;
 }
 
-void ForumListWidget::groupDeleted(QObject* g) {
-    ForumGroup *grp = static_cast<ForumGroup*> (g);
-    if(g) groupDeleted(g);
-}
 
 void ForumListWidget::subscriptionDeleted(QObject *s) {
-    ForumSubscription *sub = static_cast<ForumSubscription*>(s);
+    ForumSubscription *sub = dynamic_cast<ForumSubscription*>(s);
     if(currentGroup && currentGroup->subscription()==sub) {
         currentGroup = 0;
         emit groupSelected(0);

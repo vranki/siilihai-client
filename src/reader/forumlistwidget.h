@@ -46,7 +46,7 @@ private slots:
     void subscriptionDeleted(QObject*);
     void groupFound(ForumGroup *grp);
     void groupDeleted(ForumGroup *grp);
-    void groupDeleted(QObject*);
+    void groupDestroyed(QObject*);
     void groupChanged(ForumGroup *grp);
 
 signals:

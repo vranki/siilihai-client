@@ -442,8 +442,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setSubscription(sub);
     engines[sub] = pe;
     //    mainWin->forumList()->addSubscription(sub);
-    connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this,
-            SLOT(showSubscribeGroup(ForumSubscription*)));
+    connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this, SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
         /*
     connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), this,
@@ -465,7 +464,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
 
 void Siilihai::subscriptionDeleted(QObject* subobj) {
     qDebug() << Q_FUNC_INFO;
-    ForumSubscription *sub = static_cast<ForumSubscription*> (subobj);
+    ForumSubscription *sub = dynamic_cast<ForumSubscription*> (subobj);
     if(!engines.contains(sub)) return; // Possible when quitting
     engines[sub]->cancelOperation();
     engines[sub]->deleteLater();

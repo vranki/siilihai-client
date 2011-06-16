@@ -17,7 +17,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
     }
     connect(_thread, SIGNAL(destroyed()), this, SLOT(threadDeleted()));
     connect(_thread, SIGNAL(changed(ForumThread*)), this, SLOT(updateItem()));
-    connect(_thread, SIGNAL(unreadCountChanged(ForumThread *)), this, SLOT(updateUnreads()));
+    connect(_thread, SIGNAL(unreadCountChanged(ForumThread *)), this, SLOT(unreadCountChanged(ForumThread *)));
     connect(_thread, SIGNAL(messageAdded(ForumMessage*)), this, SLOT(addMessage(ForumMessage*)));
     connect(_thread, SIGNAL(messageRemoved(ForumMessage*)), this, SLOT(removeMessage(ForumMessage*)));
 
@@ -33,12 +33,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
     }
     updateItem();
 }
-/*
-void ThreadListWidget::~ThreadListWidget(ForumThread *thread) {
-    disconnect(thread, 0, this, 0);
-    item->deleteLater();
-}
-*/
+
 void ThreadListThreadItem::setMessage(ForumMessage *message) {
     msg = message;
     if(message) {
@@ -62,13 +57,14 @@ void ThreadListThreadItem::updateItem() {
         removeChild(showMoreItem);
         delete showMoreItem;
         showMoreItem = 0;
-        updateUnreads();
     }
+    unreadCountChanged(_thread);
 }
 
-void ThreadListThreadItem::updateUnreads() {
+void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
     if(!msg) return;
     if(!_thread) return;
+    Q_ASSERT(thr=_thread);
     int unreads = _thread->unreadCount();
     QString threadSubject = messageSubject;
     QString moreString = QString::null;
@@ -129,7 +125,6 @@ void ThreadListThreadItem::addMessage(ForumMessage *message) {
         Q_ASSERT(!this->message());
         setMessage(message);
         item = this;
-        updateUnreads();
         // qDebug() << Q_FUNC_INFO << "setting the thread item";
     } else { // Reply message - create new item
         item = new ThreadListMessageItem(this, message);
@@ -137,14 +132,6 @@ void ThreadListThreadItem::addMessage(ForumMessage *message) {
 
     item->updateItem();
     item->updateRead();
-    /*
-    if(!disableSortAndResize) {
-        treeWidget->sortItems(3, Qt::AscendingOrder);
-        treeWidget->resizeColumnToContents(0);
-        treeWidget->resizeColumnToContents(1);
-        treeWidget->resizeColumnToContents(2);
-    }
-    */
 }
 
 void ThreadListThreadItem::removeMessage(ForumMessage *message) {

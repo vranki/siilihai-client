@@ -16,7 +16,7 @@ public:
     void setMessage(ForumMessage *message);
     ForumThread* thread();
 public slots:
-    void updateUnreads();
+    void unreadCountChanged(ForumThread *thr);
     virtual void updateItem();
     void threadDeleted();
     void threadMessageDeleted(); // Called when the message is deleted
