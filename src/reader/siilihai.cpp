@@ -226,7 +226,7 @@ void Siilihai::haltSiilihai() {
         if(currentState != state_storedb && fdb.isStored()) {
             changeState(state_storedb);
         } else {
-            qDebug() << "All done - quitting";
+            qDebug() << Q_FUNC_INFO << "All done - quitting";
             settings.sync();
             if(progressBar)
                 progressBar->deleteLater();

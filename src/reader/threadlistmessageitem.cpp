@@ -1,5 +1,6 @@
 #include "threadlistmessageitem.h"
 #include <siilihai/forumthread.h>
+#include "threadlistthreaditem.h"
 
 ThreadListMessageItem::ThreadListMessageItem(QTreeWidget *tree) : QObject(tree), QTreeWidgetItem(tree) {
     msg = 0;
@@ -16,6 +17,7 @@ ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem, 
     if(message->ordernum() >=0) {
         orderString = QString().number(message->ordernum()).rightJustified(6, '0');
     }
+    lastOrderNum = message->ordernum();
     setText(0, "Call updateItem()");
     setText(3, orderString);
     connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
@@ -35,14 +37,23 @@ ForumMessage* ThreadListMessageItem::message() {
 
 void ThreadListMessageItem::updateItem() {
     if(!msg) return; // Possible when this is a ThreadItem and message has not yet been set!
+    if(QTreeWidgetItem::parent() && lastOrderNum != 0 && msg->ordernum()==0) { // Acthung! needs to be moved to thread message!
+        ThreadListThreadItem *parentItem = static_cast<ThreadListThreadItem*> (QTreeWidgetItem::parent());
+        Q_ASSERT(parentItem);
+        parentItem->setMessage(message());
+        // Commit suicide
+        messageDeleted();
+        return;
+    }
+    lastOrderNum = msg->ordernum();
     QString orderString;
+    QString oldOrderString = text(3);
     // Orderstring is thread's order if first message, or messages if not:
     if(msg->ordernum() == 0) {
         orderString = QString().number(msg->thread()->ordernum()).rightJustified(6, '0');
     } else if(msg->ordernum() > 0) {
         orderString = QString().number(msg->ordernum()).rightJustified(6, '0');
     }
-    QString oldOrderString = text(3);
 
     messageSubject =  createMessageSubject();
     QString lc = msg->lastchange();
@@ -62,13 +73,7 @@ void ThreadListMessageItem::updateItem() {
 
 void ThreadListMessageItem::updateRead() {
     if(!msg) return;
-/*
-    if(parentItem) {
-        updateThreadUnreads(parentItem);
-    } else {
-        updateThreadUnreads(item);
-    }
-    */
+
     QFont myFont = font(0);
     if (msg->isRead()) {
         myFont.setBold(false);
@@ -78,10 +83,6 @@ void ThreadListMessageItem::updateRead() {
         setIcon(0, QIcon(":/data/mail-unread.png"));
     }
     setFont(0, myFont);
-    /*
-    if(parentItem)
-        updateMessageRead(parentItem);
-        */
 }
 
 

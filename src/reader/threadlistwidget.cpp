@@ -13,7 +13,7 @@ ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem *)),
             this, SLOT(messageSelected(QTreeWidgetItem*,QTreeWidgetItem *)));
-    hideColumn(3);
+    //hideColumn(3);
 
     markReadAction = new QAction("Mark thread read", this);
     markReadAction->setToolTip("Marks all messages in this thread read");

@@ -171,10 +171,12 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
     QListWidget *lw = listWidgets.value(grp->subscription());
     Q_ASSERT(lw);
     QListWidgetItem *gItem = forumGroups.key(grp);
+    if(gItem) { // may not exist in some situ
     QString title = grp->name();
     if (grp->unreadCount() > 0)
         title = title + " (" + QString().number(grp->unreadCount()) + ")";
     gItem->setText(title);
+    }
 }
 
 void ForumListWidget::groupDestroyed(QObject* g) {

@@ -24,6 +24,7 @@ protected:
     QString createMessageSubject();
     ForumMessage *msg;
     QString messageSubject;
+    int lastOrderNum;
 };
 
 #endif // THREADLISTMESSAGEITEM_H

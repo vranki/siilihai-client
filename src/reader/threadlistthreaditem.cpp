@@ -62,11 +62,15 @@ void ThreadListThreadItem::updateItem() {
 }
 
 void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
-    if(!msg) return;
-    if(!_thread) return;
     Q_ASSERT(thr=_thread);
+    if(!_thread) return;
+    QString threadSubject;
+    if(message()) {
+        threadSubject = messageSubject;
+    } else {
+        threadSubject = _thread->name();
+    }
     int unreads = _thread->unreadCount();
-    QString threadSubject = messageSubject;
     QString moreString = QString::null;
     if(thread()->hasMoreMessages()) moreString = "+";
     if (unreads) {
