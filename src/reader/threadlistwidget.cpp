@@ -2,7 +2,7 @@
 #include <QDebug>
 
 ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
-	QTreeWidget(parent), fdb(f) {
+    QTreeWidget(parent), fdb(f) {
     setColumnCount(3);
     currentGroup = 0;
     disableSortAndResize = false;
@@ -56,13 +56,8 @@ void ThreadListWidget::addThread(ForumThread *thread) {
 
     ThreadListThreadItem *threadItem = new ThreadListThreadItem(this, thread);
     addTopLevelItem(threadItem);
-
-    if(!disableSortAndResize) {
-        sortItems(3, Qt::AscendingOrder);
-        resizeColumnToContents(0);
-        resizeColumnToContents(1);
-        resizeColumnToContents(2);
-    }
+    connect(threadItem, SIGNAL(requestSorting()), this, SLOT(sortColumns()));
+    sortColumns();
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
@@ -85,9 +80,10 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(addThread(ForumThread*)));
-//        connect(currentGroup, SIGNAL(threadRemoved(ForumThread*)), this, SLOT(removeThread(ForumThread*)));
+        //        connect(currentGroup, SIGNAL(threadRemoved(ForumThread*)), this, SLOT(removeThread(ForumThread*)));
         setCurrentItem(topLevelItem(0));
     }
+    sortColumns();
 }
 
 void ThreadListWidget::clearList() {
@@ -119,10 +115,7 @@ void ThreadListWidget::updateList() {
         */
     }
     disableSortAndResize = false;
-    sortItems(3, Qt::AscendingOrder);
-    resizeColumnToContents(0);
-    resizeColumnToContents(1);
-    resizeColumnToContents(2);
+
 }
 
 void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {
@@ -275,4 +268,13 @@ void ThreadListWidget::forceUpdateThreadClicked() {
     }
     if(thread)
         emit updateThread(thread, true);
+}
+
+void ThreadListWidget::sortColumns() {
+    if(!disableSortAndResize) {
+        sortItems(3, Qt::AscendingOrder);
+        resizeColumnToContents(0);
+        resizeColumnToContents(1);
+        resizeColumnToContents(2);
+    }
 }

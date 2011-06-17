@@ -212,10 +212,12 @@ void ForumListWidget::subscriptionDeleted(QObject *s) {
         emit forumSelected(0);
     }
     QListWidget *lw = listWidgets.value(sub);
-    Q_ASSERT(lw);
-    removeItem(indexOf(lw));
-    Q_ASSERT(listWidgets.remove(sub));
-    lw->deleteLater();
+    if(lw) { // Sometimes may not
+        Q_ASSERT(lw);
+        removeItem(indexOf(lw));
+        Q_ASSERT(listWidgets.remove(sub));
+        lw->deleteLater();
+    }
 }
 
 void ForumListWidget::contextMenuEvent(QContextMenuEvent *event) {

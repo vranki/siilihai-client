@@ -59,6 +59,7 @@ void ThreadListThreadItem::updateItem() {
         showMoreItem = 0;
     }
     unreadCountChanged(_thread);
+    emit requestSorting();
 }
 
 void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
@@ -132,6 +133,7 @@ void ThreadListThreadItem::addMessage(ForumMessage *message) {
         // qDebug() << Q_FUNC_INFO << "setting the thread item";
     } else { // Reply message - create new item
         item = new ThreadListMessageItem(this, message);
+        connect(item, SIGNAL(requestSorting()), this, SIGNAL(requestSorting()));
     }
 
     item->updateItem();

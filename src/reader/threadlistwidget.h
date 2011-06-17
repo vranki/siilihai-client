@@ -40,7 +40,7 @@ public slots:
 
 private slots:
         void addThread(ForumThread *thread);
-//        void removeThread(ForumThread *thread);
+        void sortColumns();
 signals:
 	void messageSelected(ForumMessage *msg);
         void moreMessagesRequested(ForumThread *thread);

@@ -444,7 +444,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     //    mainWin->forumList()->addSubscription(sub);
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this, SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
-        /*
+    /*
     connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), this,
             SLOT(statusChanged(ForumSubscription*, bool, float)));
 
@@ -502,10 +502,22 @@ void Siilihai::subscribeGroupDialogFinished() {
 }
 
 void Siilihai::forumUpdated(ForumSubscription* forum) {
-    subscriptionsToUpdateLeft.removeOne(forum);
-    if(!subscriptionsToUpdateLeft.isEmpty()) {
-        engines.value(subscriptionsToUpdateLeft.first())->updateForum();
-        subscriptionsToUpdateLeft.removeOne(subscriptionsToUpdateLeft.first());
+    int busyForums = 0;
+    foreach(ForumSubscription *sub, fdb.values()) {
+        if(sub->parserEngine()->state()==ParserEngine::PES_UPDATING) {
+            busyForums++;
+        }
+    }
+
+    subscriptionsToUpdateLeft.removeAll(forum);
+    ForumSubscription *nextSub = 0;
+    while(!nextSub && !subscriptionsToUpdateLeft.isEmpty()
+        && busyForums <= MAX_CONCURRENT_UPDATES) {
+        nextSub = subscriptionsToUpdateLeft.takeFirst();
+        if(fdb.values().contains(nextSub)) {
+            nextSub->parserEngine()->updateForum();
+            busyForums++;
+        }
     }
 }
 

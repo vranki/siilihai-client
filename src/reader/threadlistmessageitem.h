@@ -14,7 +14,8 @@ public:
     ThreadListMessageItem(ThreadListMessageItem *threadItem, ForumMessage *message);
     ~ThreadListMessageItem();
     virtual ForumMessage *message();
-
+signals:
+    void requestSorting();
 public slots:
     void updateRead();
     virtual void updateItem();

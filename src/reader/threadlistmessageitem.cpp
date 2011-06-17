@@ -68,6 +68,7 @@ void ThreadListMessageItem::updateItem() {
         setText(3, orderString);
     }
     updateRead();
+    emit requestSorting();
 }
 
 
