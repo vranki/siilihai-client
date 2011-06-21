@@ -9,6 +9,19 @@ ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDat
 {
     ui->setupUi(this);
     fs = s;
+    connect(this, SIGNAL(accepted()), this, SLOT(saveChanges()));
+    connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
+    connect(fs, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+    connect(fs, SIGNAL(changed(ForumSubscription*)), this, SLOT(updateValues()));
+    updateValues();
+}
+
+ForumProperties::~ForumProperties()
+{
+    delete ui;
+}
+
+void ForumProperties::updateValues() {
     ui->forumName->setText(fs->alias());
     ui->threads_per_group->setValue(fs->latestThreads());
     ui->messages_per_thread->setValue(fs->latestMessages());
@@ -22,12 +35,6 @@ ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDat
     } else {
         ui->authenticationGroupbox->setEnabled(false);
     }
-    connect(this, SIGNAL(accepted()), this, SLOT(saveChanges()));
-}
-
-ForumProperties::~ForumProperties()
-{
-    delete ui;
 }
 
 void ForumProperties::changeEvent(QEvent *e)
@@ -78,4 +85,5 @@ void ForumProperties::saveChanges() {
     }
     if(update)
         emit forumUpdateNeeded(fs);
+    deleteLater();
 }

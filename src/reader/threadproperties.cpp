@@ -4,23 +4,30 @@
 #include "siilihai/forumgroup.h"
 
 ThreadProperties::ThreadProperties(QWidget *parent, ForumThread *th, ForumDatabase &fd) :
-    QDialog(parent),
-    ui(new Ui::ThreadProperties), fdb(fd), thread(th)
+    QDialog(parent), ui(new Ui::ThreadProperties), fdb(fd), thread(th)
 {
     ui->setupUi(this);
-    ui->thName->setText(thread->name());
-    ui->thLastchange->setText(thread->lastchange());
-    ui->thId->setText(thread->id());
-    ui->thMessageCount->setText(QString::number(thread->count()));
-    ui->thMessagesPerThread->setValue(thread->getMessagesCount());
-    ui->thLastPage->setText(QString::number(thread->getLastPage()));
     connect(this, SIGNAL(accepted()), this, SLOT(saveChanges()));
+    connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
+    connect(thread, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+    connect(thread, SIGNAL(changed(ForumThread*)), this, SLOT(updateValues()));
+    updateValues();
 }
 
 ThreadProperties::~ThreadProperties()
 {
     delete ui;
 }
+
+void ThreadProperties::updateValues() {
+    ui->thName->setText(thread->name());
+    ui->thLastchange->setText(thread->lastchange());
+    ui->thId->setText(thread->id());
+    ui->thMessageCount->setText(QString::number(thread->count()));
+    ui->thMessagesPerThread->setValue(thread->getMessagesCount());
+    ui->thLastPage->setText(QString::number(thread->getLastPage()));
+}
+
 
 void ThreadProperties::saveChanges() {
     int oldMessagesCount = thread->getMessagesCount();
@@ -46,6 +53,7 @@ void ThreadProperties::saveChanges() {
         thread->group()->commitChanges();
         emit updateNeeded(thread->group()->subscription());
     }
+    deleteLater();
 }
 
 void ThreadProperties::changeEvent(QEvent *e)

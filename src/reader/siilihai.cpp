@@ -153,7 +153,7 @@ void Siilihai::changeState(siilihai_states newState) {
     } else if(newState==state_storedb) {
         qDebug() << Q_FUNC_INFO << "Storedb";
         if(!progressBar) {
-            progressBar = new QProgressDialog("Stroring changes", "Cancel", 0, 100, mainWin);
+            progressBar = new QProgressDialog("Storing changes", "Cancel", 0, 100, mainWin);
             progressBar->setValue(0);
             connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
         }
@@ -223,7 +223,7 @@ void Siilihai::haltSiilihai() {
         changeState(state_endsync);
         syncmaster.endSync();
     } else {
-        if(currentState != state_storedb && fdb.isStored()) {
+        if(currentState != state_storedb && !fdb.isStored()) {
             changeState(state_storedb);
         } else {
             qDebug() << Q_FUNC_INFO << "All done - quitting";
@@ -233,7 +233,7 @@ void Siilihai::haltSiilihai() {
             mainWin->deleteLater();
             mainWin = 0;
             progressBar = 0;
-            fdb.storeDatabase();
+            Q_ASSERT(fdb.isStored());
             quit();
         }
     }
@@ -441,16 +441,9 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     pe->setParser(parser);
     pe->setSubscription(sub);
     engines[sub] = pe;
-    //    mainWin->forumList()->addSubscription(sub);
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this, SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
-    /*
-    connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), this,
-            SLOT(statusChanged(ForumSubscription*, bool, float)));
 
-    connect(pe, SIGNAL(statusChanged(ForumSubscription*, bool, float)), mainWin,
-            SLOT(setForumStatus(ForumSubscription*, bool, float)));
-            */
     connect(pe, SIGNAL(updateFailure(ForumSubscription*, QString)), this,
             SLOT(updateFailure(ForumSubscription*, QString)));
     connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)),
@@ -535,7 +528,9 @@ void Siilihai::updateClicked() {
 
 void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
     Q_ASSERT(engines.contains(sub));
-    engines[sub]->updateForum(force);
+    ParserEngine *engine = engines.value(sub);
+    if(engine && engine->state()==ParserEngine::PES_IDLE)
+        engine->updateForum(force);
 }
 
 void Siilihai::updateThread(ForumThread* thread, bool force) {
@@ -661,7 +656,6 @@ void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authen
         authenticator->setUser(settings.value(QString("%1/username").arg(gname)).toString());
         authenticator->setPassword(settings.value(QString("%1/password").arg(gname)).toString());
         if(settings.value(QString("authentication/%1/failed").arg(gname)).toString() == "true") failed = true;
-        qDebug() << Q_FUNC_INFO << "Failed: " << settings.value(QString("%1/failed").arg(gname)).toString();
     }
     settings.endGroup();
     if(authenticator->user().isNull() || failed) {
@@ -704,6 +698,7 @@ void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {
 void Siilihai::forumUpdateNeeded(ForumSubscription *fs) {
     qDebug() << Q_FUNC_INFO;
     protocol.subscribeForum(fs);
+    updateClicked(fs);
 }
 
 void Siilihai::syncProgress(float progress) {

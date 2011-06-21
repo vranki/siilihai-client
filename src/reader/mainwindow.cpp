@@ -252,17 +252,19 @@ void MainWindow::markForumUnread() {
 
 void MainWindow::forumPropertiesSlot( ) {
     if (flw->getSelectedForum()) {
-        ForumProperties fp(this, flw->getSelectedForum(), fdb, pdb);
-        connect(&fp, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SIGNAL(forumUpdateNeeded(ForumSubscription*)));
-        fp.exec();
+        ForumProperties *fp = new ForumProperties(this, flw->getSelectedForum(), fdb, pdb);
+        fp->setModal(false);
+        connect(fp, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SIGNAL(forumUpdateNeeded(ForumSubscription*)));
+        fp->show();
     }
 }
 
 void MainWindow::threadPropertiesSlot(ForumThread *thread ) {
     Q_ASSERT(thread);
-    ThreadProperties fp(this, thread, fdb);
-    connect(&fp, SIGNAL(updateNeeded(ForumSubscription*)), this, SLOT(updateSelectedClickedSlot()));
-    fp.exec();
+    ThreadProperties *tp = new ThreadProperties(this, thread, fdb);
+    tp->setModal(false);
+    connect(tp, SIGNAL(updateNeeded(ForumSubscription*)), this, SLOT(updateSelectedClickedSlot()));
+    tp->show();
 }
 
 

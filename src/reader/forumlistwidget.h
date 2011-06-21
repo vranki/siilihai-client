@@ -43,7 +43,7 @@ public slots:
 private slots:
     void addSubscription(ForumSubscription *sub); // subscription's parser MUST be set!
     void subscriptionChanged(ForumSubscription *sub);
-    void subscriptionDeleted(QObject*);
+    void subscriptionDeleted(ForumSubscription *sub);
     void groupFound(ForumGroup *grp);
     void groupDeleted(ForumGroup *grp);
     void groupDestroyed(QObject*);

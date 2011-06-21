@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Thread Properties</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../siilihairesources.qrc">
+    <normaloff>:/data/folder.png</normaloff>:/data/folder.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -134,7 +138,12 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

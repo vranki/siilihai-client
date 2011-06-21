@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Subscribe Forum</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../siilihairesources.qrc">
+    <normaloff>:/data/emblem-web.png</normaloff>:/data/emblem-web.png</iconset>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
@@ -105,6 +109,11 @@
    <header>QtWebKit/QWebView</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+ </resources>
  <connections/>
 </ui>

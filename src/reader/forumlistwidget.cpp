@@ -23,6 +23,7 @@ ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDataba
     forumPropertiesAction->setToolTip("View and edit detailed information about the forum");
     connect(forumPropertiesAction, SIGNAL(triggered()), this, SIGNAL(forumProperties()));
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(addSubscription(ForumSubscription*)));
+    connect(&fdb, SIGNAL(subscriptionRemoved(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
     foreach(ForumSubscription* sub, fdb.values())
         addSubscription(sub);
 }
@@ -89,8 +90,6 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     addItem(lw, sub->alias());
     connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)), this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
     connect(sub, SIGNAL(unreadCountChanged(ForumSubscription*)), this, SLOT(updateSubscriptionLabel(ForumSubscription*)));
-    connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
-
     connect(sub, SIGNAL(groupAdded(ForumGroup*)), this, SLOT(groupFound(ForumGroup*)));
     connect(sub, SIGNAL(groupRemoved(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
 
@@ -204,8 +203,8 @@ void ForumListWidget::groupDeleted(ForumGroup *grp) {
 }
 
 
-void ForumListWidget::subscriptionDeleted(QObject *s) {
-    ForumSubscription *sub = dynamic_cast<ForumSubscription*>(s);
+void ForumListWidget::subscriptionDeleted(ForumSubscription* sub) {
+    qDebug() << Q_FUNC_INFO << sub;
     if(currentGroup && currentGroup->subscription()==sub) {
         currentGroup = 0;
         emit groupSelected(0);
@@ -215,7 +214,7 @@ void ForumListWidget::subscriptionDeleted(QObject *s) {
     if(lw) { // Sometimes may not
         Q_ASSERT(lw);
         removeItem(indexOf(lw));
-        Q_ASSERT(listWidgets.remove(sub));
+        listWidgets.remove(sub);
         lw->deleteLater();
     }
 }

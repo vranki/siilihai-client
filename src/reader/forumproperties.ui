@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Forum Properties</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../siilihairesources.qrc">
+    <normaloff>:/data/emblem-web.png</normaloff>:/data/emblem-web.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -130,7 +134,12 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

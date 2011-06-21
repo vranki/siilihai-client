@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Group Subscriptions</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../siilihairesources.qrc">
+    <normaloff>:/data/folder-new.png</normaloff>:/data/folder-new.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QLabel" name="messageLabel">
@@ -83,6 +87,11 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+  <include location="../../siilihairesources.qrc"/>
+ </resources>
  <connections/>
 </ui>

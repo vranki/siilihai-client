@@ -14,8 +14,9 @@ class ThreadProperties : public QDialog {
 public:
     ThreadProperties(QWidget *parent, ForumThread *th, ForumDatabase &fd);
     ~ThreadProperties();
-public slots:
+private slots:
     void saveChanges();
+    void updateValues();
 signals:
     void updateNeeded(ForumSubscription *sub);
 protected:

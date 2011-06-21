@@ -20,7 +20,7 @@ signals:
 
 private slots:
     void saveChanges();
-
+    void updateValues();
 protected:
     void changeEvent(QEvent *e);
 
