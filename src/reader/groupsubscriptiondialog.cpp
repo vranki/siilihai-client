@@ -1,11 +1,11 @@
 #include "groupsubscriptiondialog.h"
-#include "siilihai/forumgroup.h"
-#include "siilihai/parserengine.h"
+#include <siilihai/forumgroup.h>
+#include <siilihai/parserengine.h>
 #include <siilihai/forumdatabase.h>
 #include <siilihai/forumsubscription.h>
+#include "messageformatting.h"
 
-GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) :
-	QDialog(parent) {
+GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) : QDialog(parent) {
     ui.setupUi(this);
     fdb = 0;
     forum = 0;
@@ -50,6 +50,9 @@ void GroupSubscriptionDialog::apply() {
 void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nforum) {
     fdb = db;
     forum = nforum;
+    if(forum)
+        forum->disconnect(this);
+    connect(fdb, SIGNAL(subscriptionRemoved(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
     if(forum->parserEngine()->state() == ParserEngine::PES_UPDATING) {
         close();
         return;
@@ -58,7 +61,8 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
     listItems.clear();
     foreach(ForumGroup *group, forum->values()) {
         QListWidgetItem *newItem = new QListWidgetItem();
-        newItem->setText(group->name());
+        QString itemLabel = group->name();
+        newItem->setText(MessageFormatting::stripHtml(itemLabel));
         newItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         if (group->isSubscribed()) {
             newItem->setCheckState(Qt::Checked);
@@ -72,4 +76,11 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
 
 ForumSubscription* GroupSubscriptionDialog::subscription() {
     return forum;
+}
+
+void GroupSubscriptionDialog::subscriptionDeleted(ForumSubscription *sub) {
+    if(sub==forum) {
+        forum=0;
+        close();
+    }
 }

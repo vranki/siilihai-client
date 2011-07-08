@@ -479,14 +479,13 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
         groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
         groupSubscriptionDialog->setModal(false);
         groupSubscriptionDialog->setForum(&fdb, forum);
-        connect(groupSubscriptionDialog, SIGNAL(finished(int)), this,
-                SLOT(subscribeGroupDialogFinished()));
+        connect(groupSubscriptionDialog, SIGNAL(finished(int)), this, SLOT(subscribeGroupDialogFinished()));
         groupSubscriptionDialog->exec();
     }
 }
 
 void Siilihai::subscribeGroupDialogFinished() {
-    if (currentState == state_ready) {
+    if (currentState == state_ready && groupSubscriptionDialog->subscription()) {
         protocol.updateGroupSubscriptions(groupSubscriptionDialog->subscription());
         engines.value(groupSubscriptionDialog->subscription())->updateForum();
     }
