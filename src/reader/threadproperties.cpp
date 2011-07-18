@@ -25,9 +25,8 @@ void ThreadProperties::updateValues() {
     ui->thId->setText(thread->id());
     ui->thMessageCount->setText(QString::number(thread->count()));
     ui->thMessagesPerThread->setValue(thread->getMessagesCount());
-    ui->thLastPage->setText(QString::number(thread->getLastPage()));
+    ui->thLastPage->setText(QString::number(thread->lastPage()));
 }
-
 
 void ThreadProperties::saveChanges() {
     int oldMessagesCount = thread->getMessagesCount();

@@ -242,7 +242,7 @@ void MainWindow::settingsDialogAccepted() {
 void MainWindow::markForumRead(bool read) {
     qDebug() << Q_FUNC_INFO;
     if (flw->getSelectedForum()) {
-        fdb.markForumRead(flw->getSelectedForum(), read);
+        flw->getSelectedForum()->markRead(read);
     }
 }
 
@@ -269,11 +269,10 @@ void MainWindow::threadPropertiesSlot(ForumThread *thread ) {
 
 
 void MainWindow::markGroupRead(bool read) {
-    qDebug() << Q_FUNC_INFO;
     ForumGroup *selectedGroup = flw->getSelectedGroup();
 
     if (selectedGroup) {
-        fdb.markGroupRead(selectedGroup, read);
+        selectedGroup->markRead(read);
         tlw->groupSelected(selectedGroup);
     }
 }

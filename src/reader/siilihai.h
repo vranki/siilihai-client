@@ -13,6 +13,7 @@
 
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/forumdatabasesql.h>
+#include <siilihai/forumdatabasexml.h>
 #include <siilihai/parserdatabase.h>
 #include <siilihai/parserreport.h>
 #include <siilihai/parserengine.h>
@@ -115,7 +116,8 @@ private:
     QHash <ForumSubscription*, ParserEngine*> engines;
     QList <ForumSubscription*> subscriptionsNeedingCredentials;
     QSqlDatabase db;
-    ForumDatabaseSql fdb;
+    ForumDatabaseSql fdbSql;
+    ForumDatabaseXml fdbXml;
     ParserDatabase pdb;
     QString baseUrl;
     QList<ForumSubscription*> parsersToUpdateLeft;
@@ -126,6 +128,7 @@ private:
     UserSettings usettings;
     SyncMaster syncmaster;
     QSettings settings;
+    QString dataFilePath;
 };
 
 #endif /* SIILIHAI_H_ */

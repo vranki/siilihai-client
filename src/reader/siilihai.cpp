@@ -1,9 +1,12 @@
 #include "siilihai.h"
 
 Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv),
-    fdb(this), pdb(this), syncmaster(this, fdb, protocol)
+    fdbSql(this), fdbXml(this), pdb(this), syncmaster(this, fdbSql, protocol)
   #ifdef STORE_FILES_IN_APP_DIR
-  ,settings(QDir::currentPath() + "/siilihai_settings.ini", QSettings::IniFormat, this)
+  ,dataFilePath(QDir::currentPath())    // @todo use argv[0] to find real binary path
+  ,settings(dataFilePath + "/siilihai_settings.ini", QSettings::IniFormat, this)
+  #else
+  ,dataFilePath(QDir::homePath())
   #endif
 {
     loginWizard = 0;
@@ -25,14 +28,10 @@ Siilihai::~Siilihai() {
 
 void Siilihai::launchSiilihai() {
     currentState = state_started;
-    mainWin = new MainWindow(pdb, fdb, &settings);
+    mainWin = new MainWindow(pdb, fdbSql, &settings);
     db = QSqlDatabase::addDatabase("QSQLITE");
-#ifdef STORE_FILES_IN_APP_DIR
-    qDebug() << Q_FUNC_INFO << "Loading settings & db from app directory (=Windows build)";
-    db.setDatabaseName(QDir::currentPath() + DATABASE_FILE);
-#else
-    db.setDatabaseName(QDir::homePath() + DATABASE_FILE);
-#endif
+    db.setDatabaseName(dataFilePath + DATABASE_FILE);
+
     if (!db.open()) {
         QMessageBox msgBox(mainWin);
         msgBox.setText("Error: Unable to open database.");
@@ -60,25 +59,37 @@ void Siilihai::launchSiilihai() {
     protocol.setBaseURL(baseUrl);
 
     int mySchema = settings.value("forum_database_schema", 0).toInt();
-    if(!firstRun && fdb.schemaVersion() != mySchema) {
+    if(!firstRun && fdbSql.schemaVersion() != mySchema) {
         errorDialog("The database schema has been changed. Your forum database will be reset. Sorry. ");
-        fdb.resetDatabase();
+        fdbSql.resetDatabase();
     }
-    connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
-    connect(&fdb, SIGNAL(databaseStored()), this, SLOT(databaseStored()), Qt::QueuedConnection);
+    connect(&fdbSql, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
+    connect(&fdbSql, SIGNAL(databaseStored()), this, SLOT(databaseStored()), Qt::QueuedConnection);
     connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this, SLOT(updateForumParser(ForumParser)));
-    connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this,
-            SLOT(userSettingsReceived(bool,UserSettings*)));
-    if(fdb.openDatabase(&db)) {
-        settings.setValue("forum_database_schema", fdb.schemaVersion());
+    connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this, SLOT(userSettingsReceived(bool,UserSettings*)));
+    if(fdbSql.openDatabase(&db)) {
+        settings.setValue("forum_database_schema", fdbSql.schemaVersion());
     } else {
         errorDialog("Error opening Siilihai's database!\n"
                     "See console for details. Sorry.\n\n"
-                    "Check that you're not running aother copy of Siilihai.\n"
+                    "Check that you're not running another copy of Siilihai.\n"
                     "You can delete ~/.siilihai.db to reset database.");
         haltSiilihai();
         return;
     }
+
+    QString databaseFileName = dataFilePath + "/.siilihai_forums.xml";
+    bool openSuccess = fdbXml.openDatabase(databaseFileName);
+    if(openSuccess) {
+    } else {
+        if(!firstRun)
+            errorDialog("Error opening Siilihai's forum database!\n"
+                        "See console for details. Sorry.\n\n"
+                        "Check that you're not running another copy of Siilihai.\n"
+                        "You can delete ~/.siilihai.xml to reset database.");
+    }
+
+
     pdb.openDatabase();
 
 #ifdef Q_WS_HILDON
@@ -92,8 +103,7 @@ void Siilihai::launchSiilihai() {
 
     if (settings.value("account/username", "").toString() == "") {
         loginWizard = new LoginWizard(mainWin, protocol, settings);
-        connect(loginWizard, SIGNAL(finished(int)), this,
-                SLOT(loginWizardFinished()));
+        connect(loginWizard, SIGNAL(finished(int)), this, SLOT(loginWizardFinished()));
     } else {
         launchMainWindow();
         tryLogin();
@@ -123,8 +133,7 @@ void Siilihai::changeState(siilihai_states newState) {
     } else if(newState==state_login) {
         qDebug() << Q_FUNC_INFO << "Login";
         if(!progressBar) {
-            progressBar = new QProgressDialog("Logging in", "Cancel", 0, 100,
-                                              mainWin);
+            progressBar = new QProgressDialog("Logging in", "Cancel", 0, 100, mainWin);
             progressBar->setWindowModality(Qt::WindowModal);
             progressBar->setValue(0);
             connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
@@ -160,7 +169,14 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->setLabelText("Storing changes to local database");
         progressBar->setModal(true);
         progressBar->setValue(75);
-        fdb.storeDatabase();
+        fdbSql.storeDatabase();
+        foreach(ForumSubscription *sub, fdbSql.values())
+            fdbXml.addSubscription(sub);
+
+        if(!fdbXml.storeDatabase()) {
+            errorDialog("Failed to save forum database file");
+        }
+
         mainWin->hide(); // Is this good?
     } else if(newState==state_updating_parsers) {
         qDebug() << Q_FUNC_INFO << "Update parsers";
@@ -194,7 +210,7 @@ void Siilihai::changeState(siilihai_states newState) {
             protocol.subscribeForum(sub);
         }
         mainWin->setReaderReady(true, false);
-        if (fdb.isEmpty()) { // Display subscribe dialog if none subscribed
+        if (fdbSql.isEmpty()) { // Display subscribe dialog if none subscribed
             subscribeForum();
         }
 
@@ -223,7 +239,7 @@ void Siilihai::haltSiilihai() {
         changeState(state_endsync);
         syncmaster.endSync();
     } else {
-        if(currentState != state_storedb && !fdb.isStored()) {
+        if(currentState != state_storedb && !fdbSql.isStored()) {
             changeState(state_storedb);
         } else {
             qDebug() << Q_FUNC_INFO << "All done - quitting";
@@ -233,7 +249,7 @@ void Siilihai::haltSiilihai() {
             mainWin->deleteLater();
             mainWin = 0;
             progressBar = 0;
-            Q_ASSERT(fdb.isStored());
+            Q_ASSERT(fdbSql.isStored());
             quit();
         }
     }
@@ -313,7 +329,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
         progressBar->setValue(50);
 
     QList<ForumSubscription*> unsubscribedForums;
-    foreach(ForumSubscription* sub, fdb.values()) {
+    foreach(ForumSubscription* sub, fdbSql.values()) {
         bool found = false;
         foreach(int serverSubscriptionId, serversSubscriptions) {
             qDebug() << "Server says: subscribed to " << serverSubscriptionId;
@@ -327,7 +343,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
     }
     foreach (ForumSubscription *sub, unsubscribedForums) {
         qDebug() << "Deleting forum " << sub->toString() << "as server says it's not subscribed";
-        fdb.deleteSubscription(sub);
+        fdbSql.deleteSubscription(sub);
         pdb.deleteParser(sub->parser());
     }
 
@@ -418,10 +434,10 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
         subscribeWizard->deleteLater();
         subscribeWizard = 0;
     }
-    ForumSubscription *newFs = new ForumSubscription(&fdb, false);
+    ForumSubscription *newFs = new ForumSubscription(&fdbSql, false);
     newFs->copyFrom(fs);
     fs = 0;
-    if(!fdb.addSubscription(newFs) || !pdb.storeParser(fp)) {
+    if(!fdbSql.addSubscription(newFs) || !pdb.storeParser(fp)) {
         QMessageBox msgBox(mainWin);
         msgBox.setText("Error: Unable to subscribe to forum. Are you already subscribed?");
         msgBox.exec();
@@ -436,7 +452,7 @@ void Siilihai::forumAdded(ForumParser fp, ForumSubscription *fs) {
 void Siilihai::subscriptionFound(ForumSubscription *sub) {
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
-    ParserEngine *pe = new ParserEngine(&fdb, this);
+    ParserEngine *pe = new ParserEngine(&fdbSql, this);
     ForumParser parser = pdb.getParser(sub->parser());
     pe->setParser(parser);
     pe->setSubscription(sub);
@@ -478,7 +494,7 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
     if (currentState == state_ready) {
         groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
         groupSubscriptionDialog->setModal(false);
-        groupSubscriptionDialog->setForum(&fdb, forum);
+        groupSubscriptionDialog->setForum(&fdbSql, forum);
         connect(groupSubscriptionDialog, SIGNAL(finished(int)), this, SLOT(subscribeGroupDialogFinished()));
         groupSubscriptionDialog->exec();
     }
@@ -495,7 +511,7 @@ void Siilihai::subscribeGroupDialogFinished() {
 
 void Siilihai::forumUpdated(ForumSubscription* forum) {
     int busyForums = 0;
-    foreach(ForumSubscription *sub, fdb.values()) {
+    foreach(ForumSubscription *sub, fdbSql.values()) {
         if(sub->parserEngine()->state()==ParserEngine::PES_UPDATING) {
             busyForums++;
         }
@@ -504,9 +520,9 @@ void Siilihai::forumUpdated(ForumSubscription* forum) {
     subscriptionsToUpdateLeft.removeAll(forum);
     ForumSubscription *nextSub = 0;
     while(!nextSub && !subscriptionsToUpdateLeft.isEmpty()
-        && busyForums <= MAX_CONCURRENT_UPDATES) {
+          && busyForums <= MAX_CONCURRENT_UPDATES) {
         nextSub = subscriptionsToUpdateLeft.takeFirst();
-        if(fdb.values().contains(nextSub)) {
+        if(fdbSql.values().contains(nextSub)) {
             nextSub->parserEngine()->updateForum();
             busyForums++;
         }
@@ -547,10 +563,8 @@ void Siilihai::cancelClicked() {
 void Siilihai::reportClicked(ForumSubscription* forum) {
     if (forum) {
         ForumParser parserToReport = pdb.getParser(forum->parser());
-        ReportParser *rpt = new ReportParser(mainWin, forum->parser(),
-                                             parserToReport.parser_name);
-        connect(rpt, SIGNAL(parserReport(ParserReport)), &protocol,
-                SLOT(sendParserReport(ParserReport)));
+        ReportParser *rpt = new ReportParser(mainWin, forum->parser(), parserToReport.parser_name);
+        connect(rpt, SIGNAL(parserReport(ParserReport)), &protocol, SLOT(sendParserReport(ParserReport)));
         rpt->exec();
     }
 }
@@ -567,7 +581,7 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
         msgBox.setDefaultButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::Yes) {
             protocol.subscribeForum(fs, true);
-            fdb.deleteSubscription(fs);
+            fdbSql.deleteSubscription(fs);
             pdb.deleteParser(fs->parser());
         }
     }
@@ -609,8 +623,8 @@ void Siilihai::subscribeForumFinished(ForumSubscription *sub, bool success) {
     qDebug() << Q_FUNC_INFO << success;
     if (!success) {
         errorDialog("Subscribing to forum failed. Please check network connection.");
-        if(fdb.value(sub->parser()))
-            fdb.deleteSubscription(sub);
+        if(fdbSql.value(sub->parser()))
+            fdbSql.deleteSubscription(sub);
     }
 }
 
@@ -711,11 +725,11 @@ void Siilihai::syncProgress(float progress) {
 
 void Siilihai::unregisterSiilihai() {
     cancelClicked();
-    fdb.resetDatabase();
+    fdbSql.resetDatabase();
     settings.remove("account/username");
     settings.remove("account/password");
     settings.remove("first_run");
-    fdb.storeDatabase();
+    fdbSql.storeDatabase();
     usettings.setSyncEnabled(false);
     QMessageBox::information(mainWin, "Unregister successful", "Siilihai has been unregistered and will now quit.");
     haltSiilihai();
