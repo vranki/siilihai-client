@@ -1,7 +1,7 @@
 #include "grouplistpatterneditor.h"
 
 GroupListPatternEditor::GroupListPatternEditor(ForumSession &ses,
-                                               ForumParser &par,
+                                               ForumParser *par,
                                                ForumSubscription *fos,
                                                QWidget *parent) :
 PatternEditor(ses, par, fos, parent) {
@@ -71,14 +71,14 @@ void GroupListPatternEditor::resultCellActivated(int row, int column) {
 }
 
 void GroupListPatternEditor::parserUpdated() {
-    ui.urlLabel->setText(parser.forum_url);
+    ui.urlLabel->setText(parser->forum_url);
 
     QString errors, warnings;
-    if(!parser.group_list_pattern.contains("%a") && !parser.group_list_pattern.contains("%A"))
+    if(!parser->group_list_pattern.contains("%a") && !parser->group_list_pattern.contains("%A"))
         errors += "Group id (%a) missing\n";
-    if(!parser.group_list_pattern.contains("%b"))
+    if(!parser->group_list_pattern.contains("%b"))
         errors += "Group name (%b) missing\n";
-    if(!parser.group_list_pattern.contains("%c"))
+    if(!parser->group_list_pattern.contains("%c"))
         warnings += "Last change (%c) is recommended\n";
 
     if(errors.length()==0) {
@@ -89,7 +89,7 @@ void GroupListPatternEditor::parserUpdated() {
 }
 
 void GroupListPatternEditor::patternChanged() {
-    parser.group_list_pattern = pattern();
+    parser->group_list_pattern = pattern();
     session.setParser(parser);
     QString glhtml = ui.sourceTextEdit->toPlainText();
     session.performListGroups(glhtml);

@@ -1,19 +1,18 @@
 #include "parsermaker.h"
 
-ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s,
-                         SiilihaiProtocol &p) :
+ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s, SiilihaiProtocol &p) :
 QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this, &nam) {
     ui.setupUi(this);
     loginMatcher = new PatternMatcher(this, true);
 
-    groupListEditor = new GroupListPatternEditor(session, parser, &subscription, this);
+    groupListEditor = new GroupListPatternEditor(session, &parser, &subscription, this);
     ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(),
                          groupListEditor->tabName());
-    threadListEditor = new ThreadListPatternEditor(session, parser, &subscription, this);
+    threadListEditor = new ThreadListPatternEditor(session, &parser, &subscription, this);
     ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(),
                          threadListEditor->tabName());
     threadListEditor->setEnabled(false);
-    messageListEditor = new MessageListPatternEditor(session, parser, &subscription, this);
+    messageListEditor = new MessageListPatternEditor(session, &parser, &subscription, this);
     ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(), messageListEditor->tabName());
     messageListEditor->setEnabled(false);
 
@@ -149,36 +148,36 @@ void ParserMaker::newFromRequestClicked() {
 }
 
 void ParserMaker::requestSelected(ForumRequest req) {
-    ForumParser fp;
-    fp.forum_url = req.forum_url;
+    ForumParser *fp = new ForumParser(this);
+    fp->forum_url = req.forum_url;
     parserLoaded(fp);
 }
 
-void ParserMaker::parserLoaded(ForumParser p) {
+void ParserMaker::parserLoaded(ForumParser *p) {
     parser = p;
-    ui.parserName->setText(p.parser_name);
-    ui.forumUrl->setText(p.forum_url);
-    ui.parserType->setCurrentIndex(p.parser_type);
-    ui.forumSoftware->setText(p.forum_software);
-    ui.threadListPath->setText(p.thread_list_path);
-    ui.viewThreadPath->setText(p.view_thread_path);
-    ui.viewThreadPageStart->setText(QString().number(p.view_thread_page_start));
+    ui.parserName->setText(p->parser_name);
+    ui.forumUrl->setText(p->forum_url);
+    ui.parserType->setCurrentIndex(p->parser_type);
+    ui.forumSoftware->setText(p->forum_software);
+    ui.threadListPath->setText(p->thread_list_path);
+    ui.viewThreadPath->setText(p->view_thread_path);
+    ui.viewThreadPageStart->setText(QString().number(p->view_thread_page_start));
     ui.viewThreadPageIncrement->setText(QString().number(
-            p.view_thread_page_increment));
-    ui.threadListPageStart->setText(QString().number(p.thread_list_page_start));
+            p->view_thread_page_increment));
+    ui.threadListPageStart->setText(QString().number(p->thread_list_page_start));
     ui.threadListPageIncrement->setText(QString().number(
-            p.thread_list_page_increment));
-    ui.viewMessagePath->setText(p.view_message_path);
-    ui.charset->setEditText(p.charset);
-    ui.loginPath->setText(p.login_path);
-    ui.loginTypeCombo->setCurrentIndex(p.login_type);
-    ui.loginParameters->setText(p.login_parameters);
-    ui.verifyLoginPattern->setText(p.verify_login_pattern);
-    groupListEditor->setPattern(p.group_list_pattern);
+            p->thread_list_page_increment));
+    ui.viewMessagePath->setText(p->view_message_path);
+    ui.charset->setEditText(p->charset);
+    ui.loginPath->setText(p->login_path);
+    ui.loginTypeCombo->setCurrentIndex(p->login_type);
+    ui.loginParameters->setText(p->login_parameters);
+    ui.verifyLoginPattern->setText(p->verify_login_pattern);
+    groupListEditor->setPattern(p->group_list_pattern);
     groupListEditor->parserUpdated();
-    threadListEditor->setPattern(p.thread_list_pattern);
+    threadListEditor->setPattern(p->thread_list_pattern);
     threadListEditor->parserUpdated();
-    messageListEditor->setPattern(p.message_list_pattern);
+    messageListEditor->setPattern(p->message_list_pattern);
     messageListEditor->parserUpdated();
     ui.tabWidget->setCurrentIndex(1);
     updateState();
@@ -193,7 +192,7 @@ void ParserMaker::saveClicked() {
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     if (msgBox.exec() == QMessageBox::Yes) {
-        protocol.saveParser(parser);
+        protocol.saveParser(&parser);
     }
 }
 
@@ -211,7 +210,7 @@ void ParserMaker::saveAsNewClicked() {
     msgBox.setDefaultButton(QMessageBox::No);
     if (msgBox.exec() == QMessageBox::Yes) {
         parser.id = -1;
-        protocol.saveParser(parser);
+        protocol.saveParser(&parser);
     }
 }
 
@@ -224,7 +223,7 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
         parser.id = id;
         if (message.isNull())
             message = "Parser saved. Restart Siilihai if you have already subscribed it.";
-        emit(parserSaved(parser));
+        emit(parserSaved(&parser));
     } else {
         if (message.isNull())
             message = "Unable to save parser.";
@@ -247,11 +246,10 @@ void ParserMaker::closeEvent(QCloseEvent *event) {
 
 void ParserMaker::tryLogin() {
     session.clearAuthentications();
-    session.initialize(parser, &subscription, 0);
+    session.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = false;
     updateState();
-    connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit,
-            SLOT(setPlainText(const QString&)));
+    connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));
     session.loginToForum();
     ui.tryLoginButton->setEnabled(false);
     ui.tryWithoutLoginButton->setEnabled(false);
@@ -259,11 +257,10 @@ void ParserMaker::tryLogin() {
 
 void ParserMaker::tryWithoutLogin() {
     session.clearAuthentications();
-    session.initialize(parser, &subscription, 0);
+    session.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = true;
     updateState();
-    connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit,
-            SLOT(setPlainText(const QString&)));
+    connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));
     session.loginToForum();
     ui.tryLoginButton->setEnabled(false);
     ui.tryWithoutLoginButton->setEnabled(false);
@@ -284,8 +281,7 @@ void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
         }
     }
 
-    disconnect(&session, SIGNAL(receivedHtml(const QString&)),
-               ui.loginTextEdit, SLOT(setText(const QString&)));
+    disconnect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setText(const QString&)));
     loginWithoutCredentials = false;
 
     ui.tryLoginButton->setEnabled(true);

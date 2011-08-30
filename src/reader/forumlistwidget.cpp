@@ -1,7 +1,7 @@
 #include "forumlistwidget.h"
 
-ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDatabase &p) :
-    QToolBox(parent), fdb(f), pdb(p), currentGroup(0) {
+ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f) :
+    QToolBox(parent), fdb(f), currentGroup(0) {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(forumItemSelected(int)));
 
     markReadAction = new QAction("Mark all messages read", this);
@@ -104,7 +104,7 @@ void ForumListWidget::subscriptionChanged(ForumSubscription *sub) {
 }
 
 void ForumListWidget::setupFavicon(ForumSubscription *sub) {
-    QString fiUrl = pdb.getParser(sub->parser()).forum_url;
+    QString fiUrl = sub->parserEngine()->parser()->forum_url;
     fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
     fiUrl = fiUrl + "/favicon.ico";
     Favicon *fi = new Favicon(this, sub);

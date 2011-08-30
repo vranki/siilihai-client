@@ -25,7 +25,7 @@ void ForumProperties::updateValues() {
     ui->forumName->setText(fs->alias());
     ui->threads_per_group->setValue(fs->latestThreads());
     ui->messages_per_thread->setValue(fs->latestMessages());
-    if(pdb.getParser(fs->parser()).supportsLogin()) {
+    if(fs->parserEngine() pdb.value(fs->parser())->supportsLogin()) {
         ui->authenticationGroupbox->setEnabled(true);
         if(fs->username().length()>0)  {
             ui->authenticationGroupbox->setChecked(true);

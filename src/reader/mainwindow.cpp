@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include "useraccountdialog.h"
 
-MainWindow::MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s, QWidget *parent) :
-QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
+MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) :
+QMainWindow(parent), fdb(fd), viewAsGroup(this) {
     ui.setupUi(this);
     readerReady = false;
     offline = false;
@@ -49,7 +49,7 @@ QMainWindow(parent), fdb(fd), pdb(pd), viewAsGroup(this) {
     connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
     connect(ui.viewInBrowser, SIGNAL(clicked()), this,
             SLOT(viewInBrowserClickedSlot()));
-    flw = new ForumListWidget(this, fdb, pdb);
+    flw = new ForumListWidget(this, fdb);
     connect(flw, SIGNAL(groupSelected(ForumGroup*)), this,
             SLOT(groupSelected(ForumGroup*)));
     connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this,
@@ -252,7 +252,7 @@ void MainWindow::markForumUnread() {
 
 void MainWindow::forumPropertiesSlot( ) {
     if (flw->getSelectedForum()) {
-        ForumProperties *fp = new ForumProperties(this, flw->getSelectedForum(), fdb, pdb);
+        ForumProperties *fp = new ForumProperties(this, flw->getSelectedForum(), fdb);
         fp->setModal(false);
         connect(fp, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SIGNAL(forumUpdateNeeded(ForumSubscription*)));
         fp->show();

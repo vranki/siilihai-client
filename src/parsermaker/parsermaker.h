@@ -36,7 +36,7 @@ public slots:
     void saveClicked();
     void saveAsNewClicked();
     void testForumUrlClicked();
-    void parserLoaded(ForumParser p);
+    void parserLoaded(ForumParser *p);
     void saveParserFinished(int newId, QString message);
     void requestSelected(ForumRequest req);
     void tryLogin();
@@ -50,7 +50,7 @@ public slots:
     void dataMatched(int pos, QString data, PatternMatchType type);
 
 signals:
-    void parserSaved(ForumParser savedParser);
+    void parserSaved(ForumParser *savedParser);
 
 private:
     void closeEvent(QCloseEvent *event);

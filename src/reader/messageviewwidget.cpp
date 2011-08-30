@@ -24,9 +24,11 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         webView.load(QUrl("qrc:/data/blankmessage/index.html"));
         return;
     }
-    QNetworkAccessManager *nam = msg->thread()->group()->subscription()->parserEngine()->networkAccessManager();
-    if(webView.page()->networkAccessManager()!=nam) {
-        webView.page()->setNetworkAccessManager(nam);
+    if(msg->thread()->group()->subscription()->parserEngine()) {
+        QNetworkAccessManager *nam = msg->thread()->group()->subscription()->parserEngine()->networkAccessManager();
+        if(webView.page()->networkAccessManager()!=nam) {
+            webView.page()->setNetworkAccessManager(nam);
+        }
     }
     // This looks like a big hack but works pretty well :-)
     QString bodyToShow = msg->body();

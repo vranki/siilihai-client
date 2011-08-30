@@ -23,8 +23,7 @@ QT += core \
     webkit \
     gui \
     network \
-    xml \
-    sql
+    xml
 
 HEADERS += messageviewwidget.h \
     messageformatting.h \

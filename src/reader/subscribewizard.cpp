@@ -52,7 +52,7 @@ QWizardPage *SubscribeWizard::createIntroPage() {
     return page;
 }
 
-void SubscribeWizard::listParsersFinished(QList<ForumParser> parsers) {
+void SubscribeWizard::listParsersFinished(QList<ForumParser*> parsers) {
     allParsers = parsers;
     updateParserList();
 }
@@ -60,9 +60,9 @@ void SubscribeWizard::listParsersFinished(QList<ForumParser> parsers) {
 void SubscribeWizard::updateParserList() {
     subscribeForm.forumList->clear();
     listWidgetItemForum.clear();
-    for (int i = 0; i < allParsers.size(); i++) {
+    foreach(ForumParser *parser, allParsers){
         bool displayParser = false;
-        int parserType = allParsers[i].parser_type;
+        int parserType = parser->parser_type;
         int ci = subscribeForm.displayCombo->currentIndex();
         switch (ci) {
         case 0:
@@ -82,16 +82,13 @@ void SubscribeWizard::updateParserList() {
             break;
         }
         if (displayParser) {
-            if (allParsers[i].parser_name.contains(
-                    subscribeForm.searchString->text())
-                || allParsers[i].forum_url.contains(
-                        subscribeForm.searchString->text())) {
-                QListWidgetItem *item = new QListWidgetItem(
-                        subscribeForm.forumList);
-                item->setText(allParsers[i].parser_name);
-                item->setToolTip(allParsers[i].forum_url);
+            if (parser->parser_name.contains(subscribeForm.searchString->text())
+                || parser->forum_url.contains(subscribeForm.searchString->text())) {
+                QListWidgetItem *item = new QListWidgetItem(subscribeForm.forumList);
+                item->setText(parser->parser_name);
+                item->setToolTip(parser->forum_url);
                 subscribeForm.forumList->addItem(item);
-                listWidgetItemForum[item] = &allParsers[i];
+                listWidgetItemForum[item] = parser;
             }
         }
     }
@@ -170,18 +167,16 @@ void SubscribeWizard::pageChanged(int id) {
     }
 }
 
-void SubscribeWizard::getParserFinished(ForumParser fp) {
-    disconnect(&protocol, SIGNAL(getParserFinished(ForumParser)),
-               this, SLOT(getParserFinished(ForumParser)));
-    qDebug() << Q_FUNC_INFO << fp.toString();
+void SubscribeWizard::getParserFinished(ForumParser *fp) {
+    disconnect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
     QString warningLabel;
-    if (fp.id >= 0) {
+    if (fp->id >= 0) {
         parser = fp;
-        subscribeForumLogin.accountGroupBox->setEnabled(parser.supportsLogin());
-        if (fp.parser_status == 0) {
+        subscribeForumLogin.accountGroupBox->setEnabled(parser->supportsLogin());
+        if (fp->parser_status == 0) {
             warningLabel = "Note: This parser is new and has not been tested much.\n"
                            "Please report if it is working or not from the menu later.";
-        } else if (fp.parser_status == 2) {
+        } else if (fp->parser_status == 2) {
             warningLabel = "Warning: This parser has been reported as not working.\n"
                            "Please report if it is working or not from the menu later.";
         }
@@ -203,7 +198,7 @@ void SubscribeWizard::getParserFinished(ForumParser fp) {
 }
 
 void SubscribeWizard::wizardAccepted() {
-    if(!parser.isSane()) {
+    if(!parser->isSane()) {
         qDebug() << "Parsed not sane (yet), please hold on..";
         return;
     }
@@ -216,14 +211,14 @@ void SubscribeWizard::wizardAccepted() {
     }
 
     ForumSubscription fs(this);
-    fs.setParser(parser.id);
+    fs.setParser(parser->id);
     fs.setAlias(subscribeForumVerify.forumName->text());
     fs.setUsername(user);
     fs.setPassword(pass);
     fs.setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
     fs.setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
 
-    Q_ASSERT(parser.isSane());
+    Q_ASSERT(parser->isSane());
     emit(forumAdded(parser, &fs));
 }
 

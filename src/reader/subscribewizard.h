@@ -23,14 +23,14 @@ public:
     QWizardPage *createLoginPage();
     QWizardPage *createVerifyPage();
 signals:
-    void forumAdded(ForumParser fp, ForumSubscription *fs);
+    void forumAdded(ForumParser *fp, ForumSubscription *fs);
 
 public slots:
-    void listParsersFinished(QList <ForumParser> parsers);
+    void listParsersFinished(QList <ForumParser*> parsers);
     void updateParserList();
     void pageChanged(int id);
     void wizardAccepted();
-    void getParserFinished(ForumParser parser);
+    void getParserFinished(ForumParser *parser);
     void comboItemChanged(int id);
     void forumClicked(QListWidgetItem* newItem);
 private:
@@ -41,10 +41,10 @@ private:
     Ui::SubscribeForm subscribeForm;
     Ui::SubscribeForumLoginForm subscribeForumLogin;
     Ui::SubscribeForumVerify subscribeForumVerify;
-    QList <ForumParser> allParsers;
+    QList <ForumParser*> allParsers;
     QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
     ForumParser *selectedParser;
-    ForumParser parser;
+    ForumParser *parser;
 };
 
 #endif // SubscribeWizard_H

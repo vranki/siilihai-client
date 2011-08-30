@@ -12,7 +12,7 @@ class MessageListPatternEditor: public PatternEditor {
     Q_OBJECT
 
 public:
-    MessageListPatternEditor(ForumSession &ses, ForumParser &par,
+    MessageListPatternEditor(ForumSession &ses, ForumParser *par,
                              ForumSubscription *fos, QWidget *parent = 0);
     virtual ~MessageListPatternEditor();
     virtual QString tabName();

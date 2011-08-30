@@ -3,7 +3,6 @@
 #include <QObject>
 #include <QApplication>
 #include <QSettings>
-#include <QtSql>
 #include <QDir>
 #include <QMessageBox>
 #include <QNetworkProxy>
@@ -12,14 +11,12 @@
 #include <time.h>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumdatabasesql.h>
 #include <siilihai/forumdatabasexml.h>
-#include <siilihai/parserdatabase.h>
 #include <siilihai/parserreport.h>
 #include <siilihai/parserengine.h>
 #include <siilihai/syncmaster.h>
 #include <siilihai/usersettings.h>
-
+#include <siilihai/parsermanager.h>
 #include "loginwizard.h"
 #include "subscribewizard.h"
 #include "mainwindow.h"
@@ -34,7 +31,6 @@
 class ParserMaker;
 #endif
 
-#define DATABASE_FILE "/.siilihai.db"
 #define BASEURL "http://www.siilihai.com/"
 #define MAX_CONCURRENT_UPDATES 2
 
@@ -68,7 +64,7 @@ public slots:
     void launchSiilihai();
     void haltSiilihai();
     void cancelProgress();
-    void forumAdded(ForumParser fp, ForumSubscription *fs);
+    void forumAdded(ForumParser *fp, ForumSubscription *fs);
     void loginFinished(bool success, QString motd, bool sync);
     void subscribeForum();
     void showSubscribeGroup(ForumSubscription* forum);
@@ -83,7 +79,7 @@ public slots:
     void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
     void errorDialog(QString message);
     void listSubscriptionsFinished(QList<int> subscriptions);
-    void updateForumParser(ForumParser parser);
+    void updateForumParser(ForumParser *parser);
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
@@ -115,10 +111,8 @@ private:
     SiilihaiProtocol protocol;
     QHash <ForumSubscription*, ParserEngine*> engines;
     QList <ForumSubscription*> subscriptionsNeedingCredentials;
-    QSqlDatabase db;
-    ForumDatabaseSql fdbSql;
-    ForumDatabaseXml fdbXml;
-    ParserDatabase pdb;
+    ForumDatabaseXml forumDatabase;
+    ParserManager *parserManager;
     QString baseUrl;
     QList<ForumSubscription*> parsersToUpdateLeft;
     QList<ForumSubscription*> subscriptionsToUpdateLeft;
@@ -129,6 +123,7 @@ private:
     SyncMaster syncmaster;
     QSettings settings;
     QString dataFilePath;
+    bool dbStored;
 };
 
 #endif /* SIILIHAI_H_ */

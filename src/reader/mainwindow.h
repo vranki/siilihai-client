@@ -36,7 +36,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(ParserDatabase &pd, ForumDatabase &fd, QSettings *s, QWidget *parent = 0 );
+    MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent = 0 );
     ~MainWindow();
     ForumListWidget* forumList();
     ThreadListWidget* threadList();
@@ -97,7 +97,6 @@ private:
     MessageViewWidget *mvw;
     Ui::MainWindowClass ui;
     ForumDatabase &fdb;
-    ParserDatabase &pdb;
     QSet<ForumSubscription*> busyForums;
     QSettings *settings;
     bool readerReady, offline;

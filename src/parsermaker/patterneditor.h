@@ -15,7 +15,7 @@ class PatternEditor : public QWidget
     Q_OBJECT
 
 public:
-    PatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription *fos, QWidget *parent = 0);
+    PatternEditor(ForumSession &ses, ForumParser *par, ForumSubscription *fos, QWidget *parent = 0);
     ~PatternEditor();
     QString pattern();
     void setPattern(QString txt);
@@ -46,7 +46,7 @@ protected:
 	Ui::PatternEditorClass ui;
         QTextCursor patternEditorCursor;
 	ForumSession &session;
-	ForumParser &parser, downloadParser;
+        ForumParser *parser, *downloadParser;
 	PatternMatcher *matcher;
 	ForumSubscription *subscription, *downloadSubscription;
 	bool pageSpanningTest;

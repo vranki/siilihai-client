@@ -17,18 +17,18 @@ public:
     ~DownloadDialog();
 
 public slots:
-    void listParsersFinished(QList <ForumParser> parsers);
-	void getParserFinished(ForumParser parser);
-	void okClicked();
-	void cancelClicked();
+    void listParsersFinished(QList <ForumParser*> parsers);
+    void getParserFinished(ForumParser *parser);
+    void okClicked();
+    void cancelClicked();
 signals:
-	void parserLoaded(ForumParser p);
+    void parserLoaded(ForumParser *p);
 
 private:
     Ui::DownloadDialogClass ui;
     SiilihaiProtocol &protocol;
     QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
-    QList <ForumParser> allParsers;
+    QList <ForumParser*> allParsers;
 
 };
 

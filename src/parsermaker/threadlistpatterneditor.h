@@ -9,7 +9,7 @@ class ThreadListPatternEditor : public PatternEditor {
     Q_OBJECT
 
 public:
-    ThreadListPatternEditor(ForumSession &ses, ForumParser &par, ForumSubscription *fos, QWidget *parent = 0);
+    ThreadListPatternEditor(ForumSession &ses, ForumParser *par, ForumSubscription *fos, QWidget *parent = 0);
     virtual ~ThreadListPatternEditor();
     virtual QString tabName();
     virtual QIcon tabIcon();

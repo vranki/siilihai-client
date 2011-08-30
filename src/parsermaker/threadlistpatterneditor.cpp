@@ -2,7 +2,7 @@
 #include "threadlistpatterneditor.h"
 
 ThreadListPatternEditor::ThreadListPatternEditor(ForumSession &ses,
-                                                 ForumParser &par,
+                                                 ForumParser *par,
                                                  ForumSubscription *fos,
                                                  QWidget *parent) :
 PatternEditor(ses, par, fos, parent) {
@@ -26,8 +26,9 @@ QString ThreadListPatternEditor::tabName() {
 
 void ThreadListPatternEditor::downloadList() {
     downloadParser = parser;
-    downloadParser.thread_list_page_increment = 0;
-    downloadParser.view_thread_page_increment = 0;
+    // @broken
+    downloadParser->thread_list_page_increment = 0;
+    downloadParser->view_thread_page_increment = 0;
     downloadSubscription = subscription;
 
     session.initialize(downloadParser, downloadSubscription, matcher);
@@ -118,11 +119,11 @@ void ThreadListPatternEditor::parserUpdated() {
     }
 
     QString errors, warnings;
-    if(!parser.thread_list_pattern.contains("%a") && !parser.thread_list_pattern.contains("%A"))
+    if(!parser->thread_list_pattern.contains("%a") && !parser->thread_list_pattern.contains("%A"))
         errors += "Thread id (%a) missing\n";
-    if(!parser.thread_list_pattern.contains("%b"))
+    if(!parser->thread_list_pattern.contains("%b"))
         errors += "Thread name (%b) missing\n";
-    if(!parser.thread_list_pattern.contains("%c"))
+    if(!parser->thread_list_pattern.contains("%c"))
         warnings += "Last change (%c) is recommended\n";
 
     if(errors.length()==0) {
@@ -134,7 +135,7 @@ void ThreadListPatternEditor::parserUpdated() {
 }
 
 void ThreadListPatternEditor::patternChanged() {
-    parser.thread_list_pattern = pattern();
+    parser->thread_list_pattern = pattern();
     session.setParser(parser);
     if (!pageSpanningTest) {
         QString glhtml = ui.sourceTextEdit->toPlainText();

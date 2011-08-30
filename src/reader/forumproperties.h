@@ -13,7 +13,7 @@ namespace Ui {
 class ForumProperties : public QDialog {
     Q_OBJECT
 public:
-    ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f, ParserDatabase &p);
+    ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f);
     ~ForumProperties();
 signals:
     void forumUpdateNeeded(ForumSubscription *sub);
@@ -27,7 +27,6 @@ protected:
 private:
     Ui::ForumProperties *ui;
     ForumDatabase &fdb;
-    ParserDatabase &pdb;
     ForumSubscription *fs;
 };
 

@@ -1,6 +1,6 @@
 #include "patterneditor.h"
 
-PatternEditor::PatternEditor(ForumSession &ses, ForumParser &par,
+PatternEditor::PatternEditor(ForumSession &ses, ForumParser *par,
                              ForumSubscription *fos, QWidget *parent) :
 QWidget(parent), session(ses), parser(par), subscription(fos), editTimeout(this) {
     ui.setupUi(this);

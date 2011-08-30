@@ -25,7 +25,7 @@ class ForumListWidget: public QToolBox {
     Q_OBJECT
 
 public:
-    ForumListWidget(QWidget *parent, ForumDatabase &f, ParserDatabase &p);
+    ForumListWidget(QWidget *parent, ForumDatabase &f);
     ~ForumListWidget();
     void updateReadCounts(ForumGroup *grp);
     ForumSubscription *getSelectedForum();
@@ -61,7 +61,6 @@ protected:
 private:
     void setupFavicon(ForumSubscription *sub);
     ForumDatabase &fdb;
-    ParserDatabase &pdb;
     ForumGroup *currentGroup;
     QMap<ForumSubscription*, Favicon*> forumIcons;
     QMap<QListWidgetItem*, ForumGroup*> forumGroups;

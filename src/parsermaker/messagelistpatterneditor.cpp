@@ -1,10 +1,9 @@
 #include "messagelistpatterneditor.h"
 
 MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
-                                                   ForumParser &par,
+                                                   ForumParser *par,
                                                    ForumSubscription *fos,
-                                                   QWidget *parent) :
-PatternEditor(ses, par, fos, parent) {
+                                                   QWidget *parent) : PatternEditor(ses, par, fos, parent) {
     setEnabled(false);
     connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage*>&,
                                                   ForumThread*, bool)),
@@ -26,8 +25,9 @@ QString MessageListPatternEditor::tabName() {
 
 void MessageListPatternEditor::downloadList() {
     downloadParser = parser;
-    downloadParser.thread_list_page_increment = 0;
-    downloadParser.view_thread_page_increment = 0;
+    // @todo breaks
+    downloadParser->thread_list_page_increment = 0;
+    downloadParser->view_thread_page_increment = 0;
     downloadSubscription = subscription;
 
     session.initialize(downloadParser, downloadSubscription, matcher);
@@ -125,16 +125,16 @@ void MessageListPatternEditor::parserUpdated() {
     }
 
     QString errors, warnings;
-    if (!parser.message_list_pattern.contains("%a")
-        && !parser.message_list_pattern.contains("%A"))
+    if (!parser->message_list_pattern.contains("%a")
+        && !parser->message_list_pattern.contains("%A"))
         errors += "Message id (%a) missing\n";
-    if (!parser.message_list_pattern.contains("%b"))
+    if (!parser->message_list_pattern.contains("%b"))
         warnings += "Message subject (%b) is recommended\n";
-    if (!parser.message_list_pattern.contains("%c"))
+    if (!parser->message_list_pattern.contains("%c"))
         errors += "Message body (%c) is missing\n";
-    if (!parser.message_list_pattern.contains("%d"))
+    if (!parser->message_list_pattern.contains("%d"))
         warnings += "Message author (%d) is recommended\n";
-    if (!parser.message_list_pattern.contains("%e"))
+    if (!parser->message_list_pattern.contains("%e"))
         warnings += "Last change (%e) is recommended\n";
 
     if (errors.length() == 0) {
@@ -145,10 +145,11 @@ void MessageListPatternEditor::parserUpdated() {
 }
 
 void MessageListPatternEditor::patternChanged() {
-    parser.message_list_pattern = pattern();
+    parser->message_list_pattern = pattern();
+    // @todo breaks
     downloadParser = parser;
-    downloadParser.thread_list_page_increment = 0;
-    downloadParser.view_thread_page_increment = 0;
+    downloadParser->thread_list_page_increment = 0;
+    downloadParser->view_thread_page_increment = 0;
     downloadSubscription = subscription;
     session.setParser(downloadParser);
     QString glhtml = ui.sourceTextEdit->toPlainText();
