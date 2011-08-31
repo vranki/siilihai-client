@@ -168,8 +168,7 @@ void LoginWizard::pageChanged(int id) {
             protocol.login(loginUser.text().trimmed(), loginPass.text().trimmed());
         } else {
             connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(registerFinished(bool, QString,bool)));
-            protocol.registerUser(registerUser.text().trimmed(), registerPass.text().trimmed(),
-                                  registerEmail.text().trimmed(), enableSync.isChecked());
+            protocol.registerUser(registerUser.text().trimmed(), registerPass.text().trimmed(), registerEmail.text().trimmed(), enableSync.isChecked());
         }
         break;
     }

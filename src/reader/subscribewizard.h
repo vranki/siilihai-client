@@ -25,7 +25,7 @@ public:
 signals:
     void forumAdded(ForumParser *fp, ForumSubscription *fs);
 
-public slots:
+private slots:
     void listParsersFinished(QList <ForumParser*> parsers);
     void updateParserList();
     void pageChanged(int id);

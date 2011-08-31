@@ -36,10 +36,10 @@ class ParserMaker;
 
 // State chart:
 //                 ,------>--------.
-// started -> login -> startsync -> updating_parsers -> ready -> endsync -> storedb -> quit
-//              | ^       |              |               |                   ^
-//              v |   .-------------<--------------------'                   |
-//             offline ------------------------>-----------------------------'
+// started -> login -> startsync ->  ready -> endsync -> storedb -> quit
+//              | ^       |            |                  ^          ^
+//              v |   .-------------<--------------------'           |
+//             offline ------------------------>---------------------'
 //
 
 class Siilihai: public QApplication {
@@ -50,7 +50,6 @@ class Siilihai: public QApplication {
         state_login,
         state_startsyncing,
         state_offline,
-        state_updating_parsers,
         state_ready,
         state_endsync,
         state_storedb
@@ -59,7 +58,7 @@ class Siilihai: public QApplication {
 public:
     Siilihai(int& argc, char** argv);
     virtual ~Siilihai();
-public slots:
+private slots:
     void loginWizardFinished();
     void launchSiilihai();
     void haltSiilihai();
@@ -79,7 +78,7 @@ public slots:
     void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
     void errorDialog(QString message);
     void listSubscriptionsFinished(QList<int> subscriptions);
-    void updateForumParser(ForumParser *parser);
+//    void updateForumParser(ForumParser *parser);
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
@@ -99,6 +98,7 @@ public slots:
     void syncProgress(float progress);
     void unregisterSiilihai();
     void databaseStored();
+    void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState);
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();
@@ -114,7 +114,6 @@ private:
     ForumDatabaseXml forumDatabase;
     ParserManager *parserManager;
     QString baseUrl;
-    QList<ForumSubscription*> parsersToUpdateLeft;
     QList<ForumSubscription*> subscriptionsToUpdateLeft;
     ParserMaker *parserMaker;
     QProgressDialog *progressBar;

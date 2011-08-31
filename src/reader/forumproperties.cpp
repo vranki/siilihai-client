@@ -1,11 +1,11 @@
 #include "forumproperties.h"
 #include "ui_forumproperties.h"
-#include "siilihai/forumgroup.h"
-#include "siilihai/forumthread.h"
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/parserengine.h>
 
-ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f, ParserDatabase &p) :
-    QDialog(parent),
-    ui(new Ui::ForumProperties), fdb(f), pdb(p)
+ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f) :
+    QDialog(parent), ui(new Ui::ForumProperties), fdb(f)
 {
     ui->setupUi(this);
     fs = s;
@@ -25,7 +25,7 @@ void ForumProperties::updateValues() {
     ui->forumName->setText(fs->alias());
     ui->threads_per_group->setValue(fs->latestThreads());
     ui->messages_per_thread->setValue(fs->latestMessages());
-    if(fs->parserEngine() pdb.value(fs->parser())->supportsLogin()) {
+    if(fs->parserEngine()->parser()->supportsLogin()) {
         ui->authenticationGroupbox->setEnabled(true);
         if(fs->username().length()>0)  {
             ui->authenticationGroupbox->setChecked(true);

@@ -1,4 +1,5 @@
 #include "siilihai.h"
+#include <siilihai/parsermanager.h>
 
 Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv),forumDatabase(this), syncmaster(this, forumDatabase, protocol)
   #ifdef STORE_FILES_IN_APP_DIR
@@ -71,7 +72,7 @@ void Siilihai::launchSiilihai() {
         haltSiilihai();
         return;
     }
-
+    parserManager = new ParserManager(this, &protocol);
     parserManager->openDatabase(dataFilePath + "/.siilihai_parsers.xml");
 
 #ifdef Q_WS_HILDON
@@ -99,12 +100,9 @@ void Siilihai::changeState(siilihai_states newState) {
     if(newState==state_offline) {
         qDebug() << Q_FUNC_INFO << "Offline";
         Q_ASSERT(previousState==state_login || previousState==state_startsyncing
-                 || previousState==state_updating_parsers
                  || previousState==state_ready || previousState==state_started);
         if(previousState==state_startsyncing)
             syncmaster.cancel();
-        if(previousState==state_updating_parsers)
-            parsersToUpdateLeft.clear();
 
         mainWin->setReaderReady(true, true);
         if(progressBar) { // exists if canceling dureing login process
@@ -156,19 +154,8 @@ void Siilihai::changeState(siilihai_states newState) {
             errorDialog("Failed to save forum database file");
         }
         dbStored = true;
-    } else if(newState==state_updating_parsers) {
-        qDebug() << Q_FUNC_INFO << "Update parsers";
-        if(parsersToUpdateLeft.isEmpty()) {
-            changeState(state_ready);
-            return;
-        }
-        Q_ASSERT(progressBar);
-        progressBar->setValue(80);
-        progressBar->setLabelText("Updating parser definitions");
-        protocol.getParser(parsersToUpdateLeft.takeFirst()->parser());
     } else if(newState==state_ready) {
         qDebug() << Q_FUNC_INFO << "Ready";
-        Q_ASSERT(previousState==state_updating_parsers);
         Q_ASSERT(progressBar);
         progressBar->cancel();
         progressBar->deleteLater();
@@ -239,7 +226,7 @@ void Siilihai::syncFinished(bool success, QString message){
         errorDialog(QString("Syncing status to server failed.\n\n%1").arg(message));
     }
     if(currentState == state_startsyncing) {
-        changeState(state_updating_parsers);
+        changeState(state_ready);
     } else if(currentState == state_endsync) {
         endSyncDone = true;
         haltSiilihai();
@@ -279,7 +266,7 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
         if(usettings.syncEnabled()) {
             changeState(state_startsyncing);
         } else {
-            changeState(state_updating_parsers);
+            changeState(state_ready);
         }
     } else {
         progressBar->cancel();
@@ -327,6 +314,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
 
 }
 
+/*
 // Stores the parser if subscribed to it and updates the engine
 void Siilihai::updateForumParser(ForumParser *parser) {
     if (parser->isSane()) {
@@ -352,13 +340,12 @@ void Siilihai::updateForumParser(ForumParser *parser) {
         }
     }
 }
-
+*/
 void Siilihai::subscribeForum() {
     subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, settings);
     subscribeWizard->setModal(true);
-    connect(subscribeWizard,
-            SIGNAL(forumAdded(ForumParser, ForumSubscription*)), this,
-            SLOT(forumAdded(ForumParser, ForumSubscription*)));
+    connect(subscribeWizard, SIGNAL(forumAdded(ForumParser*, ForumSubscription*)),
+            this, SLOT(forumAdded(ForumParser*, ForumSubscription*)));
 }
 
 
@@ -413,35 +400,32 @@ void Siilihai::forumAdded(ForumParser *fp, ForumSubscription *fs) {
     ForumSubscription *newFs = new ForumSubscription(&forumDatabase, false);
     newFs->copyFrom(fs);
     fs = 0;
-    if(!forumDatabase.addSubscription(newFs) || !pdb.storeParser(fp)) {
+
+    if(!forumDatabase.addSubscription(newFs)) { // Emits subscriptionFound
         QMessageBox msgBox(mainWin);
         msgBox.setText("Error: Unable to subscribe to forum. Are you already subscribed?");
         msgBox.exec();
     } else {
-        protocol.subscribeForum(newFs);
         ParserEngine *newEngine = engines.value(newFs);
         newEngine->setParser(fp);
         newEngine->updateGroupList();
+        protocol.subscribeForum(newFs);
     }
 }
 
 void Siilihai::subscriptionFound(ForumSubscription *sub) {
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
-    ParserEngine *pe = new ParserEngine(&forumDatabase, this);
-    ForumParser *parser = pdb.value(sub->parser());
-    pe->setParser(parser);
+    ParserEngine *pe = new ParserEngine(&forumDatabase, this, parserManager);
     pe->setSubscription(sub);
     engines[sub] = pe;
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this, SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
-
-    connect(pe, SIGNAL(updateFailure(ForumSubscription*, QString)), this,
-            SLOT(updateFailure(ForumSubscription*, QString)));
-    connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)),
-            this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
+    connect(pe, SIGNAL(updateFailure(ForumSubscription*, QString)), this, SLOT(updateFailure(ForumSubscription*, QString)));
+    connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)), this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
     connect(pe, SIGNAL(loginFinished(ForumSubscription*,bool)), this, SLOT(forumLoginFinished(ForumSubscription*,bool)));
-    parsersToUpdateLeft.append(sub);
+    connect(pe, SIGNAL(stateChanged(ParserEngine::ParserEngineState)), this, SLOT(parserEngineStateChanged(ParserEngine::ParserEngineState)));
+
     if(sub->authenticated() && sub->username().length()==0) {
         subscriptionsNeedingCredentials.append(sub);
     }
@@ -478,7 +462,7 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 
 void Siilihai::subscribeGroupDialogFinished() {
     if (currentState == state_ready && groupSubscriptionDialog->subscription()) {
-        protocol.updateGroupSubscriptions(groupSubscriptionDialog->subscription());
+        protocol.subscribeGroups(groupSubscriptionDialog->subscription());
         engines.value(groupSubscriptionDialog->subscription())->updateForum();
     }
     groupSubscriptionDialog->deleteLater();
@@ -538,7 +522,7 @@ void Siilihai::cancelClicked() {
 
 void Siilihai::reportClicked(ForumSubscription* forum) {
     if (forum) {
-        ForumParser *parserToReport = pdb.value(forum->parser());
+        ForumParser *parserToReport = forum->parserEngine()->parser();
         ReportParser *rpt = new ReportParser(mainWin, forum->parser(), parserToReport->parser_name);
         connect(rpt, SIGNAL(parserReport(ParserReport)), &protocol, SLOT(sendParserReport(ParserReport)));
         rpt->exec();
@@ -558,7 +542,7 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
         if (msgBox.exec() == QMessageBox::Yes) {
             protocol.subscribeForum(fs, true);
             forumDatabase.deleteSubscription(fs);
-            pdb.deleteParser(fs->parser());
+            parserManager->deleteParser(fs->parser());
         }
     }
 }
@@ -566,11 +550,9 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
 void Siilihai::launchParserMaker() {
 #ifndef Q_WS_HILDON
     if (!parserMaker) {
-        parserMaker = new ParserMaker(mainWin, pdb, settings, protocol);
-        connect(parserMaker, SIGNAL(destroyed()), this,
-                SLOT(parserMakerClosed()));
-        connect(parserMaker, SIGNAL(parserSaved(ForumParser)), this,
-                SLOT(updateForumParser(ForumParser)));
+        parserMaker = new ParserMaker(mainWin, parserManager, settings, protocol);
+        connect(parserMaker, SIGNAL(destroyed()), this, SLOT(parserMakerClosed()));
+        connect(parserMaker, SIGNAL(parserSaved(ForumParser)), this, SLOT(updateForumParser(ForumParser)));
     } else {
         parserMaker->showNormal();
     }
@@ -627,7 +609,7 @@ void Siilihai::cancelProgress() {
     qDebug() << Q_FUNC_INFO;
     if(currentState==state_login) {
         loginFinished(false,QString::null,false);
-    } else if(currentState==state_updating_parsers || currentState==state_startsyncing) {
+    } else if(currentState==state_startsyncing) {
         changeState(state_offline);
     } else if(currentState==state_endsync) {
         haltSiilihai();
@@ -673,7 +655,7 @@ void Siilihai::moreMessagesRequested(ForumThread* thread) {
 void Siilihai::unsubscribeGroup(ForumGroup *group) {
     group->setSubscribed(false);
     group->commitChanges();
-    protocol.updateGroupSubscriptions(group->subscription());
+    protocol.subscribeGroups(group->subscription());
 }
 
 void Siilihai::forumLoginFinished(ForumSubscription *sub, bool success) {
@@ -713,4 +695,8 @@ void Siilihai::unregisterSiilihai() {
 
 void Siilihai::databaseStored() {
     haltSiilihai();
+}
+
+void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState) {
+    emit statusChanged(engine->subscription(), false, -1);
 }

@@ -1,6 +1,6 @@
 #include "parsermaker.h"
 
-ParserMaker::ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s, SiilihaiProtocol &p) :
+ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p) :
 QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this, &nam) {
     ui.setupUi(this);
     loginMatcher = new PatternMatcher(this, true);

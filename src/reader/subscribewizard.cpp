@@ -1,39 +1,34 @@
 #include "subscribewizard.h"
 
-SubscribeWizard::SubscribeWizard(QWidget *parent,
-                                 SiilihaiProtocol &proto,
-                                 QString &baseUrl, QSettings &sett) :
-QWizard(parent), protocol(proto), settings(sett) {
+SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QString &baseUrl, QSettings &sett) :
+    QWizard(parent), protocol(proto), settings(sett) {
     selectedParser = 0;
     setWizardStyle(QWizard::ModernStyle);
 #ifndef Q_WS_HILDON
-    setPixmap(QWizard::WatermarkPixmap, QPixmap(
-            ":/data/siilis_wizard_watermark.png"));
-
+    setPixmap(QWizard::WatermarkPixmap, QPixmap(":/data/siilis_wizard_watermark.png"));
 #endif
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
     addPage(createIntroPage());
     addPage(createLoginPage());
     addPage(createVerifyPage());
     setWindowTitle("Subscribe to a forum");
-    connect(&protocol, SIGNAL(listParsersFinished(QList <ForumParser>)), this,
-            SLOT(listParsersFinished(QList <ForumParser>)));
-
-    connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this,
-            SLOT(updateParserList()));
+    connect(&protocol, SIGNAL(listParsersFinished(QList <ForumParser*>)), this, SLOT(listParsersFinished(QList <ForumParser*>)));
+    connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this, SLOT(updateParserList()));
     connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
-    connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this,
-            SLOT(comboItemChanged(int)));
+    connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(comboItemChanged(int)));
     protocol.setBaseURL(baseUrl);
     progress = 0;
+    parser = 0;
     protocol.listParsers();
-    subscribeForm.forumList->addItem(QString(
-            "Downloading list of available forums..."));
+    subscribeForm.forumList->addItem(QString("Downloading list of available forums..."));
     subscribeForm.pagePreview->hide();
     show();
 }
 
 SubscribeWizard::~SubscribeWizard() {
+    qDeleteAll(allParsers);
+    if(parser)
+        parser->deleteLater();
 }
 
 QWizardPage *SubscribeWizard::createIntroPage() {
@@ -135,8 +130,7 @@ void SubscribeWizard::pageChanged(int id) {
             back();
         } else {
             selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
-            connect(&protocol, SIGNAL(getParserFinished(ForumParser)), this,
-                    SLOT(getParserFinished(ForumParser)));
+            connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
 
             protocol.getParser(selectedParser->id);
             progress = new QProgressDialog("Downloading parser definition..",

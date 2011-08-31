@@ -10,6 +10,7 @@
 #include <siilihai/forumsession.h>
 #include <siilihai/forumgroup.h>
 #include <siilihai/forumthread.h>
+#include <siilihai/parsermanager.h>
 
 #include "downloaddialog.h"
 #include "openrequestdialog.h"
@@ -26,7 +27,7 @@ class ParserMaker : public QMainWindow
     Q_OBJECT
 
 public:
-    ParserMaker(QWidget *parent, ParserDatabase &pd, QSettings &s, SiilihaiProtocol &p);
+    ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p);
     ~ParserMaker();
 
 public slots:
@@ -55,7 +56,7 @@ signals:
 private:
     void closeEvent(QCloseEvent *event);
     Ui::ParserMakerWindow ui;
-    ParserDatabase &pdb;
+    ParserManager *pdb;
     QSettings &settings;
     SiilihaiProtocol &protocol;
     ForumParser parser;
