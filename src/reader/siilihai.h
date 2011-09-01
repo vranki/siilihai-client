@@ -63,7 +63,7 @@ private slots:
     void launchSiilihai();
     void haltSiilihai();
     void cancelProgress();
-    void forumAdded(ForumParser *fp, ForumSubscription *fs);
+    void forumAdded(ForumSubscription *fs);
     void loginFinished(bool success, QString motd, bool sync);
     void subscribeForum();
     void showSubscribeGroup(ForumSubscription* forum);

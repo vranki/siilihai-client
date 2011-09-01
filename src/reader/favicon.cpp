@@ -16,8 +16,8 @@ Favicon::~Favicon() {
 
 void Favicon::subscriptionChanged(ForumSubscription *sub) {
     if(subscription->parserEngine())
-        connect(subscription->parserEngine(), SIGNAL(stateChanged(ParserEngine::ParserEngineState)),
-                this, SLOT(engineStateChanged(ParserEngine::ParserEngineState)));
+        connect(subscription->parserEngine(), SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState)),
+                this, SLOT(engineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
 }
 
 void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
@@ -63,7 +63,7 @@ void Favicon::update() {
     emit iconChanged(subscription, QIcon(outPic));
 }
 
-void Favicon::engineStateChanged(ParserEngine::ParserEngineState newState) {
+void Favicon::engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState) {
     if(newState==ParserEngine::PES_UPDATING) {
         update();
         blinkTimer.start();

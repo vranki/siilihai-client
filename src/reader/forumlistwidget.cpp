@@ -84,7 +84,6 @@ void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev
 
 void ForumListWidget::addSubscription(ForumSubscription *sub) {
     if(listWidgets.value(sub)) return; // If already exists
-    qDebug() << Q_FUNC_INFO << sub->toString() << sub->alias();
     QListWidget *lw = new QListWidget(this);
     listWidgets[sub] = lw;
     addItem(lw, sub->alias());

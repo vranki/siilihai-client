@@ -51,7 +51,6 @@ void ThreadListWidget::groupDeleted(QObject*g) {
 
 void ThreadListWidget::addThread(ForumThread *thread) {
     Q_ASSERT(thread);
-    qDebug() << Q_FUNC_INFO << thread->toString();
     Q_ASSERT(thread->group() == currentGroup);
 
     ThreadListThreadItem *threadItem = new ThreadListThreadItem(this, thread);
@@ -61,7 +60,6 @@ void ThreadListWidget::addThread(ForumThread *thread) {
 }
 
 void ThreadListWidget::groupSelected(ForumGroup *fg) {
-    qDebug() << Q_FUNC_INFO << fg;
     if(!fg) {
         if(currentGroup) {
             disconnect(currentGroup, 0, this, 0);
@@ -80,7 +78,6 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(addThread(ForumThread*)));
-        //        connect(currentGroup, SIGNAL(threadRemoved(ForumThread*)), this, SLOT(removeThread(ForumThread*)));
         setCurrentItem(topLevelItem(0));
     }
     sortColumns();
@@ -94,18 +91,14 @@ void ThreadListWidget::clearList() {
 }
 
 void ThreadListWidget::updateList() {
-    qDebug() << Q_FUNC_INFO;
     if(!currentGroup) return;
     if(topLevelItemCount()) clearList();
     // Add the threads and messages in order
     QList<ForumThread*> threads = currentGroup->values();
     qSort(threads);
     disableSortAndResize = true;
-    qDebug() << Q_FUNC_INFO << "group" << currentGroup->toString() << "has" << threads.size() << "threads";
     foreach(ForumThread *thread, threads) {
-        qDebug() << Q_FUNC_INFO << "adding" << thread->toString();
         addThread(thread);
-        qDebug() << Q_FUNC_INFO << "added" << thread->toString();
         /*
         QList<ForumMessage*> messages = thread->values();
         qSort(messages);

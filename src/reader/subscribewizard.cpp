@@ -93,9 +93,7 @@ QWizardPage *SubscribeWizard::createLoginPage() {
     QWizardPage *page = new QWizardPage;
 #ifndef Q_WS_HILDON
     page->setTitle("Forum account");
-
-    page->setSubTitle(
-            "If you have registered to the forum, you can enter your account credentials here");
+    page->setSubTitle("If you have registered to the forum, you can enter your account credentials here");
 #endif
     QWidget *widget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout;
@@ -131,7 +129,10 @@ void SubscribeWizard::pageChanged(int id) {
         } else {
             selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
             connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-
+            if(parser) {
+                parser->deleteLater();
+                parser = 0;
+            }
             protocol.getParser(selectedParser->id);
             progress = new QProgressDialog("Downloading parser definition..",
                                            "Cancel", 0, 3, this);
@@ -161,7 +162,7 @@ void SubscribeWizard::pageChanged(int id) {
     }
 }
 
-void SubscribeWizard::getParserFinished(ForumParser *fp) {
+void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp MUST be deleteLater'd
     disconnect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
     QString warningLabel;
     if (fp->id >= 0) {
@@ -175,6 +176,7 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) {
                            "Please report if it is working or not from the menu later.";
         }
     } else {
+        fp->deleteLater();
         warningLabel = "Error: Unable to download parser definiton.\nCheck your network connection.";
         back();
     }
@@ -213,7 +215,7 @@ void SubscribeWizard::wizardAccepted() {
     fs.setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
 
     Q_ASSERT(parser->isSane());
-    emit(forumAdded(parser, &fs));
+    emit(forumAdded(&fs));
 }
 
 void SubscribeWizard::comboItemChanged(int id) {

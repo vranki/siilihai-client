@@ -30,7 +30,16 @@ Siilihai::~Siilihai() {
 
 void Siilihai::launchSiilihai() {
     currentState = state_started;
+    // Make sure Siilihai::subscriptionFound is called first to get ParserEngine
+    connect(&forumDatabase, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
+    connect(&forumDatabase, SIGNAL(databaseStored()), this, SLOT(databaseStored()), Qt::QueuedConnection);
+
+    parserManager = new ParserManager(this, &protocol);
+    parserManager->openDatabase(dataFilePath + "/.siilihai_parsers.xml");
+
     mainWin = new MainWindow(forumDatabase, &settings);
+
+
     firstRun = settings.value("first_run", true).toBool();
 
     settings.setValue("first_run", false);
@@ -55,8 +64,6 @@ void Siilihai::launchSiilihai() {
         errorDialog("The database schema has been changed. Your forum database will be reset. Sorry. ");
         forumDatabase.resetDatabase();
     }
-    connect(&forumDatabase, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
-    connect(&forumDatabase, SIGNAL(databaseStored()), this, SLOT(databaseStored()), Qt::QueuedConnection);
     connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this, SLOT(userSettingsReceived(bool,UserSettings*)));
 
     QString databaseFileName = dataFilePath + "/.siilihai_forums.xml";
@@ -72,8 +79,6 @@ void Siilihai::launchSiilihai() {
         haltSiilihai();
         return;
     }
-    parserManager = new ParserManager(this, &protocol);
-    parserManager->openDatabase(dataFilePath + "/.siilihai_parsers.xml");
 
 #ifdef Q_WS_HILDON
     if(settings.value("firstrun", true).toBool()) {
@@ -344,8 +349,7 @@ void Siilihai::updateForumParser(ForumParser *parser) {
 void Siilihai::subscribeForum() {
     subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, settings);
     subscribeWizard->setModal(true);
-    connect(subscribeWizard, SIGNAL(forumAdded(ForumParser*, ForumSubscription*)),
-            this, SLOT(forumAdded(ForumParser*, ForumSubscription*)));
+    connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)),this, SLOT(forumAdded(ForumSubscription*)));
 }
 
 
@@ -392,39 +396,49 @@ void Siilihai::launchMainWindow() {
     setQuitOnLastWindowClosed(true);
 }
 
-void Siilihai::forumAdded(ForumParser *fp, ForumSubscription *fs) {
+void Siilihai::forumAdded(ForumSubscription *fs) {
     if(subscribeWizard) {
         subscribeWizard->deleteLater();
         subscribeWizard = 0;
     }
-    ForumSubscription *newFs = new ForumSubscription(&forumDatabase, false);
-    newFs->copyFrom(fs);
-    fs = 0;
-
-    if(!forumDatabase.addSubscription(newFs)) { // Emits subscriptionFound
-        QMessageBox msgBox(mainWin);
-        msgBox.setText("Error: Unable to subscribe to forum. Are you already subscribed?");
-        msgBox.exec();
+    if(forumDatabase.contains(fs->parser())) {
+        errorDialog("You have already subscribed to " + fs->alias());
     } else {
-        ParserEngine *newEngine = engines.value(newFs);
-        newEngine->setParser(fp);
-        newEngine->updateGroupList();
-        protocol.subscribeForum(newFs);
+        ForumSubscription *newFs = new ForumSubscription(&forumDatabase, false);
+        newFs->copyFrom(fs);
+        fs = 0;
+        Q_ASSERT(parserManager->getParser(newFs->parser())); // Should already be there!
+        ParserEngine *newEngine = new ParserEngine(&forumDatabase, this, parserManager);
+        newEngine->setParser(parserManager->getParser(newFs->parser()));
+        newEngine->setSubscription(newFs);
+        Q_ASSERT(!engines.contains(newFs));
+        engines[newFs] = newEngine;
+
+        if(!forumDatabase.addSubscription(newFs)) { // Emits subscriptionFound
+            errorDialog("Error: Unable to subscribe to forum. Check the log.");
+        } else {
+            newEngine->updateGroupList();
+            protocol.subscribeForum(newFs);
+        }
     }
 }
 
 void Siilihai::subscriptionFound(ForumSubscription *sub) {
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
-
-    ParserEngine *pe = new ParserEngine(&forumDatabase, this, parserManager);
-    pe->setSubscription(sub);
-    engines[sub] = pe;
+    ParserEngine *pe = engines.value(sub);
+    if(!pe) {
+        pe = new ParserEngine(&forumDatabase, this, parserManager);
+        pe->setSubscription(sub);
+        engines[sub] = pe;
+    }
     connect(pe, SIGNAL(groupListChanged(ForumSubscription*)), this, SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(pe, SIGNAL(forumUpdated(ForumSubscription*)), this, SLOT(forumUpdated(ForumSubscription*)));
     connect(pe, SIGNAL(updateFailure(ForumSubscription*, QString)), this, SLOT(updateFailure(ForumSubscription*, QString)));
     connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)), this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
     connect(pe, SIGNAL(loginFinished(ForumSubscription*,bool)), this, SLOT(forumLoginFinished(ForumSubscription*,bool)));
-    connect(pe, SIGNAL(stateChanged(ParserEngine::ParserEngineState)), this, SLOT(parserEngineStateChanged(ParserEngine::ParserEngineState)));
+    connect(pe, SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState)), this, SLOT(parserEngineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
+
+    if(!pe->parser()) pe->setParser(parserManager->getParser(sub->parser())); // Load the (possibly old) parser
 
     if(sub->authenticated() && sub->username().length()==0) {
         subscriptionsNeedingCredentials.append(sub);
@@ -493,8 +507,10 @@ void Siilihai::updateClicked() {
     int parsersUpdating = 0;
     foreach(ParserEngine* engine, engines.values()) {
         if(parsersUpdating <= MAX_CONCURRENT_UPDATES) {
-            engine->updateForum();
-            parsersUpdating++;
+            if(engine->state()==ParserEngine::PES_IDLE) {
+                engine->updateForum();
+                parsersUpdating++;
+            }
         } else {
             subscriptionsToUpdateLeft.append(engine->subscription());
         }
