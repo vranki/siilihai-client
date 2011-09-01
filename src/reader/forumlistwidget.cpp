@@ -1,7 +1,7 @@
 #include "forumlistwidget.h"
 
-ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f) :
-    QToolBox(parent), fdb(f), currentGroup(0) {
+ForumListWidget::ForumListWidget(QWidget *parent) :
+    QToolBox(parent), currentGroup(0) {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(forumItemSelected(int)));
 
     markReadAction = new QAction("Mark all messages read", this);
@@ -22,10 +22,14 @@ ForumListWidget::ForumListWidget(QWidget *parent, ForumDatabase &f) :
     forumPropertiesAction = new QAction("Forum properties..", this);
     forumPropertiesAction->setToolTip("View and edit detailed information about the forum");
     connect(forumPropertiesAction, SIGNAL(triggered()), this, SIGNAL(forumProperties()));
-    connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(addSubscription(ForumSubscription*)));
-    connect(&fdb, SIGNAL(subscriptionRemoved(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
+
+    // Siilihai adds new sub's when they are ready
+    // connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(addSubscription(ForumSubscription*)));
+    // connect(&fdb, SIGNAL(subscriptionRemoved(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
+    /*
     foreach(ForumSubscription* sub, fdb.values())
         addSubscription(sub);
+        */
 }
 
 ForumListWidget::~ForumListWidget() {
@@ -43,7 +47,6 @@ void ForumListWidget::forumItemSelected(int i) {
             if(!g && grp->isSubscribed())
                 g = grp;
         }
-
     }
     emit forumSelected(sub);
     emit groupSelected(g);
@@ -91,8 +94,14 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     connect(sub, SIGNAL(unreadCountChanged(ForumSubscription*)), this, SLOT(updateSubscriptionLabel(ForumSubscription*)));
     connect(sub, SIGNAL(groupAdded(ForumGroup*)), this, SLOT(groupFound(ForumGroup*)));
     connect(sub, SIGNAL(groupRemoved(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
+    connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
-    setupFavicon(sub);
+    Q_ASSERT(sub->parserEngine());
+    connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState)),
+            this, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState)));
+
+    if(sub->parserEngine()->parser())
+        setupFavicon(sub);
 
     foreach(ForumGroup *grp, sub->values())
         groupFound(grp);
@@ -201,6 +210,10 @@ void ForumListWidget::groupDeleted(ForumGroup *grp) {
     delete item;
 }
 
+void ForumListWidget::subscriptionDeleted(QObject* qo) {
+    ForumSubscription *sub = dynamic_cast<ForumSubscription*>(qo);
+    if(sub) subscriptionDeleted(sub);
+}
 
 void ForumListWidget::subscriptionDeleted(ForumSubscription* sub) {
     qDebug() << Q_FUNC_INFO << sub;
@@ -267,4 +280,8 @@ void ForumListWidget::markAllUnreadClicked() {
 
 void ForumListWidget::groupSubscriptionsClicked() {
     if(getSelectedForum()) emit groupSubscriptions(getSelectedForum());
+}
+
+void ForumListWidget::parserEngineStateChanged(ParserEngine* engine,ParserEngine::ParserEngineState state) {
+    // @todo get favicon if missing
 }

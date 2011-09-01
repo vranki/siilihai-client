@@ -1,8 +1,7 @@
 #include "threadlistwidget.h"
 #include <QDebug>
 
-ThreadListWidget::ThreadListWidget(QWidget *parent, ForumDatabase &f) :
-    QTreeWidget(parent), fdb(f) {
+ThreadListWidget::ThreadListWidget(QWidget *parent) : QTreeWidget(parent) {
     setColumnCount(3);
     currentGroup = 0;
     disableSortAndResize = false;

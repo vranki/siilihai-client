@@ -319,33 +319,6 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
 
 }
 
-/*
-// Stores the parser if subscribed to it and updates the engine
-void Siilihai::updateForumParser(ForumParser *parser) {
-    if (parser->isSane()) {
-        foreach(ForumSubscription *sub, engines.keys()) { // Find subscription that uses parser
-            if (sub->parser() == parser->id) {
-                pdb.storeParser(parser);
-                engines[sub]->setParser(parser);
-                emit statusChanged(sub, false, -1);
-                if (parsersToUpdateLeft.size() < 2) {
-                    if (progressBar)
-                        progressBar->setValue(90);
-                }
-            }
-        }
-    }
-    if(currentState == state_updating_parsers) {
-        if(parsersToUpdateLeft.isEmpty()) {
-            changeState(state_ready);
-        } else {
-            protocol.getParser(parsersToUpdateLeft.takeFirst()->parser());
-            if (progressBar)
-                progressBar->setValue(85);
-        }
-    }
-}
-*/
 void Siilihai::subscribeForum() {
     subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, settings);
     subscribeWizard->setModal(true);
@@ -443,6 +416,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     if(sub->authenticated() && sub->username().length()==0) {
         subscriptionsNeedingCredentials.append(sub);
     }
+    mainWin->forumList()->addSubscription(sub);
 }
 
 void Siilihai::subscriptionDeleted(QObject* subobj) {
@@ -615,10 +589,12 @@ void Siilihai::userSettingsReceived(bool success, UserSettings *newSettings) {
 }
 
 void Siilihai::settingsChanged(bool byUser) {
+    qDebug() << Q_FUNC_INFO << "Sync: " << settings.value("preferences/sync_enabled", false).toBool() << " byuser: " << byUser;
     usettings.setSyncEnabled(settings.value("preferences/sync_enabled", false).toBool());
     if(byUser) {
         protocol.setUserSettings(&usettings);
     }
+    settings.sync();
 }
 
 void Siilihai::cancelProgress() {

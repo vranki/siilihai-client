@@ -20,53 +20,53 @@
 #include "threadlistshowmoreitem.h"
 
 class ThreadListWidget : public QTreeWidget {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-        ThreadListWidget(QWidget *parent, ForumDatabase &f);
-	virtual ~ThreadListWidget();
-
+    ThreadListWidget(QWidget *parent);
+    virtual ~ThreadListWidget();
 public slots:
-	void groupSelected(ForumGroup *fg);
-        void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
-        void groupChanged(ForumGroup *grp);
-        void groupDeleted(QObject*);
-        void markReadClicked(bool read=true);
-        void markUnreadClicked();
-        void threadPropertiesClicked();
-        void viewInBrowserClicked();
-        void forceUpdateThreadClicked();
-        void selectNextUnread();
+    void groupSelected(ForumGroup *fg);
+    void selectNextUnread();
 
 private slots:
-        void addThread(ForumThread *thread);
-        void sortColumns();
+    void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
+    void groupChanged(ForumGroup *grp);
+    void groupDeleted(QObject*);
+    void markReadClicked(bool read=true);
+    void markUnreadClicked();
+    void threadPropertiesClicked();
+    void viewInBrowserClicked();
+    void forceUpdateThreadClicked();
+
+private slots:
+    void addThread(ForumThread *thread);
+    void sortColumns();
 signals:
-	void messageSelected(ForumMessage *msg);
-        void moreMessagesRequested(ForumThread *thread);
-        void viewInBrowser();
-        void threadProperties(ForumThread *thread);
-        void updateThread(ForumThread *thread, bool force);
+    void messageSelected(ForumMessage *msg);
+    void moreMessagesRequested(ForumThread *thread);
+    void viewInBrowser();
+    void threadProperties(ForumThread *thread);
+    void updateThread(ForumThread *thread, bool force);
 protected:
-        void contextMenuEvent(QContextMenuEvent * event);
+    void contextMenuEvent(QContextMenuEvent * event);
 
 private:
-        QString messageSubject(ForumMessage *msg);
-        void updateList();
-        void clearList();
+    QString messageSubject(ForumMessage *msg);
+    void updateList();
+    void clearList();
 
-        void updateThreadUnreads(ThreadListThreadItem* threadItem);
-        void addShowMoreButton(ForumThread *thread);
+    void updateThreadUnreads(ThreadListThreadItem* threadItem);
+    void addShowMoreButton(ForumThread *thread);
 
-        ForumGroup *currentGroup;
-        ForumDatabase &fdb;
-        // Actions:
-        QAction *markReadAction;
-        QAction *markUnreadAction;
-        QAction *threadPropertiesAction;
-        QAction *viewInBrowserAction;
-        QAction *forceUpdateThreadAction;
-        bool disableSortAndResize; // Don't sort or resize while doing long add
+    ForumGroup *currentGroup;
+    // Actions:
+    QAction *markReadAction;
+    QAction *markUnreadAction;
+    QAction *threadPropertiesAction;
+    QAction *viewInBrowserAction;
+    QAction *forceUpdateThreadAction;
+    bool disableSortAndResize; // Don't sort or resize while doing long add
 };
 
 #endif /* THREADLISTWIDGET_H_ */

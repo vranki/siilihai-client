@@ -34,14 +34,13 @@ QMainWindow(parent), fdb(fd), viewAsGroup(this) {
     connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
     connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
     connect(ui.viewInBrowser, SIGNAL(clicked()), this, SLOT(viewInBrowserClickedSlot()));
-    flw = new ForumListWidget(this, fdb);
+    flw = new ForumListWidget(this);
     connect(flw, SIGNAL(groupSelected(ForumGroup*)), this, SLOT(groupSelected(ForumGroup*)));
     connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this, SLOT(forumSelected(ForumSubscription*)));
     ui.forumsSplitter->insertWidget(0, flw);
     flw->setEnabled(false);
-    tlw = new ThreadListWidget(this, fdb);
-    connect(flw, SIGNAL(groupSelected(ForumGroup*)), tlw,
-            SLOT(groupSelected(ForumGroup*)));
+    tlw = new ThreadListWidget(this);
+    connect(flw, SIGNAL(groupSelected(ForumGroup*)), tlw, SLOT(groupSelected(ForumGroup*)));
     connect(flw, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SIGNAL(unsubscribeGroup(ForumGroup*)));
     connect(flw, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SIGNAL(groupSubscriptions(ForumSubscription*)));
     connect(flw, SIGNAL(unsubscribeForum()), this, SLOT(unsubscribeForumSlot()));
@@ -203,8 +202,7 @@ void MainWindow::about() {
     aboutText.replace("Development", SIILIHAI_CLIENT_VERSION);
     aboutText.replace("Date", __DATE__);
 #endif
-    QMessageBox::about(this, "About Siilihai",
-                       aboutText);
+    QMessageBox::about(this, "About Siilihai", aboutText);
 }
 
 void MainWindow::settingsDialog() {

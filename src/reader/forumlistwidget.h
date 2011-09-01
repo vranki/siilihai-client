@@ -25,7 +25,7 @@ class ForumListWidget: public QToolBox {
     Q_OBJECT
 
 public:
-    ForumListWidget(QWidget *parent, ForumDatabase &f);
+    ForumListWidget(QWidget *parent);
     ~ForumListWidget();
     void updateReadCounts(ForumGroup *grp);
     ForumSubscription *getSelectedForum();
@@ -40,15 +40,16 @@ public slots:
     void groupSubscriptionsClicked();
     void updateSubscriptionLabel(ForumSubscription *sub);
     void updateGroupLabel(ForumGroup *grp);
-private slots:
     void addSubscription(ForumSubscription *sub); // subscription's parser MUST be set!
+private slots:
     void subscriptionChanged(ForumSubscription *sub);
     void subscriptionDeleted(ForumSubscription *sub);
+    void subscriptionDeleted(QObject *qo);
     void groupFound(ForumGroup *grp);
     void groupDeleted(ForumGroup *grp);
     void groupDestroyed(QObject*);
     void groupChanged(ForumGroup *grp);
-
+    void parserEngineStateChanged(ParserEngine* engine,ParserEngine::ParserEngineState state);
 signals:
     void groupSelected(ForumGroup *grp);
     void forumSelected(ForumSubscription *sub);
@@ -60,7 +61,6 @@ protected:
     void contextMenuEvent(QContextMenuEvent * event);
 private:
     void setupFavicon(ForumSubscription *sub);
-    ForumDatabase &fdb;
     ForumGroup *currentGroup;
     QMap<ForumSubscription*, Favicon*> forumIcons;
     QMap<QListWidgetItem*, ForumGroup*> forumGroups;
