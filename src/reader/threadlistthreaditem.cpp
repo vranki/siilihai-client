@@ -50,7 +50,7 @@ ForumThread* ThreadListThreadItem::thread() {
 
 void ThreadListThreadItem::updateItem() {
     ThreadListMessageItem::updateItem();
-
+    if(!_thread) return;
     if(_thread->hasMoreMessages() && !showMoreItem) { // Need to add show more-button
         showMoreItem = new ThreadListShowMoreItem(this);
     } else if(!_thread->hasMoreMessages() && showMoreItem) { // Need to delete show more-button
@@ -102,6 +102,8 @@ void ThreadListThreadItem::threadDeleted() {
         }
     }
     treeWidget->takeTopLevelItem(treeWidget->indexOfTopLevelItem(this));
+    setMessage(0);
+    _thread = 0;
     deleteLater();
 }
 

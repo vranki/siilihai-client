@@ -120,9 +120,10 @@ private:
     GroupSubscriptionDialog *groupSubscriptionDialog;
     UserSettings usettings;
     SyncMaster syncmaster;
-    QSettings settings;
+    QSettings *settings;
     QString dataFilePath;
     bool dbStored;
+    QNetworkAccessManager nam;
 };
 
 #endif /* SIILIHAI_H_ */

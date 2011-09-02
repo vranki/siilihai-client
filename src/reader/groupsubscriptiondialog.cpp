@@ -61,6 +61,7 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
     listItems.clear();
     foreach(ForumGroup *group, forum->values()) {
         QListWidgetItem *newItem = new QListWidgetItem();
+
         QString itemLabel = group->name();
         newItem->setText(MessageFormatting::stripHtml(itemLabel));
         newItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);

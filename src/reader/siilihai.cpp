@@ -1,13 +1,9 @@
 #include "siilihai.h"
 #include <siilihai/parsermanager.h>
+#include <QDesktopServices>
 
-Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv),forumDatabase(this), syncmaster(this, forumDatabase, protocol)
-  #ifdef STORE_FILES_IN_APP_DIR
-  ,dataFilePath(QDir::currentPath())    // @todo use argv[0] to find real binary path
-  ,settings(dataFilePath + "/siilihai_settings.ini", QSettings::IniFormat, this)
-  #else
-  ,dataFilePath(QDir::homePath())
-  #endif
+Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv), forumDatabase(this),
+    syncmaster(this, forumDatabase, protocol)
 {
     loginWizard = 0;
     mainWin = 0;
@@ -16,6 +12,7 @@ Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv),forumDatab
     groupSubscriptionDialog = 0;
     subscribeWizard = 0;
     parserManager = 0;
+    settings = 0;
     endSyncDone = false;
     firstRun = true;
     dbStored = false;
@@ -29,21 +26,32 @@ Siilihai::~Siilihai() {
 }
 
 void Siilihai::launchSiilihai() {
+#ifdef STORE_FILES_IN_APP_DIR
+    dataFilePath = applicationDirPath();
+#else
+    dataFilePath = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+#endif
+    settings = new QSettings(dataFilePath + "/siilihai_settings.ini", QSettings::IniFormat, this);
+
+    qDebug() << Q_FUNC_INFO << "data dir is " << dataFilePath;
+    QDir dataDir(dataFilePath);
+    if(!dataDir.exists()) dataDir.mkpath(dataFilePath);
+
     currentState = state_started;
     // Make sure Siilihai::subscriptionFound is called first to get ParserEngine
     connect(&forumDatabase, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
     connect(&forumDatabase, SIGNAL(databaseStored()), this, SLOT(databaseStored()), Qt::QueuedConnection);
 
     parserManager = new ParserManager(this, &protocol);
-    parserManager->openDatabase(dataFilePath + "/.siilihai_parsers.xml");
+    parserManager->openDatabase(dataFilePath + "/siilihai_parsers.xml");
 
-    mainWin = new MainWindow(forumDatabase, &settings);
+    mainWin = new MainWindow(forumDatabase, settings);
 
 
-    firstRun = settings.value("first_run", true).toBool();
+    firstRun = settings->value("first_run", true).toBool();
 
-    settings.setValue("first_run", false);
-    QString proxy = settings.value("preferences/http_proxy", "").toString();
+    settings->setValue("first_run", false);
+    QString proxy = settings->value("preferences/http_proxy", "").toString();
     if (proxy.length() > 0) {
         QUrl proxyUrl = QUrl(proxy);
         if (proxyUrl.isValid()) {
@@ -53,44 +61,41 @@ void Siilihai::launchSiilihai() {
             errorDialog("Warning: http proxy is not valid URL");
         }
     }
-    baseUrl = settings.value("network/baseurl", BASEURL).toString();
+    baseUrl = settings->value("network/baseurl", BASEURL).toString();
     settingsChanged(false);
     connect(&syncmaster, SIGNAL(syncFinished(bool, QString)), this, SLOT(syncFinished(bool, QString)));
     connect(&syncmaster, SIGNAL(syncProgress(float)), this, SLOT(syncProgress(float)));
     protocol.setBaseURL(baseUrl);
 
-    int mySchema = settings.value("forum_database_schema", 0).toInt();
+    int mySchema = settings->value("forum_database_schema", 0).toInt();
     if(!firstRun && forumDatabase.schemaVersion() != mySchema) {
         errorDialog("The database schema has been changed. Your forum database will be reset. Sorry. ");
         forumDatabase.resetDatabase();
     }
     connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this, SLOT(userSettingsReceived(bool,UserSettings*)));
 
-    QString databaseFileName = dataFilePath + "/.siilihai_forums.xml";
+    QString databaseFileName = dataFilePath + "/siilihai_forums.xml";
     bool openSuccess = forumDatabase.openDatabase(databaseFileName);
     if(openSuccess) {
-        settings.setValue("forum_database_schema", forumDatabase.schemaVersion());
+        settings->setValue("forum_database_schema", forumDatabase.schemaVersion());
     } else {
         if(!firstRun)
-            errorDialog("Error opening Siilihai's forum database!\n"
-                        "See console for details. Sorry.\n\n"
-                        "Check that you're not running another copy of Siilihai.\n"
-                        "You can delete ~/.siilihai.xml to reset database.");
-        haltSiilihai();
-        return;
+            errorDialog("Could not open Siilihai's forum database file.\n"
+                        "See console for details. This may be normal as we just \n"
+                        "switched to xml database.\n");
     }
 
 #ifdef Q_WS_HILDON
-    if(settings.value("firstrun", true).toBool()) {
+    if(settings->value("firstrun", true).toBool()) {
         errorDialog("This is beta software\nMaemo version can't connect\n"
                     "to the Internet, so please do it manually before continuing.\n"
                     "The UI is also work in progress. Go to www.siilihai.com for details.");
-        settings.setValue("firstrun", false);
+        settings->setValue("firstrun", false);
     }
 #endif
 
-    if (settings.value("account/username", "").toString() == "") {
-        loginWizard = new LoginWizard(mainWin, protocol, settings);
+    if (settings->value("account/username", "").toString() == "") {
+        loginWizard = new LoginWizard(mainWin, protocol, *settings);
         connect(loginWizard, SIGNAL(finished(int)), this, SLOT(loginWizardFinished()));
     } else {
         launchMainWindow();
@@ -184,7 +189,7 @@ void Siilihai::changeState(siilihai_states newState) {
             subscribeForum();
         }
 
-        if (settings.value("preferences/update_automatically", true).toBool())
+        if (settings->value("preferences/update_automatically", true).toBool())
             updateClicked();
     }
 }
@@ -195,8 +200,8 @@ void Siilihai::tryLogin() {
 
     connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this,
             SLOT(loginFinished(bool, QString,bool)));
-    protocol.login(settings.value("account/username", "").toString(),
-                   settings.value("account/password", "").toString());
+    protocol.login(settings->value("account/username", "").toString(),
+                   settings->value("account/password", "").toString());
 }
 
 void Siilihai::haltSiilihai() {
@@ -213,7 +218,7 @@ void Siilihai::haltSiilihai() {
             changeState(state_storedb);
         } else {
             qDebug() << Q_FUNC_INFO << "All done - quitting";
-            settings.sync();
+            settings->sync();
             if(progressBar)
                 progressBar->deleteLater();
             mainWin->deleteLater();
@@ -265,8 +270,8 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
         connect(&protocol, SIGNAL(subscribeForumFinished(ForumSubscription*, bool)), this,
                 SLOT(subscribeForumFinished(ForumSubscription*,bool)));
         usettings.setSyncEnabled(sync);
-        settings.setValue("preferences/sync_enabled", usettings.syncEnabled());
-        settings.sync();
+        settings->setValue("preferences/sync_enabled", usettings.syncEnabled());
+        settings->sync();
         progressBar->setValue(30);
         if(usettings.syncEnabled()) {
             changeState(state_startsyncing);
@@ -320,7 +325,7 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
 }
 
 void Siilihai::subscribeForum() {
-    subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, settings);
+    subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, *settings);
     subscribeWizard->setModal(true);
     connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)),this, SLOT(forumAdded(ForumSubscription*)));
 }
@@ -329,14 +334,14 @@ void Siilihai::subscribeForum() {
 void Siilihai::loginWizardFinished() {
     loginWizard->deleteLater();
     loginWizard = 0;
-    if (settings.value("account/username", "").toString().length() == 0) {
+    if (settings->value("account/username", "").toString().length() == 0) {
         qDebug() << "Settings wizard failed, quitting.";
         haltSiilihai();
     } else {
         launchMainWindow();
         settingsChanged(false);
         loginFinished(true, QString(), usettings.syncEnabled());
-        if(firstRun && settings.value("account/registered_here", false).toBool())
+        if(firstRun && settings->value("account/registered_here", false).toBool())
             subscribeForum();
     }
 }
@@ -381,7 +386,7 @@ void Siilihai::forumAdded(ForumSubscription *fs) {
         newFs->copyFrom(fs);
         fs = 0;
         Q_ASSERT(parserManager->getParser(newFs->parser())); // Should already be there!
-        ParserEngine *newEngine = new ParserEngine(&forumDatabase, this, parserManager);
+        ParserEngine *newEngine = new ParserEngine(&forumDatabase, this, parserManager, nam);
         newEngine->setParser(parserManager->getParser(newFs->parser()));
         newEngine->setSubscription(newFs);
         Q_ASSERT(!engines.contains(newFs));
@@ -400,7 +405,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
     ParserEngine *pe = engines.value(sub);
     if(!pe) {
-        pe = new ParserEngine(&forumDatabase, this, parserManager);
+        pe = new ParserEngine(&forumDatabase, this, parserManager, nam);
         pe->setSubscription(sub);
         engines[sub] = pe;
     }
@@ -421,7 +426,7 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
 
 void Siilihai::subscriptionDeleted(QObject* subobj) {
     qDebug() << Q_FUNC_INFO;
-    ForumSubscription *sub = dynamic_cast<ForumSubscription*> (subobj);
+    ForumSubscription *sub = static_cast<ForumSubscription*> (subobj);
     if(!engines.contains(sub)) return; // Possible when quitting
     engines[sub]->cancelOperation();
     engines[sub]->deleteLater();
@@ -540,7 +545,7 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
 void Siilihai::launchParserMaker() {
 #ifndef Q_WS_HILDON
     if (!parserMaker) {
-        parserMaker = new ParserMaker(mainWin, parserManager, settings, protocol);
+        parserMaker = new ParserMaker(mainWin, parserManager, *settings, protocol);
         connect(parserMaker, SIGNAL(destroyed()), this, SLOT(parserMakerClosed()));
         connect(parserMaker, SIGNAL(parserSaved(ForumParser)), this, SLOT(updateForumParser(ForumParser)));
     } else {
@@ -582,19 +587,19 @@ void Siilihai::userSettingsReceived(bool success, UserSettings *newSettings) {
         errorDialog("Getting settings failed. Please check network connection.");
     } else {
         usettings.setSyncEnabled(newSettings->syncEnabled());
-        settings.setValue("preferences/sync_enabled", usettings.syncEnabled());
-        settings.sync();
+        settings->setValue("preferences/sync_enabled", usettings.syncEnabled());
+        settings->sync();
         settingsChanged(false);
     }
 }
 
 void Siilihai::settingsChanged(bool byUser) {
-    qDebug() << Q_FUNC_INFO << "Sync: " << settings.value("preferences/sync_enabled", false).toBool() << " byuser: " << byUser;
-    usettings.setSyncEnabled(settings.value("preferences/sync_enabled", false).toBool());
+    qDebug() << Q_FUNC_INFO << "Sync: " << settings->value("preferences/sync_enabled", false).toBool() << " byuser: " << byUser;
+    usettings.setSyncEnabled(settings->value("preferences/sync_enabled", false).toBool());
     if(byUser) {
         protocol.setUserSettings(&usettings);
     }
-    settings.sync();
+    settings->sync();
 }
 
 void Siilihai::cancelProgress() {
@@ -614,21 +619,21 @@ void Siilihai::cancelProgress() {
 void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
     bool failed = false;
     QString gname = QString().number(fsub->parser());
-    settings.beginGroup("authentication");
-    if(settings.contains(QString("%1/username").arg(gname))) {
-        authenticator->setUser(settings.value(QString("%1/username").arg(gname)).toString());
-        authenticator->setPassword(settings.value(QString("%1/password").arg(gname)).toString());
-        if(settings.value(QString("authentication/%1/failed").arg(gname)).toString() == "true") failed = true;
+    settings->beginGroup("authentication");
+    if(settings->contains(QString("%1/username").arg(gname))) {
+        authenticator->setUser(settings->value(QString("%1/username").arg(gname)).toString());
+        authenticator->setPassword(settings->value(QString("%1/password").arg(gname)).toString());
+        if(settings->value(QString("authentication/%1/failed").arg(gname)).toString() == "true") failed = true;
     }
-    settings.endGroup();
+    settings->endGroup();
     if(authenticator->user().isNull() || failed) {
-        CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, &settings);
+        CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, settings);
         creds->setModal(true);
         creds->exec();
     }
 }
 void Siilihai::updateFailure(ForumSubscription* sub, QString msg) {
-    settings.setValue(QString("authentication/%1/failed").arg(sub->parser()), "true");
+    settings->setValue(QString("authentication/%1/failed").arg(sub->parser()), "true");
     errorDialog(sub->alias() + "\n" + msg);
 }
 
@@ -639,7 +644,7 @@ void Siilihai::moreMessagesRequested(ForumThread* thread) {
     if(engine->state() == ParserEngine::PES_UPDATING) return;
 
     thread->setGetMessagesCount(thread->getMessagesCount() +
-                                settings.value("preferences/show_more_count", 30).toInt());
+                                settings->value("preferences/show_more_count", 30).toInt());
     thread->commitChanges();
     engine->updateThread(thread);
 }
@@ -676,9 +681,9 @@ void Siilihai::syncProgress(float progress) {
 void Siilihai::unregisterSiilihai() {
     cancelClicked();
     forumDatabase.resetDatabase();
-    settings.remove("account/username");
-    settings.remove("account/password");
-    settings.remove("first_run");
+    settings->remove("account/username");
+    settings->remove("account/password");
+    settings->remove("first_run");
     forumDatabase.storeDatabase();
     usettings.setSyncEnabled(false);
     QMessageBox::information(mainWin, "Unregister successful", "Siilihai has been unregistered and will now quit.");

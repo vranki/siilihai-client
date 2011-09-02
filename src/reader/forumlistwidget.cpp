@@ -1,7 +1,7 @@
 #include "forumlistwidget.h"
+#include "messageformatting.h"
 
-ForumListWidget::ForumListWidget(QWidget *parent) :
-    QToolBox(parent), currentGroup(0) {
+ForumListWidget::ForumListWidget(QWidget *parent) : QToolBox(parent), currentGroup(0) {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(forumItemSelected(int)));
 
     markReadAction = new QAction("Mark all messages read", this);
@@ -47,10 +47,10 @@ void ForumListWidget::forumItemSelected(int i) {
             if(!g && grp->isSubscribed())
                 g = grp;
         }
+        dynamic_cast<QListWidget*> (widget(i))->setCurrentRow(0);
     }
     emit forumSelected(sub);
     emit groupSelected(g);
-    dynamic_cast<QListWidget*> (widget(i))->setCurrentRow(0);
 }
 
 ForumSubscription* ForumListWidget::getSelectedForum() {
@@ -74,13 +74,13 @@ ForumGroup* ForumListWidget::getSelectedGroup() {
 }
 
 void ForumListWidget::iconUpdated(ForumSubscription* en, QIcon newIcon) {
-//    qDebug() << Q_FUNC_INFO << " setting icon for engine " << en->subscription()->toString()
- //           << " pos " << indexOf(parserEngines[en]);
+    //    qDebug() << Q_FUNC_INFO << " setting icon for engine " << en->subscription()->toString()
+    //           << " pos " << indexOf(parserEngines[en]);
     setItemIcon(indexOf(listWidgets[en]), newIcon);
 }
 
 void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
-   // qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
+    // qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
     currentGroup = forumGroups.value(item);
     emit groupSelected(currentGroup);
 }
@@ -179,10 +179,12 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
     Q_ASSERT(lw);
     QListWidgetItem *gItem = forumGroups.key(grp);
     if(gItem) { // may not exist in some situ
-    QString title = grp->name();
-    if (grp->unreadCount() > 0)
-        title = title + " (" + QString().number(grp->unreadCount()) + ")";
-    gItem->setText(title);
+        QString title = grp->name();
+        title = MessageFormatting::stripHtml(title);
+
+        if (grp->unreadCount() > 0)
+            title = title + " (" + QString().number(grp->unreadCount()) + ")";
+        gItem->setText(title);
     }
 }
 
@@ -211,7 +213,7 @@ void ForumListWidget::groupDeleted(ForumGroup *grp) {
 }
 
 void ForumListWidget::subscriptionDeleted(QObject* qo) {
-    ForumSubscription *sub = dynamic_cast<ForumSubscription*>(qo);
+    ForumSubscription *sub = static_cast<ForumSubscription*>(qo);
     if(sub) subscriptionDeleted(sub);
 }
 
@@ -255,7 +257,8 @@ void ForumListWidget::contextMenuEvent(QContextMenuEvent *event) {
 void ForumListWidget::unsubscribeGroupClicked() {
     if(currentGroup) {
         QMessageBox msgBox;
-        msgBox.setText("Really unsubscribe from group?");
+        QString grpName = currentGroup->name();
+        msgBox.setText("Really unsubscribe from " + MessageFormatting::stripHtml(grpName) + "?");
         msgBox.setInformativeText(currentGroup->name());
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
@@ -283,5 +286,8 @@ void ForumListWidget::groupSubscriptionsClicked() {
 }
 
 void ForumListWidget::parserEngineStateChanged(ParserEngine* engine,ParserEngine::ParserEngineState state) {
-    // @todo get favicon if missing
+    if(!engine->subscription()) return;
+    if(!forumIcons.contains(engine->subscription()) && (engine->parser())) {
+        setupFavicon(engine->subscription());
+    }
 }

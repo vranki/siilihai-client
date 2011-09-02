@@ -2,6 +2,7 @@
 #include "ui_threadproperties.h"
 #include "siilihai/forummessage.h"
 #include "siilihai/forumgroup.h"
+#include "messageformatting.h"
 
 ThreadProperties::ThreadProperties(QWidget *parent, ForumThread *th, ForumDatabase &fd) :
     QDialog(parent), ui(new Ui::ThreadProperties), fdb(fd), thread(th)
@@ -20,7 +21,8 @@ ThreadProperties::~ThreadProperties()
 }
 
 void ThreadProperties::updateValues() {
-    ui->thName->setText(thread->name());
+    QString thrName = thread->name();
+    ui->thName->setText(MessageFormatting::stripHtml(thrName));
     ui->thLastchange->setText(thread->lastchange());
     ui->thId->setText(thread->id());
     ui->thMessageCount->setText(QString::number(thread->count()));
