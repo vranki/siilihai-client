@@ -109,8 +109,7 @@ void Siilihai::changeState(siilihai_states newState) {
 
     if(newState==state_offline) {
         qDebug() << Q_FUNC_INFO << "Offline";
-        Q_ASSERT(previousState==state_login || previousState==state_startsyncing
-                 || previousState==state_ready || previousState==state_started);
+        Q_ASSERT(previousState==state_login || previousState==state_startsyncing || previousState==state_ready || previousState==state_started);
         if(previousState==state_startsyncing)
             syncmaster.cancel();
 
@@ -547,7 +546,7 @@ void Siilihai::launchParserMaker() {
     if (!parserMaker) {
         parserMaker = new ParserMaker(mainWin, parserManager, *settings, protocol);
         connect(parserMaker, SIGNAL(destroyed()), this, SLOT(parserMakerClosed()));
-        connect(parserMaker, SIGNAL(parserSaved(ForumParser)), this, SLOT(updateForumParser(ForumParser)));
+//        connect(parserMaker, SIGNAL(parserSaved(ForumParser*)), this, SLOT(updateForumParser(ForumParser*)));
     } else {
         parserMaker->showNormal();
     }

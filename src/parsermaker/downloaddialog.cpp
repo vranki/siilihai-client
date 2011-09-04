@@ -3,17 +3,15 @@
 DownloadDialog::DownloadDialog(QWidget *parent, SiilihaiProtocol &p) :
     QDialog(parent), protocol(p) {
     ui.setupUi(this);
-    connect(&protocol, SIGNAL(listParsersFinished(QList <ForumParser*>)), this,
-            SLOT(listParsersFinished(QList <ForumParser*>)));
-    connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this,
-            SLOT(getParserFinished(ForumParser*)));
+    connect(&protocol, SIGNAL(listParsersFinished(QList <ForumParser*>)), this, SLOT(listParsersFinished(QList <ForumParser*>)));
+    connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
     connect(ui.okButton, SIGNAL(clicked()), this, SLOT(okClicked()));
     connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(cancelClicked()));
     protocol.listParsers();
 }
 
 DownloadDialog::~DownloadDialog() {
-
+    qDeleteAll(allParsers);
 }
 
 // @todo probably broken
@@ -35,6 +33,7 @@ void DownloadDialog::getParserFinished(ForumParser *parser) {
         emit parserLoaded(parser);
         deleteLater();
     }
+    parser->deleteLater();
 }
 
 void DownloadDialog::okClicked() {

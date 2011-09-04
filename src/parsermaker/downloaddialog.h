@@ -22,7 +22,7 @@ public slots:
     void okClicked();
     void cancelClicked();
 signals:
-    void parserLoaded(ForumParser *p);
+    void parserLoaded(ForumParser *p); // Emitted when parser was d/l'd. Will be deleted.
 
 private:
     Ui::DownloadDialogClass ui;

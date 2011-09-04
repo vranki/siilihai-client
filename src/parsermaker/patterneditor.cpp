@@ -1,24 +1,16 @@
 #include "patterneditor.h"
 
-PatternEditor::PatternEditor(ForumSession &ses, ForumParser *par,
-                             ForumSubscription *fos, QWidget *parent) :
-QWidget(parent), session(ses), parser(par), subscription(fos), editTimeout(this) {
+PatternEditor::PatternEditor(ForumSession &ses, ForumParser *par, ForumSubscription *fos, QWidget *parent) :
+    QWidget(parent), session(ses), parser(par), subscription(fos), editTimeout(this), downloadParser(0) {
     ui.setupUi(this);
     matcher = new PatternMatcher(this, true);
-    connect(ui.downloadButton, SIGNAL(clicked()), this,
-            SLOT(downloadList()));
-    connect(ui.testPageSpanning, SIGNAL(clicked()), this,
-            SLOT(testPageSpanning()));
-    connect(ui.viewInBrowserButton, SIGNAL(clicked()), this,
-            SLOT(viewInBrowser()));
-    connect(&editTimeout, SIGNAL(timeout()), this,
-            SLOT(patternChanged()));
-    connect(ui.patternEdit, SIGNAL(textEdited(QString)), this,
-            SLOT(textEdited()));
-    connect(matcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
-            this, SLOT(dataMatched(int, QString, PatternMatchType)));
-    connect(matcher, SIGNAL(dataMatchingStart(QString&)), this,
-            SLOT(dataMatchingStart(QString&)));
+    connect(ui.downloadButton, SIGNAL(clicked()), this, SLOT(downloadList()));
+    connect(ui.testPageSpanning, SIGNAL(clicked()), this, SLOT(testPageSpanning()));
+    connect(ui.viewInBrowserButton, SIGNAL(clicked()), this, SLOT(viewInBrowser()));
+    connect(&editTimeout, SIGNAL(timeout()), this, SLOT(patternChanged()));
+    connect(ui.patternEdit, SIGNAL(textEdited(QString)), this, SLOT(textEdited()));
+    connect(matcher, SIGNAL(dataMatched(int, QString, PatternMatchType)), this, SLOT(dataMatched(int, QString, PatternMatchType)));
+    connect(matcher, SIGNAL(dataMatchingStart(QString&)), this, SLOT(dataMatchingStart(QString&)));
     connect(matcher, SIGNAL(dataMatchingEnd()), this, SLOT(dataMatchingEnd()));
     connect(ui.resultsTable, SIGNAL(cellClicked(int,int)), this, SLOT(resultCellActivated(int, int)));
     connect(ui.resultsTable, SIGNAL(itemChanged ( QTableWidgetItem *)), this, SLOT(updateCount()));
@@ -34,7 +26,6 @@ QWidget(parent), session(ses), parser(par), subscription(fos), editTimeout(this)
 }
 
 PatternEditor::~PatternEditor() {
-
 }
 
 QString PatternEditor::pattern() {
@@ -99,13 +90,11 @@ void PatternEditor::dataMatched(int pos, QString data, PatternMatchType type) {
         Q_ASSERT(false);
     }
 
-    patternEditorCursor.setPosition(patternEditorCursor.position() + data.length(),
-                                QTextCursor::KeepAnchor);
+    patternEditorCursor.setPosition(patternEditorCursor.position() + data.length(), QTextCursor::KeepAnchor);
     QTextCharFormat fmt = patternEditorCursor.charFormat();
     fmt.setForeground(QBrush(color));
     patternEditorCursor.setCharFormat(fmt);
-    patternEditorCursor.setPosition(patternEditorCursor.position(),
-                                QTextCursor::MoveAnchor);
+    patternEditorCursor.setPosition(patternEditorCursor.position(), QTextCursor::MoveAnchor);
 }
 
 
@@ -141,11 +130,9 @@ void PatternEditor::viewInBrowser() {
 void PatternEditor::listGroupsFinished(QList<ForumGroup*> groups) {
 }
 
-void PatternEditor::listMessagesFinished(QList<ForumMessage*> messages,
-                                         ForumThread *thread) {
+void PatternEditor::listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread) {
 
 }
-void PatternEditor::listThreadsFinished(QList<ForumThread*> threads,
-                                        ForumGroup *group) {
+void PatternEditor::listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group) {
 }
 

@@ -5,11 +5,9 @@ MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
                                                    ForumSubscription *fos,
                                                    QWidget *parent) : PatternEditor(ses, par, fos, parent) {
     setEnabled(false);
-    connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage*>&,
-                                                  ForumThread*, bool)),
+    connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage*>&, ForumThread*, bool)),
             this, SLOT(listMessagesFinished(QList<ForumMessage*>&, ForumThread*, bool)));
-    ui.patternLabel->setText(
-            "<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
+    ui.patternLabel->setText("<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
     subscription = fos;
     Q_ASSERT(fos);
     session.initialize(par, fos, matcher);
@@ -26,11 +24,11 @@ QString MessageListPatternEditor::tabName() {
 void MessageListPatternEditor::downloadList() {
     downloadParser = parser;
     // @todo breaks
-    downloadParser->thread_list_page_increment = 0;
-    downloadParser->view_thread_page_increment = 0;
+    downloadParser.thread_list_page_increment = 0;
+    downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
 
-    session.initialize(downloadParser, downloadSubscription, matcher);
+    session.initialize(&downloadParser, downloadSubscription, matcher);
     session.listMessages(currentThread);
 
     ui.sourceTextEdit->clear();
@@ -45,12 +43,11 @@ void MessageListPatternEditor::testPageSpanning() {
     downloadSubscription->setLatestThreads(999);
     downloadSubscription->setLatestMessages(999);
 
-    session.initialize(downloadParser, downloadSubscription, matcher);
+    session.initialize(&downloadParser, downloadSubscription, matcher);
     session.listMessages(currentThread);
 
     ui.sourceTextEdit->clear();
-    ui.sourceTextEdit->append(
-            "Source not available when testing multiple pages.");
+    ui.sourceTextEdit->append("Source not available when testing multiple pages.");
     ui.downloadButton->setEnabled(false);
     ui.testPageSpanning->setEnabled(false);
     pageSpanningTest = true;
@@ -80,8 +77,7 @@ void MessageListPatternEditor::resultCellActivated(int row, int column) {
     }
 }
 
-void MessageListPatternEditor::listMessagesFinished(
-        QList<ForumMessage*> &messages, ForumThread *thread, bool more) {
+void MessageListPatternEditor::listMessagesFinished(QList<ForumMessage*> &messages, ForumThread *thread, bool more) {
     Q_UNUSED(thread);
     Q_UNUSED(more);
     bodies.clear();
@@ -148,10 +144,10 @@ void MessageListPatternEditor::patternChanged() {
     parser->message_list_pattern = pattern();
     // @todo breaks
     downloadParser = parser;
-    downloadParser->thread_list_page_increment = 0;
-    downloadParser->view_thread_page_increment = 0;
+    downloadParser.thread_list_page_increment = 0;
+    downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
-    session.setParser(downloadParser);
+    session.setParser(&downloadParser);
     QString glhtml = ui.sourceTextEdit->toPlainText();
     session.performListMessages(glhtml);
     parserUpdated();

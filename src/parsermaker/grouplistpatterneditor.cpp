@@ -20,7 +20,6 @@ GroupListPatternEditor::~GroupListPatternEditor() {
 
 void GroupListPatternEditor::downloadList() {
     session.initialize(parser, subscription, matcher);
-
     ui.downloadButton->setEnabled(false);
     session.listGroups();
     ui.sourceTextEdit->clear();

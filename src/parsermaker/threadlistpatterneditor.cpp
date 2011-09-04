@@ -7,8 +7,7 @@ ThreadListPatternEditor::ThreadListPatternEditor(ForumSession &ses,
                                                  QWidget *parent) :
 PatternEditor(ses, par, fos, parent) {
     setEnabled(false);
-    connect(&session,
-            SIGNAL(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)), this,
+    connect(&session, SIGNAL(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)), this,
             SLOT(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)));
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     subscription = fos;
@@ -26,12 +25,11 @@ QString ThreadListPatternEditor::tabName() {
 
 void ThreadListPatternEditor::downloadList() {
     downloadParser = parser;
-    // @broken
-    downloadParser->thread_list_page_increment = 0;
-    downloadParser->view_thread_page_increment = 0;
+    downloadParser.thread_list_page_increment = 0;
+    downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
 
-    session.initialize(downloadParser, downloadSubscription, matcher);
+    session.initialize(&downloadParser, downloadSubscription, matcher);
     session.listThreads(currentGroup);
 
     ui.sourceTextEdit->clear();
@@ -46,7 +44,7 @@ void ThreadListPatternEditor::testPageSpanning() {
     downloadSubscription->setLatestThreads(999);
     downloadSubscription->setLatestMessages(999);
 
-    session.initialize(downloadParser, downloadSubscription, matcher);
+    session.initialize(&downloadParser, downloadSubscription, matcher);
     session.listThreads(currentGroup);
 
     ui.sourceTextEdit->clear();

@@ -6,63 +6,43 @@ QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this,
     loginMatcher = new PatternMatcher(this, true);
 
     groupListEditor = new GroupListPatternEditor(session, &parser, &subscription, this);
-    ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(),
-                         groupListEditor->tabName());
+    ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(), groupListEditor->tabName());
     threadListEditor = new ThreadListPatternEditor(session, &parser, &subscription, this);
-    ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(),
-                         threadListEditor->tabName());
+    ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(), threadListEditor->tabName());
     threadListEditor->setEnabled(false);
     messageListEditor = new MessageListPatternEditor(session, &parser, &subscription, this);
     ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(), messageListEditor->tabName());
     messageListEditor->setEnabled(false);
 
-    connect(groupListEditor, SIGNAL(groupSelected(ForumGroup*)),
-            threadListEditor, SLOT(setGroup(ForumGroup*)));
-    connect(threadListEditor, SIGNAL(threadSelected(ForumThread*)),
-            messageListEditor, SLOT(setThread(ForumThread*)));
+    connect(groupListEditor, SIGNAL(groupSelected(ForumGroup*)), threadListEditor, SLOT(setGroup(ForumGroup*)));
+    connect(threadListEditor, SIGNAL(threadSelected(ForumThread*)), messageListEditor, SLOT(setThread(ForumThread*)));
 
-    connect(&protocol, SIGNAL(saveParserFinished(int, QString)), this,
-            SLOT(saveParserFinished(int, QString)));
+    connect(&protocol, SIGNAL(saveParserFinished(int, QString)), this, SLOT(saveParserFinished(int, QString)));
     connect(ui.openParserButton, SIGNAL(clicked()), this, SLOT(openClicked()));
-    connect(ui.newFromRequestButton, SIGNAL(clicked()), this,
-            SLOT(newFromRequestClicked()));
+    connect(ui.newFromRequestButton, SIGNAL(clicked()), this, SLOT(newFromRequestClicked()));
     connect(ui.saveChangesButton, SIGNAL(clicked()), this, SLOT(saveClicked()));
-    connect(ui.saveAsNewButton, SIGNAL(clicked()), this,
-            SLOT(saveAsNewClicked()));
-    connect(ui.testForumUrlButton, SIGNAL(clicked()), this,
-            SLOT(testForumUrlClicked()));
+    connect(ui.saveAsNewButton, SIGNAL(clicked()), this, SLOT(saveAsNewClicked()));
+    connect(ui.testForumUrlButton, SIGNAL(clicked()), this, SLOT(testForumUrlClicked()));
     connect(ui.forumUrl, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
-    connect(ui.parserName, SIGNAL(textEdited(QString)), this,
-            SLOT(updateState()));
-    connect(ui.parserType, SIGNAL(currentIndexChanged(int)), this,
-            SLOT(updateState()));
-    connect(ui.viewThreadPath, SIGNAL(textEdited(QString)), this,
-            SLOT(updateState()));
-    connect(ui.threadListPath, SIGNAL(textEdited(QString)), this,
-            SLOT(updateState()));
-    connect(ui.viewMessagePath, SIGNAL(textEdited(QString)), this,
-            SLOT(updateState()));
-    connect(ui.loginPath, SIGNAL(textEdited(QString)), this,
-            SLOT(updateState()));
-    connect(ui.loginTypeCombo, SIGNAL(currentIndexChanged(int)), this,
-            SLOT(updateState()));
+    connect(ui.parserName, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
+    connect(ui.parserType, SIGNAL(currentIndexChanged(int)), this, SLOT(updateState()));
+    connect(ui.viewThreadPath, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
+    connect(ui.threadListPath, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
+    connect(ui.viewMessagePath, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
+    connect(ui.loginPath, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
+    connect(ui.loginTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateState()));
     connect(ui.tryLoginButton, SIGNAL(clicked()), this, SLOT(tryLogin()));
-    connect(ui.tryWithoutLoginButton, SIGNAL(clicked()), this,
-            SLOT(tryWithoutLogin()));
-    connect(ui.verifyLoginPattern, SIGNAL(textEdited(QString)), this,
-            SLOT(updateState()));
+    connect(ui.tryWithoutLoginButton, SIGNAL(clicked()), this, SLOT(tryWithoutLogin()));
+    connect(ui.verifyLoginPattern, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
     connect(ui.helpButton, SIGNAL(clicked()), this, SLOT(helpClicked()));
-    connect(&session, SIGNAL(loginFinished(ForumSubscription *,bool)), this,
-            SLOT(loginFinished(ForumSubscription *, bool)));
-    connect(&session, SIGNAL(networkFailure(QString)), this,
-            SLOT(networkFailure(QString)));
+    connect(&session, SIGNAL(loginFinished(ForumSubscription *,bool)), this, SLOT(loginFinished(ForumSubscription *, bool)));
+    connect(&session, SIGNAL(networkFailure(QString)), this, SLOT(networkFailure(QString)));
     connect(&session, SIGNAL(getAuthentication(ForumSubscription*,QAuthenticator*)),
             this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
 
     connect(loginMatcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
             this, SLOT(dataMatched(int, QString, PatternMatchType)));
-    connect(loginMatcher, SIGNAL(dataMatchingStart(QString&)), this,
-            SLOT(dataMatchingStart(QString&)));
+    connect(loginMatcher, SIGNAL(dataMatchingStart(QString&)), this, SLOT(dataMatchingStart(QString&)));
     connect(loginMatcher, SIGNAL(dataMatchingEnd()), this, SLOT(dataMatchingEnd()));
 
     subscription.setLatestThreads(100);
@@ -78,7 +58,6 @@ QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this,
 }
 
 ParserMaker::~ParserMaker() {
-
 }
 
 void ParserMaker::updateState() {
@@ -137,7 +116,7 @@ void ParserMaker::updateState() {
 
 void ParserMaker::openClicked() {
     DownloadDialog *dlg = new DownloadDialog(this, protocol);
-    connect(dlg, SIGNAL(parserLoaded(ForumParser)), this, SLOT(parserLoaded(ForumParser)));
+    connect(dlg, SIGNAL(parserLoaded(ForumParser*)), this, SLOT(parserLoaded(ForumParser*)));
     dlg->show();
 }
 
@@ -162,11 +141,9 @@ void ParserMaker::parserLoaded(ForumParser *p) {
     ui.threadListPath->setText(p->thread_list_path);
     ui.viewThreadPath->setText(p->view_thread_path);
     ui.viewThreadPageStart->setText(QString().number(p->view_thread_page_start));
-    ui.viewThreadPageIncrement->setText(QString().number(
-            p->view_thread_page_increment));
+    ui.viewThreadPageIncrement->setText(QString().number(p->view_thread_page_increment));
     ui.threadListPageStart->setText(QString().number(p->thread_list_page_start));
-    ui.threadListPageIncrement->setText(QString().number(
-            p->thread_list_page_increment));
+    ui.threadListPageIncrement->setText(QString().number(p->thread_list_page_increment));
     ui.viewMessagePath->setText(p->view_message_path);
     ui.charset->setEditText(p->charset);
     ui.loginPath->setText(p->login_path);
@@ -245,7 +222,7 @@ void ParserMaker::closeEvent(QCloseEvent *event) {
 }
 
 void ParserMaker::tryLogin() {
-    session.clearAuthentications();
+    // session.clearAuthentications();
     session.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = false;
     updateState();
@@ -256,7 +233,7 @@ void ParserMaker::tryLogin() {
 }
 
 void ParserMaker::tryWithoutLogin() {
-    session.clearAuthentications();
+    //session.clearAuthentications();
     session.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = true;
     updateState();
@@ -320,13 +297,11 @@ void ParserMaker::helpClicked() {
     QDesktopServices::openUrl(helpUrl);
 }
 
-
 void ParserMaker::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
     CredentialsDialog *creds = new CredentialsDialog(this, fsub, authenticator, 0);
     creds->setModal(true);
     creds->exec();
 }
-
 
 void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
     // Horrible debugging, this still has bugs
@@ -348,8 +323,6 @@ void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
                 mismatches++;
             }
         }
-
-        qDebug() << "Position: " << pos << " match type = " << type;
     }
 
     QColor color;

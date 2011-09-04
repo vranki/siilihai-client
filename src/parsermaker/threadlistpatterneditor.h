@@ -28,7 +28,7 @@ signals:
     void threadSelected(ForumThread *thread);
 private:
     ForumGroup *currentGroup;
-    QHash<int, ForumThread*> listThreads;
+    QHash<int, ForumThread*> listThreads; // Contains local copies of threads
 };
 
 #endif /* THREADLISTPATTERNEDITOR_H_ */

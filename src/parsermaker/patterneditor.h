@@ -46,7 +46,7 @@ protected:
 	Ui::PatternEditorClass ui;
         QTextCursor patternEditorCursor;
 	ForumSession &session;
-        ForumParser *parser, *downloadParser;
+        ForumParser *parser, downloadParser;
 	PatternMatcher *matcher;
 	ForumSubscription *subscription, *downloadSubscription;
 	bool pageSpanningTest;

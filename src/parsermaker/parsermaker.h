@@ -30,7 +30,7 @@ public:
     ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p);
     ~ParserMaker();
 
-public slots:
+private slots:
     void updateState();
     void openClicked();
     void newFromRequestClicked();

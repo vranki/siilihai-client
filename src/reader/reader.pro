@@ -19,11 +19,7 @@ exists(../../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
 }
 
-QT += core \
-    webkit \
-    gui \
-    network \
-    xml
+QT += core webkit gui network xml
 
 HEADERS += messageviewwidget.h \
     messageformatting.h \

@@ -1,3 +1,10 @@
+libsiilihai (0.10.0) natty; urgency=low
+
+  * XML database
+  * Architecture changes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 21 Jun 2011 20:29:43 +0300
+
 siilihai-client (0.9.24-1) natty; urgency=low
 
   * Various enhancements
