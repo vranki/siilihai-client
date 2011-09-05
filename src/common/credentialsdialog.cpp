@@ -11,9 +11,7 @@ CredentialsDialog::CredentialsDialog(QWidget *parent, ForumSubscription *sub, QA
     subscription = sub;
 }
 
-CredentialsDialog::~CredentialsDialog()
-{
-
+CredentialsDialog::~CredentialsDialog() {
 }
 
 void CredentialsDialog::acceptClicked()  {
@@ -30,4 +28,5 @@ void CredentialsDialog::acceptClicked()  {
             settings->endGroup();
         }
     }
+    emit credentialsEntered(auth);
 }

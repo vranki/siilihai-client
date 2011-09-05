@@ -15,7 +15,9 @@ class CredentialsDialog : public QDialog
 public:
     CredentialsDialog(QWidget *parent, ForumSubscription *sub, QAuthenticator *authenticator, QSettings *set);
     ~CredentialsDialog();
-public slots:
+signals:
+    void credentialsEntered(QAuthenticator *authenticator);
+private slots:
     void acceptClicked();
 
 private:

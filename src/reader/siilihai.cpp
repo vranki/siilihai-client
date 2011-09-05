@@ -627,10 +627,12 @@ void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authen
     settings->endGroup();
     if(authenticator->user().isNull() || failed) {
         CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, settings);
+        // connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT())
         creds->setModal(true);
         creds->exec();
     }
 }
+
 void Siilihai::updateFailure(ForumSubscription* sub, QString msg) {
     settings->setValue(QString("authentication/%1/failed").arg(sub->parser()), "true");
     errorDialog(sub->alias() + "\n" + msg);
