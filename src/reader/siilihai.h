@@ -89,7 +89,7 @@ private slots:
     void subscribeForumFinished(ForumSubscription *sub, bool success);
     void userSettingsReceived(bool success, UserSettings *newSettings);
     void settingsChanged(bool byUser);
-    void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator, ParserEngine *engine);
+    void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
     void updateFailure(ForumSubscription* sub, QString msg);
     void moreMessagesRequested(ForumThread* thread);
     void unsubscribeGroup(ForumGroup *group);

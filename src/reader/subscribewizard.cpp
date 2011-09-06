@@ -27,8 +27,6 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QStri
 
 SubscribeWizard::~SubscribeWizard() {
     qDeleteAll(allParsers);
-    if(parser)
-        parser->deleteLater();
 }
 
 QWizardPage *SubscribeWizard::createIntroPage() {
@@ -55,9 +53,9 @@ void SubscribeWizard::listParsersFinished(QList<ForumParser*> parsers) {
 void SubscribeWizard::updateParserList() {
     subscribeForm.forumList->clear();
     listWidgetItemForum.clear();
-    foreach(ForumParser *parser, allParsers){
+    foreach(ForumParser *parserIter, allParsers){
         bool displayParser = false;
-        int parserType = parser->parser_type;
+        int parserType = parserIter->parser_type;
         int ci = subscribeForm.displayCombo->currentIndex();
         switch (ci) {
         case 0:
@@ -77,13 +75,13 @@ void SubscribeWizard::updateParserList() {
             break;
         }
         if (displayParser) {
-            if (parser->parser_name.contains(subscribeForm.searchString->text())
-                || parser->forum_url.contains(subscribeForm.searchString->text())) {
+            if (parserIter->parser_name.contains(subscribeForm.searchString->text())
+                    || parserIter->forum_url.contains(subscribeForm.searchString->text())) {
                 QListWidgetItem *item = new QListWidgetItem(subscribeForm.forumList);
-                item->setText(parser->parser_name);
-                item->setToolTip(parser->forum_url);
+                item->setText(parserIter->parser_name);
+                item->setToolTip(parserIter->forum_url);
                 subscribeForm.forumList->addItem(item);
-                listWidgetItemForum[item] = parser;
+                listWidgetItemForum[item] = parserIter;
             }
         }
     }
@@ -129,24 +127,20 @@ void SubscribeWizard::pageChanged(int id) {
         } else {
             selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
             connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-            if(parser) {
-                parser->deleteLater();
-                parser = 0;
-            }
             protocol.getParser(selectedParser->id);
-            progress = new QProgressDialog("Downloading parser definition..",
-                                           "Cancel", 0, 3, this);
+            progress = new QProgressDialog("Downloading parser definition..", "Cancel", 0, 3, this);
             progress->setWindowModality(Qt::WindowModal);
             progress->setValue(0);
+            progress->show();
         }
     } else if (id == 2) {
         if (subscribeForumLogin.accountGroupBox->isChecked()) {
             /*
-			 progress = new QProgressDialog("Checking your credentials..",
-			 "Cancel", 0, 3, this);
-			 progress->setWindowModality(Qt::WindowModal);
-			 progress->setValue(0);
-			 */
+    progress = new QProgressDialog("Checking your credentials..",
+    "Cancel", 0, 3, this);
+    progress->setWindowModality(Qt::WindowModal);
+    progress->setValue(0);
+    */
         }
         subscribeForumVerify.forumName->setText(selectedParser->parser_name);
         subscribeForumVerify.forumUrl->setText(selectedParser->forum_url);
@@ -164,26 +158,25 @@ void SubscribeWizard::pageChanged(int id) {
 
 void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp MUST be deleteLater'd
     disconnect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-    QString warningLabel;
-    if (fp->id >= 0) {
-        parser = fp;
-        subscribeForumLogin.accountGroupBox->setEnabled(parser->supportsLogin());
-        if (fp->parser_status == 0) {
-            warningLabel = "Note: This parser is new and has not been tested much.\n"
-                           "Please report if it is working or not from the menu later.";
-        } else if (fp->parser_status == 2) {
-            warningLabel = "Warning: This parser has been reported as not working.\n"
-                           "Please report if it is working or not from the menu later.";
-        }
-    } else {
-        fp->deleteLater();
-        warningLabel = "Error: Unable to download parser definiton.\nCheck your network connection.";
-        back();
-    }
     if (progress) {
-        progress->setValue(3);
         progress->deleteLater();
         progress = 0;
+    }
+    QString warningLabel;
+    if (fp && fp->id >= 0) {
+        parser = (*fp);
+        Q_ASSERT(parser.id == fp->id);
+        subscribeForumLogin.accountGroupBox->setEnabled(parser.supportsLogin());
+        if (fp->parser_status == 0) {
+            warningLabel = "Note: This parser is new and has not been tested much.\n"
+                    "Please report if it is working or not from the menu later.";
+        } else if (fp->parser_status == 2) {
+            warningLabel = "Warning: This parser has been reported as not working.\n"
+                    "Please report if it is working or not from the menu later.";
+        }
+    } else {
+        warningLabel = "Error: Unable to download parser definiton.\nCheck your network connection.";
+        back();
     }
     if (!warningLabel.isNull()) {
         QMessageBox msgBox(this);
@@ -191,10 +184,11 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp MUST be deleteL
         msgBox.setText(warningLabel);
         msgBox.exec();
     }
+    delete fp;
 }
 
 void SubscribeWizard::wizardAccepted() {
-    if(!parser->isSane()) {
+    if(!parser.isSane()) {
         qDebug() << "Parsed not sane (yet), please hold on..";
         return;
     }
@@ -207,14 +201,14 @@ void SubscribeWizard::wizardAccepted() {
     }
 
     ForumSubscription fs(this);
-    fs.setParser(parser->id);
+    fs.setParser(parser.id);
     fs.setAlias(subscribeForumVerify.forumName->text());
     fs.setUsername(user);
     fs.setPassword(pass);
     fs.setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
     fs.setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
 
-    Q_ASSERT(parser->isSane());
+    Q_ASSERT(parser.isSane());
     emit(forumAdded(&fs));
 }
 

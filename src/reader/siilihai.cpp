@@ -169,6 +169,7 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->cancel();
         progressBar->deleteLater();
         progressBar = 0;
+        // @todo poes
         while(!subscriptionsNeedingCredentials.isEmpty()) {
             ForumSubscription *sub = subscriptionsNeedingCredentials.takeFirst();
             QAuthenticator authenticator;
@@ -697,4 +698,22 @@ void Siilihai::databaseStored() {
 
 void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState) {
     emit statusChanged(engine->subscription(), false, -1);
+    // @todo jatka
+    /*
+    if(newState == ParserEngine::PES_REQUESTING_CREDENTIALS) {
+        ForumSubscription *sub = engine->subscription();
+        QAuthenticator authenticator;
+        CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, &authenticator, NULL);
+        connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT(credentialsEntered(QAuthenticator*)));
+        creds->setModal(false);
+        creds->exec();
+        if(authenticator.user().length() > 0) {
+            sub->setUsername(authenticator.user());
+            sub->setPassword(authenticator.password());
+        } else {
+            sub->setAuthenticated(false);
+        }
+        protocol.subscribeForum(sub);
+    }*/
+
 }

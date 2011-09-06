@@ -44,7 +44,7 @@ private:
     QList <ForumParser*> allParsers;
     QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
     ForumParser *selectedParser;
-    ForumParser *parser;
+    ForumParser parser;
 };
 
 #endif // SubscribeWizard_H

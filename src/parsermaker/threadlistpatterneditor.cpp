@@ -24,7 +24,8 @@ QString ThreadListPatternEditor::tabName() {
 }
 
 void ThreadListPatternEditor::downloadList() {
-    downloadParser = parser;
+    downloadParser = (*parser);
+    Q_ASSERT(downloadParser.forum_url == parser->forum_url);
     downloadParser.thread_list_page_increment = 0;
     downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
