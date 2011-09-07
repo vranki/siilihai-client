@@ -97,7 +97,7 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
     Q_ASSERT(sub->parserEngine());
-    connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState)),
+    connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)),
             this, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState)));
 
     if(sub->parserEngine()->parser())

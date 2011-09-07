@@ -26,6 +26,7 @@ void CredentialsDialog::acceptClicked()  {
             settings->setValue("failed", "false");
             settings->endGroup();
             settings->endGroup();
+            settings->sync();
         }
     }
     emit credentialsEntered(auth);

@@ -16,7 +16,8 @@ Favicon::~Favicon() {
 
 void Favicon::subscriptionChanged(ForumSubscription *sub) {
     if(subscription->parserEngine())
-        connect(subscription->parserEngine(), SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState)),
+        connect(subscription->parserEngine(), SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState,
+                                                                  ParserEngine::ParserEngineState)),
                 this, SLOT(engineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
 }
 

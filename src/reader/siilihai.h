@@ -98,7 +98,8 @@ private slots:
     void syncProgress(float progress);
     void unregisterSiilihai();
     void databaseStored();
-    void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState);
+    void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
+                                  ParserEngine::ParserEngineState oldState);
 private:
     void changeState(siilihai_states newState);
     void launchMainWindow();
@@ -110,7 +111,7 @@ private:
     MainWindow *mainWin;
     SiilihaiProtocol protocol;
     QHash <ForumSubscription*, ParserEngine*> engines;
-    QList <ForumSubscription*> subscriptionsNeedingCredentials;
+//    QList <ForumSubscription*> subscriptionsNeedingCredentials;
     ForumDatabaseXml forumDatabase;
     ParserManager *parserManager;
     QString baseUrl;

@@ -169,6 +169,7 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->cancel();
         progressBar->deleteLater();
         progressBar = 0;
+        /*
         // @todo poes
         while(!subscriptionsNeedingCredentials.isEmpty()) {
             ForumSubscription *sub = subscriptionsNeedingCredentials.takeFirst();
@@ -184,13 +185,12 @@ void Siilihai::changeState(siilihai_states newState) {
             }
             protocol.subscribeForum(sub);
         }
+        */
         mainWin->setReaderReady(true, false);
         if (forumDatabase.isEmpty()) { // Display subscribe dialog if none subscribed
             subscribeForum();
         }
 
-        if (settings->value("preferences/update_automatically", true).toBool())
-            updateClicked();
     }
 }
 
@@ -414,13 +414,11 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     connect(pe, SIGNAL(updateFailure(ForumSubscription*, QString)), this, SLOT(updateFailure(ForumSubscription*, QString)));
     connect(pe, SIGNAL(getAuthentication(ForumSubscription*, QAuthenticator*)), this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
     connect(pe, SIGNAL(loginFinished(ForumSubscription*,bool)), this, SLOT(forumLoginFinished(ForumSubscription*,bool)));
-    connect(pe, SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState)), this, SLOT(parserEngineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
-
+    connect(pe, SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)),
+            this, SLOT(parserEngineStateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)));
+    connect(pe, SIGNAL(updateForumSubscription(ForumSubscription *)), &protocol, SLOT(subscribeForum(ForumSubscription *)));
     if(!pe->parser()) pe->setParser(parserManager->getParser(sub->parser())); // Load the (possibly old) parser
 
-    if(sub->authenticated() && sub->username().length()==0) {
-        subscriptionsNeedingCredentials.append(sub);
-    }
     mainWin->forumList()->addSubscription(sub);
 }
 
@@ -696,24 +694,18 @@ void Siilihai::databaseStored() {
     haltSiilihai();
 }
 
-void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState) {
+void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState) {
     emit statusChanged(engine->subscription(), false, -1);
-    // @todo jatka
-    /*
+
     if(newState == ParserEngine::PES_REQUESTING_CREDENTIALS) {
         ForumSubscription *sub = engine->subscription();
-        QAuthenticator authenticator;
-        CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, &authenticator, NULL);
+        QAuthenticator *authenticator = new QAuthenticator();
+        CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, authenticator, settings);
         connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT(credentialsEntered(QAuthenticator*)));
         creds->setModal(false);
-        creds->exec();
-        if(authenticator.user().length() > 0) {
-            sub->setUsername(authenticator.user());
-            sub->setPassword(authenticator.password());
-        } else {
-            sub->setAuthenticated(false);
-        }
-        protocol.subscribeForum(sub);
-    }*/
-
+        creds->show();
+    } else if(newState == ParserEngine::PES_IDLE && oldState != ParserEngine::PES_UPDATING) {
+        if (settings->value("preferences/update_automatically", true).toBool())
+            updateClicked(engine->subscription());
+    }
 }
