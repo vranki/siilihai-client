@@ -39,14 +39,10 @@ QWizardPage *LoginWizard::createRegistrationPage() {
     layout->addRow("Sync status to server:", &enableSync);
     layout->addRow("", &registerMessage);
     page->setLayout(layout);
-    connect(&registerUser, SIGNAL(textChanged(QString)), this, SLOT(
-            checkRegisterData()));
-    connect(&registerEmail, SIGNAL(textChanged(QString)), this, SLOT(
-            checkRegisterData()));
-    connect(&registerPass, SIGNAL(textChanged(QString)), this, SLOT(
-            checkRegisterData()));
-    connect(&registerPass2, SIGNAL(textChanged(QString)), this, SLOT(
-            checkRegisterData()));
+    connect(&registerUser, SIGNAL(textChanged(QString)), this, SLOT(checkRegisterData()));
+    connect(&registerEmail, SIGNAL(textChanged(QString)), this, SLOT(checkRegisterData()));
+    connect(&registerPass, SIGNAL(textChanged(QString)), this, SLOT(checkRegisterData()));
+    connect(&registerPass2, SIGNAL(textChanged(QString)), this, SLOT(checkRegisterData()));
     return page;
 }
 QWizardPage *LoginWizard::createLoginPage() {
@@ -156,10 +152,10 @@ void LoginWizard::pageChanged(int id) {
         //		checkRegisterData();
         break;
     case 4:
-        progress = new QProgressDialog("Connecting siilihai.com..", "Cancel",
-                                       0, 3, this);
+        progress = new QProgressDialog("Connecting siilihai.com..", "Cancel", 0, 3, this);
         progress->setWindowModality(Qt::WindowModal);
         progress->setValue(0);
+        progress->show();
 
         disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(loginFinished(bool,QString,bool)));
         disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(registerFinished(bool,QString,bool)));
