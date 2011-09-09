@@ -9,6 +9,7 @@ CredentialsDialog::CredentialsDialog(QWidget *parent, ForumSubscription *sub, QA
     auth = authenticator;
     settings = set;
     subscription = sub;
+    connect(subscription, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 }
 
 CredentialsDialog::~CredentialsDialog() {

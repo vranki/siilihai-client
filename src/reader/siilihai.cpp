@@ -46,8 +46,6 @@ void Siilihai::launchSiilihai() {
     parserManager->openDatabase(dataFilePath + "/siilihai_parsers.xml");
 
     mainWin = new MainWindow(forumDatabase, settings);
-
-
     firstRun = settings->value("first_run", true).toBool();
 
     settings->setValue("first_run", false);
@@ -71,6 +69,7 @@ void Siilihai::launchSiilihai() {
     if(!firstRun && forumDatabase.schemaVersion() != mySchema) {
         errorDialog("The database schema has been changed. Your forum database will be reset. Sorry. ");
         forumDatabase.resetDatabase();
+        settings->setValue("forum_database_schema", forumDatabase.schemaVersion());
     }
     connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this, SLOT(userSettingsReceived(bool,UserSettings*)));
 
@@ -123,7 +122,7 @@ void Siilihai::changeState(siilihai_states newState) {
         qDebug() << Q_FUNC_INFO << "Login";
         if(!progressBar) {
             progressBar = new QProgressDialog("Logging in", "Cancel", 0, 100, mainWin);
-            progressBar->setWindowModality(Qt::WindowModal);
+            progressBar->setWindowModality(Qt::NonModal);
             progressBar->setValue(0);
             connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
         }
@@ -134,12 +133,15 @@ void Siilihai::changeState(siilihai_states newState) {
         if(usettings.syncEnabled())
             syncmaster.startSync();
         Q_ASSERT(progressBar);
+        progressBar->hide(); // @todo remove now?
+        /*
         progressBar->setValue(10);
         if(firstRun) {
             progressBar->setLabelText("Downloading message read status.\nOn first run this may take a few minutes.");
         } else {
             progressBar->setLabelText("Downloading message read status");
         }
+        */
     } else if(newState==state_endsync) {
         qDebug() << Q_FUNC_INFO << "Endsync";
         mainWin->setReaderReady(false, false);
@@ -626,7 +628,6 @@ void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authen
     settings->endGroup();
     if(authenticator->user().isNull() || failed) {
         CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, settings);
-        // connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT())
         creds->setModal(true);
         creds->exec();
     }
@@ -694,8 +695,10 @@ void Siilihai::databaseStored() {
     haltSiilihai();
 }
 
+// Caution - engine->subscription() may be null (when deleted)!
 void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState) {
-    emit statusChanged(engine->subscription(), false, -1);
+    if(engine->subscription())
+        emit statusChanged(engine->subscription(), false, -1);
 
     if(newState == ParserEngine::PES_REQUESTING_CREDENTIALS) {
         ForumSubscription *sub = engine->subscription();
