@@ -12,8 +12,7 @@ section
     setOutPath $INSTDIR
     File siilihai.exe
     File *.dll
-    File /r sqldrivers
-    File /r data
+#    File /r data
 
     writeUninstaller "$INSTDIR\uninstall.exe"
  
@@ -24,8 +23,7 @@ section "uninstall"
     delete "$INSTDIR\uninstall.exe"
     delete "$INSTDIR\*.exe"
     delete "$INSTDIR\*.dll"
-    RMDir /r "$INSTDIR\data"
-    RMDir /r "$INSTDIR\sqldrivers"
+#    RMDir /r "$INSTDIR\data"
     RMDir $INSTDIR
 
     delete "$SMPROGRAMS\Siilihai.lnk"
