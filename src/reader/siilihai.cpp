@@ -122,7 +122,7 @@ void Siilihai::changeState(siilihai_states newState) {
         qDebug() << Q_FUNC_INFO << "Login";
         if(!progressBar) {
             progressBar = new QProgressDialog("Logging in", "Cancel", 0, 100, mainWin);
-            progressBar->setWindowModality(Qt::NonModal);
+            progressBar->setWindowModality(Qt::WindowModal);
             progressBar->setValue(0);
             connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
         }
@@ -130,18 +130,13 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->setValue(5);
     } else if(newState==state_startsyncing) {
         qDebug() << Q_FUNC_INFO << "Startsync";
+        if(progressBar) { // exists if canceling dureing login process
+            progressBar->cancel();
+            progressBar->deleteLater();
+            progressBar = 0;
+        }
         if(usettings.syncEnabled())
             syncmaster.startSync();
-        Q_ASSERT(progressBar);
-        progressBar->hide(); // @todo remove now?
-        /*
-        progressBar->setValue(10);
-        if(firstRun) {
-            progressBar->setLabelText("Downloading message read status.\nOn first run this may take a few minutes.");
-        } else {
-            progressBar->setLabelText("Downloading message read status");
-        }
-        */
     } else if(newState==state_endsync) {
         qDebug() << Q_FUNC_INFO << "Endsync";
         mainWin->setReaderReady(false, false);
@@ -167,27 +162,11 @@ void Siilihai::changeState(siilihai_states newState) {
         dbStored = true;
     } else if(newState==state_ready) {
         qDebug() << Q_FUNC_INFO << "Ready";
-        Q_ASSERT(progressBar);
-        progressBar->cancel();
-        progressBar->deleteLater();
-        progressBar = 0;
-        /*
-        // @todo poes
-        while(!subscriptionsNeedingCredentials.isEmpty()) {
-            ForumSubscription *sub = subscriptionsNeedingCredentials.takeFirst();
-            QAuthenticator authenticator;
-            CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, &authenticator, NULL);
-            creds->setModal(true);
-            creds->exec();
-            if(authenticator.user().length() > 0) {
-                sub->setUsername(authenticator.user());
-                sub->setPassword(authenticator.password());
-            } else {
-                sub->setAuthenticated(false);
-            }
-            protocol.subscribeForum(sub);
+        if(progressBar) {
+            progressBar->cancel();
+            progressBar->deleteLater();
+            progressBar = 0;
         }
-        */
         mainWin->setReaderReady(true, false);
         if (forumDatabase.isEmpty()) { // Display subscribe dialog if none subscribed
             subscribeForum();

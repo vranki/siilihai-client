@@ -111,7 +111,6 @@ private:
     MainWindow *mainWin;
     SiilihaiProtocol protocol;
     QHash <ForumSubscription*, ParserEngine*> engines;
-//    QList <ForumSubscription*> subscriptionsNeedingCredentials;
     ForumDatabaseXml forumDatabase;
     ParserManager *parserManager;
     QString baseUrl;
