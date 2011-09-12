@@ -85,18 +85,17 @@ void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
 
 // Commit suicide
 void ThreadListThreadItem::threadDeleted() {
-    ThreadListThreadItem *threadItem = this;
-    Q_ASSERT(!((QTreeWidgetItem*)threadItem)->parent()); // Item should always be root item
+    Q_ASSERT(!QTreeWidgetItem::parent()); // Item should always be root item
     if(showMoreItem) {
         removeChild(showMoreItem);
         delete showMoreItem;
         showMoreItem = 0;
     }
-    for(int i=((QTreeWidgetItem*)threadItem)->childCount()-1;i >= 0; i--) {
-        QTreeWidgetItem *child = ((QTreeWidgetItem*)threadItem)->child(i);
-        if(dynamic_cast<ThreadListMessageItem*>(child)){
-            removeChild(child);
-            delete(child);
+    while(childCount()) {
+        QTreeWidgetItem *childItem = child(childCount()-1); // Last child
+        if(dynamic_cast<ThreadListMessageItem*>(childItem)){
+            removeChild(childItem);
+            delete(childItem);
         } else {
             Q_ASSERT(false); // Unknown type in thread!
         }
