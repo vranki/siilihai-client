@@ -102,8 +102,8 @@ void ThreadListThreadItem::threadDeleted() {
         }
     }
     treeWidget->takeTopLevelItem(treeWidget->indexOfTopLevelItem(this));
-    setMessage(0);
     _thread = 0;
+    setMessage(0);
     deleteLater();
 }
 

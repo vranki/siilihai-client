@@ -107,7 +107,6 @@ private:
     bool endSyncDone;
     bool firstRun;
     LoginWizard *loginWizard;
-    SubscribeWizard *subscribeWizard;
     MainWindow *mainWin;
     SiilihaiProtocol protocol;
     QHash <ForumSubscription*, ParserEngine*> engines;

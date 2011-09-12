@@ -16,6 +16,7 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QStri
     connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this, SLOT(updateParserList()));
     connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
     connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(comboItemChanged(int)));
+    connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
     protocol.setBaseURL(baseUrl);
     progress = 0;
     parser = 0;
@@ -210,6 +211,7 @@ void SubscribeWizard::wizardAccepted() {
 
     Q_ASSERT(parser.isSane());
     emit(forumAdded(&fs));
+    deleteLater();
 }
 
 void SubscribeWizard::comboItemChanged(int id) {
