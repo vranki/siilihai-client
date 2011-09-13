@@ -23,7 +23,7 @@ public:
     QWizardPage *createLoginPage();
     QWizardPage *createVerifyPage();
 signals:
-    void forumAdded(ForumSubscription *fs);
+    void forumAdded(ForumSubscription *fs); //fs valid during signal call
 
 private slots:
     void listParsersFinished(QList <ForumParser*> parsers);

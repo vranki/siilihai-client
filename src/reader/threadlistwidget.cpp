@@ -84,7 +84,13 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 
 void ThreadListWidget::clearList() {
     for(int t = topLevelItemCount() - 1; t>=0 ; t--) {
-        ThreadListThreadItem *threadItem = dynamic_cast<ThreadListThreadItem*> (topLevelItem(t));
+        ThreadListThreadItem *threadItem = static_cast<ThreadListThreadItem*> (topLevelItem(t));
+        /*
+        for(int m = threadItem->childCount()-1;m>=0; m--) {
+            QTreeWidgetItem *childItem = threadItem->child(m);
+            threadItem->removeChild(childItem);
+            delete childItem;
+        }*/
         threadItem->threadDeleted();
     }
 }

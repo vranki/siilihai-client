@@ -10,7 +10,6 @@ Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv), forumData
     parserMaker = 0;
     progressBar = 0;
     groupSubscriptionDialog = 0;
-    subscribeWizard = 0;
     parserManager = 0;
     settings = 0;
     endSyncDone = false;
@@ -306,9 +305,9 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
 }
 
 void Siilihai::subscribeForum() {
-    subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, *settings);
-    subscribeWizard->setModal(true);
-    connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)),this, SLOT(forumAdded(ForumSubscription*)));
+    SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, *settings);
+    subscribeWizard->setModal(false);
+    connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(forumAdded(ForumSubscription*)));
 }
 
 
@@ -356,10 +355,6 @@ void Siilihai::launchMainWindow() {
 }
 
 void Siilihai::forumAdded(ForumSubscription *fs) {
-    if(subscribeWizard) {
-        subscribeWizard->deleteLater();
-        subscribeWizard = 0;
-    }
     if(forumDatabase.contains(fs->parser())) {
         errorDialog("You have already subscribed to " + fs->alias());
     } else {

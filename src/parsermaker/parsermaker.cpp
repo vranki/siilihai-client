@@ -133,7 +133,7 @@ void ParserMaker::requestSelected(ForumRequest req) {
 }
 
 void ParserMaker::parserLoaded(ForumParser *p) {
-    parser = p;
+    parser = *p;
     ui.parserName->setText(p->parser_name);
     ui.forumUrl->setText(p->forum_url);
     ui.parserType->setCurrentIndex(p->parser_type);
