@@ -167,6 +167,9 @@ void Siilihai::changeState(siilihai_states newState) {
             progressBar = 0;
         }
         mainWin->setReaderReady(true, false);
+        if(settings->value("preferences/update_automatically", true).toBool())
+            updateClicked();
+
         if (forumDatabase.isEmpty()) { // Display subscribe dialog if none subscribed
             subscribeForum();
         }
@@ -473,7 +476,7 @@ void Siilihai::updateClicked() {
 void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
     Q_ASSERT(engines.contains(sub));
     ParserEngine *engine = engines.value(sub);
-    if(engine && engine->state()==ParserEngine::PES_IDLE)
+    if(engine && engine->state()==ParserEngine::PES_IDLE && currentState != state_offline && currentState != state_started)
         engine->updateForum(force);
 }
 
