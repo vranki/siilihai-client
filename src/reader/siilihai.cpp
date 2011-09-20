@@ -684,7 +684,7 @@ void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::Pars
         connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT(credentialsEntered(QAuthenticator*)));
         creds->setModal(false);
         creds->show();
-    } else if(newState == ParserEngine::PES_IDLE && oldState != ParserEngine::PES_UPDATING) {
+    } else if(currentState==state_ready && newState == ParserEngine::PES_IDLE && oldState != ParserEngine::PES_UPDATING) {
         if (settings->value("preferences/update_automatically", true).toBool())
             updateClicked(engine->subscription());
     }

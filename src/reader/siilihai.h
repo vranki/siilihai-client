@@ -37,11 +37,12 @@ class ParserMaker;
 // State chart:
 //                 ,------>--------.
 // started -> login -> startsync ->  ready -> endsync -> storedb -> quit
-//              | ^       |            |                  ^          ^
-//              v |   .-------------<--------------------'           |
-//             offline ------------------------>---------------------'
+//              | ^       |            |                  ^
+//              v |  .--<-+------<-----'                  |
+//             offline ------------------------>----------'
 //
 
+// @todo make sure parsers are updated (only) when sh is ready
 class Siilihai: public QApplication {
     Q_OBJECT
 
