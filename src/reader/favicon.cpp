@@ -15,10 +15,16 @@ Favicon::~Favicon() {
 }
 
 void Favicon::subscriptionChanged(ForumSubscription *sub) {
-    if(subscription->parserEngine())
-        connect(subscription->parserEngine(), SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState,
-                                                                  ParserEngine::ParserEngineState)),
-                this, SLOT(engineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
+    if(subscription->parserEngine()) {
+        connect(subscription->parserEngine(),
+                SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)),
+                this,
+                SLOT(engineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
+        qDebug() << Q_FUNC_INFO << "Sub " << sub->alias() << " has engine";
+        engineStateChanged(subscription->parserEngine(), subscription->parserEngine()->state());
+    } else {
+        qDebug() << Q_FUNC_INFO << "Sub " << sub->alias() << " has NO engine";
+    }
 }
 
 void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
@@ -29,7 +35,6 @@ void Favicon::fetchIcon(const QUrl &url, const QPixmap &alt) {
     connect(&nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyReceived(QNetworkReply*)), Qt::UniqueConnection);
     nam.get(req);
     emit iconChanged(subscription, currentpic);
-    update();
 }
 
 void Favicon::replyReceived(QNetworkReply *reply) {
@@ -65,7 +70,7 @@ void Favicon::update() {
 }
 
 void Favicon::engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState) {
-    if(newState==ParserEngine::PES_UPDATING) {
+    if(newState==ParserEngine::PES_UPDATING || newState==ParserEngine::PES_UPDATING_PARSER) {
         update();
         blinkTimer.start();
         //        emit iconChanged(subscription, QIcon(":data/view-refresh.png"));
@@ -79,7 +84,7 @@ void Favicon::engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngin
 
         QPixmap outPic(currentpic);
         QPainter painter(&outPic);
-        painter.drawPixmap(0,0,outPic.width()/2,outPic.height()/2, QPixmap(":data/dialog-error.png"));
+        painter.drawPixmap(0,0,outPic.width(),outPic.height(), QPixmap(":data/dialog-error.png"));
 
         emit iconChanged(subscription, QIcon(outPic));
     }

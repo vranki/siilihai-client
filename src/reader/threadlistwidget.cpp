@@ -68,6 +68,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         emit messageSelected(0);
     }
     if(currentGroup != fg) {
+        setDisabled(true);
         if(currentGroup) {
             disconnect(currentGroup, 0, this, 0);
         }
@@ -77,9 +78,10 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(addThread(ForumThread*)));
-        setCurrentItem(topLevelItem(0));
+//        setCurrentItem(topLevelItem(0));
     }
     sortColumns();
+    setDisabled(false);
 }
 
 void ThreadListWidget::clearList() {

@@ -41,19 +41,19 @@ class ParserMaker;
 //              v |  .--<-+------<-----'                  |
 //             offline ------------------------>----------'
 //
+// @todo switch to Qt's state machine
 
-// @todo make sure parsers are updated (only) when sh is ready
 class Siilihai: public QApplication {
     Q_OBJECT
 
     enum siilihai_states {
-        state_started,
-        state_login,
-        state_startsyncing,
-        state_offline,
-        state_ready,
-        state_endsync,
-        state_storedb
+        SH_STARTED,
+        SH_LOGIN,
+        SH_STARTSYNCING,
+        SH_OFFLINE,
+        SH_READY,
+        SH_ENDSYNC,
+        SH_STOREDB
     } currentState;
 
 public:

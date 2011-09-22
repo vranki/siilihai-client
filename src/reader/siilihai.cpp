@@ -36,7 +36,7 @@ void Siilihai::launchSiilihai() {
     QDir dataDir(dataFilePath);
     if(!dataDir.exists()) dataDir.mkpath(dataFilePath);
 
-    currentState = state_started;
+    currentState = SH_STARTED;
     // Make sure Siilihai::subscriptionFound is called first to get ParserEngine
     connect(&forumDatabase, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
     connect(&forumDatabase, SIGNAL(databaseStored()), this, SLOT(databaseStored()), Qt::QueuedConnection);
@@ -105,10 +105,10 @@ void Siilihai::changeState(siilihai_states newState) {
     siilihai_states previousState = currentState;
     currentState = newState;
 
-    if(newState==state_offline) {
+    if(newState==SH_OFFLINE) {
         qDebug() << Q_FUNC_INFO << "Offline";
-        Q_ASSERT(previousState==state_login || previousState==state_startsyncing || previousState==state_ready || previousState==state_started);
-        if(previousState==state_startsyncing)
+        Q_ASSERT(previousState==SH_LOGIN || previousState==SH_STARTSYNCING || previousState==SH_READY || previousState==SH_STARTED);
+        if(previousState==SH_STARTSYNCING)
             syncmaster.cancel();
 
         mainWin->setReaderReady(true, true);
@@ -117,7 +117,7 @@ void Siilihai::changeState(siilihai_states newState) {
             progressBar->deleteLater();
             progressBar = 0;
         }
-    } else if(newState==state_login) {
+    } else if(newState==SH_LOGIN) {
         qDebug() << Q_FUNC_INFO << "Login";
         if(!progressBar) {
             progressBar = new QProgressDialog("Logging in", "Cancel", 0, 100, mainWin);
@@ -127,7 +127,7 @@ void Siilihai::changeState(siilihai_states newState) {
         }
         progressBar->setLabelText("Logging in..");
         progressBar->setValue(5);
-    } else if(newState==state_startsyncing) {
+    } else if(newState==SH_STARTSYNCING) {
         qDebug() << Q_FUNC_INFO << "Startsync";
         if(progressBar) { // exists if canceling dureing login process
             progressBar->cancel();
@@ -136,7 +136,7 @@ void Siilihai::changeState(siilihai_states newState) {
         }
         if(usettings.syncEnabled())
             syncmaster.startSync();
-    } else if(newState==state_endsync) {
+    } else if(newState==SH_ENDSYNC) {
         qDebug() << Q_FUNC_INFO << "Endsync";
         mainWin->setReaderReady(false, false);
         Q_ASSERT(!progressBar);
@@ -144,7 +144,7 @@ void Siilihai::changeState(siilihai_states newState) {
         progressBar->setModal(true);
         progressBar->setValue(0);
         connect(progressBar, SIGNAL(canceled()), this, SLOT(cancelProgress()));
-    } else if(newState==state_storedb) {
+    } else if(newState==SH_STOREDB) {
         qDebug() << Q_FUNC_INFO << "Storedb";
         if(!progressBar) {
             progressBar = new QProgressDialog("Storing changes", "Cancel", 0, 100, mainWin);
@@ -159,7 +159,7 @@ void Siilihai::changeState(siilihai_states newState) {
             errorDialog("Failed to save forum database file");
         }
         dbStored = true;
-    } else if(newState==state_ready) {
+    } else if(newState==SH_READY) {
         qDebug() << Q_FUNC_INFO << "Ready";
         if(progressBar) {
             progressBar->cancel();
@@ -178,8 +178,8 @@ void Siilihai::changeState(siilihai_states newState) {
 }
 
 void Siilihai::tryLogin() {
-    Q_ASSERT(currentState==state_started || currentState==state_offline);
-    changeState(state_login);
+    Q_ASSERT(currentState==SH_STARTED || currentState==SH_OFFLINE);
+    changeState(SH_LOGIN);
 
     connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this,
             SLOT(loginFinished(bool, QString,bool)));
@@ -192,13 +192,13 @@ void Siilihai::haltSiilihai() {
     foreach(ParserEngine *engine, engines.values())
         engine->deleteLater();
     engines.clear();
-    if(usettings.syncEnabled() && !endSyncDone && currentState == state_ready) {
+    if(usettings.syncEnabled() && !endSyncDone && currentState == SH_READY) {
         qDebug() << "Sync enabled - running end sync";
-        changeState(state_endsync);
+        changeState(SH_ENDSYNC);
         syncmaster.endSync();
     } else {
-        if(currentState != state_storedb && !dbStored) {
-            changeState(state_storedb);
+        if(currentState != SH_STOREDB && !dbStored) {
+            changeState(SH_STOREDB);
         } else {
             qDebug() << Q_FUNC_INFO << "All done - quitting";
             settings->sync();
@@ -218,9 +218,9 @@ void Siilihai::syncFinished(bool success, QString message){
     if (!success) {
         errorDialog(QString("Syncing status to server failed.\n\n%1").arg(message));
     }
-    if(currentState == state_startsyncing) {
-        changeState(state_ready);
-    } else if(currentState == state_endsync) {
+    if(currentState == SH_STARTSYNCING) {
+        changeState(SH_READY);
+    } else if(currentState == SH_ENDSYNC) {
         endSyncDone = true;
         haltSiilihai();
     }
@@ -228,9 +228,9 @@ void Siilihai::syncFinished(bool success, QString message){
 
 void Siilihai::offlineModeSet(bool newOffline) {
     qDebug() << Q_FUNC_INFO << newOffline;
-    if(newOffline && currentState == state_ready) {
-        changeState(state_offline);
-    } else if(!newOffline && currentState == state_offline) {
+    if(newOffline && currentState == SH_READY) {
+        changeState(SH_OFFLINE);
+    } else if(!newOffline && currentState == SH_OFFLINE) {
         tryLogin();
     }
 }
@@ -257,9 +257,9 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
         settings->sync();
         progressBar->setValue(30);
         if(usettings.syncEnabled()) {
-            changeState(state_startsyncing);
+            changeState(SH_STARTSYNCING);
         } else {
-            changeState(state_ready);
+            changeState(SH_READY);
         }
     } else {
         progressBar->cancel();
@@ -274,7 +274,7 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
             msgBox.setText("Error: Login failed. Check your username, password and network connection.\nWorking offline.");
         }
         msgBox.exec();
-        changeState(state_offline);
+        changeState(SH_OFFLINE);
     }
 }
 
@@ -352,7 +352,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
     connect(mainWin->threadList(), SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
     connect(mainWin, SIGNAL(unregisterSiilihai()), this, SLOT(unregisterSiilihai()));
-    mainWin->setReaderReady(false, currentState==state_offline);
+    mainWin->setReaderReady(false, currentState==SH_OFFLINE);
     mainWin->show();
     setQuitOnLastWindowClosed(true);
 }
@@ -421,7 +421,7 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
     Q_ASSERT(forum);
     qDebug() << Q_FUNC_INFO << forum->toString();
     // @todo stupid logic to prevent dialog from synced groups.
-    if (currentState == state_ready) {
+    if (currentState == SH_READY) {
         groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
         groupSubscriptionDialog->setModal(false);
         groupSubscriptionDialog->setForum(&forumDatabase, forum);
@@ -431,7 +431,7 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 }
 
 void Siilihai::subscribeGroupDialogFinished() {
-    if (currentState == state_ready && groupSubscriptionDialog->subscription()) {
+    if (currentState == SH_READY && groupSubscriptionDialog->subscription()) {
         protocol.subscribeGroups(groupSubscriptionDialog->subscription());
         engines.value(groupSubscriptionDialog->subscription())->updateForum();
     }
@@ -476,7 +476,7 @@ void Siilihai::updateClicked() {
 void Siilihai::updateClicked(ForumSubscription* sub , bool force) {
     Q_ASSERT(engines.contains(sub));
     ParserEngine *engine = engines.value(sub);
-    if(engine && engine->state()==ParserEngine::PES_IDLE && currentState != state_offline && currentState != state_started)
+    if(engine && engine->state()==ParserEngine::PES_IDLE && currentState != SH_OFFLINE && currentState != SH_STARTED)
         engine->updateForum(force);
 }
 
@@ -581,13 +581,13 @@ void Siilihai::settingsChanged(bool byUser) {
 
 void Siilihai::cancelProgress() {
     qDebug() << Q_FUNC_INFO;
-    if(currentState==state_login) {
+    if(currentState==SH_LOGIN) {
         loginFinished(false,QString::null,false);
-    } else if(currentState==state_startsyncing) {
-        changeState(state_offline);
-    } else if(currentState==state_endsync) {
+    } else if(currentState==SH_STARTSYNCING) {
+        changeState(SH_OFFLINE);
+    } else if(currentState==SH_ENDSYNC) {
         haltSiilihai();
-    } else if(currentState==state_storedb) { // Not allowed
+    } else if(currentState==SH_STOREDB) { // Not allowed
     } else {
         Q_ASSERT(false);
     }
@@ -621,8 +621,7 @@ void Siilihai::moreMessagesRequested(ForumThread* thread) {
     Q_ASSERT(engine);
     if(engine->state() == ParserEngine::PES_UPDATING) return;
 
-    thread->setGetMessagesCount(thread->getMessagesCount() +
-                                settings->value("preferences/show_more_count", 30).toInt());
+    thread->setGetMessagesCount(thread->getMessagesCount() + settings->value("preferences/show_more_count", 30).toInt());
     thread->commitChanges();
     engine->updateThread(thread);
 }
@@ -649,9 +648,9 @@ void Siilihai::forumUpdateNeeded(ForumSubscription *fs) {
 
 void Siilihai::syncProgress(float progress) {
     if(progressBar) {
-        if(currentState==state_startsyncing)
+        if(currentState==SH_STARTSYNCING)
             progressBar->setValue(10 + progress * 70);
-        else if(currentState==state_startsyncing)
+        else if(currentState==SH_STARTSYNCING)
             progressBar->setValue(progress * 100);
     }
 }
@@ -684,7 +683,7 @@ void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::Pars
         connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT(credentialsEntered(QAuthenticator*)));
         creds->setModal(false);
         creds->show();
-    } else if(currentState==state_ready && newState == ParserEngine::PES_IDLE && oldState != ParserEngine::PES_UPDATING) {
+    } else if(currentState==SH_READY && newState == ParserEngine::PES_IDLE && oldState != ParserEngine::PES_UPDATING) {
         if (settings->value("preferences/update_automatically", true).toBool())
             updateClicked(engine->subscription());
     }
