@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "useraccountdialog.h"
+#include "siilihai/parserengine.h"
 
 MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) :
 QMainWindow(parent), fdb(fd), viewAsGroup(this) {
@@ -153,13 +154,14 @@ void MainWindow::viewInBrowserClickedSlot() {
         QDesktopServices::openUrl(mvw->currentMessage()->url());
 }
 
-void MainWindow::setForumStatus(ForumSubscription *forum, bool reloading, float progress) {
-    if (reloading) {
-        busyForums.insert(forum);
+// Caution - engine->subscription() may be null (when deleted)!
+void MainWindow::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState) {
+    if (newState==ParserEngine::PES_UPDATING) {
+        busyParserEngines.insert(engine);
     } else {
-        busyForums.remove(forum);
+        busyParserEngines.remove(engine);
     }
-    if (!busyForums.isEmpty()) {
+    if (!busyParserEngines.isEmpty()) {
         ui.statusbar->showMessage("Updating Forums, please stand by.. ", 5000);
     } else {
         ui.statusbar->showMessage("Forums updated", 5000);
@@ -270,8 +272,8 @@ void MainWindow::updateEnabledButtons() {
     ui.actionUpdate_all->setEnabled(readerReady && !offline);
     ui.actionSubscribe_to->setEnabled(readerReady && !offline);
 
-    ui.stopButton->setEnabled(!busyForums.isEmpty() && readerReady);
-    ui.updateButton->setEnabled(busyForums.isEmpty() && readerReady && !offline);
+    ui.stopButton->setEnabled(!busyParserEngines.isEmpty() && readerReady);
+    ui.updateButton->setEnabled(busyParserEngines.isEmpty() && readerReady && !offline);
 
     bool sane = (flw->getSelectedForum() != 0);
     ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);

@@ -31,6 +31,8 @@
 
 #include "ui_mainwindow.h"
 
+class ParserEngine;
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -50,7 +52,6 @@ signals:
     void cancelClicked();
     void groupSubscriptions(ForumSubscription *sub);
     void unsubscribeGroup(ForumGroup *group);
-//    void messageRead(ForumMessage *message);
     void launchParserMaker();
     void offlineModeSet(bool ol);
     void haltRequest();
@@ -59,6 +60,11 @@ signals:
     void forumUpdateNeeded(ForumSubscription *sub);
     void unregisterSiilihai();
 public slots:
+    void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
+                                  ParserEngine::ParserEngineState oldState);
+    void setReaderReady(bool ready, bool offline);
+
+private slots:
     void subscribeForumSlot();
     void unsubscribeForumSlot();
     void groupSubscriptionsSlot();
@@ -74,14 +80,11 @@ public slots:
     void markForumUnread();
     void markGroupRead(bool read=true);
     void markGroupUnread();
-    void setForumStatus(ForumSubscription *sub, bool reloading, float progress);
     void launchParserMakerSlot();
-    void setReaderReady(bool ready, bool offline);
     void forumSelected(ForumSubscription *sub);
     void groupSelected(ForumGroup *grp);
     void forumPropertiesSlot();
     void threadPropertiesSlot(ForumThread *thread);
-private slots:
     void about();
     void settingsDialog();
     void settingsDialogAccepted();
@@ -97,7 +100,7 @@ private:
     MessageViewWidget *mvw;
     Ui::MainWindowClass ui;
     ForumDatabase &fdb;
-    QSet<ForumSubscription*> busyForums;
+    QSet<ParserEngine*> busyParserEngines;
     QSettings *settings;
     bool readerReady, offline;
     QActionGroup viewAsGroup;

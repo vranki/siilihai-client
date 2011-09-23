@@ -396,6 +396,8 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
     connect(pe, SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)),
             this, SLOT(parserEngineStateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)));
     connect(pe, SIGNAL(updateForumSubscription(ForumSubscription *)), &protocol, SLOT(subscribeForum(ForumSubscription *)));
+    connect(pe, SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)),
+            mainWin, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)));
     if(!pe->parser()) pe->setParser(parserManager->getParser(sub->parser())); // Load the (possibly old) parser
 
     mainWin->forumList()->addSubscription(sub);
