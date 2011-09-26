@@ -9,29 +9,21 @@
 #include <QCloseEvent>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QSettings>
 
-#include <siilihai/parserdatabase.h>
 #include <siilihai/forumdatabase.h>
-#include <siilihai/forumsubscription.h>
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/forummessage.h>
+#include <siilihai/parserengine.h>
 
 #ifdef INCLUDE_SIILIHAI_VERSION
 #include "../../siilihai-version.h"
 #endif
 
-#include "forumlistwidget.h"
-#include "settingsdialog.h"
-#include "threadlistwidget.h"
-#include "messageviewwidget.h"
-#include "messageformatting.h"
-#include "forumproperties.h"
-#include "threadproperties.h"
-
 #include "ui_mainwindow.h"
 
 class ParserEngine;
+class ForumListWidget;
+class ThreadListWidget;
+class MessageViewWidget;
 
 class MainWindow : public QMainWindow
 {

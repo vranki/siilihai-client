@@ -1,5 +1,13 @@
 #include "forumlistwidget.h"
+#include "favicon.h"
 #include "messageformatting.h"
+#include <siilihai/forumthread.h>
+#include <siilihai/forummessage.h>
+#include <siilihai/parserdatabase.h>
+#include <siilihai/forumdatabase.h>
+#include <siilihai/forumsubscription.h>
+#include <siilihai/forumgroup.h>
+
 
 ForumListWidget::ForumListWidget(QWidget *parent) : QToolBox(parent), currentGroup(0) {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(forumItemSelected(int)));
@@ -105,6 +113,7 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
 
     foreach(ForumGroup *grp, sub->values())
         groupFound(grp);
+    updateSubscriptionLabel(sub);
 }
 
 void ForumListWidget::subscriptionChanged(ForumSubscription *sub) {

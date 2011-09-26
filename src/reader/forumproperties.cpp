@@ -3,10 +3,11 @@
 #include <siilihai/forumgroup.h>
 #include <siilihai/forumthread.h>
 #include <siilihai/parserengine.h>
+#include <siilihai/forumsubscription.h>
+#include <siilihai/parserdatabase.h>
 
 ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f) :
-    QDialog(parent), ui(new Ui::ForumProperties), fdb(f)
-{
+    QDialog(parent), ui(new Ui::ForumProperties), fdb(f) {
     ui->setupUi(this);
     fs = s;
     connect(this, SIGNAL(accepted()), this, SLOT(saveChanges()));
@@ -37,8 +38,7 @@ void ForumProperties::updateValues() {
     }
 }
 
-void ForumProperties::changeEvent(QEvent *e)
-{
+void ForumProperties::changeEvent(QEvent *e) {
     QDialog::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:

@@ -2,9 +2,9 @@
 #define FORUMPROPERTIES_H
 
 #include <QDialog>
-#include "siilihai/forumdatabase.h"
-#include "siilihai/forumsubscription.h"
-#include "siilihai/parserdatabase.h"
+
+class ForumSubscription;
+#include <siilihai/forumdatabase.h>
 
 namespace Ui {
     class ForumProperties;

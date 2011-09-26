@@ -81,6 +81,9 @@ void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
     }
     if(!message()) threadSubject += " (no messages, needs update)";
     setText(0, threadSubject);
+
+    if(unreads) // Set the icon to unread, if thread has unreads
+        setIcon(0, QIcon(":/data/mail-unread.png"));
 }
 
 // Commit suicide

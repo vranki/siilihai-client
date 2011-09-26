@@ -7,9 +7,7 @@
 #include <QDesktopServices>
 #include <QDir>
 
-#include <siilihai/forummessage.h>
-#include <siilihai/parserengine.h>
-#include "messageformatting.h"
+class ForumMessage;
 
 class MessageViewWidget : public QScrollArea {
     Q_OBJECT

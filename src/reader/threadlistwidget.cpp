@@ -78,7 +78,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(addThread(ForumThread*)));
-//        setCurrentItem(topLevelItem(0));
+        //        setCurrentItem(topLevelItem(0));
     }
     sortColumns();
     setDisabled(false);
@@ -106,16 +106,8 @@ void ThreadListWidget::updateList() {
     disableSortAndResize = true;
     foreach(ForumThread *thread, threads) {
         addThread(thread);
-        /*
-        QList<ForumMessage*> messages = thread->values();
-        qSort(messages);
-        foreach(ForumMessage *message, messages) {
-            addMessage(message);
-        }
-        */
     }
     disableSortAndResize = false;
-
 }
 
 void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev) {

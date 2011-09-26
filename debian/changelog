@@ -1,3 +1,9 @@
+siilihai-client (0.10.3) natty; urgency=low
+
+  * Fix more bugs
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sat, 24 Sep 2011 12:34:56 +0300
+
 siilihai-client (0.10.2) natty; urgency=low
 
   * Fix more bugs

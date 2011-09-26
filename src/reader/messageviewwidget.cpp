@@ -1,4 +1,10 @@
 #include "messageviewwidget.h"
+#include <siilihai/forummessage.h>
+#include <siilihai/parserengine.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumsubscription.h>
+#include "messageformatting.h"
 
 MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), webView(this), vbox(this) {
     vbox.addWidget(&webView);
@@ -74,6 +80,8 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
     }
     webView.setContent(html.toUtf8(), QString("text/html"), QUrl(baseUrl));
     msg->setRead(true);
+    qDebug() << "Selected message " << msg->toString() << "Unreads now: " << msg->thread()->group()->subscription()->unreadCount()
+                << msg->thread()->group()->unreadCount() << msg->thread()->unreadCount();
 }
 
 void MessageViewWidget::linkClicked ( const QUrl & url) {

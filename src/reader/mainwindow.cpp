@@ -1,6 +1,18 @@
 #include "mainwindow.h"
+#include <siilihai/parserdatabase.h>
+#include <siilihai/forumsubscription.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/forummessage.h>
+
+#include "forumlistwidget.h"
+#include "settingsdialog.h"
+#include "threadlistwidget.h"
+#include "messageviewwidget.h"
+#include "messageformatting.h"
+#include "forumproperties.h"
+#include "threadproperties.h"
 #include "useraccountdialog.h"
-#include "siilihai/parserengine.h"
 
 MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) :
 QMainWindow(parent), fdb(fd), viewAsGroup(this) {

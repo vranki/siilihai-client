@@ -13,7 +13,11 @@
 #include <QPainter>
 #include <QTimer>
 #include <cmath>
+
 #include <siilihai/parserengine.h>
+
+class ForumThread;
+class ForumSubscription;
 
 class Favicon : public QObject {
     Q_OBJECT
@@ -21,14 +25,12 @@ class Favicon : public QObject {
 public:
     Favicon(QObject *parent, ForumSubscription *fs);
     void fetchIcon(const QUrl &url, const QPixmap &alt);
-    //void setReloading(bool rel, float progress = 0);
     virtual ~Favicon();
 public slots:
     void replyReceived(QNetworkReply *reply);
     void update();
     void subscriptionChanged(ForumSubscription *sub);
     void engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState);
-//    void engineStatusChanged(ForumSubscription* fs,bool reloading,float progress);
 signals:
     void iconChanged(ForumSubscription *e, QIcon newIcon);
 private:

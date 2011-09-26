@@ -1,6 +1,18 @@
 #include "siilihai.h"
 #include <siilihai/parsermanager.h>
-#include <QDesktopServices>
+#include <siilihai/siilihaiprotocol.h>
+#include <siilihai/parserreport.h>
+#include <siilihai/usersettings.h>
+#include <siilihai/parsermanager.h>
+#include "threadlistwidget.h"
+#include "loginwizard.h"
+#include "subscribewizard.h"
+#include "mainwindow.h"
+#include "groupsubscriptiondialog.h"
+#include "forumlistwidget.h"
+#include "reportparser.h"
+#include "../common/credentialsdialog.h"
+
 
 Siilihai::Siilihai(int& argc, char** argv) : QApplication(argc, argv), forumDatabase(this),
     syncmaster(this, forumDatabase, protocol)
@@ -404,7 +416,6 @@ void Siilihai::subscriptionFound(ForumSubscription *sub) {
 }
 
 void Siilihai::subscriptionDeleted(QObject* subobj) {
-    qDebug() << Q_FUNC_INFO;
     ForumSubscription *sub = static_cast<ForumSubscription*> (subobj);
     if(!engines.contains(sub)) return; // Possible when quitting
     engines[sub]->cancelOperation();

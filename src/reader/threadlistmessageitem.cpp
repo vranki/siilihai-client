@@ -76,11 +76,10 @@ void ThreadListMessageItem::updateRead() {
     if(!msg) return;
 
     QFont myFont = font(0);
+    myFont.setBold(!msg->isRead());
     if (msg->isRead()) {
-        myFont.setBold(false);
         setIcon(0, QIcon(":/data/emblem-mail.png"));
     } else {
-        myFont.setBold(true);
         setIcon(0, QIcon(":/data/mail-unread.png"));
     }
     setFont(0, myFont);

@@ -1,5 +1,7 @@
-
 #include "threadlistpatterneditor.h"
+#include <siilihai/forumsubscription.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
 
 ThreadListPatternEditor::ThreadListPatternEditor(ForumSession &ses,
                                                  ForumParser *par,

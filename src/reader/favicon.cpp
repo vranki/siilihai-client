@@ -1,4 +1,6 @@
 #include "favicon.h"
+#include <siilihai/forumthread.h>
+#include <siilihai/forumsubscription.h>
 
 Favicon::Favicon(QObject *parent, ForumSubscription *sub) : QObject(parent) {
     subscription = sub;
@@ -20,10 +22,8 @@ void Favicon::subscriptionChanged(ForumSubscription *sub) {
                 SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)),
                 this,
                 SLOT(engineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
-        qDebug() << Q_FUNC_INFO << "Sub " << sub->alias() << " has engine";
         engineStateChanged(subscription->parserEngine(), subscription->parserEngine()->state());
     } else {
-        qDebug() << Q_FUNC_INFO << "Sub " << sub->alias() << " has NO engine";
     }
 }
 

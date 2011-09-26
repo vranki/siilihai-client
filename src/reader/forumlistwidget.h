@@ -13,13 +13,11 @@
 #include <QContextMenuEvent>
 #include <QMessageBox>
 
-#include <siilihai/parserdatabase.h>
-#include <siilihai/forumdatabase.h>
-#include <siilihai/forumsubscription.h>
 #include <siilihai/parserengine.h>
-#include <siilihai/forumgroup.h>
 
-#include "favicon.h"
+class Favicon;
+class ForumGroup;
+class ForumSubscription;
 
 class ForumListWidget: public QToolBox {
     Q_OBJECT

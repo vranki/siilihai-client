@@ -1,9 +1,9 @@
 #ifndef THREADLISTPATTERNEDITOR_H_
 #define THREADLISTPATTERNEDITOR_H_
 
-#include <siilihai/forumgroup.h>
-
 #include "patterneditor.h"
+
+class ForumGroup;
 
 class ThreadListPatternEditor : public PatternEditor {
     Q_OBJECT

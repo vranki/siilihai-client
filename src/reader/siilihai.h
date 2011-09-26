@@ -7,23 +7,12 @@
 #include <QMessageBox>
 #include <QNetworkProxy>
 #include <QProgressDialog>
-
+#include <QDesktopServices>
 #include <time.h>
 
-#include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumdatabasexml.h>
-#include <siilihai/parserreport.h>
 #include <siilihai/parserengine.h>
+#include <siilihai/forumdatabasexml.h>
 #include <siilihai/syncmaster.h>
-#include <siilihai/usersettings.h>
-#include <siilihai/parsermanager.h>
-#include "loginwizard.h"
-#include "subscribewizard.h"
-#include "mainwindow.h"
-#include "groupsubscriptiondialog.h"
-#include "forumlistwidget.h"
-#include "reportparser.h"
-#include "../common/credentialsdialog.h"
 
 #ifndef Q_WS_HILDON
 #include "../parsermaker/parsermaker.h"
@@ -42,6 +31,11 @@ class ParserMaker;
 //             offline ------------------------>----------'
 //
 // @todo switch to Qt's state machine
+
+class LoginWizard;
+class MainWindow;
+class SyncMaster;
+class GroupSubscriptionDialog;
 
 class Siilihai: public QApplication {
     Q_OBJECT

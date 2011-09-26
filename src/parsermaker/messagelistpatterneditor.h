@@ -2,11 +2,10 @@
 #define MESSAGELISTPATTERNEDITOR_H_
 #include <QMessageBox>
 
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/forumsubscription.h>
-
 #include "patterneditor.h"
+
+class ForumParser;
+class ForumSubscription;
 
 class MessageListPatternEditor: public PatternEditor {
     Q_OBJECT
