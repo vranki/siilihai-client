@@ -4,13 +4,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui>
 
-#include <siilihai/parserdatabase.h>
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumparser.h>
-#include <siilihai/forumsession.h>
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/parsermanager.h>
 
 #include "downloaddialog.h"
 #include "openrequestdialog.h"
@@ -21,6 +15,9 @@
 #include "../common/credentialsdialog.h"
 
 #include "ui_parsermaker.h"
+
+class ParserManager;
+class ForumRequest;
 
 class ParserMaker : public QMainWindow
 {
@@ -39,7 +36,7 @@ private slots:
     void testForumUrlClicked();
     void parserLoaded(ForumParser *p);
     void saveParserFinished(int newId, QString message);
-    void requestSelected(ForumRequest req);
+    void requestSelected(ForumRequest *req);
     void tryLogin();
     void tryWithoutLogin();
     void loginFinished(ForumSubscription *sub, bool success);

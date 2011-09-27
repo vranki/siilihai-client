@@ -13,6 +13,7 @@
 #include <siilihai/parserengine.h>
 #include <siilihai/forumdatabasexml.h>
 #include <siilihai/syncmaster.h>
+#include <siilihai/usersettings.h>
 
 #ifndef Q_WS_HILDON
 #include "../parsermaker/parsermaker.h"

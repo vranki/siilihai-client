@@ -1,4 +1,12 @@
 #include "parsermaker.h"
+#include <siilihai/parserdatabase.h>
+#include <siilihai/forumparser.h>
+#include <siilihai/forumsession.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/parsermanager.h>
+#include <siilihai/forumrequest.h>
+
 
 ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p) :
 QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this, &nam) {
@@ -122,13 +130,13 @@ void ParserMaker::openClicked() {
 
 void ParserMaker::newFromRequestClicked() {
     OpenRequestDialog *dlg = new OpenRequestDialog(this, protocol);
-    connect(dlg, SIGNAL(requestSelected(ForumRequest)), this, SLOT(requestSelected(ForumRequest)));
+    connect(dlg, SIGNAL(requestSelected(ForumRequest*)), this, SLOT(requestSelected(ForumRequest*)));
     dlg->show();
 }
 
-void ParserMaker::requestSelected(ForumRequest req) {
+void ParserMaker::requestSelected(ForumRequest *req) {
     ForumParser *fp = new ForumParser(this);
-    fp->forum_url = req.forum_url;
+    fp->forum_url = req->forum_url;
     parserLoaded(fp);
 }
 

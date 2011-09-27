@@ -9,6 +9,7 @@
 
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/forumsubscription.h>
+#include <siilihai/forumparser.h>
 #include "ui_subscribeforum.h"
 #include "ui_subscribeforum_login.h"
 #include "ui_subscribeforum_verify.h"

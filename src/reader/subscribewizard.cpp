@@ -28,6 +28,7 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QStri
 
 SubscribeWizard::~SubscribeWizard() {
     qDeleteAll(allParsers);
+    allParsers.clear();
 }
 
 QWizardPage *SubscribeWizard::createIntroPage() {
@@ -47,6 +48,8 @@ QWizardPage *SubscribeWizard::createIntroPage() {
 }
 
 void SubscribeWizard::listParsersFinished(QList<ForumParser*> parsers) {
+    listWidgetItemForum.clear();
+    qDeleteAll(allParsers);
     allParsers = parsers;
     updateParserList();
 }
@@ -190,7 +193,7 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp MUST be deleteL
 
 void SubscribeWizard::wizardAccepted() {
     if(!parser.isSane()) {
-        qDebug() << "Parsed not sane (yet), please hold on..";
+        qDebug() << Q_FUNC_INFO << "Parsed not sane (yet), please hold on..";
         return;
     }
     QString user = QString::null;

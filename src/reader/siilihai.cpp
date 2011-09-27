@@ -335,9 +335,9 @@ void Siilihai::loginWizardFinished() {
     } else {
         launchMainWindow();
         settingsChanged(false);
-        loginFinished(true, QString(), usettings.syncEnabled());
+        loginFinished(true, QString(), usettings.syncEnabled());/*
         if(firstRun && settings->value("account/registered_here", false).toBool())
-            subscribeForum();
+            subscribeForum();*/
     }
 }
 

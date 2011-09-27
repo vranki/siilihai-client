@@ -4,11 +4,13 @@
 #include <QtGui/QWidget>
 #include <QDesktopServices>
 #include <QTimer>
+#include <siilihai/forumsession.h>
 #include <siilihai/patternmatcher.h>
 #include <siilihai/forumparser.h>
-#include <siilihai/forumsession.h>
 
 #include "ui_patterneditor.h"
+
+class ForumSubscription;
 
 class PatternEditor : public QWidget
 {
@@ -23,34 +25,36 @@ public:
     virtual QIcon tabIcon();
 
 public slots:
-	virtual void parserUpdated();
-	virtual void downloadList() = 0;
-	virtual void testPageSpanning() = 0;
-	virtual void patternChanged() = 0;
-        virtual void listGroupsFinished(QList<ForumGroup*> groups);
-        virtual void listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group);
-        virtual void listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread);
-	virtual void resultCellActivated(int row, int column)=0;
-
-	void viewInBrowser();
-	void dataMatchingStart(QString &html);
-	void dataMatchingEnd();
-	void dataMatched(int pos, QString data, PatternMatchType type);
+    virtual void parserUpdated();
 
 private slots:
-	void textEdited(); // Called instantaneously
-	void updateCount();
+    virtual void downloadList() = 0;
+    virtual void testPageSpanning() = 0;
+    virtual void patternChanged() = 0;
+    virtual void listGroupsFinished(QList<ForumGroup*> groups);
+    virtual void listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group);
+    virtual void listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread);
+    virtual void resultCellActivated(int row, int column)=0;
+
+    void viewInBrowser();
+    void dataMatchingStart(QString &html);
+    void dataMatchingEnd();
+    void dataMatched(int pos, QString data, PatternMatchType type);
+
+private slots:
+    void textEdited(); // Called instantaneously
+    void updateCount();
 
 protected:
 
-	Ui::PatternEditorClass ui;
-        QTextCursor patternEditorCursor;
-	ForumSession &session;
-        ForumParser *parser, downloadParser;
-	PatternMatcher *matcher;
-	ForumSubscription *subscription, *downloadSubscription;
-	bool pageSpanningTest;
-	QTimer editTimeout;
+    Ui::PatternEditorClass ui;
+    QTextCursor patternEditorCursor;
+    ForumSession &session;
+    ForumSubscription *subscription, *downloadSubscription;
+    QTimer editTimeout;
+    ForumParser *parser, downloadParser;
+    PatternMatcher *matcher;
+    bool pageSpanningTest;
 };
 
 #endif // PATTERNEDITOR_H

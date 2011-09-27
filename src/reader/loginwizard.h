@@ -8,32 +8,32 @@
 #include <siilihai/siilihaiprotocol.h>
 
 class LoginWizard: public QWizard {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s);
-	~LoginWizard();
-	QWizardPage *createIntroPage();
-	QWizardPage *createRegistrationPage();
-	QWizardPage *createLoginPage();
-	QWizardPage *createVerifyPage();
+    LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s);
+    ~LoginWizard();
+    QWizardPage *createIntroPage();
+    QWizardPage *createRegistrationPage();
+    QWizardPage *createLoginPage();
+    QWizardPage *createVerifyPage();
 
-	int nextId() const;
+    int nextId() const;
 public slots:
-	void pageChanged(int id);
-        void loginFinished(bool success, QString motd, bool sync);
-        void registerFinished(bool success, QString motd, bool sync);
-	void checkRegisterData();
+    void pageChanged(int id);
+    void loginFinished(bool success, QString motd, bool sync);
+    void registerFinished(bool success, QString motd, bool sync);
+    void checkRegisterData();
 
 private:
-	QWizard wizard;
-	QRadioButton accountDoesntExist;
-	QLineEdit loginUser, loginPass, registerUser, registerPass, registerPass2, registerEmail;
-	SiilihaiProtocol &protocol;
-	QProgressDialog *progress;
-        QLabel loginMessage, registerMessage, finalLabel;
-	QSettings &settings;
-        QCheckBox enableSync;
+    QWizard wizard;
+    QRadioButton accountDoesntExist;
+    QLineEdit loginUser, loginPass, registerUser, registerPass, registerPass2, registerEmail;
+    SiilihaiProtocol &protocol;
+    QProgressDialog *progress;
+    QLabel loginMessage, registerMessage, finalLabel;
+    QSettings &settings;
+    QCheckBox enableSync;
 };
 
 #endif // LOGINWIZARD_H
