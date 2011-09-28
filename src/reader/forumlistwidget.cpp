@@ -94,9 +94,9 @@ void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev
 }
 
 void ForumListWidget::addSubscription(ForumSubscription *sub) {
-    if(listWidgets.value(sub)) return; // If already exists
+    if(listWidgets.contains(sub)) return; // Already exists
     QListWidget *lw = new QListWidget(this);
-    listWidgets[sub] = lw;
+    listWidgets.insert(sub, lw);
     addItem(lw, sub->alias());
     connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)), this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
     connect(sub, SIGNAL(unreadCountChanged(ForumSubscription*)), this, SLOT(updateSubscriptionLabel(ForumSubscription*)));
@@ -124,10 +124,11 @@ void ForumListWidget::setupFavicon(ForumSubscription *sub) {
     QString fiUrl = sub->parserEngine()->parser()->forum_url;
     fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
     fiUrl = fiUrl + "/favicon.ico";
-    Favicon *fi = new Favicon(this, sub);
+    Q_ASSERT(listWidgets.value(sub));
+    Favicon *fi = new Favicon(listWidgets.value(sub), sub); // Deleted automatically when listWidget deleted
     connect(fi, SIGNAL(iconChanged(ForumSubscription*, QIcon)), this, SLOT(iconUpdated(ForumSubscription*, QIcon)));
     fi->fetchIcon(QUrl(QUrl(fiUrl)), QPixmap(":/data/emblem-web.png"));
-    forumIcons[sub] = fi;
+    forumIcons.insert(sub, fi);
 }
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
@@ -139,13 +140,12 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
     if(!grp->isSubscribed()) return;
     QListWidget *lw = listWidgets.value(grp->subscription());
     Q_ASSERT(lw);
-    QListWidgetItem *lwi = new QListWidgetItem(lw);
+    QListWidgetItem *lwi = new QListWidgetItem();
     lwi->setIcon(QIcon(":/data/folder.png"));
     lw->addItem(lwi);
-    forumGroups[lwi] = grp;
+    forumGroups.insert(lwi, grp);
     groupChanged(grp); // Set title etc.
 }
-
 
 void ForumListWidget::groupChanged(ForumGroup *grp) {
     Q_ASSERT(grp);
@@ -227,7 +227,6 @@ void ForumListWidget::subscriptionDeleted(QObject* qo) {
 }
 
 void ForumListWidget::subscriptionDeleted(ForumSubscription* sub) {
-    qDebug() << Q_FUNC_INFO << sub;
     if(currentGroup && currentGroup->subscription()==sub) {
         currentGroup = 0;
         emit groupSelected(0);
@@ -238,6 +237,7 @@ void ForumListWidget::subscriptionDeleted(ForumSubscription* sub) {
         Q_ASSERT(lw);
         removeItem(indexOf(lw));
         listWidgets.remove(sub);
+        // FavIcon deleted automatically here
         lw->deleteLater();
     }
 }

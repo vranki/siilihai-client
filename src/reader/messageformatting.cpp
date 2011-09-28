@@ -22,6 +22,10 @@ QString MessageFormatting::stripHtml(QString &txt) {
     txt.replace("&lt;", "<");
     txt.replace("&gt;", ">");
     txt.replace("&nbsp;", " ");
+    txt.replace("&#63;", "?");
+    txt.replace("&#8230;", "'");
+    txt.replace("&#8220;", "\"");
+    txt.replace("&#8221;", "\"");
     return txt;
 }
 
