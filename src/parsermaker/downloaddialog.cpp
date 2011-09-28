@@ -33,7 +33,6 @@ void DownloadDialog::getParserFinished(ForumParser *parser) {
         emit parserLoaded(parser);
         deleteLater();
     }
-    parser->deleteLater();
 }
 
 void DownloadDialog::okClicked() {

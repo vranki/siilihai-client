@@ -16,10 +16,10 @@ public:
 private slots:
     void apply();
 signals:
-	void parserReport(ParserReport pr);
+    void parserReport(ParserReport *pr); // Deleted after this
 
 private:
-	int parserid;
+    int parserid;
     Ui::ReportParserClass ui;
 };
 

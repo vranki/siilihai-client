@@ -160,7 +160,7 @@ void SubscribeWizard::pageChanged(int id) {
     }
 }
 
-void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp MUST be deleteLater'd
+void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted after this
     disconnect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
     if (progress) {
         progress->deleteLater();
@@ -188,7 +188,6 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp MUST be deleteL
         msgBox.setText(warningLabel);
         msgBox.exec();
     }
-    delete fp;
 }
 
 void SubscribeWizard::wizardAccepted() {

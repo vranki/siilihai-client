@@ -145,8 +145,7 @@ void MessageListPatternEditor::parserUpdated() {
 
 void MessageListPatternEditor::patternChanged() {
     parser->message_list_pattern = pattern();
-    // @todo breaks
-    downloadParser = parser;
+    downloadParser = *parser;
     downloadParser.thread_list_page_increment = 0;
     downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;

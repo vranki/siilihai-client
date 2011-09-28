@@ -73,7 +73,7 @@ void Siilihai::launchSiilihai() {
     baseUrl = settings->value("network/baseurl", BASEURL).toString();
     settingsChanged(false);
     connect(&syncmaster, SIGNAL(syncFinished(bool, QString)), this, SLOT(syncFinished(bool, QString)));
-    connect(&syncmaster, SIGNAL(syncProgress(float)), this, SLOT(syncProgress(float)));
+
     protocol.setBaseURL(baseUrl);
 
     int mySchema = settings->value("forum_database_schema", 0).toInt();
@@ -364,6 +364,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
     connect(mainWin->threadList(), SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
     connect(mainWin, SIGNAL(unregisterSiilihai()), this, SLOT(unregisterSiilihai()));
+    connect(&syncmaster, SIGNAL(syncProgress(float)), mainWin, SLOT(syncProgress(float)));
     mainWin->setReaderReady(false, currentState==SH_OFFLINE);
     mainWin->show();
     setQuitOnLastWindowClosed(true);
@@ -470,6 +471,8 @@ void Siilihai::forumUpdated(ForumSubscription* forum) {
             busyForums++;
         }
     }
+    if(!busyForums)
+        forumDatabase.storeDatabase();
 }
 
 void Siilihai::updateClicked() {
@@ -509,7 +512,7 @@ void Siilihai::reportClicked(ForumSubscription* forum) {
     if (forum) {
         ForumParser *parserToReport = forum->parserEngine()->parser();
         ReportParser *rpt = new ReportParser(mainWin, forum->parser(), parserToReport->parser_name);
-        connect(rpt, SIGNAL(parserReport(ParserReport)), &protocol, SLOT(sendParserReport(ParserReport)));
+        connect(rpt, SIGNAL(parserReport(ParserReport*)), &protocol, SLOT(sendParserReport(ParserReport*)));
         rpt->exec();
     }
 }
@@ -537,7 +540,7 @@ void Siilihai::launchParserMaker() {
     if (!parserMaker) {
         parserMaker = new ParserMaker(mainWin, parserManager, *settings, protocol);
         connect(parserMaker, SIGNAL(destroyed()), this, SLOT(parserMakerClosed()));
-//        connect(parserMaker, SIGNAL(parserSaved(ForumParser*)), this, SLOT(updateForumParser(ForumParser*)));
+        connect(parserMaker, SIGNAL(parserSaved(ForumParser*)), parserManager, SLOT(storeOrUpdateParser(ForumParser*)));
     } else {
         parserMaker->showNormal();
     }
@@ -659,15 +662,6 @@ void Siilihai::forumUpdateNeeded(ForumSubscription *fs) {
     updateClicked(fs);
 }
 
-void Siilihai::syncProgress(float progress) {
-    if(progressBar) {
-        if(currentState==SH_STARTSYNCING)
-            progressBar->setValue(10 + progress * 70);
-        else if(currentState==SH_STARTSYNCING)
-            progressBar->setValue(progress * 100);
-    }
-}
-
 void Siilihai::unregisterSiilihai() {
     cancelClicked();
     forumDatabase.resetDatabase();
@@ -681,7 +675,8 @@ void Siilihai::unregisterSiilihai() {
 }
 
 void Siilihai::databaseStored() {
-    haltSiilihai();
+    if(currentState==SH_STOREDB)
+        haltSiilihai();
 }
 
 // Caution - engine->subscription() may be null (when deleted)!

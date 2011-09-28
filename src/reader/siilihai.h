@@ -91,7 +91,7 @@ private slots:
     void unsubscribeGroup(ForumGroup *group);
     void forumLoginFinished(ForumSubscription *sub, bool success);
     void forumUpdateNeeded(ForumSubscription *sub);
-    void syncProgress(float progress);
+
     void unregisterSiilihai();
     void databaseStored();
     void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,

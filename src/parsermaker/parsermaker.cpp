@@ -9,7 +9,7 @@
 
 
 ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p) :
-QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this, &nam) {
+    QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this, &nam) {
     ui.setupUi(this);
     loginMatcher = new PatternMatcher(this, true);
 
@@ -186,10 +186,10 @@ void ParserMaker::saveAsNewClicked() {
     QMessageBox msgBox(this);
     msgBox.setText("This will upload parser as a new parser to Siilihai.");
     msgBox.setDetailedText(
-            "Your parser will initially be marked 'new'. New parsers "
-            "may not be visible in public lists until another user has verified them "
-            "as working. You should ask another user or Siilihai staff to check "
-            "your parser.");
+                "Your parser will initially be marked 'new'. New parsers "
+                "may not be visible in public lists until another user has verified them "
+                "as working. You should ask another user or Siilihai staff to check "
+                "your parser.");
     msgBox.setInformativeText("Are you sure you wish to do this?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
@@ -207,11 +207,11 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
     if (id > 0) {
         parser.id = id;
         if (message.isNull())
-            message = "Parser saved. Restart Siilihai if you have already subscribed it.";
+            message = "Parser saved";
         emit(parserSaved(&parser));
     } else {
         if (message.isNull())
-            message = "Unable to save parser.";
+            message = "Unable to save parser";
     }
     QMessageBox msgBox(this);
     msgBox.setText(message);
@@ -230,7 +230,6 @@ void ParserMaker::closeEvent(QCloseEvent *event) {
 }
 
 void ParserMaker::tryLogin() {
-    // session.clearAuthentications();
     session.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = false;
     updateState();
@@ -241,7 +240,6 @@ void ParserMaker::tryLogin() {
 }
 
 void ParserMaker::tryWithoutLogin() {
-    //session.clearAuthentications();
     session.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = true;
     updateState();
@@ -323,10 +321,10 @@ void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
                 if(preDisplay < 0) preDisplay = 0;
                 if(postDisplay > data.length()) postDisplay = data.length();
                 qDebug() << "Data MisMatch at pos " << i << " pre " << preDisplay << ": \n" <<
-                        myData.mid(preDisplay, postDisplay-preDisplay) <<
-                        "\n != \n" << data.mid(preDisplay, postDisplay-preDisplay);
+                            myData.mid(preDisplay, postDisplay-preDisplay) <<
+                            "\n != \n" << data.mid(preDisplay, postDisplay-preDisplay);
                 qDebug() << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toAscii() <<  ") != "
-                        << data.at(i) << "(" << (int) data.at(i).toAscii() << ")";
+                         << data.at(i) << "(" << (int) data.at(i).toAscii() << ")";
                 i = data.length();
                 mismatches++;
             }
@@ -353,7 +351,7 @@ void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
     }
 
     loginEditorCursor.setPosition(loginEditorCursor.position() + data.length(),
-                                QTextCursor::KeepAnchor);
+                                  QTextCursor::KeepAnchor);
     QTextCharFormat fmt = loginEditorCursor.charFormat();
     fmt.setForeground(QBrush(color));
     loginEditorCursor.setCharFormat(fmt);

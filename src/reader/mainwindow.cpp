@@ -201,8 +201,7 @@ void MainWindow::setReaderReady(bool ready, bool readerOffline) {
         if (!offline) {
             ui.statusbar->showMessage("Siilihai is ready", 2000);
         } else {
-            ui.statusbar->showMessage("Siilihai is ready, but in offline mode",
-                                      2000);
+            ui.statusbar->showMessage("Siilihai is ready, but in offline mode", 2000);
         }
     }
     updateEnabledButtons();
@@ -334,4 +333,9 @@ void MainWindow::userAccountSettings() {
     UserAccountDialog accountDialog(this, settings);
     connect(&accountDialog, SIGNAL(unregisterSiilihai()), this, SIGNAL(unregisterSiilihai()));
     accountDialog.exec();
+}
+
+
+void MainWindow::syncProgress(float progress) {
+    ui.statusbar->showMessage("Synchronizing status with server, please wait..", 2000);
 }
