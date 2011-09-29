@@ -76,24 +76,26 @@ void Siilihai::launchSiilihai() {
 
     protocol.setBaseURL(baseUrl);
 
-    int mySchema = settings->value("forum_database_schema", 0).toInt();
-    if(!firstRun && forumDatabase.schemaVersion() != mySchema) {
-        errorDialog("The database schema has been changed. Your forum database will be reset. Sorry. ");
-        forumDatabase.resetDatabase();
-        settings->setValue("forum_database_schema", forumDatabase.schemaVersion());
+    QString databaseFileName = dataFilePath + "/siilihai_forums.xml";
+    if(firstRun) {
+        forumDatabase.openDatabase(databaseFileName); // Fails
+    } else {
+        int currentSchemaVersion = settings->value("forum_database_schema", 0).toInt();
+        if(forumDatabase.schemaVersion() != currentSchemaVersion) {
+            errorDialog("The database schema has been changed. Your forum database will be reset. Sorry. ");
+            forumDatabase.openDatabase(databaseFileName);
+        } else {
+            if(!forumDatabase.openDatabase(databaseFileName)) {
+                errorDialog("Could not open Siilihai's forum database file.\n"
+                            "See console for details.");
+            }
+        }
     }
+    settings->setValue("forum_database_schema", forumDatabase.schemaVersion());
+    settings->sync();
+
     connect(&protocol, SIGNAL(userSettingsReceived(bool,UserSettings*)), this, SLOT(userSettingsReceived(bool,UserSettings*)));
 
-    QString databaseFileName = dataFilePath + "/siilihai_forums.xml";
-    bool openSuccess = forumDatabase.openDatabase(databaseFileName);
-    if(openSuccess) {
-        settings->setValue("forum_database_schema", forumDatabase.schemaVersion());
-    } else {
-        if(!firstRun)
-            errorDialog("Could not open Siilihai's forum database file.\n"
-                        "See console for details. This may be normal as we just \n"
-                        "switched to xml database.\n");
-    }
 
 #ifdef Q_WS_HILDON
     if(settings->value("firstrun", true).toBool()) {
@@ -302,17 +304,17 @@ void Siilihai::listSubscriptionsFinished(QList<int> serversSubscriptions) {
     foreach(ForumSubscription* sub, forumDatabase.values()) {
         bool found = false;
         foreach(int serverSubscriptionId, serversSubscriptions) {
-            qDebug() << "Server says: subscribed to " << serverSubscriptionId;
+            qDebug() << Q_FUNC_INFO << "Server says: subscribed to " << serverSubscriptionId;
             if (serverSubscriptionId == sub->parser())
                 found = true;
         }
         if (!found) {
-            qDebug() << "Server says not subscribed to " << sub->toString();
+            qDebug() << Q_FUNC_INFO << "Server says not subscribed to " << sub->toString();
             unsubscribedForums.append(sub);
         }
     }
     foreach (ForumSubscription *sub, unsubscribedForums) {
-        qDebug() << "Deleting forum " << sub->toString() << "as server says it's not subscribed";
+        qDebug() << Q_FUNC_INFO << "Deleting forum " << sub->toString() << "as server says it's not subscribed";
         parserManager->deleteParser(sub->parser());
         forumDatabase.deleteSubscription(sub);
     }
@@ -364,7 +366,7 @@ void Siilihai::launchMainWindow() {
     connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
     connect(mainWin->threadList(), SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
     connect(mainWin, SIGNAL(unregisterSiilihai()), this, SLOT(unregisterSiilihai()));
-    connect(&syncmaster, SIGNAL(syncProgress(float)), mainWin, SLOT(syncProgress(float)));
+    connect(&syncmaster, SIGNAL(syncProgress(float, QString)), mainWin, SLOT(syncProgress(float, QString)));
     mainWin->setReaderReady(false, currentState==SH_OFFLINE);
     mainWin->show();
     setQuitOnLastWindowClosed(true);

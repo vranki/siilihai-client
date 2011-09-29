@@ -74,7 +74,6 @@ private slots:
     void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
     void errorDialog(QString message);
     void listSubscriptionsFinished(QList<int> subscriptions);
-//    void updateForumParser(ForumParser *parser);
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
@@ -91,7 +90,6 @@ private slots:
     void unsubscribeGroup(ForumGroup *group);
     void forumLoginFinished(ForumSubscription *sub, bool success);
     void forumUpdateNeeded(ForumSubscription *sub);
-
     void unregisterSiilihai();
     void databaseStored();
     void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,

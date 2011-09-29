@@ -174,7 +174,7 @@ void MainWindow::parserEngineStateChanged(ParserEngine *engine, ParserEngine::Pa
         busyParserEngines.remove(engine);
     }
     if (!busyParserEngines.isEmpty()) {
-        ui.statusbar->showMessage("Updating Forums, please stand by.. ", 5000);
+        ui.statusbar->showMessage("Updating Forums.. ", 5000);
     } else {
         ui.statusbar->showMessage("Forums updated", 5000);
     }
@@ -336,6 +336,6 @@ void MainWindow::userAccountSettings() {
 }
 
 
-void MainWindow::syncProgress(float progress) {
-    ui.statusbar->showMessage("Synchronizing status with server, please wait..", 2000);
+void MainWindow::syncProgress(float progress, QString message) {
+    ui.statusbar->showMessage(message, 5000);
 }

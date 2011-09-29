@@ -55,7 +55,7 @@ public slots:
     void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
                                   ParserEngine::ParserEngineState oldState);
     void setReaderReady(bool ready, bool offline);
-    void syncProgress(float progress);
+    void syncProgress(float progress, QString message);
 private slots:
     void subscribeForumSlot();
     void unsubscribeForumSlot();
