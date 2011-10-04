@@ -589,7 +589,6 @@ void Siilihai::userSettingsReceived(bool success, UserSettings *newSettings) {
 }
 
 void Siilihai::settingsChanged(bool byUser) {
-    qDebug() << Q_FUNC_INFO << "Sync: " << settings->value("preferences/sync_enabled", false).toBool() << " byuser: " << byUser;
     usettings.setSyncEnabled(settings->value("preferences/sync_enabled", false).toBool());
     if(byUser) {
         protocol.setUserSettings(&usettings);

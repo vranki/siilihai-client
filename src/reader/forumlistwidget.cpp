@@ -180,7 +180,6 @@ void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
 }
 
 void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
-    // qDebug() << Q_FUNC_INFO;
     Q_ASSERT(grp);
     if(!grp->isSubscribed()) return;
     if(!grp->subscription()) return; // May happen while quittinq
@@ -193,6 +192,9 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
 
         if (grp->unreadCount() > 0)
             title = title + " (" + QString().number(grp->unreadCount()) + ")";
+
+//        if(grp->hasChanged())
+//            title += "(C)";
         gItem->setText(title);
     }
 }
