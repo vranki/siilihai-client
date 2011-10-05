@@ -1,8 +1,8 @@
-libsiilihai (1.0.0) natty; urgency=low
+siilihai-client (1.0.0) natty; urgency=low
 
   * Very minor changes - 1.0 release
 
- -- Ville Ranki <ville.ranki@iki.fi>  Thu, 29 Sep 2011 12:34:56 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 5 Oct 2011 12:34:56 +0300
 
 siilihai-client (0.10.4) natty; urgency=low
 
