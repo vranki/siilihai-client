@@ -38,6 +38,9 @@ FORMS = openrequestdialog.ui \
     parsermaker.ui
 RESOURCES = ../../siilihairesources.qrc
 
+# Needed so that uic-generated headers for the forms in
+# common work when shadow building
+INCLUDEPATH += $$OUT_PWD/../common
 
 win32 {
     INCLUDEPATH += ../../../libsiilihai

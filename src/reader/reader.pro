@@ -77,6 +77,10 @@ FORMS = settingsdialog.ui \
     useraccountdialog.ui
 RESOURCES = ../../siilihairesources.qrc
 
+# Needed so that uic-generated headers for the forms in
+# common and parsermaker work when shadow building
+INCLUDEPATH += $$OUT_PWD/../common $$OUT_PWD/../parsermaker
+
 win32 {
     INCLUDEPATH += ../../../libsiilihai
     DEFINES += STORE_FILES_IN_APP_DIR
