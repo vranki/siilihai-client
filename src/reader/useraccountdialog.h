@@ -18,7 +18,7 @@ public:
 signals:
     void unregisterSiilihai();
 private slots:
-    virtual void done(int result);
+    virtual void accept();
     void unregisterClicked();
 private:
     Ui::UserAccountDialog *ui;

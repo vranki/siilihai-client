@@ -1,6 +1,7 @@
 #include "useraccountdialog.h"
 #include "ui_useraccountdialog.h"
 #include <QMessageBox>
+#include <QDebug>
 
 UserAccountDialog::UserAccountDialog(QWidget *parent, QSettings *s) :
     QDialog(parent), ui(new Ui::UserAccountDialog), settings(s) {
@@ -17,13 +18,12 @@ UserAccountDialog::~UserAccountDialog() {
     delete ui;
 }
 
-void UserAccountDialog::done(int result) {
-    if(result==QDialog::Accepted) {
-        if(origUsername != ui->userNameEdit->text() || origPassword != ui->passwordEdit->text()) {
-            // Changed
-            settings->setValue("account/username", ui->userNameEdit->text());
-            settings->setValue("account/password", ui->passwordEdit->text());
-        }
+void UserAccountDialog::accept() {
+    QDialog::accept();
+    if(origUsername != ui->userNameEdit->text() || origPassword != ui->passwordEdit->text()) {
+        // Changed
+        settings->setValue("account/username", ui->userNameEdit->text());
+        settings->setValue("account/password", ui->passwordEdit->text());
     }
 }
 
