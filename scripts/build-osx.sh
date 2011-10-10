@@ -21,10 +21,12 @@ status() {
 status "Build started $(date)"
 
 [ -n "$(which qmake)" ] || die "No qmake found in PATH"
-
+[ -n "$(which macdeployqt)" ] || die "No macdeployqt found in PATH"
 QTVER=$(qmake -v|sed -n 's/^Using //p')
-
 status "Building with $QTVER"
+
+[ -n "$(which install_name_tool)" ] || die "install_name_tool not in path"
+[ -n "$(which otool)" ] || die "otool not in path"
 
 [ -d "$BUILDDIR" ] || die "Unable to create build directory"
 
@@ -56,5 +58,25 @@ mkdir "$CLIENTBUILDDIR" || die "Unable to create directory $CLIENTBUILDDIR"
 		"$CLIENTSRCDIR" >> "$LOGFILE" 2>&1 \
 		&& make >> "$LOGFILE" 2>&1
 ) || die "Building siilihai-client failed, see $LOGFILE"
+
+status "Copying libsiilihai dylibs into client bundle"
+BUNDLEDIR=$CLIENTBUILDDIR/src/reader/siilihai.app
+FWKDIR=$BUNDLEDIR/Contents/Frameworks
+mkdir -p "$FWKDIR"
+for LIB in "$LIBBUILDDIR"/src/*.dylib; do
+	cp "$LIB" "$FWKDIR"
+	LIBBASENAME=$(basename $LIB)
+	install_name_tool -id "@executable_path/../Frameworks/$LIBBASENAME" \
+		"$LIB"
+	DEPS=$(otool -L $LIB|egrep 'Qt.*\.framework'|awk '{print $1}'|tr '\n' ' ')
+	for DEP in $(echo $DEPS); do
+		NEWDEP=$(echo $DEP|sed 's%.*gcc/lib/%%')
+		install_name_tool -change "$DEP" \
+			"@executable_path/../Frameworks/$NEWDEP" "$LIB"
+	done
+done
+
+status "Running macdeployqt on $BUNDLEDIR"
+macdeployqt "$BUNDLEDIR"
 
 status "Build completed $(date), log is $LOGFILE"
