@@ -12,18 +12,18 @@ section
     setOutPath $INSTDIR
     File siilihai.exe
     File *.dll
-#    File /r data
+    File *.ico
 
     writeUninstaller "$INSTDIR\uninstall.exe"
  
-    createShortCut "$SMPROGRAMS\Siilihai.lnk" "$INSTDIR\siilihai.exe"
+    createShortCut "$SMPROGRAMS\Siilihai.lnk" "$INSTDIR\siilihai.exe" "$INSTDIR\siilis_icon_16.ico"
 sectionEnd
  
 section "uninstall"
     delete "$INSTDIR\uninstall.exe"
     delete "$INSTDIR\*.exe"
     delete "$INSTDIR\*.dll"
-#    RMDir /r "$INSTDIR\data"
+    delete "$INSTDIR\*.ico"
     RMDir $INSTDIR
 
     delete "$SMPROGRAMS\Siilihai.lnk"

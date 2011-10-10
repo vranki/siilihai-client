@@ -60,6 +60,7 @@ function install_app {
 cp siilihai-client/src/common/$SH_BINARYPATH/*.dll siilihai-win32
 cp siilihai-client/src/parsermaker/$SH_BINARYPATH/*.dll siilihai-win32
 cp siilihai-client/src/reader/$SH_BINARYPATH/*.exe siilihai-win32
+cp siilihai-client/data/*.ico siilihai-win32
 }
 
 function install_deps {
