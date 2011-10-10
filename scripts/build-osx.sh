@@ -63,12 +63,12 @@ status "Copying libsiilihai dylibs into client bundle"
 BUNDLEDIR=$CLIENTBUILDDIR/src/reader/siilihai.app
 FWKDIR=$BUNDLEDIR/Contents/Frameworks
 mkdir -p "$FWKDIR"
-for LIB in "$LIBBUILDDIR"/src/*.dylib; do
-	cp "$LIB" "$FWKDIR"
+for LIB in "$LIBBUILDDIR"/src/*.dylib "$CLIENTBUILDDIR"/src/common/*.dylib "$CLIENTBUILDDIR"/src/parsermaker/*.dylib; do
+	cp -a "$LIB" "$FWKDIR"
 	LIBBASENAME=$(basename $LIB)
 	install_name_tool -id "@executable_path/../Frameworks/$LIBBASENAME" \
 		"$LIB"
-	DEPS=$(otool -L $LIB|egrep 'Qt.*\.framework'|awk '{print $1}'|tr '\n' ' ')
+	DEPS=$(otool -L $LIB|egrep 'Qt.*\.framework'|egrep -v '@executable_path'|awk '{print $1}'|tr '\n' ' ')
 	for DEP in $(echo $DEPS); do
 		NEWDEP=$(echo $DEP|sed 's%.*gcc/lib/%%')
 		install_name_tool -change "$DEP" \
