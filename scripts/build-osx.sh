@@ -86,11 +86,13 @@ status "Running macdeployqt on $BUNDLEDIR"
 macdeployqt "$BUNDLEDIR"
 
 if [ -e siilihai.app ]; then
-	TEMPNAME=siilihai.app.1
-	COUNTER=1
-	while [ -e "$TEMPNAME" ]; do
-		COUNTER=$COUNTER+1
-		TEMPNAME=siilihai.app.$COUNTER
+	for ((i=1;$i<=1000;i=$i+1)); do
+		TEMPNAME=siilihai.app.$i
+		if [ ! -e "$TEMPNAME" ]; then
+			break
+		elif [ $i -eq 1000 ]; then
+			die "Refusing to make more than 1000 backups"
+		fi
 	done
 	status "Moving old siilihai.app to $TEMPNAME"
 	mv siilihai.app "$TEMPNAME"
