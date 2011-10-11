@@ -85,7 +85,7 @@ done
 status "Running macdeployqt on $BUNDLEDIR"
 macdeployqt "$BUNDLEDIR"
 
-if [ -e siilihai.app ]; then
+if [ -e siilihai.app ]; then
 	TEMPNAME=siilihai.app.1
 	COUNTER=1
 	while [ -e "$TEMPNAME" ]; do
