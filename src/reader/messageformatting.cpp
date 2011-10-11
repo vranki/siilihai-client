@@ -17,6 +17,7 @@ QString MessageFormatting::stripHtml(QString &txt) {
     QRegExp tagRe = QRegExp("<.*>");
     tagRe.setMinimal(true);
     txt.replace(tagRe, "");
+    // @todo Smarter way to do this
     txt.replace("&amp;", "&");
     txt.replace("&quot;", "\"");
     txt.replace("&lt;", "<");
@@ -26,6 +27,7 @@ QString MessageFormatting::stripHtml(QString &txt) {
     txt.replace("&#8230;", "'");
     txt.replace("&#8220;", "\"");
     txt.replace("&#8221;", "\"");
+    txt.replace("&#8217;", "'");
     return txt;
 }
 

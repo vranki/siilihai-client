@@ -14,8 +14,7 @@
 #include "threadproperties.h"
 #include "useraccountdialog.h"
 
-MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) :
-QMainWindow(parent), fdb(fd), viewAsGroup(this) {
+MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMainWindow(parent), fdb(fd), viewAsGroup(this) {
     ui.setupUi(this);
     readerReady = false;
     offline = false;
@@ -93,6 +92,9 @@ QMainWindow(parent), fdb(fd), viewAsGroup(this) {
     hideClickedSlot();
 #else
     ui.hideButton->hide();
+#endif
+#ifdef DEBUG_INFO
+    setWindowTitle(windowTitle() + " (Debug Build)");
 #endif
 }
 

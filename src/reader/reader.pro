@@ -19,6 +19,11 @@ exists(../../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
 }
 
+CONFIG(debug) {
+    message(Debug build - enabling some extra stuff)
+    DEFINES += DEBUG_INFO
+}
+
 QT += core webkit gui network xml
 
 HEADERS += messageviewwidget.h \

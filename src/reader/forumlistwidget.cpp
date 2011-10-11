@@ -192,9 +192,10 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
 
         if (grp->unreadCount() > 0)
             title = title + " (" + QString().number(grp->unreadCount()) + ")";
-
-//        if(grp->hasChanged())
-//            title += "(C)";
+#ifdef DEBUG_INFO
+        if(grp->hasChanged())
+            title += " (C)";
+#endif
         gItem->setText(title);
     }
 }
