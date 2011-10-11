@@ -85,4 +85,18 @@ done
 status "Running macdeployqt on $BUNDLEDIR"
 macdeployqt "$BUNDLEDIR"
 
+if [ -e siilihai.app ]; then
+	TEMPNAME=siilihai.app.1
+	COUNTER=1
+	while [ -e "$TEMPNAME" ]; do
+		COUNTER=$COUNTER+1
+		TEMPNAME=siilihai.app.$COUNTER
+	done
+	status "Moving old siilihai.app to $TEMPNAME"
+	mv siilihai.app "$TEMPNAME"
+fi
+
+status "Copying app bundle to current dir"
+cp -a "$BUNDLEDIR" .
+
 status "Build completed $(date), log is $LOGFILE"
