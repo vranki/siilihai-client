@@ -66,13 +66,19 @@ mkdir -p "$FWKDIR"
 for LIB in "$LIBBUILDDIR"/src/*.dylib "$CLIENTBUILDDIR"/src/common/*.dylib "$CLIENTBUILDDIR"/src/parsermaker/*.dylib; do
 	cp -a "$LIB" "$FWKDIR"
 	LIBBASENAME=$(basename $LIB)
+	LIB=$FWKDIR/$LIBBASENAME
 	install_name_tool -id "@executable_path/../Frameworks/$LIBBASENAME" \
 		"$LIB"
-	DEPS=$(otool -L $LIB|egrep 'Qt.*\.framework'|egrep -v '@executable_path'|awk '{print $1}'|tr '\n' ' ')
-	for DEP in $(echo $DEPS); do
+	QTDEPS=$(otool -L $LIB|egrep 'Qt.*\.framework'|egrep -v '@executable_path'|awk '{print $1}'|tr '\n' ' ')
+	for DEP in $(echo $QTDEPS); do
 		NEWDEP=$(echo $DEP|sed 's%.*gcc/lib/%%')
 		install_name_tool -change "$DEP" \
 			"@executable_path/../Frameworks/$NEWDEP" "$LIB"
+	done
+	DEPS=$(otool -L $LIB|egrep 'libsiilihai'|egrep -v '@executable_path'|awk '{print $1}'|tr '\n' ' ')
+	for DEP in $(echo $DEPS); do
+		install_name_tool -change "$DEP" \
+			"@executable_path/../Frameworks/$DEP" "$LIB"
 	done
 done
 
