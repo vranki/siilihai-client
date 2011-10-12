@@ -3,7 +3,7 @@ siilihai-client (1.0.1) natty; urgency=low
   * Fixed User Account-dialog
   * DEBUG_INFO define when a debug build is used
 
- -- Ville Ranki <ville.ranki@iki.fi>  Wed, 5 Oct 2011 12:34:56 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 12 Oct 2011 12:34:56 +0300
 
 siilihai-client (1.0.0) natty; urgency=low
 

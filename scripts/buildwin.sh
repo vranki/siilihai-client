@@ -24,21 +24,21 @@ ln -s src siilihai
 qmake -recursive
 make clean
 make distclean
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
+wineconsole --backend=curses qmake.exe "CONFIG-=debug" -recursive
 wineconsole --backend=curses mingw32-make.exe distclean
 cd ..
 cd siilihai-client
 qmake -recursive
 make clean
 make distclean
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
+wineconsole --backend=curses qmake.exe "CONFIG-=debug" -recursive
 wineconsole --backend=curses mingw32-make.exe distclean
 cd ..
 }
 
 function build_lib {
 cd libsiilihai
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
+wineconsole --backend=curses qmake.exe "CONFIG-=debug" -recursive
 wineconsole --backend=curses mingw32-make.exe
 cd ..
 }
@@ -51,7 +51,7 @@ cd ..
 
 function build_app {
 cd siilihai-client
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
+wineconsole --backend=curses qmake.exe "CONFIG-=debug" -recursive
 wineconsole --backend=curses mingw32-make.exe
 cd ..
 }

@@ -2,9 +2,9 @@
 APPNAME := siilihai-client
 # build with DEB_BUILD_OPTIONS=debug to get debug version
 ifeq (debug,$(DEB_BUILD_OPTIONS)))
-	DEBUG = debug
-else
 	DEBUG = 
+else
+	DEBUG = debug
 endif
 
 build: build-stamp
@@ -13,7 +13,7 @@ build-stamp:
 	dh_testdir
 	# Add here commands to compile the package.
 	cat debian/changelog | grep siilihai-client | head -n 1 | sed s/\).*/\"/ | sed s/siilihai-client\ \(/#define\ SIILIHAI_CLIENT_VERSION\ \"/ > siilihai-version.h
-	qmake PREFIX=/usr -recursive "CONFIG+=$(DEBUG)"
+	qmake PREFIX=/usr -recursive "CONFIG-=$(DEBUG)"
 	$(MAKE)
 	touch $@
 
