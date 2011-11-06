@@ -8,6 +8,7 @@ LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s)
                   ":/data/siilis_wizard_watermark.png"));
 #endif
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
+    connect(this, SIGNAL(finished(int)), this, SLOT(deleteLater()));
     setPage(1, createIntroPage());
     setPage(2, createRegistrationPage());
     setPage(3, createLoginPage());
@@ -16,11 +17,9 @@ LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s)
     setWindowTitle("Account setup");
     progress = 0;
     show();
-
 }
 
 LoginWizard::~LoginWizard() {
-
 }
 
 QWizardPage *LoginWizard::createRegistrationPage() {
