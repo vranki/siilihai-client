@@ -38,6 +38,8 @@ private slots:
     void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
     void subscribeGroupDialogFinished();
     virtual void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState);
+    virtual void subscriptionFound(ForumSubscription* sub);
+    virtual void settingsChanged(bool byUser);
 protected:
     virtual QString getDataFilePath();
     virtual void errorDialog(QString message);
@@ -45,7 +47,6 @@ protected:
     virtual void changeState(siilihai_states newState);
     virtual void closeUi();
     virtual void showMainWindow();
-    virtual void subscriptionFound(ForumSubscription* sub);
 private:
     LoginWizard *loginWizard;
     MainWindow *mainWin;

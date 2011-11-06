@@ -28,7 +28,6 @@ Siilihai::~Siilihai() {
 }
 
 void Siilihai::launchSiilihai() {
-    mainWin = new MainWindow(forumDatabase, settings);
     ClientLogic::launchSiilihai();
 }
 
@@ -117,6 +116,8 @@ void Siilihai::subscribeForum() {
 
 
 void Siilihai::showMainWindow() {
+    mainWin = new MainWindow(forumDatabase, settings);
+
     connect(mainWin, SIGNAL(subscribeForum()), this, SLOT(subscribeForum()));
     connect(mainWin, SIGNAL(unsubscribeForum(ForumSubscription*)), this,
             SLOT(showUnsubscribeForum(ForumSubscription*)));
@@ -147,7 +148,9 @@ void Siilihai::showMainWindow() {
     QApplication::setQuitOnLastWindowClosed(true);
 }
 
-
+void Siilihai::settingsChanged(bool byUser) {
+    ClientLogic::settingsChanged(byUser);
+}
 
 void Siilihai::errorDialog(QString message) {
     QMessageBox msgBox(mainWin);
