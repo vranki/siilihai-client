@@ -18,7 +18,7 @@ class SubscribeWizard: public QWizard {
     Q_OBJECT
 
 public:
-    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QString &baseUrl, QSettings &sett);
+    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett);
     ~SubscribeWizard();
     QWizardPage *createIntroPage();
     QWizardPage *createLoginPage();

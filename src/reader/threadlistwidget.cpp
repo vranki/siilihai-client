@@ -64,8 +64,8 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
             disconnect(currentGroup, 0, this, 0);
             currentGroup = 0;
         }
-        clearList();
         emit messageSelected(0);
+        clearList();
     }
     if(currentGroup != fg) {
         setDisabled(true);
@@ -85,14 +85,9 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 }
 
 void ThreadListWidget::clearList() {
+    setCurrentItem(0, 0, QItemSelectionModel::Clear);
     for(int t = topLevelItemCount() - 1; t>=0 ; t--) {
         ThreadListThreadItem *threadItem = static_cast<ThreadListThreadItem*> (topLevelItem(t));
-        /*
-        for(int m = threadItem->childCount()-1;m>=0; m--) {
-            QTreeWidgetItem *childItem = threadItem->child(m);
-            threadItem->removeChild(childItem);
-            delete childItem;
-        }*/
         threadItem->threadDeleted();
     }
 }

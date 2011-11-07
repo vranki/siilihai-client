@@ -72,6 +72,8 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(ui.actionHTML_Source, SIGNAL(triggered()), mvw, SLOT(viewAsSource()));
     ui.actionHTML->setChecked(true);
 
+    connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
+
     flw->installEventFilter(this);
     tlw->installEventFilter(this);
     mvw->installEventFilter(this);
@@ -340,4 +342,9 @@ void MainWindow::userAccountSettings() {
 
 void MainWindow::syncProgress(float progress, QString message) {
     ui.statusbar->showMessage(message, 5000);
+}
+
+void MainWindow::subscriptionFound(ForumSubscription *sub) {
+    connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)),
+            this, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)));
 }

@@ -24,7 +24,6 @@ public:
     Siilihai();
     virtual ~Siilihai();
 private slots:
-    void launchSiilihai();
     void cancelProgress();
     virtual void loginFinished(bool success, QString motd, bool sync);
     virtual void subscribeForum();
@@ -38,7 +37,6 @@ private slots:
     void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
     void subscribeGroupDialogFinished();
     virtual void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState);
-    virtual void subscriptionFound(ForumSubscription* sub);
     virtual void settingsChanged(bool byUser);
 protected:
     virtual QString getDataFilePath();

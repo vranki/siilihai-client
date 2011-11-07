@@ -27,18 +27,6 @@ Siilihai::~Siilihai() {
     mainWin = 0;
 }
 
-void Siilihai::launchSiilihai() {
-    ClientLogic::launchSiilihai();
-}
-
-void Siilihai::closeUi() {
-    if(progressBar)
-        progressBar->deleteLater();
-    mainWin->deleteLater();
-    mainWin = 0;
-    progressBar = 0;
-    QCoreApplication::quit();
-}
 
 void Siilihai::changeState(siilihai_states newState) {
     ClientLogic::changeState(newState);
@@ -109,31 +97,24 @@ void Siilihai::loginFinished(bool success, QString motd, bool sync) {
 }
 
 void Siilihai::subscribeForum() {
-    SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, protocol, baseUrl, *settings);
+    SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, protocol, *settings);
     subscribeWizard->setModal(false);
     connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(forumAdded(ForumSubscription*)));
 }
-
 
 void Siilihai::showMainWindow() {
     mainWin = new MainWindow(forumDatabase, settings);
 
     connect(mainWin, SIGNAL(subscribeForum()), this, SLOT(subscribeForum()));
-    connect(mainWin, SIGNAL(unsubscribeForum(ForumSubscription*)), this,
-            SLOT(showUnsubscribeForum(ForumSubscription*)));
+    connect(mainWin, SIGNAL(unsubscribeForum(ForumSubscription*)), this, SLOT(showUnsubscribeForum(ForumSubscription*)));
     connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
-    connect(mainWin, SIGNAL(updateClicked(ForumSubscription*,bool)), this,
-            SLOT(updateClicked(ForumSubscription*,bool)));
+    connect(mainWin, SIGNAL(updateClicked(ForumSubscription*,bool)), this, SLOT(updateClicked(ForumSubscription*,bool)));
     connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
-    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this,
-            SLOT(showSubscribeGroup(ForumSubscription*)));
+    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(showSubscribeGroup(ForumSubscription*)));
     connect(mainWin, SIGNAL(reportClicked(ForumSubscription*)), this, SLOT(reportClicked(ForumSubscription*)));
-    connect(mainWin, SIGNAL(launchParserMaker()), this,
-            SLOT(launchParserMaker()));
-    connect(mainWin, SIGNAL(offlineModeSet(bool)), this,
-            SLOT(offlineModeSet(bool)));
-    connect(mainWin, SIGNAL(haltRequest()), this,
-            SLOT(haltSiilihai()));
+    connect(mainWin, SIGNAL(launchParserMaker()), this, SLOT(launchParserMaker()));
+    connect(mainWin, SIGNAL(offlineModeSet(bool)), this, SLOT(offlineModeSet(bool)));
+    connect(mainWin, SIGNAL(haltRequest()), this, SLOT(haltSiilihai()));
     connect(mainWin, SIGNAL(settingsChanged(bool)), this, SLOT(settingsChanged(bool)));
     connect(mainWin, SIGNAL(moreMessagesRequested(ForumThread*)), this, SLOT(moreMessagesRequested(ForumThread*)));
     connect(mainWin, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SLOT(unsubscribeGroup(ForumGroup*)));
@@ -143,11 +124,22 @@ void Siilihai::showMainWindow() {
     connect(&syncmaster, SIGNAL(syncProgress(float, QString)), mainWin, SLOT(syncProgress(float, QString)));
     connect(&forumDatabase, SIGNAL(subscriptionFound(ForumSubscription*)), mainWin->forumList(), SLOT(addSubscription(ForumSubscription*)));
 
+    foreach(ForumSubscription *sub, forumDatabase.values())
+        mainWin->forumList()->addSubscription(sub);
+
     mainWin->setReaderReady(false, currentState==SH_OFFLINE);
     mainWin->show();
     QApplication::setQuitOnLastWindowClosed(true);
 }
 
+void Siilihai::closeUi() {
+    if(progressBar)
+        progressBar->deleteLater();
+    mainWin->deleteLater();
+    mainWin = 0;
+    progressBar = 0;
+    QCoreApplication::quit();
+}
 void Siilihai::settingsChanged(bool byUser) {
     ClientLogic::settingsChanged(byUser);
 }
@@ -287,12 +279,6 @@ QString Siilihai::getDataFilePath() {
 void Siilihai::showLoginWizard() {
     loginWizard = new LoginWizard(mainWin, protocol, *settings);
     connect(loginWizard, SIGNAL(finished(int)), this, SLOT(loginWizardFinished()));
-}
-
-void Siilihai::subscriptionFound(ForumSubscription *sub) {
-    ClientLogic::subscriptionFound(sub);
-    connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)),
-            mainWin, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)));
 }
 
 void Siilihai::subscribeGroupDialogFinished() {

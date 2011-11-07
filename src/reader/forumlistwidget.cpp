@@ -30,14 +30,6 @@ ForumListWidget::ForumListWidget(QWidget *parent) : QToolBox(parent), currentGro
     forumPropertiesAction = new QAction("Forum properties..", this);
     forumPropertiesAction->setToolTip("View and edit detailed information about the forum");
     connect(forumPropertiesAction, SIGNAL(triggered()), this, SIGNAL(forumProperties()));
-
-    // Siilihai adds new sub's when they are ready
-    // connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(addSubscription(ForumSubscription*)));
-    // connect(&fdb, SIGNAL(subscriptionRemoved(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
-    /*
-    foreach(ForumSubscription* sub, fdb.values())
-        addSubscription(sub);
-        */
 }
 
 ForumListWidget::~ForumListWidget() {

@@ -2,7 +2,7 @@
 APPNAME := siilihai-client
 # build with DEB_BUILD_OPTIONS=debug to get debug version
 ifeq (debug,$(DEB_BUILD_OPTIONS)))
-	DEBUG = 
+	DEBUG = release
 else
 	DEBUG = debug
 endif

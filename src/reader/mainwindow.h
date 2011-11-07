@@ -83,6 +83,7 @@ private slots:
     void userAccountSettings();
     void messageSelected(ForumMessage *msg);
     void updateEnabledButtons();
+    void subscriptionFound(ForumSubscription *sub);
 protected:
     bool eventFilter(QObject *object, QEvent *event);
 private:
