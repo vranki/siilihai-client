@@ -24,20 +24,19 @@ public:
     Siilihai();
     virtual ~Siilihai();
 private slots:
-    void cancelProgress();
-    virtual void loginFinished(bool success, QString motd, bool sync);
     virtual void subscribeForum();
+    virtual void loginWizardFinished();
+    virtual void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState);
+    virtual void settingsChanged(bool);
+    void cancelProgress();
     void showSubscribeGroup(ForumSubscription* forum);
     void showUnsubscribeForum(ForumSubscription* forum);
     void reportClicked(ForumSubscription* forumid);
-    void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
     void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
     void subscribeGroupDialogFinished();
-    virtual void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState);
-    virtual void settingsChanged(bool byUser);
 protected:
     virtual QString getDataFilePath();
     virtual void errorDialog(QString message);
@@ -49,7 +48,6 @@ private:
     LoginWizard *loginWizard;
     MainWindow *mainWin;
     ParserMaker *parserMaker;
-    QProgressDialog *progressBar;
     GroupSubscriptionDialog *groupSubscriptionDialog;
 };
 

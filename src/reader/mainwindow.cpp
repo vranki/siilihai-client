@@ -16,7 +16,6 @@
 
 MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMainWindow(parent), fdb(fd), viewAsGroup(this) {
     ui.setupUi(this);
-    readerReady = false;
     offline = false;
     settings = s;
     viewAsGroup.addAction(ui.actionHTML);
@@ -24,7 +23,6 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     viewAsGroup.addAction(ui.actionHTML_Source);
 
     ui.actionWeb_Page->setChecked(true);
-
     connect(ui.actionSubscribe_to, SIGNAL(triggered()), this, SLOT(subscribeForumSlot()));
     connect(ui.actionGroup_Subscriptions, SIGNAL(triggered()), this, SLOT(groupSubscriptionsSlot()));
     connect(ui.actionUpdate_all, SIGNAL(triggered()), this, SLOT(updateClickedSlot()));
@@ -49,8 +47,9 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     flw = new ForumListWidget(this);
     connect(flw, SIGNAL(groupSelected(ForumGroup*)), this, SLOT(groupSelected(ForumGroup*)));
     connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this, SLOT(forumSelected(ForumSubscription*)));
+    connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), flw, SLOT(addSubscription(ForumSubscription*)));
+
     ui.forumsSplitter->insertWidget(0, flw);
-    flw->setEnabled(false);
     tlw = new ThreadListWidget(this);
     connect(flw, SIGNAL(groupSelected(ForumGroup*)), tlw, SLOT(groupSelected(ForumGroup*)));
     connect(flw, SIGNAL(unsubscribeGroup(ForumGroup*)), this, SIGNAL(unsubscribeGroup(ForumGroup*)));
@@ -61,6 +60,7 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
     connect(tlw, SIGNAL(viewInBrowser()), this, SLOT(viewInBrowserClickedSlot()));
     connect(tlw, SIGNAL(threadProperties(ForumThread *)), this, SLOT(threadPropertiesSlot(ForumThread *)));
+    connect(tlw, SIGNAL(updateThread(ForumThread*,bool)), this, SIGNAL(updateThread(ForumThread*,bool)));
     connect(ui.nextUnreadButton, SIGNAL(clicked()), tlw, SLOT(selectNextUnread()));
     ui.topFrame->layout()->addWidget(tlw);
 
@@ -98,6 +98,8 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
 #ifdef DEBUG_INFO
     setWindowTitle(windowTitle() + " (Debug Build)");
 #endif
+    foreach(ForumSubscription *sub, fdb.values())
+        flw->addSubscription(sub);
 }
 
 MainWindow::~MainWindow() {
@@ -182,32 +184,12 @@ void MainWindow::parserEngineStateChanged(ParserEngine *engine, ParserEngine::Pa
     } else {
         ui.statusbar->showMessage("Forums updated", 5000);
     }
-
     updateEnabledButtons();
 }
 
-ForumListWidget* MainWindow::forumList() {
-    return flw;
-}
-
-ThreadListWidget* MainWindow::threadList() {
-    return tlw;
-}
-
-void MainWindow::setReaderReady(bool ready, bool readerOffline) {
-    readerReady = ready;
+void MainWindow::setOffline(bool readerOffline) {
     offline = readerOffline;
     ui.actionWork_offline->setChecked(offline);
-    flw->setEnabled(readerReady || offline);
-    if (!ready) {
-        ui.statusbar->showMessage("Please wait..", 2000);
-    } else {
-        if (!offline) {
-            ui.statusbar->showMessage("Siilihai is ready", 2000);
-        } else {
-            ui.statusbar->showMessage("Siilihai is ready, but in offline mode", 2000);
-        }
-    }
     updateEnabledButtons();
 }
 
@@ -283,26 +265,26 @@ void MainWindow::messageSelected(ForumMessage *msg) {
 
 
 void MainWindow::updateEnabledButtons() {
-    ui.updateButton->setEnabled(readerReady && !offline);
-    ui.actionUpdate_all->setEnabled(readerReady && !offline);
-    ui.actionSubscribe_to->setEnabled(readerReady && !offline);
+    ui.updateButton->setEnabled(!offline);
+    ui.actionUpdate_all->setEnabled(!offline);
+    ui.actionSubscribe_to->setEnabled(!offline);
 
-    ui.stopButton->setEnabled(!busyParserEngines.isEmpty() && readerReady);
-    ui.updateButton->setEnabled(busyParserEngines.isEmpty() && readerReady && !offline);
+    ui.stopButton->setEnabled(!busyParserEngines.isEmpty());
+    ui.updateButton->setEnabled(busyParserEngines.isEmpty() && !offline);
 
     bool sane = (flw->getSelectedForum() != 0);
-    ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
-    ui.actionForce_update_on_selected->setEnabled(readerReady && sane && !offline);
-    ui.actionReport_broken_or_working->setEnabled(readerReady && sane && !offline);
-    ui.actionUnsubscribe->setEnabled(readerReady && sane && !offline);
-    ui.actionGroup_Subscriptions->setEnabled(readerReady && sane && !offline);
-    ui.actionUpdate_selected->setEnabled(readerReady && sane && !offline);
-    ui.actionMark_forum_as_read->setEnabled(readerReady && sane);
-    ui.actionMark_forum_as_unread->setEnabled(readerReady && sane);
+    ui.actionUpdate_selected->setEnabled( sane && !offline);
+    ui.actionForce_update_on_selected->setEnabled( sane && !offline);
+    ui.actionReport_broken_or_working->setEnabled(sane && !offline);
+    ui.actionUnsubscribe->setEnabled( sane && !offline);
+    ui.actionGroup_Subscriptions->setEnabled(sane && !offline);
+    ui.actionUpdate_selected->setEnabled( sane && !offline);
+    ui.actionMark_forum_as_read->setEnabled(sane);
+    ui.actionMark_forum_as_unread->setEnabled(sane);
 
     sane = (flw->getSelectedGroup() != 0);
-    ui.actionMark_group_as_Read->setEnabled(readerReady && sane);
-    ui.actionMark_group_as_Unread->setEnabled(readerReady && sane);
+    ui.actionMark_group_as_Read->setEnabled(sane);
+    ui.actionMark_group_as_Unread->setEnabled(sane);
 }
 
 void MainWindow::forumSelected(ForumSubscription *sub) {
@@ -347,4 +329,8 @@ void MainWindow::syncProgress(float progress, QString message) {
 void MainWindow::subscriptionFound(ForumSubscription *sub) {
     connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)),
             this, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)));
+}
+
+void MainWindow::showMessage(QString msg, int time) {
+    ui.statusbar->showMessage(msg, time);
 }
