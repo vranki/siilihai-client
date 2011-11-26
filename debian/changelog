@@ -1,8 +1,9 @@
 siilihai-client (1.0.2) oneiric; urgency=low
 
   * Moved a lot of client logic to lib
+  * Ui simplifications
 
- -- Ville Ranki <ville.ranki@iki.fi>  Mon, 17 Oct 2011 12:34:56 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Sat, 26 Nov 2011 12:34:56 +0300
 
 siilihai-client (1.0.1-1) oneiric; urgency=low
 
