@@ -4,8 +4,7 @@ TARGET = siilihai-common
 QT += core \
     gui \
     network \
-    xml \
-    sql
+    xml
 
 FORMS += credentialsdialog.ui
 HEADERS += credentialsdialog.h

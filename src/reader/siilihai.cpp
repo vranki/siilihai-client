@@ -197,7 +197,7 @@ void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::Pars
 
 QString Siilihai::getDataFilePath() {
 #ifdef STORE_FILES_IN_APP_DIR
-    return applicationDirPath();
+    return QCoreApplication::applicationDirPath();
 #else
     return QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 #endif

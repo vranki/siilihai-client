@@ -91,14 +91,14 @@ win32:debug {
     LIBS += -L../../../libsiilihai/src/debug
     LIBS += -L../common/debug
     LIBS += -L../parsermaker/debug
-    DEPENDPATH += ../../../libsiilihai/src/debug
+    DEPENDPATH += ../../../libsiilihai/src/
     DEPENDPATH += -L../common/debug
 }
 win32:release {
     LIBS += -L../../../libsiilihai/src/release
     LIBS += -L../common/release
     LIBS += -L../parsermaker/release
-    DEPENDPATH += ../../../libsiilihai/src/release
+    DEPENDPATH += ../../../libsiilihai/src/
     DEPENDPATH += -L../common/release
 }
 
