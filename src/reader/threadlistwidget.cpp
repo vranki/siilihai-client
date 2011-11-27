@@ -34,7 +34,8 @@ ThreadListWidget::ThreadListWidget(QWidget *parent) : QTreeWidget(parent) {
 ThreadListWidget::~ThreadListWidget() {
 }
 
-void ThreadListWidget::groupChanged(ForumGroup *grp) {
+void ThreadListWidget::groupChanged() {
+    ForumGroup *grp = static_cast<ForumGroup*> (sender());
     if(grp != currentGroup) return;
 
     if(!grp->isSubscribed()) {
@@ -75,7 +76,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         currentGroup = fg;
         clearSelection();
         updateList();
-        connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+        connect(currentGroup, SIGNAL(changed()), this, SLOT(groupChanged()));
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(addThread(ForumThread*)));
         //        setCurrentItem(topLevelItem(0));

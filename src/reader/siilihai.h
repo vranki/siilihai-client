@@ -35,12 +35,13 @@ private slots:
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
-    void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
+
     void subscribeGroupDialogFinished();
 protected:
     virtual QString getDataFilePath();
     virtual void errorDialog(QString message);
     virtual void showLoginWizard();
+    virtual void showCredentialsDialog(ForumSubscription *fsub, QAuthenticator * authenticator);
     virtual void changeState(siilihai_states newState);
     virtual void closeUi();
     virtual void showMainWindow();

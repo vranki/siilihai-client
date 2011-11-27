@@ -91,7 +91,7 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     listWidgets.insert(sub, lw);
     addItem(lw, sub->alias());
     connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)), this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
-    connect(sub, SIGNAL(unreadCountChanged(ForumSubscription*)), this, SLOT(updateSubscriptionLabel(ForumSubscription*)));
+    connect(sub, SIGNAL(unreadCountChanged()), this, SLOT(updateSubscriptionLabel()));
     connect(sub, SIGNAL(groupAdded(ForumGroup*)), this, SLOT(groupFound(ForumGroup*)));
     connect(sub, SIGNAL(groupRemoved(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
@@ -125,8 +125,8 @@ void ForumListWidget::setupFavicon(ForumSubscription *sub) {
 
 void ForumListWidget::groupFound(ForumGroup *grp) {
     Q_ASSERT(grp);
-    connect(grp, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
-    connect(grp, SIGNAL(unreadCountChanged(ForumGroup*)), this, SLOT(updateGroupLabel(ForumGroup*)));
+    connect(grp, SIGNAL(changed()), this, SLOT(groupChanged()));
+    connect(grp, SIGNAL(unreadCountChanged()), this, SLOT(updateGroupLabel()));
     connect(grp, SIGNAL(destroyed(QObject*)), this, SLOT(groupDestroyed(QObject*)));
 
     if(!grp->isSubscribed()) return;
@@ -137,6 +137,11 @@ void ForumListWidget::groupFound(ForumGroup *grp) {
     lw->addItem(lwi);
     forumGroups.insert(lwi, grp);
     groupChanged(grp); // Set title etc.
+}
+
+void ForumListWidget::groupChanged() {
+    ForumGroup *grp = static_cast<ForumGroup*> (sender());
+    groupChanged(grp);
 }
 
 void ForumListWidget::groupChanged(ForumGroup *grp) {
@@ -161,6 +166,11 @@ void ForumListWidget::groupChanged(ForumGroup *grp) {
     }
 }
 
+void ForumListWidget::updateSubscriptionLabel() {
+    ForumSubscription *sub = static_cast<ForumSubscription*> (sender());
+    updateSubscriptionLabel(sub);
+}
+
 void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
     QListWidget *lw = listWidgets.value(sub);
     // Update subscription message count
@@ -169,6 +179,11 @@ void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
     if(sub->unreadCount() > 0)
         title = QString("%1 (%2)").arg(title).arg(sub->unreadCount());
     setItemText(indexOf(lw), title);
+}
+
+void ForumListWidget::updateGroupLabel() {
+    ForumGroup *grp = static_cast<ForumGroup*> (sender());
+    updateGroupLabel(grp);
 }
 
 void ForumListWidget::updateGroupLabel(ForumGroup* grp) {

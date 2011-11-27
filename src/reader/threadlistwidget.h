@@ -31,7 +31,7 @@ public slots:
 
 private slots:
     void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
-    void groupChanged(ForumGroup *grp);
+    void groupChanged();
     void groupDeleted(QObject*);
     void markReadClicked(bool read=true);
     void markUnreadClicked();

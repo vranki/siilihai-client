@@ -165,22 +165,7 @@ void Siilihai::cancelProgress() {
     }
 }
 
-void Siilihai::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
-    bool failed = false;
-    QString gname = QString().number(fsub->parser());
-    settings->beginGroup("authentication");
-    if(settings->contains(QString("%1/username").arg(gname))) {
-        authenticator->setUser(settings->value(QString("%1/username").arg(gname)).toString());
-        authenticator->setPassword(settings->value(QString("%1/password").arg(gname)).toString());
-        if(settings->value(QString("authentication/%1/failed").arg(gname)).toString() == "true") failed = true;
-    }
-    settings->endGroup();
-    if(authenticator->user().isNull() || failed) {
-        CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, settings);
-        creds->setModal(true);
-        creds->exec();
-    }
-}
+
 
 // Caution - engine->subscription() may be null (when deleted)!
 void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState) {
@@ -222,4 +207,10 @@ void Siilihai::subscribeGroupDialogFinished() {
 
 void Siilihai::settingsChanged(bool byUser) {
     ClientLogic::settingsChanged(byUser);
+}
+
+void Siilihai::showCredentialsDialog(ForumSubscription *fsub, QAuthenticator * authenticator) {
+    CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, settings);
+    creds->setModal(true);
+    creds->exec();
 }
