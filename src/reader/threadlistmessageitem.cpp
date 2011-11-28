@@ -55,7 +55,7 @@ void ThreadListMessageItem::updateItem() {
         orderString = QString().number(msg->ordernum()).rightJustified(6, '0');
     }
 
-    messageSubject =  createMessageSubject();
+    messageSubject = msg->displayName();
     QString lc = msg->lastchange();
     lc = MessageFormatting::sanitize(lc);
     QString author = msg->author();
@@ -83,19 +83,6 @@ void ThreadListMessageItem::updateRead() {
         setIcon(0, QIcon(":/data/mail-unread.png"));
     }
     setFont(0, myFont);
-}
-
-
-QString ThreadListMessageItem::createMessageSubject() {
-    QString subj;
-    if(msg->name().length() > msg->thread()->name().length()) {
-        subj = msg->name();
-    } else {
-        subj = msg->thread()->name();
-        if(msg->ordernum() > 0) subj = "Re: " + subj;
-    }
-    subj = MessageFormatting::sanitize(subj);
-    return subj;
 }
 
 void ThreadListMessageItem::messageDeleted() {

@@ -19,9 +19,7 @@ public slots:
     void updateRead();
     virtual void updateItem();
     void messageDeleted();
-
 protected:
-    QString createMessageSubject();
     ForumMessage *msg;
     QString messageSubject;
     int lastOrderNum;

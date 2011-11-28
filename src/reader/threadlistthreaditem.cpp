@@ -75,7 +75,7 @@ void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
     if(message()) {
         threadSubject = messageSubject;
     } else {
-        threadSubject = _thread->name();
+        threadSubject = _thread->displayName();
     }
     int unreads = _thread->unreadCount();
     QString moreString = QString::null;
