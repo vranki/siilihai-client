@@ -9,6 +9,8 @@ BINDIR = $$PREFIX/bin
 DATADIR = $$PREFIX/share
 DESTDIR = .
 
+ICON = ../../data/siilihai.icns
+
 !contains(QMAKE_HOST.arch, x86_64) {
    LIBDIR = $$PREFIX/lib
 } else {
