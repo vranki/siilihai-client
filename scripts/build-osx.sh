@@ -101,4 +101,7 @@ fi
 status "Copying app bundle to current dir"
 cp -a "$BUNDLEDIR" .
 
+status "Removing $BUILDDIR"
+rm -rf "$BUILDDIR"
+
 status "Build completed $(date), log is $LOGFILE"
