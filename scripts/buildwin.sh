@@ -9,6 +9,7 @@ export Path=C:\\windows\\system32\\\;C:\\windows\\\;C:\\windows\\system32\\wbem\
 C:\\Program\ Files\\NSIS\\
 
 export SH_BINARYPATH=release
+export WINE_CMD="wine cmd /c"
 
 function init_build {
 rm -rf siilihai-win32
@@ -24,35 +25,33 @@ ln -s src siilihai
 qmake -recursive
 make clean
 make distclean
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
-wineconsole --backend=curses mingw32-make.exe distclean
+$WINE_CMD qmake.exe -recursive CONFIG=release
+$WINE_CMD mingw32-make.exe distclean
 cd ..
 cd siilihai-client
 qmake -recursive
 make clean
 make distclean
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
-wineconsole --backend=curses mingw32-make.exe distclean
+$WINE_CMD qmake.exe -recursive CONFIG=release
+$WINE_CMD mingw32-make.exe distclean
 cd ..
 }
 
 function build_lib {
 cd libsiilihai
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
-wineconsole --backend=curses mingw32-make.exe
+$WINE_CMD qmake.exe -recursive CONFIG+=debug_and_release
+$WINE_CMD mingw32-make.exe
 cd ..
 }
 
 function install_lib {
-cp libsiilihai/src/$SH_BINARYPATH/*.dll siilihai-win32
-cd libsiilihai
-cd ..
+cp libsiilihai/src/*.dll siilihai-win32
 }
 
 function build_app {
 cd siilihai-client
-wineconsole --backend=curses qmake.exe -recursive "CONFIG+=release"
-wineconsole --backend=curses mingw32-make.exe
+$WINE_CMD qmake.exe -recursive CONFIG+=release
+$WINE_CMD mingw32-make.exe
 cd ..
 }
 
@@ -78,7 +77,7 @@ cp $QTDIR/Desktop/Qt/4.7.3/mingw/lib/phonon4.dll siilihai-win32
 function create_installer {
 cp siilihai-client/siilihai.nsi siilihai-win32
 cd siilihai-win32
-wine makensis.exe siilihai.nsi
+$WINE_CMD makensis.exe siilihai.nsi
 }
 
 init_build

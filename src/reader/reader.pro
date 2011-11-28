@@ -19,10 +19,14 @@ exists(../../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
 }
 
+CONFIG(debug) {
+    message(Debug build - enabling some extra stuff)
+    DEFINES += DEBUG_INFO
+}
+
 QT += core webkit gui network xml
 
 HEADERS += messageviewwidget.h \
-    messageformatting.h \
     threadlistwidget.h \
     settingsdialog.h \
     reportparser.h \
@@ -41,7 +45,6 @@ HEADERS += messageviewwidget.h \
     useraccountdialog.h
 
 SOURCES += messageviewwidget.cpp \
-    messageformatting.cpp \
     threadlistwidget.cpp \
     settingsdialog.cpp \
     reportparser.cpp \
@@ -90,14 +93,14 @@ win32:debug {
     LIBS += -L../../../libsiilihai/src/debug
     LIBS += -L../common/debug
     LIBS += -L../parsermaker/debug
-    DEPENDPATH += ../../../libsiilihai/src/debug
+    DEPENDPATH += ../../../libsiilihai/src/
     DEPENDPATH += -L../common/debug
 }
 win32:release {
     LIBS += -L../../../libsiilihai/src/release
     LIBS += -L../common/release
     LIBS += -L../parsermaker/release
-    DEPENDPATH += ../../../libsiilihai/src/release
+    DEPENDPATH += ../../../libsiilihai/src/
     DEPENDPATH += -L../common/release
 }
 

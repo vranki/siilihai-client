@@ -1,4 +1,5 @@
 #include "threadlistwidget.h"
+#include <siilihai/messageformatting.h>
 #include <QDebug>
 
 ThreadListWidget::ThreadListWidget(QWidget *parent) : QTreeWidget(parent) {
@@ -34,7 +35,8 @@ ThreadListWidget::ThreadListWidget(QWidget *parent) : QTreeWidget(parent) {
 ThreadListWidget::~ThreadListWidget() {
 }
 
-void ThreadListWidget::groupChanged(ForumGroup *grp) {
+void ThreadListWidget::groupChanged() {
+    ForumGroup *grp = static_cast<ForumGroup*> (sender());
     if(grp != currentGroup) return;
 
     if(!grp->isSubscribed()) {
@@ -64,8 +66,8 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
             disconnect(currentGroup, 0, this, 0);
             currentGroup = 0;
         }
-        clearList();
         emit messageSelected(0);
+        clearList();
     }
     if(currentGroup != fg) {
         setDisabled(true);
@@ -75,7 +77,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
         currentGroup = fg;
         clearSelection();
         updateList();
-        connect(currentGroup, SIGNAL(changed(ForumGroup*)), this, SLOT(groupChanged(ForumGroup*)));
+        connect(currentGroup, SIGNAL(changed()), this, SLOT(groupChanged()));
         connect(currentGroup, SIGNAL(destroyed(QObject*)), this, SLOT(groupDeleted(QObject*)));
         connect(currentGroup, SIGNAL(threadAdded(ForumThread*)), this, SLOT(addThread(ForumThread*)));
         //        setCurrentItem(topLevelItem(0));
@@ -85,14 +87,9 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
 }
 
 void ThreadListWidget::clearList() {
+    setCurrentItem(0, 0, QItemSelectionModel::Clear);
     for(int t = topLevelItemCount() - 1; t>=0 ; t--) {
         ThreadListThreadItem *threadItem = static_cast<ThreadListThreadItem*> (topLevelItem(t));
-        /*
-        for(int m = threadItem->childCount()-1;m>=0; m--) {
-            QTreeWidgetItem *childItem = threadItem->child(m);
-            threadItem->removeChild(childItem);
-            delete childItem;
-        }*/
         threadItem->threadDeleted();
     }
 }

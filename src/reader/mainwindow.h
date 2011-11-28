@@ -32,13 +32,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent = 0 );
     ~MainWindow();
-    ForumListWidget* forumList();
-    ThreadListWidget* threadList();
-
 signals:
     void subscribeForum();
     void unsubscribeForum(ForumSubscription *sub);
     void updateClicked();
+    void updateThread(ForumThread*, bool);
     void reportClicked(ForumSubscription *sub);
     void updateClicked(ForumSubscription *sub, bool force);
     void cancelClicked();
@@ -54,8 +52,9 @@ signals:
 public slots:
     void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
                                   ParserEngine::ParserEngineState oldState);
-    void setReaderReady(bool ready, bool offline);
+    void setOffline(bool offline);
     void syncProgress(float progress, QString message);
+    void showMessage(QString msg, int time=5000);
 private slots:
     void subscribeForumSlot();
     void unsubscribeForumSlot();
@@ -83,6 +82,7 @@ private slots:
     void userAccountSettings();
     void messageSelected(ForumMessage *msg);
     void updateEnabledButtons();
+    void subscriptionFound(ForumSubscription *sub);
 protected:
     bool eventFilter(QObject *object, QEvent *event);
 private:
@@ -94,7 +94,7 @@ private:
     ForumDatabase &fdb;
     QSet<ParserEngine*> busyParserEngines;
     QSettings *settings;
-    bool readerReady, offline;
+    bool offline;
     QActionGroup viewAsGroup;
 };
 

@@ -54,4 +54,3 @@ package_app
 
 dput ppa:ville-ranki/siilihai libsiilihai_*_source.changes
 dput ppa:ville-ranki/siilihai siilihai-client_*_source.changes
-

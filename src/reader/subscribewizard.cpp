@@ -1,6 +1,6 @@
 #include "subscribewizard.h"
 
-SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QString &baseUrl, QSettings &sett) :
+SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett) :
     QWizard(parent), protocol(proto), settings(sett) {
     selectedParser = 0;
     setWizardStyle(QWizard::ModernStyle);
@@ -17,7 +17,6 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QStri
     connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
     connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(comboItemChanged(int)));
     connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
-    protocol.setBaseURL(baseUrl);
     progress = 0;
     parser = 0;
     protocol.listParsers();

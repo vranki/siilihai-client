@@ -14,7 +14,6 @@
 #include <siilihai/forummessage.h>
 #include <siilihai/forumdatabase.h>
 
-#include "messageformatting.h"
 #include "threadlistmessageitem.h"
 #include "threadlistthreaditem.h"
 #include "threadlistshowmoreitem.h"
@@ -31,7 +30,7 @@ public slots:
 
 private slots:
     void messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *prev);
-    void groupChanged(ForumGroup *grp);
+    void groupChanged();
     void groupDeleted(QObject*);
     void markReadClicked(bool read=true);
     void markUnreadClicked();

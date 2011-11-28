@@ -4,8 +4,7 @@ TARGET = siilihai-parsermaker
 QT += core \
     gui \
     network \
-    xml \
-    sql
+    xml
 
 HEADERS += openrequestdialog.h \
     messagelistpatterneditor.h \

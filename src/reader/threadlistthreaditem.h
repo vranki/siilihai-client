@@ -16,6 +16,7 @@ public:
     void setMessage(ForumMessage *message);
     ForumThread* thread();
 public slots:
+    void unreadCountChanged();
     void unreadCountChanged(ForumThread *thr);
     virtual void updateItem();
     void threadDeleted();

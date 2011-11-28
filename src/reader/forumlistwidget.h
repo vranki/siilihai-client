@@ -36,7 +36,9 @@ public slots:
     void markAllReadClicked(bool un=false);
     void markAllUnreadClicked();
     void groupSubscriptionsClicked();
+    void updateSubscriptionLabel();
     void updateSubscriptionLabel(ForumSubscription *sub);
+    void updateGroupLabel();
     void updateGroupLabel(ForumGroup *grp);
     void addSubscription(ForumSubscription *sub); // subscription's parser MUST be set!
 private slots:
@@ -46,6 +48,7 @@ private slots:
     void groupFound(ForumGroup *grp);
     void groupDeleted(ForumGroup *grp);
     void groupDestroyed(QObject*);
+    void groupChanged();
     void groupChanged(ForumGroup *grp);
     void parserEngineStateChanged(ParserEngine* engine,ParserEngine::ParserEngineState state);
 signals:

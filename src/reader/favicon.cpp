@@ -6,17 +6,17 @@ Favicon::Favicon(QObject *parent, ForumSubscription *sub) : QObject(parent) {
     subscription = sub;
     currentProgress = 0;
     reloading = false;
-    connect(sub, SIGNAL(changed(ForumSubscription*)), this, SLOT(subscriptionChanged(ForumSubscription*)));
+    connect(sub, SIGNAL(changed()), this, SLOT(subscriptionChanged()));
     connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(update()));
     blinkTimer.setInterval(100);
     blinkTimer.setSingleShot(false);
-    subscriptionChanged(sub);
+    subscriptionChanged();
 }
 
 Favicon::~Favicon() {
 }
 
-void Favicon::subscriptionChanged(ForumSubscription *sub) {
+void Favicon::subscriptionChanged() {
     if(subscription->parserEngine()) {
         connect(subscription->parserEngine(),
                 SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)),

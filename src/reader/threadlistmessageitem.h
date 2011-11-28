@@ -3,7 +3,6 @@
 
 #include <QTreeWidgetItem>
 #include <siilihai/forummessage.h>
-#include "messageformatting.h"
 #include <QObject>
 
 class ThreadListMessageItem :  public QObject, public QTreeWidgetItem

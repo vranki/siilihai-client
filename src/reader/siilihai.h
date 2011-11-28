@@ -1,19 +1,10 @@
 #ifndef SIILIHAI_H_
 #define SIILIHAI_H_
 #include <QObject>
-#include <QApplication>
-#include <QSettings>
-#include <QDir>
-#include <QMessageBox>
-#include <QNetworkProxy>
-#include <QProgressDialog>
-#include <QDesktopServices>
-#include <time.h>
 
-#include <siilihai/parserengine.h>
-#include <siilihai/forumdatabasexml.h>
-#include <siilihai/syncmaster.h>
-#include <siilihai/usersettings.h>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <siilihai/clientlogic.h>
 
 #ifndef Q_WS_HILDON
 #include "../parsermaker/parsermaker.h"
@@ -21,102 +12,44 @@
 class ParserMaker;
 #endif
 
-#define BASEURL "http://www.siilihai.com/"
-#define MAX_CONCURRENT_UPDATES 2
-
-// State chart:
-//                 ,------>--------.
-// started -> login -> startsync ->  ready -> endsync -> storedb -> quit
-//              | ^       |            |                  ^
-//              v |  .--<-+------<-----'                  |
-//             offline ------------------------>----------'
-//
-// @todo switch to Qt's state machine
-
 class LoginWizard;
 class MainWindow;
 class SyncMaster;
 class GroupSubscriptionDialog;
 
-class Siilihai: public QApplication {
+class Siilihai: public ClientLogic {
     Q_OBJECT
 
-    enum siilihai_states {
-        SH_STARTED,
-        SH_LOGIN,
-        SH_STARTSYNCING,
-        SH_OFFLINE,
-        SH_READY,
-        SH_ENDSYNC,
-        SH_STOREDB
-    } currentState;
-
 public:
-    Siilihai(int& argc, char** argv);
+    Siilihai();
     virtual ~Siilihai();
 private slots:
-    void loginWizardFinished();
-    void launchSiilihai();
-    void haltSiilihai();
+    virtual void subscribeForum();
+    virtual void loginWizardFinished();
+    virtual void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState);
+    virtual void settingsChanged(bool);
     void cancelProgress();
-    void forumAdded(ForumSubscription *fs);
-    void loginFinished(bool success, QString motd, bool sync);
-    void subscribeForum();
     void showSubscribeGroup(ForumSubscription* forum);
     void showUnsubscribeForum(ForumSubscription* forum);
-    void subscribeGroupDialogFinished();
-    void forumUpdated(ForumSubscription* forumid);
-    void updateClicked();
-    void updateClicked(ForumSubscription* forumid, bool force=false);
-    void updateThread(ForumThread* thread, bool force=false);
-    void cancelClicked();
     void reportClicked(ForumSubscription* forumid);
-    void statusChanged(ForumSubscription* forumid, bool reloading, float progress);
-    void errorDialog(QString message);
-    void listSubscriptionsFinished(QList<int> subscriptions);
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
-    void offlineModeSet(bool newOffline);
-    void syncFinished(bool success, QString message);
-    void subscriptionFound(ForumSubscription* sub);
-    void subscriptionDeleted(QObject* subobj);
-    void subscribeForumFinished(ForumSubscription *sub, bool success);
-    void userSettingsReceived(bool success, UserSettings *newSettings);
-    void settingsChanged(bool byUser);
-    void getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator);
-    void updateFailure(ForumSubscription* sub, QString msg);
-    void moreMessagesRequested(ForumThread* thread);
-    void unsubscribeGroup(ForumGroup *group);
-    void forumLoginFinished(ForumSubscription *sub, bool success);
-    void forumUpdateNeeded(ForumSubscription *sub);
-    void unregisterSiilihai();
-    void databaseStored();
-    void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
-                                  ParserEngine::ParserEngineState oldState);
+
+    void subscribeGroupDialogFinished();
+protected:
+    virtual QString getDataFilePath();
+    virtual void errorDialog(QString message);
+    virtual void showLoginWizard();
+    virtual void showCredentialsDialog(ForumSubscription *fsub, QAuthenticator * authenticator);
+    virtual void changeState(siilihai_states newState);
+    virtual void closeUi();
+    virtual void showMainWindow();
 private:
-    void changeState(siilihai_states newState);
-    void launchMainWindow();
-    void tryLogin();
-    bool endSyncDone;
-    bool firstRun;
     LoginWizard *loginWizard;
     MainWindow *mainWin;
-    SiilihaiProtocol protocol;
-    QHash <ForumSubscription*, ParserEngine*> engines;
-    ForumDatabaseXml forumDatabase;
-    ParserManager *parserManager;
-    QString baseUrl;
-    QList<ForumSubscription*> subscriptionsToUpdateLeft;
     ParserMaker *parserMaker;
-    QProgressDialog *progressBar;
     GroupSubscriptionDialog *groupSubscriptionDialog;
-    UserSettings usettings;
-    SyncMaster syncmaster;
-    QSettings *settings;
-    QString dataFilePath;
-    bool dbStored;
-    QNetworkAccessManager nam;
 };
 
 #endif /* SIILIHAI_H_ */

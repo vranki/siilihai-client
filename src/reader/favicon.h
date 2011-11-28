@@ -29,7 +29,7 @@ public:
 public slots:
     void replyReceived(QNetworkReply *reply);
     void update();
-    void subscriptionChanged(ForumSubscription *sub);
+    void subscriptionChanged();
     void engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState);
 signals:
     void iconChanged(ForumSubscription *e, QIcon newIcon);
