@@ -19,6 +19,7 @@ status() {
 }
 
 status "Build started $(date)"
+status "If client build fails, make sure osx branch of lib is checked out"
 
 [ -n "$(which qmake)" ] || die "No qmake found in PATH"
 [ -n "$(which macdeployqt)" ] || die "No macdeployqt found in PATH"
