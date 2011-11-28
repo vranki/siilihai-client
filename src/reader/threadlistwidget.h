@@ -14,7 +14,6 @@
 #include <siilihai/forummessage.h>
 #include <siilihai/forumdatabase.h>
 
-#include "messageformatting.h"
 #include "threadlistmessageitem.h"
 #include "threadlistthreaditem.h"
 #include "threadlistshowmoreitem.h"

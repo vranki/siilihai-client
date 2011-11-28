@@ -27,7 +27,6 @@ CONFIG(debug) {
 QT += core webkit gui network xml
 
 HEADERS += messageviewwidget.h \
-    messageformatting.h \
     threadlistwidget.h \
     settingsdialog.h \
     reportparser.h \
@@ -46,7 +45,6 @@ HEADERS += messageviewwidget.h \
     useraccountdialog.h
 
 SOURCES += messageviewwidget.cpp \
-    messageformatting.cpp \
     threadlistwidget.cpp \
     settingsdialog.cpp \
     reportparser.cpp \

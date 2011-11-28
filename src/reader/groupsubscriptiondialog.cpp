@@ -3,7 +3,7 @@
 #include <siilihai/parserengine.h>
 #include <siilihai/forumdatabase.h>
 #include <siilihai/forumsubscription.h>
-#include "messageformatting.h"
+#include <siilihai/messageformatting.h>
 
 GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) : QDialog(parent) {
     ui.setupUi(this);

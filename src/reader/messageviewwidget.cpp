@@ -4,7 +4,7 @@
 #include <siilihai/forumthread.h>
 #include <siilihai/forumgroup.h>
 #include <siilihai/forumsubscription.h>
-#include "messageformatting.h"
+#include <siilihai/messageformatting.h>
 
 MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), webView(this), vbox(this) {
     vbox.addWidget(&webView);
