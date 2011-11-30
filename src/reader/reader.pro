@@ -9,6 +9,8 @@ BINDIR = $$PREFIX/bin
 DATADIR = $$PREFIX/share
 DESTDIR = .
 
+ICON = ../../data/siilihai.icns
+
 !contains(QMAKE_HOST.arch, x86_64) {
    LIBDIR = $$PREFIX/lib
 } else {
@@ -79,6 +81,10 @@ FORMS = settingsdialog.ui \
     threadproperties.ui \
     useraccountdialog.ui
 RESOURCES = ../../siilihairesources.qrc
+
+# Needed so that uic-generated headers for the forms in
+# common and parsermaker work when shadow building
+INCLUDEPATH += $$OUT_PWD/../common $$OUT_PWD/../parsermaker
 
 win32 {
     INCLUDEPATH += ../../../libsiilihai
