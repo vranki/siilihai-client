@@ -20,7 +20,7 @@ ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem, 
     lastOrderNum = message->ordernum();
     setText(0, "Call updateItem()");
     setText(3, orderString);
-    connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
+    connect(msg, SIGNAL(changed()), this, SLOT(updateItem()));
     connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
     connect(msg, SIGNAL(destroyed()), this, SLOT(messageDeleted()));
 }

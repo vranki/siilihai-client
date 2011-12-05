@@ -29,7 +29,6 @@ private slots:
     virtual void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState);
     virtual void settingsChanged(bool);
     void cancelProgress();
-    void showSubscribeGroup(ForumSubscription* forum);
     void showUnsubscribeForum(ForumSubscription* forum);
     void reportClicked(ForumSubscription* forumid);
     void launchParserMaker();
@@ -41,6 +40,7 @@ protected:
     virtual QString getDataFilePath();
     virtual void errorDialog(QString message);
     virtual void showLoginWizard();
+    virtual void showSubscribeGroup(ForumSubscription* forum);
     virtual void showCredentialsDialog(ForumSubscription *fsub, QAuthenticator * authenticator);
     virtual void changeState(siilihai_states newState);
     virtual void closeUi();

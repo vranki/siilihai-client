@@ -78,10 +78,10 @@ void SubscribeWizard::updateParserList() {
             break;
         }
         if (displayParser) {
-            if (parserIter->parser_name.contains(subscribeForm.searchString->text())
+            if (parserIter->name().contains(subscribeForm.searchString->text())
                     || parserIter->forum_url.contains(subscribeForm.searchString->text())) {
                 QListWidgetItem *item = new QListWidgetItem(subscribeForm.forumList);
-                item->setText(parserIter->parser_name);
+                item->setText(parserIter->name());
                 item->setToolTip(parserIter->forum_url);
                 subscribeForm.forumList->addItem(item);
                 listWidgetItemForum[item] = parserIter;
@@ -130,7 +130,7 @@ void SubscribeWizard::pageChanged(int id) {
         } else {
             selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
             connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-            protocol.getParser(selectedParser->id);
+            protocol.getParser(selectedParser->id());
             progress = new QProgressDialog("Downloading parser definition..", "Cancel", 0, 3, this);
             progress->setWindowModality(Qt::WindowModal);
             progress->setValue(0);
@@ -145,7 +145,7 @@ void SubscribeWizard::pageChanged(int id) {
     progress->setValue(0);
     */
         }
-        subscribeForumVerify.forumName->setText(selectedParser->parser_name);
+        subscribeForumVerify.forumName->setText(selectedParser->name());
         subscribeForumVerify.forumUrl->setText(selectedParser->forum_url);
         QString typeString;
         if(selectedParser->parser_type == 0) {
@@ -166,9 +166,9 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted
         progress = 0;
     }
     QString warningLabel;
-    if (fp && fp->id >= 0) {
+    if (fp && fp->id() >= 0) {
         parser = (*fp);
-        Q_ASSERT(parser.id == fp->id);
+        Q_ASSERT(parser.id() == fp->id());
         subscribeForumLogin.accountGroupBox->setEnabled(parser.supportsLogin());
         if (fp->parser_status == 0) {
             warningLabel = "Note: This parser is new and has not been tested much.\n"
@@ -203,7 +203,7 @@ void SubscribeWizard::wizardAccepted() {
     }
 
     ForumSubscription fs(this);
-    fs.setParser(parser.id);
+    fs.setParser(parser.id());
     fs.setAlias(subscribeForumVerify.forumName->text());
     fs.setUsername(user);
     fs.setPassword(pass);

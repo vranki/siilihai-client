@@ -69,7 +69,7 @@ ParserMaker::~ParserMaker() {
 }
 
 void ParserMaker::updateState() {
-    parser.parser_name = ui.parserName->text();
+    parser.setName(ui.parserName->text());
     parser.charset = ui.charset->currentText().toLower();
     parser.forum_url = ui.forumUrl->text();
     parser.forum_software = ui.forumSoftware->text();
@@ -92,7 +92,7 @@ void ParserMaker::updateState() {
 
     bool mayWork = parser.mayWork();
 
-    ui.saveChangesButton->setEnabled(mayWork && parser.id > 0);
+    ui.saveChangesButton->setEnabled(mayWork && parser.id() > 0);
     ui.saveAsNewButton->setEnabled(mayWork);
 
     ui.loginUrlLabel->setText(ui.loginPath->text());
@@ -105,8 +105,8 @@ void ParserMaker::updateState() {
     ui.baseUrlVM->setText(parser.forumUrlWithoutEnd());
     ui.baseUrlLI->setText(parser.forumUrlWithoutEnd());
 
-    subscription.setAlias(parser.parser_name);
-    subscription.setParser(parser.id);
+    subscription.setAlias(parser.name());
+    subscription.setParser(parser.id());
     if (loginWithoutCredentials) {
         subscription.setUsername(QString::null);
         subscription.setPassword(QString::null);
@@ -142,7 +142,7 @@ void ParserMaker::requestSelected(ForumRequest *req) {
 
 void ParserMaker::parserLoaded(ForumParser *p) {
     parser = *p;
-    ui.parserName->setText(p->parser_name);
+    ui.parserName->setText(p->name());
     ui.forumUrl->setText(p->forum_url);
     ui.parserType->setCurrentIndex(p->parser_type);
     ui.forumSoftware->setText(p->forum_software);
@@ -194,7 +194,7 @@ void ParserMaker::saveAsNewClicked() {
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     if (msgBox.exec() == QMessageBox::Yes) {
-        parser.id = -1;
+        parser.setId(-1);
         protocol.saveParser(&parser);
     }
 }
@@ -205,7 +205,7 @@ void ParserMaker::saveParserFinished(int id, QString msg) {
         message = msg;
 
     if (id > 0) {
-        parser.id = id;
+        parser.setId(id);
         if (message.isNull())
             message = "Parser saved";
         emit(parserSaved(&parser));

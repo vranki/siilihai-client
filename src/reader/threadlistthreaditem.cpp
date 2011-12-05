@@ -16,8 +16,8 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
         orderString = QString().number(_thread->ordernum()).rightJustified(6, '0');
     }
     connect(_thread, SIGNAL(destroyed()), this, SLOT(threadDeleted()));
-    connect(_thread, SIGNAL(changed(ForumThread*)), this, SLOT(updateItem()));
-    connect(_thread, SIGNAL(unreadCountChanged(ForumThread *)), this, SLOT(unreadCountChanged(ForumThread *)));
+    connect(_thread, SIGNAL(changed()), this, SLOT(updateItem()));
+    connect(_thread, SIGNAL(unreadCountChanged()), this, SLOT(unreadCountChanged()));
     connect(_thread, SIGNAL(messageAdded(ForumMessage*)), this, SLOT(addMessage(ForumMessage*)));
     connect(_thread, SIGNAL(messageRemoved(ForumMessage*)), this, SLOT(removeMessage(ForumMessage*)));
 
@@ -37,7 +37,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
 void ThreadListThreadItem::setMessage(ForumMessage *message) {
     msg = message;
     if(message) {
-        connect(msg, SIGNAL(changed(ForumMessage*)), this, SLOT(updateItem()));
+        connect(msg, SIGNAL(changed()), this, SLOT(updateItem()));
         connect(msg, SIGNAL(markedRead(ForumMessage*,bool)), this, SLOT(updateRead()));
         connect(msg, SIGNAL(destroyed()), this, SLOT(threadMessageDeleted()));
     }
@@ -58,12 +58,11 @@ void ThreadListThreadItem::updateItem() {
         delete showMoreItem;
         showMoreItem = 0;
     }
-    unreadCountChanged(_thread);
+    unreadCountChanged();
     emit requestSorting();
 }
 
-void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
-    Q_ASSERT(thr=_thread);
+void ThreadListThreadItem::unreadCountChanged() {
     if(!_thread) return;
     QString threadSubject;
     if(message()) {

@@ -26,7 +26,6 @@ Siilihai::~Siilihai() {
     mainWin = 0;
 }
 
-
 void Siilihai::changeState(siilihai_states newState) {
     ClientLogic::changeState(newState);
 
@@ -103,7 +102,7 @@ void Siilihai::reportClicked(ForumSubscription* forum) {
     if(currentState != SH_READY) return;
     if (forum) {
         ForumParser *parserToReport = forum->parserEngine()->parser();
-        ReportParser *rpt = new ReportParser(mainWin, forum->parser(), parserToReport->parser_name);
+        ReportParser *rpt = new ReportParser(mainWin, forum->parser(), parserToReport->name());
         connect(rpt, SIGNAL(parserReport(ParserReport*)), &protocol, SLOT(sendParserReport(ParserReport*)));
         rpt->exec();
     }

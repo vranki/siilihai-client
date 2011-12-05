@@ -20,7 +20,7 @@ void DownloadDialog::listParsersFinished(QList<ForumParser*> parsers) {
     allParsers = parsers;
     foreach(ForumParser *parser, allParsers) {
         QListWidgetItem *item = new QListWidgetItem(ui.listWidget);
-        item->setText(parser->parser_name);
+        item->setText(parser->name());
         item->setToolTip(parser->forum_url);
         ui.listWidget->addItem(item);
         listWidgetItemForum[item] = parser;
@@ -38,7 +38,7 @@ void DownloadDialog::getParserFinished(ForumParser *parser) {
 void DownloadDialog::okClicked() {
     if(ui.listWidget->selectedItems().size()==0) return;
 
-    protocol.getParser(listWidgetItemForum[ui.listWidget->selectedItems()[0]]->id);
+    protocol.getParser(listWidgetItemForum[ui.listWidget->selectedItems()[0]]->id());
 }
 
 void DownloadDialog::cancelClicked() {
