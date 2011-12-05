@@ -3,7 +3,6 @@
 
 #include <QTreeWidgetItem>
 #include <siilihai/forummessage.h>
-#include "messageformatting.h"
 #include <QObject>
 
 class ThreadListMessageItem :  public QObject, public QTreeWidgetItem
@@ -20,9 +19,7 @@ public slots:
     void updateRead();
     virtual void updateItem();
     void messageDeleted();
-
 protected:
-    QString createMessageSubject();
     ForumMessage *msg;
     QString messageSubject;
     int lastOrderNum;

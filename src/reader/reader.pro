@@ -9,6 +9,8 @@ BINDIR = $$PREFIX/bin
 DATADIR = $$PREFIX/share
 DESTDIR = .
 
+ICON = ../../data/siilihai.icns
+
 !contains(QMAKE_HOST.arch, x86_64) {
    LIBDIR = $$PREFIX/lib
 } else {
@@ -27,7 +29,6 @@ CONFIG(debug) {
 QT += core webkit gui network xml
 
 HEADERS += messageviewwidget.h \
-    messageformatting.h \
     threadlistwidget.h \
     settingsdialog.h \
     reportparser.h \
@@ -46,7 +47,6 @@ HEADERS += messageviewwidget.h \
     useraccountdialog.h
 
 SOURCES += messageviewwidget.cpp \
-    messageformatting.cpp \
     threadlistwidget.cpp \
     settingsdialog.cpp \
     reportparser.cpp \
@@ -81,6 +81,10 @@ FORMS = settingsdialog.ui \
     threadproperties.ui \
     useraccountdialog.ui
 RESOURCES = ../../siilihairesources.qrc
+
+# Needed so that uic-generated headers for the forms in
+# common and parsermaker work when shadow building
+INCLUDEPATH += $$OUT_PWD/../common $$OUT_PWD/../parsermaker
 
 win32 {
     INCLUDEPATH += ../../../libsiilihai

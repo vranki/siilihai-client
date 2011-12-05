@@ -1,4 +1,5 @@
 #include "threadlistthreaditem.h"
+#include <siilihai/messageformatting.h>
 
 ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemThread) : ThreadListMessageItem(tree)
 {
@@ -63,12 +64,18 @@ void ThreadListThreadItem::updateItem() {
 }
 
 void ThreadListThreadItem::unreadCountChanged() {
+    ForumThread *thr = static_cast<ForumThread*> (sender());
+    unreadCountChanged(thr);
+}
+
+void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
+    Q_ASSERT(thr=_thread);
     if(!_thread) return;
     QString threadSubject;
     if(message()) {
         threadSubject = messageSubject;
     } else {
-        threadSubject = _thread->name();
+        threadSubject = _thread->displayName();
     }
     int unreads = _thread->unreadCount();
     QString moreString = QString::null;

@@ -1,4 +1,5 @@
 #include "threadlistwidget.h"
+#include <siilihai/messageformatting.h>
 #include <QDebug>
 
 ThreadListWidget::ThreadListWidget(QWidget *parent) : QTreeWidget(parent) {

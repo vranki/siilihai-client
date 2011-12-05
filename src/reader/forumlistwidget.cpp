@@ -1,6 +1,6 @@
 #include "forumlistwidget.h"
 #include "favicon.h"
-#include "messageformatting.h"
+#include <siilihai/messageformatting.h>
 #include <siilihai/forumthread.h>
 #include <siilihai/forummessage.h>
 #include <siilihai/parserdatabase.h>

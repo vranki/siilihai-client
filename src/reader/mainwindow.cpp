@@ -9,7 +9,6 @@
 #include "settingsdialog.h"
 #include "threadlistwidget.h"
 #include "messageviewwidget.h"
-#include "messageformatting.h"
 #include "forumproperties.h"
 #include "threadproperties.h"
 #include "useraccountdialog.h"
