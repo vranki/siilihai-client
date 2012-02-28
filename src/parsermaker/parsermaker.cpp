@@ -304,9 +304,12 @@ void ParserMaker::helpClicked() {
 }
 
 void ParserMaker::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
+    /* @todo Broken for a while
+
     CredentialsDialog *creds = new CredentialsDialog(this, fsub, authenticator, 0);
     creds->setModal(true);
     creds->exec();
+    */
 }
 
 void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
@@ -320,10 +323,10 @@ void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
                 int postDisplay = i + 30;
                 if(preDisplay < 0) preDisplay = 0;
                 if(postDisplay > data.length()) postDisplay = data.length();
-                qDebug() << "Data MisMatch at pos " << i << " pre " << preDisplay << ": \n" <<
+                qDebug() << Q_FUNC_INFO << "Data MisMatch at pos " << i << " pre " << preDisplay << ": \n" <<
                             myData.mid(preDisplay, postDisplay-preDisplay) <<
                             "\n != \n" << data.mid(preDisplay, postDisplay-preDisplay);
-                qDebug() << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toAscii() <<  ") != "
+                qDebug() << Q_FUNC_INFO << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toAscii() <<  ") != "
                          << data.at(i) << "(" << (int) data.at(i).toAscii() << ")";
                 i = data.length();
                 mismatches++;

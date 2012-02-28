@@ -16,6 +16,7 @@ class LoginWizard;
 class MainWindow;
 class SyncMaster;
 class GroupSubscriptionDialog;
+class CredentialsRequest;
 
 class Siilihai: public ClientLogic {
     Q_OBJECT
@@ -34,14 +35,13 @@ private slots:
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
-
     void subscribeGroupDialogFinished();
 protected:
     virtual QString getDataFilePath();
     virtual void errorDialog(QString message);
     virtual void showLoginWizard();
     virtual void showSubscribeGroup(ForumSubscription* forum);
-    virtual void showCredentialsDialog(ForumSubscription *fsub, QAuthenticator * authenticator);
+    virtual void showCredentialsDialog(CredentialsRequest *cr);
     virtual void changeState(siilihai_states newState);
     virtual void closeUi();
     virtual void showMainWindow();

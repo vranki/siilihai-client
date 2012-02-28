@@ -169,16 +169,18 @@ void Siilihai::cancelProgress() {
 // Caution - engine->subscription() may be null (when deleted)!
 void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState) {
     ClientLogic::parserEngineStateChanged(engine,  newState, oldState);
-    if(newState == ParserEngine::PES_REQUESTING_CREDENTIALS) {
-        ForumSubscription *sub = engine->subscription();
-        QAuthenticator *authenticator = new QAuthenticator();
-        CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, authenticator, settings);
-        connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT(credentialsEntered(QAuthenticator*)));
-        creds->setModal(false);
-        creds->show();
-    }
-}
 
+}
+/*
+if(newState == ParserEngine::PES_REQUESTING_CREDENTIALS) {
+    ForumSubscription *sub = engine->subscription();
+    QAuthenticator *authenticator = new QAuthenticator();
+    CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, authenticator, settings);
+    connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT(credentialsEntered(QAuthenticator*)));
+    creds->setModal(false);
+    creds->show();
+}
+*/
 QString Siilihai::getDataFilePath() {
 #ifdef STORE_FILES_IN_APP_DIR
     return QCoreApplication::applicationDirPath();
@@ -208,8 +210,9 @@ void Siilihai::settingsChanged(bool byUser) {
     ClientLogic::settingsChanged(byUser);
 }
 
-void Siilihai::showCredentialsDialog(ForumSubscription *fsub, QAuthenticator * authenticator) {
-    CredentialsDialog *creds = new CredentialsDialog(mainWin, fsub, authenticator, settings);
+void Siilihai::showCredentialsDialog(CredentialsRequest *cr) {
+    CredentialsDialog *creds = new CredentialsDialog(mainWin, cr);
     creds->setModal(true);
     creds->exec();
+    creds->deleteLater();
 }

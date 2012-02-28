@@ -1,34 +1,25 @@
 #include "credentialsdialog.h"
+#include <siilihai/credentialsrequest.h>
+#include <siilihai/forumsubscription.h>
 
-CredentialsDialog::CredentialsDialog(QWidget *parent, ForumSubscription *sub, QAuthenticator *authenticator, QSettings *set)
-    : QDialog(parent)
+CredentialsDialog::CredentialsDialog(QWidget *parent, CredentialsRequest *cr)
+    : QDialog(parent), credentialsRequest(cr)
 {
     ui.setupUi(this);
     connect(this, SIGNAL(accepted()), this, SLOT(acceptClicked()));
-    ui.label->setText(QString("Forum %1 requires authentication").arg(sub->alias()));
-    auth = authenticator;
-    settings = set;
-    subscription = sub;
-    connect(subscription, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+    // @todo request type in dialog
+    ui.label->setText(QString("Forum %1 requires authentication").arg(credentialsRequest->subscription->alias()));
+    connect(credentialsRequest->subscription, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 }
 
 CredentialsDialog::~CredentialsDialog() {
+    if(result()==QDialog::Rejected) { // Make sure username is nulled if dialog is canceled
+        credentialsRequest->authenticator.setUser(QString::null);
+    }
+    credentialsRequest->signalCredentialsEntered(ui.remember->isChecked());
 }
 
 void CredentialsDialog::acceptClicked()  {
-    auth->setUser(ui.username->text());
-    auth->setPassword(ui.password->text());
-    if(ui.remember->isChecked()) {
-        if(settings) {
-            settings->beginGroup("authentication");
-            settings->beginGroup(QString::number(subscription->parser()));
-            settings->setValue("username", ui.username->text());
-            settings->setValue("password", ui.password->text());
-            settings->setValue("failed", "false");
-            settings->endGroup();
-            settings->endGroup();
-            settings->sync();
-        }
-    }
-    emit credentialsEntered(auth);
+    credentialsRequest->authenticator.setUser(ui.username->text());
+    credentialsRequest->authenticator.setPassword(ui.password->text());
 }
