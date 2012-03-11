@@ -42,7 +42,7 @@ private slots:
     void loginFinished(ForumSubscription *sub, bool success);
     void networkFailure(QString txt);
     void helpClicked();
-    void getAuthentication(ForumSubscription*,QAuthenticator*);
+    void getHttpAuthentication(ForumSubscription *, QAuthenticator *);
     void dataMatchingStart(QString &html);
     void dataMatchingEnd();
     void dataMatched(int pos, QString data, PatternMatchType type);
