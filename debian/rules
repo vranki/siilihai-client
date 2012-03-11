@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 APPNAME := siilihai-client
 # build with DEB_BUILD_OPTIONS=debug to get debug version
-ifeq (debug,$(DEB_BUILD_OPTIONS)))
+ifeq (debug,$(DEB_BUILD_OPTIONS))
 	DEBUG = release
 else
 	DEBUG = debug
