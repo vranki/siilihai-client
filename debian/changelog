@@ -1,3 +1,9 @@
+siilihai-client (1.1.0-1) oneiric; urgency=low
+
+  * Fixed for x86_64
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 12 Nov 2011 12:34:56 +0300
+
 siilihai-client (1.1.0) oneiric; urgency=low
 
   * Authentication redesign
