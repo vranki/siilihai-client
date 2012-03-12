@@ -6,6 +6,7 @@
 #include <siilihai/forumthread.h>
 #include <siilihai/parsermanager.h>
 #include <siilihai/forumrequest.h>
+#include <siilihai/credentialsrequest.h>
 
 
 ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p) :
@@ -45,8 +46,8 @@ ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, Siili
     connect(ui.helpButton, SIGNAL(clicked()), this, SLOT(helpClicked()));
     connect(&session, SIGNAL(loginFinished(ForumSubscription *,bool)), this, SLOT(loginFinished(ForumSubscription *, bool)));
     connect(&session, SIGNAL(networkFailure(QString)), this, SLOT(networkFailure(QString)));
-    connect(&session, SIGNAL(getAuthentication(ForumSubscription*,QAuthenticator*)),
-            this, SLOT(getAuthentication(ForumSubscription*,QAuthenticator*)));
+    connect(&session, SIGNAL(getHttpAuthentication(ForumSubscription *, QAuthenticator *)),
+            this, SLOT(getHttpAuthentication(ForumSubscription *, QAuthenticator *)));
 
     connect(loginMatcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
             this, SLOT(dataMatched(int, QString, PatternMatchType)));
@@ -303,13 +304,16 @@ void ParserMaker::helpClicked() {
     QDesktopServices::openUrl(helpUrl);
 }
 
-void ParserMaker::getAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
-    /* @todo Broken for a while
-
-    CredentialsDialog *creds = new CredentialsDialog(this, fsub, authenticator, 0);
+void ParserMaker::getHttpAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
+    CredentialsRequest cr;
+    cr.credentialType = CredentialsRequest::SH_CREDENTIAL_HTTP;
+    cr.subscription = fsub;
+    CredentialsDialog *creds = new CredentialsDialog(this, &cr);
     creds->setModal(true);
     creds->exec();
-    */
+    authenticator->setUser(cr.authenticator.user());
+    authenticator->setPassword(cr.authenticator.password());
+    creds->deleteLater();
 }
 
 void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
