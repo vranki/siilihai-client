@@ -2,31 +2,24 @@ SUBDIRS += reader
 
 TEMPLATE = app
 TARGET = siilihai
-
-isEmpty(PREFIX) {
-  PREFIX = /usr
-}
-
-BINDIR = $$PREFIX/bin
-DATADIR = $$PREFIX/share
-DESTDIR = .
+target.path = $$[QT_INSTALL_BINS]
+INSTALLS += target
 
 ICON = ../data/siilihai.icns
 
-!contains(QMAKE_HOST.arch, x86_64) {
-   LIBDIR = $$PREFIX/lib
-} else {
-   LIBDIR = $$PREFIX/lib64
-}
+#unix {
+#    CONFIG += debug
+#    CONFIG -= release
+#}
 
-exists(../../siilihai-version.h) {
+exists(../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
 }
 
-CONFIG(debug) {
-    message(Debug build - enabling some extra stuff)
-    DEFINES += DEBUG_INFO
-}
+#CONFIG(debug) {
+#    message(Debug build - enabling some extra stuff)
+#    DEFINES += DEBUG_INFO
+#}
 
 QT += core webkit gui network xml
 
@@ -92,11 +85,7 @@ FORMS += parsermaker/openrequestdialog.ui \
     parsermaker/downloaddialog.ui \
     parsermaker/parsermaker.ui
 
-
-target.path = $$BINDIR
-
-INSTALLS += target
-FORMS = reader/settingsdialog.ui \
+FORMS += reader/settingsdialog.ui \
     reader/reportparser.ui \
     reader/groupsubscriptiondialog.ui \
     reader/subscribeforum_verify.ui \

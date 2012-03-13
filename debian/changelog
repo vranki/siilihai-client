@@ -1,3 +1,9 @@
+siilihai-client (1.1.1) oneiric; urgency=low
+
+  * Packaging changes, nothing major
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 13 Mar 2012 12:34:56 +0300
+
 siilihai-client (1.1.0-1) oneiric; urgency=low
 
   * Fixed for x86_64
@@ -194,13 +200,13 @@ siilihai-client (0.9.8-2) lucid; urgency=low
 
   * Fixes possible crasher when using "show more" button
 
- -- Ville Ranki <ville.ranki@iki.fi>  Tue, 16 Wed 2010 20:29:43 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 16 Jun 2010 20:29:43 +0300
 
 siilihai-client (0.9.8-1) lucid; urgency=low
 
   * Minor changes
 
- -- Ville Ranki <ville.ranki@iki.fi>  Tue, 16 Wed 2010 20:29:43 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 16 Jun 2010 20:29:43 +0300
 
 siilihai-client (0.9.7-1) lucid; urgency=low
 

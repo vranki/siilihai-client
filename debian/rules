@@ -1,64 +1,9 @@
 #!/usr/bin/make -f
-APPNAME := siilihai-client
-# build with DEB_BUILD_OPTIONS=debug to get debug version
-ifeq (debug,$(DEB_BUILD_OPTIONS))
-	DEBUG = release
-else
-	DEBUG = debug
-endif
+# -*- makefile -*-
 
-build: build-stamp
-
-build-stamp:
-	dh_testdir
-	# Add here commands to compile the package.
+makebuilddir/siilihai-client::
 	cat debian/changelog | grep siilihai-client | head -n 1 | sed s/\).*/\"/ | sed s/siilihai-client\ \(/#define\ SIILIHAI_CLIENT_VERSION\ \"/ > siilihai-version.h
-	qmake PREFIX=/usr -recursive "CONFIG-=$(DEBUG)"
-	$(MAKE)
-	touch $@
 
-clean:
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp
-	-rm -rf $(CURDIR)/debian/$(APPNAME)
-	# Add here commands to clean up after the build process.
-	qmake -recursive
-	make clean
-	make distclean
-	rm -rf builddir
-	dh_clean
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/qmake.mk
 
-install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
-
-# Add here commands to install the package into debian/your_appname
-	$(MAKE) INSTALL_ROOT=$(CURDIR)/debian/$(APPNAME) install
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installdocs
-	dh_installexamples
-	dh_installman
-	dh_link
-	dh_strip --dbg-package=siilihai-client
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	# fails, fix later
-	#dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	-maemo-optify
-	dh_builddeb
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure
