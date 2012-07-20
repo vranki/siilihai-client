@@ -49,11 +49,12 @@ signals:
     void moreMessagesRequested(ForumThread* thread);
     void forumUpdateNeeded(ForumSubscription *sub);
     void unregisterSiilihai();
+    void showStatusMessage(QString message);
+    void groupUnselected(ForumGroup *group); // and could now be synced etc
 public slots:
     void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
                                   ParserEngine::ParserEngineState oldState);
     void setOffline(bool offline);
-    void syncProgress(float progress, QString message);
     void showMessage(QString msg, int time=5000);
 private slots:
     void subscribeForumSlot();

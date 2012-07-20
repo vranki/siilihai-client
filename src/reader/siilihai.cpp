@@ -30,16 +30,10 @@ void Siilihai::changeState(siilihai_states newState) {
     ClientLogic::changeState(newState);
 
     if(mainWin) mainWin->setOffline(newState==SH_OFFLINE);
+}
 
-    if(newState==SH_OFFLINE) {
-    } else if(newState==SH_LOGIN) {
-        mainWin->showMessage("Logging in..");
-    } else if(newState==SH_STARTSYNCING) {
-    } else if(newState==SH_ENDSYNC) {
-        mainWin->showMessage("Synchronizing with server..");
-    } else if(newState==SH_STOREDB) {
-    } else if(newState==SH_READY) {
-    }
+void Siilihai::showStatusMessage(QString message) {
+    if(mainWin) mainWin->showMessage(message);
 }
 
 void Siilihai::subscribeForum() {
@@ -68,7 +62,7 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
     connect(mainWin, SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
     connect(mainWin, SIGNAL(unregisterSiilihai()), this, SLOT(unregisterSiilihai()));
-    connect(&syncmaster, SIGNAL(syncProgress(float, QString)), mainWin, SLOT(syncProgress(float, QString)));
+    connect(mainWin, SIGNAL(groupUnselected(ForumGroup*)), &syncmaster, SLOT(endSyncSingleGroup(ForumGroup *)));
 
     mainWin->setOffline(currentState==SH_OFFLINE);
     mainWin->show();
@@ -164,23 +158,6 @@ void Siilihai::cancelProgress() {
     }
 }
 
-
-
-// Caution - engine->subscription() may be null (when deleted)!
-void Siilihai::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState) {
-    ClientLogic::parserEngineStateChanged(engine,  newState, oldState);
-
-}
-/*
-if(newState == ParserEngine::PES_REQUESTING_CREDENTIALS) {
-    ForumSubscription *sub = engine->subscription();
-    QAuthenticator *authenticator = new QAuthenticator();
-    CredentialsDialog *creds = new CredentialsDialog(mainWin, sub, authenticator, settings);
-    connect(creds, SIGNAL(credentialsEntered(QAuthenticator*)), engine, SLOT(credentialsEntered(QAuthenticator*)));
-    creds->setModal(false);
-    creds->show();
-}
-*/
 QString Siilihai::getDataFilePath() {
 #ifdef STORE_FILES_IN_APP_DIR
     return QCoreApplication::applicationDirPath();

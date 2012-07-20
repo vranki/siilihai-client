@@ -47,6 +47,7 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(flw, SIGNAL(groupSelected(ForumGroup*)), this, SLOT(groupSelected(ForumGroup*)));
     connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this, SLOT(forumSelected(ForumSubscription*)));
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), flw, SLOT(addSubscription(ForumSubscription*)));
+    connect(flw, SIGNAL(groupUnselected(ForumGroup*)), this, SIGNAL(groupUnselected(ForumGroup*)));
 
     ui.forumsSplitter->insertWidget(0, flw);
     tlw = new ThreadListWidget(this);
@@ -177,11 +178,6 @@ void MainWindow::parserEngineStateChanged(ParserEngine *engine, ParserEngine::Pa
         busyParserEngines.insert(engine);
     } else {
         busyParserEngines.remove(engine);
-    }
-    if (!busyParserEngines.isEmpty()) {
-        ui.statusbar->showMessage("Updating Forums.. ", 5000);
-    } else {
-        ui.statusbar->showMessage("Forums updated", 5000);
     }
     updateEnabledButtons();
 }
@@ -318,11 +314,6 @@ void MainWindow::userAccountSettings() {
     UserAccountDialog accountDialog(this, settings);
     connect(&accountDialog, SIGNAL(unregisterSiilihai()), this, SIGNAL(unregisterSiilihai()));
     accountDialog.exec();
-}
-
-
-void MainWindow::syncProgress(float progress, QString message) {
-    ui.statusbar->showMessage(message, 5000);
 }
 
 void MainWindow::subscriptionFound(ForumSubscription *sub) {

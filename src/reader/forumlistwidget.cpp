@@ -81,6 +81,7 @@ void ForumListWidget::iconUpdated(ForumSubscription* en, QIcon newIcon) {
 
 void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
     // qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
+    if(currentGroup) emit groupUnselected(currentGroup);
     currentGroup = forumGroups.value(item);
     emit groupSelected(currentGroup);
 }

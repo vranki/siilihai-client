@@ -27,7 +27,6 @@ public:
 private slots:
     virtual void subscribeForum();
     virtual void loginWizardFinished();
-    virtual void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState);
     virtual void settingsChanged(bool);
     void cancelProgress();
     void showUnsubscribeForum(ForumSubscription* forum);
@@ -36,6 +35,7 @@ private slots:
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
     void subscribeGroupDialogFinished();
+    virtual void showStatusMessage(QString message);
 protected:
     virtual QString getDataFilePath();
     virtual void errorDialog(QString message);

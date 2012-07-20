@@ -58,6 +58,8 @@ signals:
     void groupSubscriptions(ForumSubscription *sub);
     void unsubscribeForum();
     void forumProperties();
+    void groupUnselected(ForumGroup *group); // and could now be synced etc
+
 protected:
     void contextMenuEvent(QContextMenuEvent * event);
 private:
