@@ -219,7 +219,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuForum">
@@ -273,10 +273,21 @@
     </widget>
     <addaction name="menuView_as"/>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string>Debug</string>
+    </property>
+    <addaction name="actionStart_sync"/>
+    <addaction name="actionEnd_sync"/>
+   </widget>
    <addaction name="menuForum"/>
    <addaction name="menuGroup"/>
    <addaction name="menuMessages"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuDebug"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSubscribe_to">
@@ -440,10 +451,18 @@
     <string>User account settings</string>
    </property>
   </action>
+  <action name="actionStart_sync">
+   <property name="text">
+    <string>Start sync</string>
+   </property>
+  </action>
+  <action name="actionEnd_sync">
+   <property name="text">
+    <string>End sync</string>
+   </property>
+  </action>
  </widget>
  <resources>
-  <include location="../../siilihairesources.qrc"/>
-  <include location="../../siilihairesources.qrc"/>
   <include location="../../siilihairesources.qrc"/>
   <include location="../../siilihairesources.qrc"/>
  </resources>

@@ -9,7 +9,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
     treeWidget = tree;
     Q_ASSERT(_thread->isSane());
     Q_ASSERT(treeWidget);
-    QString threadSubject = _thread->name();
+    QString threadSubject = _thread->displayName();
     QString lc = _thread->lastchange();
     QString author = "";
     QString orderString;

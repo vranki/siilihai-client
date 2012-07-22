@@ -51,6 +51,8 @@ signals:
     void unregisterSiilihai();
     void showStatusMessage(QString message);
     void groupUnselected(ForumGroup *group); // and could now be synced etc
+    void startSyncClicked();
+    void endSyncClicked();
 public slots:
     void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
                                   ParserEngine::ParserEngineState oldState);

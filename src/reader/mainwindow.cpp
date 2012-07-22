@@ -97,6 +97,10 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
 #endif
 #ifdef DEBUG_INFO
     setWindowTitle(windowTitle() + " (Debug Build)");
+    connect(ui.actionStart_sync, SIGNAL(triggered()), this, SIGNAL(startSyncClicked()));
+    connect(ui.actionEnd_sync, SIGNAL(triggered()), this, SIGNAL(endSyncClicked()));
+#else
+    ui.menuDebug->setVisible(false);
 #endif
     foreach(ForumSubscription *sub, fdb.values())
         flw->addSubscription(sub);

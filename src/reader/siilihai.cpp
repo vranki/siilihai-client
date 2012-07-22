@@ -63,7 +63,8 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
     connect(mainWin, SIGNAL(unregisterSiilihai()), this, SLOT(unregisterSiilihai()));
     connect(mainWin, SIGNAL(groupUnselected(ForumGroup*)), &syncmaster, SLOT(endSyncSingleGroup(ForumGroup *)));
-
+    connect(mainWin, SIGNAL(startSyncClicked()), &syncmaster, SLOT(startSync()));
+    connect(mainWin, SIGNAL(endSyncClicked()), &syncmaster, SLOT(endSync()));
     mainWin->setOffline(currentState==SH_OFFLINE);
     mainWin->show();
     QApplication::setQuitOnLastWindowClosed(true);
