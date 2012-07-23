@@ -100,7 +100,7 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(ui.actionStart_sync, SIGNAL(triggered()), this, SIGNAL(startSyncClicked()));
     connect(ui.actionEnd_sync, SIGNAL(triggered()), this, SIGNAL(endSyncClicked()));
 #else
-    ui.menuDebug->setVisible(false);
+    menuBar()->removeAction(ui.menuDebug->menuAction());
 #endif
     foreach(ForumSubscription *sub, fdb.values())
         flw->addSubscription(sub);
