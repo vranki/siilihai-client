@@ -1,3 +1,12 @@
+siilihai-client (1.2.0) precise; urgency=low
+
+  * Debug menu in debug builds (set DEBUG_INFO macro)
+  * Sync previous group when changing group
+  * Architecture changes to allow mobile & desktop clients to share as
+    much code as possible
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 24 Jul 2012 12:34:56 +0300
+
 siilihai-client (1.1.1) oneiric; urgency=low
 
   * Packaging changes, nothing major
