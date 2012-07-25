@@ -102,6 +102,10 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
 #else
     menuBar()->removeAction(ui.menuDebug->menuAction());
 #endif
+    if(settings->value("account/noaccount", false).toBool()) {
+        ui.actionReport_broken_or_working->setEnabled(false);
+    }
+
     foreach(ForumSubscription *sub, fdb.values())
         flw->addSubscription(sub);
 }
@@ -274,7 +278,7 @@ void MainWindow::updateEnabledButtons() {
     bool sane = (flw->getSelectedForum() != 0);
     ui.actionUpdate_selected->setEnabled( sane && !offline);
     ui.actionForce_update_on_selected->setEnabled( sane && !offline);
-    ui.actionReport_broken_or_working->setEnabled(sane && !offline);
+    ui.actionReport_broken_or_working->setEnabled(sane && !offline && !settings->value("account/noaccount", false).toBool());
     ui.actionUnsubscribe->setEnabled( sane && !offline);
     ui.actionGroup_Subscriptions->setEnabled(sane && !offline);
     ui.actionUpdate_selected->setEnabled( sane && !offline);

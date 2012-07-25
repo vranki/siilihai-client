@@ -93,8 +93,8 @@ void ParserMaker::updateState() {
 
     bool mayWork = parser.mayWork();
 
-    ui.saveChangesButton->setEnabled(mayWork && parser.id() > 0);
-    ui.saveAsNewButton->setEnabled(mayWork);
+    ui.saveChangesButton->setEnabled(mayWork && parser.id() > 0  && !settings.value("account/noaccount", false).toBool());
+    ui.saveAsNewButton->setEnabled(mayWork && !settings.value("account/noaccount", false).toBool());
 
     ui.loginUrlLabel->setText(ui.loginPath->text());
     ui.loginTypeCombo->setEnabled(ui.loginPath->text().length() > 0);
