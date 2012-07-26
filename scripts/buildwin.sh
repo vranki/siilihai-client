@@ -12,6 +12,7 @@ export SH_BINARYPATH=release
 export WINE_CMD="wine cmd /c"
 
 function init_build {
+echo *** Init build ***
 rm -rf siilihai-win32
 mkdir siilihai-win32
 cd siilihai-client
@@ -20,8 +21,9 @@ cd ..
 }
 
 function clean_all {
+echo *** Clean all ***
 cd libsiilihai
-ln -s src siilihai
+#ln -sf src ./siilihai
 qmake -recursive
 make clean
 make distclean
@@ -38,17 +40,20 @@ cd ..
 }
 
 function build_lib {
+echo *** Build Lib ***
 cd libsiilihai
-$WINE_CMD qmake.exe -recursive CONFIG+=debug_and_release
+$WINE_CMD qmake.exe -recursive CONFIG+=release
 $WINE_CMD mingw32-make.exe
 cd ..
 }
 
 function install_lib {
-cp libsiilihai/src/*.dll siilihai-win32
+echo ***  Install lib ***
+cp libsiilihai/src/release/*.dll siilihai-win32
 }
 
 function build_app {
+echo *** Build app ***
 cd siilihai-client
 $WINE_CMD qmake.exe -recursive CONFIG+=release
 $WINE_CMD mingw32-make.exe
@@ -56,13 +61,13 @@ cd ..
 }
 
 function install_app {
-cp siilihai-client/src/common/$SH_BINARYPATH/*.dll siilihai-win32
-cp siilihai-client/src/parsermaker/$SH_BINARYPATH/*.dll siilihai-win32
-cp siilihai-client/src/reader/$SH_BINARYPATH/*.exe siilihai-win32
-cp siilihai-client/data/*.ico siilihai-win32
+echo *** Install app ***
+cp -v siilihai-client/src/$SH_BINARYPATH/*.exe siilihai-win32
+cp -v siilihai-client/data/*.ico siilihai-win32
 }
 
 function install_deps {
+echo *** Install deps ***
 cp $QTDIR/Desktop/Qt/4.7.3/mingw/bin/mingwm10.dll siilihai-win32
 cp $QTDIR/Desktop/Qt/4.7.3/mingw/bin/libgcc_s_dw2-1.dll siilihai-win32
 cp $QTDIR/Desktop/Qt/4.7.3/mingw/lib/QtCore4.dll siilihai-win32
@@ -75,6 +80,7 @@ cp $QTDIR/Desktop/Qt/4.7.3/mingw/lib/phonon4.dll siilihai-win32
 }
 
 function create_installer {
+echo *** Create installer ***
 cp siilihai-client/siilihai.nsi siilihai-win32
 cd siilihai-win32
 $WINE_CMD makensis.exe siilihai.nsi

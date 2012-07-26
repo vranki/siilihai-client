@@ -104,17 +104,17 @@ FORMS += reader/settingsdialog.ui \
 RESOURCES += ../siilihairesources.qrc
 
 win32 {
-    INCLUDEPATH += ../../../libsiilihai
+    INCLUDEPATH += ../../libsiilihai/src/
     DEFINES += STORE_FILES_IN_APP_DIR
     message("Win32 build - storing files in app dir")
 }
 win32:debug {
-    LIBS += -L../../../libsiilihai/src/debug
-    DEPENDPATH += ../../../libsiilihai/src/
+    LIBS += -L../../libsiilihai/src/debug
+    DEPENDPATH += ../../libsiilihai/src/debug
 }
 win32:release {
-    LIBS += -L../../../libsiilihai/src/release
-    DEPENDPATH += ../../../libsiilihai/src/
+    LIBS += -L../../libsiilihai/src/release
+    DEPENDPATH += ../../libsiilihai/src/release
 }
 
 LIBS += -lsiilihai
