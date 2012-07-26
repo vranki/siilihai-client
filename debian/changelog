@@ -4,8 +4,9 @@ siilihai-client (1.2.0) precise; urgency=low
   * Sync previous group when changing group
   * Architecture changes to allow mobile & desktop clients to share as
     much code as possible
+  * Usage without account now supported
 
- -- Ville Ranki <ville.ranki@iki.fi>  Tue, 24 Jul 2012 12:34:56 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 26 Jul 2012 12:34:56 +0300
 
 siilihai-client (1.1.1) oneiric; urgency=low
 
