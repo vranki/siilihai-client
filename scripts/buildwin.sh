@@ -49,7 +49,7 @@ cd ..
 
 function install_lib {
 echo ***  Install lib ***
-cp libsiilihai/src/release/*.dll siilihai-win32
+cp libsiilihai/src/$SH_BINARYPATH/*.dll siilihai-win32
 }
 
 function build_app {
