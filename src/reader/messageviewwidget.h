@@ -1,11 +1,9 @@
 #ifndef MESSAGEVIEWWIDGET_H_
 #define MESSAGEVIEWWIDGET_H_
-#include <QObject>
-#include <QScrollArea>
 #include <QWebView>
 #include <QVBoxLayout>
-#include <QDesktopServices>
-#include <QDir>
+#include <QUrl>
+#include <QScrollArea>
 
 class ForumMessage;
 

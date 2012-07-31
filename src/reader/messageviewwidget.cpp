@@ -6,6 +6,10 @@
 #include <siilihai/forumsubscription.h>
 #include <siilihai/messageformatting.h>
 
+#include <QDesktopServices>
+#include <QDir>
+#include <QDebug>
+
 MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), webView(this), vbox(this) {
     vbox.addWidget(&webView);
     setLayout(&vbox);
