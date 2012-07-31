@@ -7,6 +7,8 @@ SettingsDialog::SettingsDialog(QWidget *parent, QSettings *s)
     connect(ui.closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     settings = s;
     ui.updateAutomatically->setChecked(settings->value("preferences/update_automatically", true).toBool());
+    if(settings->value("account/noaccount", false).toBool())
+        ui.enableSyncing->setEnabled(false);
     ui.enableSyncing->setChecked(settings->value("preferences/sync_enabled", false).toBool());
     ui.httpProxy->setText(settings->value("preferences/http_proxy", "").toString());
     ui.threads_per_group->setValue(settings->value("preferences/threads_per_group", 20).toInt());
@@ -16,7 +18,6 @@ SettingsDialog::SettingsDialog(QWidget *parent, QSettings *s)
 
 SettingsDialog::~SettingsDialog()
 {
-
 }
 
 void SettingsDialog::closeClicked() {

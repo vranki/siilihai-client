@@ -63,14 +63,16 @@ QWizardPage *LoginWizard::createLoginPage() {
 QWizardPage *LoginWizard::createIntroPage() {
     QWizardPage *page = new QWizardPage;
     page->setTitle("Welcome to Siilihai");
-    page->setSubTitle("To use Siilihai, you need a account for siilihai.com.");
+    page->setSubTitle("You need an account to fully use Siilihai");
 
     accountDoesntExist.setText("Create a new Siilihai account");
-    QRadioButton *accountExists = new QRadioButton("I already have a Siilihai account");
+    accountExists.setText("I already have a Siilihai account");
+    noAccount.setText("Use without account - syncing and some other features disabled");
     accountDoesntExist.setChecked(true);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(&accountDoesntExist);
-    layout->addWidget(accountExists);
+    layout->addWidget(&accountExists);
+    layout->addWidget(&noAccount);
     page->setLayout(layout);
 
     return page;
@@ -139,19 +141,24 @@ void LoginWizard::pageChanged(int id) {
         //		checkRegisterData();
         break;
     case 4:
-        progress = new QProgressDialog("Connecting siilihai.com..", "Cancel", 0, 3, this);
-        progress->setWindowModality(Qt::WindowModal);
-        progress->setValue(0);
-        progress->show();
-
+        if(!noAccount.isChecked()) {
+            progress = new QProgressDialog("Connecting siilihai.com..", "Cancel", 0, 3, this);
+            progress->setWindowModality(Qt::WindowModal);
+            progress->setValue(0);
+            progress->show();
+        }
         disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(loginFinished(bool,QString,bool)));
         disconnect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(registerFinished(bool,QString,bool)));
-        if (!accountDoesntExist.isChecked()) {
+        if (accountExists.isChecked()) {
             connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(loginFinished(bool, QString,bool)));
             protocol.login(loginUser.text().trimmed(), loginPass.text().trimmed());
-        } else {
+        } else if(accountDoesntExist.isChecked()) {
             connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(registerFinished(bool, QString,bool)));
             protocol.registerUser(registerUser.text().trimmed(), registerPass.text().trimmed(), registerEmail.text().trimmed(), enableSync.isChecked());
+        } else if(noAccount.isChecked()) {
+            settings.setValue("account/noaccount", true);
+            currentPage()->setSubTitle("Using Siilihai with no account");
+            finalLabel.setText("Only basic reading is possible without account. \nRegister later to enable sync and other missing features.");
         }
         break;
     }
@@ -162,8 +169,10 @@ int LoginWizard::nextId() const {
     case 1:
         if (accountDoesntExist.isChecked()) {
             return 2;
-        } else {
+        } else if (accountExists.isChecked()) {
             return 3;
+        } else if(noAccount.isChecked()) {
+            return 4;
         }
     case 2:
         return 4;

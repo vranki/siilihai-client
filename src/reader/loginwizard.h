@@ -27,7 +27,7 @@ public slots:
 
 private:
     QWizard wizard;
-    QRadioButton accountDoesntExist;
+    QRadioButton accountDoesntExist, accountExists, noAccount;
     QLineEdit loginUser, loginPass, registerUser, registerPass, registerPass2, registerEmail;
     SiilihaiProtocol &protocol;
     QProgressDialog *progress;
