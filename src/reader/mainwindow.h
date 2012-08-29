@@ -17,13 +17,12 @@
 #ifdef INCLUDE_SIILIHAI_VERSION
 #include "../../siilihai-version.h"
 #endif
-
+#include "messageviewwidget.h"
 #include "ui_mainwindow.h"
 
 class ParserEngine;
 class ForumListWidget;
 class ThreadListWidget;
-class MessageViewWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -92,7 +91,7 @@ private:
     void closeEvent(QCloseEvent *event);
     ForumListWidget *flw;
     ThreadListWidget *tlw;
-    MessageViewWidget *mvw;
+    MessageViewWidget mvw;
     Ui::MainWindowClass ui;
     ForumDatabase &fdb;
     QSet<ParserEngine*> busyParserEngines;
