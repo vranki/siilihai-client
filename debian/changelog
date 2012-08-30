@@ -1,3 +1,9 @@
+siilihai-client (1.2.1) precise; urgency=low
+
+  * Minor fixes, more in lib
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 30 Aug 2012 12:34:56 +0300
+
 siilihai-client (1.2.0) precise; urgency=low
 
   * Debug menu in debug builds (set DEBUG_INFO macro)

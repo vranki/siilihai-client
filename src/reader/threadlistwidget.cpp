@@ -1,5 +1,10 @@
 #include "threadlistwidget.h"
 #include <siilihai/messageformatting.h>
+#include <siilihai/forumgroup.h>
+#include <siilihai/forumthread.h>
+#include <siilihai/forummessage.h>
+#include <siilihai/forumdatabase.h>
+
 #include <QDebug>
 
 ThreadListWidget::ThreadListWidget(QWidget *parent) : QTreeWidget(parent) {

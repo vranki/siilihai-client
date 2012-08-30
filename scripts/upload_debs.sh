@@ -25,6 +25,7 @@ rm -rf debian/siilihai-client
 rm -rf src/common/debug src/common/release
 rm -rf src/parsermaker/debug src/parsermaker/release src/parsermaker/*.Release src/parsermaker/*.Debug
 rm -rf src/reader/debug src/reader/release src/reader/*.xml src/reader/*.ini src/reader/*.Release src/reader/*.Debug
+rm -rf src/*.o src/*.Debug src/*.Release
 cd ..
 }
 

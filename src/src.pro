@@ -7,19 +7,9 @@ INSTALLS += target
 
 ICON = ../data/siilihai.icns
 
-#unix {
-#    CONFIG += debug
-#    CONFIG -= release
-#}
-
 exists(../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
 }
-
-#CONFIG(debug) {
-#    message(Debug build - enabling some extra stuff)
-#    DEFINES += DEBUG_INFO
-#}
 
 CONFIG(debug_info) {
     message(XBXBMXBMM . enabling some extra stuff)
@@ -27,6 +17,21 @@ CONFIG(debug_info) {
 }
 
 QT += core webkit gui network xml
+
+contains(MEEGO_EDITION,harmattan): CONFIG += with_lib
+
+android: CONFIG += with_lib
+
+# Use this config flag to build libsiilihai into the binary
+CONFIG(with_lib) {
+    message(Building WITH lib included in binary!)
+    LIB_PATH = ../../libsiilihai
+    SOURCES += $$LIB_PATH/src/siilihai/*.cpp
+    HEADERS += $$LIB_PATH/src/siilihai/*.h
+    INCLUDEPATH += $$LIB_PATH/src/
+} else {
+    LIBS += -lsiilihai
+}
 
 HEADERS += reader/messageviewwidget.h \
     reader/threadlistwidget.h \
@@ -103,6 +108,9 @@ FORMS += reader/settingsdialog.ui \
 
 RESOURCES += ../siilihairesources.qrc
 
+
+
+
 win32 {
     INCLUDEPATH += ../../libsiilihai/src/
     DEFINES += STORE_FILES_IN_APP_DIR
@@ -116,5 +124,3 @@ win32:release {
     LIBS += -L../../libsiilihai/src/release
     DEPENDPATH += ../../libsiilihai/src/release
 }
-
-LIBS += -lsiilihai

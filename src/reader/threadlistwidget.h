@@ -9,14 +9,13 @@
 #include <QObject>
 #include <QMessageBox>
 
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/forummessage.h>
-#include <siilihai/forumdatabase.h>
-
 #include "threadlistmessageitem.h"
 #include "threadlistthreaditem.h"
 #include "threadlistshowmoreitem.h"
+
+class ForumGroup;
+class ForumThread;
+class ForumMessage;
 
 class ThreadListWidget : public QTreeWidget {
     Q_OBJECT
