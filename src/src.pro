@@ -124,3 +124,5 @@ win32:release {
     LIBS += -L../../libsiilihai/src/release
     DEPENDPATH += ../../libsiilihai/src/release
 }
+
+QMAKE_CLEAN += src/*.o
