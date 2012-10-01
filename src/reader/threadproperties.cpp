@@ -1,7 +1,7 @@
 #include "threadproperties.h"
 #include "ui_threadproperties.h"
-#include <siilihai/forummessage.h>
-#include <siilihai/forumgroup.h>
+#include <siilihai/forumdata/forummessage.h>
+#include <siilihai/forumdata/forumgroup.h>
 #include <siilihai/messageformatting.h>
 
 ThreadProperties::ThreadProperties(QWidget *parent, ForumThread *th, ForumDatabase &fd) :

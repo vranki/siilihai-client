@@ -4,7 +4,7 @@
 #include <QtGui/QDialog>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumparser.h>
+#include <siilihai/parser/forumparser.h>
 
 #include "ui_downloaddialog.h"
 

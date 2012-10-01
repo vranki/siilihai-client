@@ -8,8 +8,8 @@
 #include <QDebug>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumsubscription.h>
-#include <siilihai/forumparser.h>
+#include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/parser/forumparser.h>
 #include "ui_subscribeforum.h"
 #include "ui_subscribeforum_login.h"
 #include "ui_subscribeforum_verify.h"

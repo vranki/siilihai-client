@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <siilihai/forumsession.h>
 #include <siilihai/patternmatcher.h>
-#include <siilihai/forumparser.h>
+#include <siilihai/parser/forumparser.h>
 
 #include "ui_patterneditor.h"
 

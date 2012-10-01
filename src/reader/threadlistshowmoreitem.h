@@ -2,7 +2,7 @@
 #define THREADLISTSHOWMOREITEM_H
 
 #include <QTreeWidgetItem>
-#include <siilihai/forumthread.h>
+#include <siilihai/forumdata/forumthread.h>
 
 class ThreadListShowMoreItem : public QTreeWidgetItem
 {

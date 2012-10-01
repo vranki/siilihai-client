@@ -1,5 +1,7 @@
 #include "threadlistthreaditem.h"
 #include <siilihai/messageformatting.h>
+#include <siilihai/forumdata/forummessage.h>
+#include <siilihai/forumdata/forumthread.h>
 
 ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemThread) : ThreadListMessageItem(tree)
 {

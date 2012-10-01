@@ -1,8 +1,8 @@
 #include "groupsubscriptiondialog.h"
-#include <siilihai/forumgroup.h>
-#include <siilihai/parserengine.h>
-#include <siilihai/forumdatabase.h>
-#include <siilihai/forumsubscription.h>
+#include <siilihai/forumdata/forumgroup.h>
+#include <siilihai/parser/parserengine.h>
+#include <siilihai/forumdatabase/forumdatabase.h>
+#include <siilihai/forumdata/forumsubscription.h>
 #include <siilihai/messageformatting.h>
 
 GroupSubscriptionDialog::GroupSubscriptionDialog(QWidget *parent) : QDialog(parent) {

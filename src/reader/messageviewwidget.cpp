@@ -1,9 +1,9 @@
 #include "messageviewwidget.h"
-#include <siilihai/forummessage.h>
-#include <siilihai/parserengine.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumsubscription.h>
+#include <siilihai/forumdata/forummessage.h>
+#include <siilihai/parser/parserengine.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/forumdata/forumgroup.h>
+#include <siilihai/forumdata/forumsubscription.h>
 #include <siilihai/messageformatting.h>
 
 #include <QDesktopServices>

@@ -1,10 +1,10 @@
 #include "parsermaker.h"
-#include <siilihai/parserdatabase.h>
-#include <siilihai/forumparser.h>
+#include <siilihai/parser/parserdatabase.h>
+#include <siilihai/parser/forumparser.h>
 #include <siilihai/forumsession.h>
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/parsermanager.h>
+#include <siilihai/forumdata/forumgroup.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/parser/parsermanager.h>
 #include <siilihai/forumrequest.h>
 #include <siilihai/credentialsrequest.h>
 

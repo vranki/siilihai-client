@@ -14,7 +14,7 @@
 #include <QTimer>
 #include <cmath>
 
-#include <siilihai/parserengine.h>
+#include <siilihai/parser/parserengine.h>
 
 class ForumThread;
 class ForumSubscription;

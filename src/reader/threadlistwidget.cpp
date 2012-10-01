@@ -1,9 +1,9 @@
 #include "threadlistwidget.h"
 #include <siilihai/messageformatting.h>
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/forummessage.h>
-#include <siilihai/forumdatabase.h>
+#include <siilihai/forumdata/forumgroup.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/forumdata/forummessage.h>
+#include <siilihai/forumdatabase/forumdatabase.h>
 
 #include <QDebug>
 

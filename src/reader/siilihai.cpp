@@ -1,7 +1,7 @@
 #include "siilihai.h"
-#include <siilihai/parsermanager.h>
+#include <siilihai/parser/parsermanager.h>
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/parserreport.h>
+#include <siilihai/parser/parserreport.h>
 #include <siilihai/usersettings.h>
 #include <QDesktopServices>
 #include "threadlistwidget.h"

@@ -1,6 +1,6 @@
 #include "favicon.h"
-#include <siilihai/forumthread.h>
-#include <siilihai/forumsubscription.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/forumdata/forumsubscription.h>
 
 Favicon::Favicon(QObject *parent, ForumSubscription *sub) : QObject(parent) {
     subscription = sub;

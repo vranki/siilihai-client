@@ -1,5 +1,5 @@
 #include "threadlistmessageitem.h"
-#include <siilihai/forumthread.h>
+#include <siilihai/forumdata/forumthread.h>
 #include <siilihai/messageformatting.h>
 #include "threadlistthreaditem.h"
 

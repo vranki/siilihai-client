@@ -1,6 +1,6 @@
 #include "credentialsdialog.h"
 #include <siilihai/credentialsrequest.h>
-#include <siilihai/forumsubscription.h>
+#include <siilihai/forumdata/forumsubscription.h>
 
 CredentialsDialog::CredentialsDialog(QWidget *parent, CredentialsRequest *cr)
     : QDialog(parent), credentialsRequest(cr)

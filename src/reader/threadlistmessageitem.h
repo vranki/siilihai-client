@@ -2,7 +2,7 @@
 #define THREADLISTMESSAGEITEM_H
 
 #include <QTreeWidgetItem>
-#include <siilihai/forummessage.h>
+#include <siilihai/forumdata/forummessage.h>
 #include <QObject>
 
 class ThreadListMessageItem :  public QObject, public QTreeWidgetItem

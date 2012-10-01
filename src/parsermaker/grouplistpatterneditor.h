@@ -1,6 +1,6 @@
 #ifndef GROUPLISTPATTERNEDITOR_H_
 #define GROUPLISTPATTERNEDITOR_H_
-#include <siilihai/forumgroup.h>
+#include <siilihai/forumdata/forumgroup.h>
 
 #include "patterneditor.h"
 

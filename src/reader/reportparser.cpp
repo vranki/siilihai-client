@@ -1,4 +1,5 @@
 #include "reportparser.h"
+#include <siilihai/parser/parserreport.h>
 
 ReportParser::ReportParser(QWidget *parent, int id, QString name) : QDialog(parent)
 {

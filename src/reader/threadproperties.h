@@ -2,8 +2,8 @@
 #define THREADPROPERTIES_H
 
 #include <QDialog>
-#include <siilihai/forumthread.h>
-#include <siilihai/forumdatabase.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/forumdatabase/forumdatabase.h>
 
 namespace Ui {
     class ThreadProperties;

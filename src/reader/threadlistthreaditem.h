@@ -1,11 +1,12 @@
 #ifndef THREADLISTTHREADITEM_H
 #define THREADLISTTHREADITEM_H
 
-#include "siilihai/forummessage.h"
-#include "siilihai/forumthread.h"
 #include "threadlistshowmoreitem.h"
 #include "threadlistmessageitem.h"
 #include <QObject>
+
+class ForumMessage;
+class ForumThread;
 
 class ThreadListThreadItem : public ThreadListMessageItem
 {

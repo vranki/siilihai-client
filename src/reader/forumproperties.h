@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class ForumSubscription;
-#include <siilihai/forumdatabase.h>
+#include <siilihai/forumdatabase/forumdatabase.h>
 
 namespace Ui {
     class ForumProperties;

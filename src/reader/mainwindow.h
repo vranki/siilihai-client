@@ -11,8 +11,8 @@
 #include <QMessageBox>
 #include <QSettings>
 
-#include <siilihai/forumdatabase.h>
-#include <siilihai/parserengine.h>
+#include <siilihai/forumdatabase/forumdatabase.h>
+#include <siilihai/parser/parserengine.h>
 
 #ifdef INCLUDE_SIILIHAI_VERSION
 #include "../../siilihai-version.h"

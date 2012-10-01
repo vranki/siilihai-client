@@ -1,8 +1,8 @@
 #include "messagelistpatterneditor.h"
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/forumsubscription.h>
-#include <siilihai/forummessage.h>
+#include <siilihai/forumdata/forumgroup.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/forumdata/forummessage.h>
 
 MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
                                                    ForumParser *par,

@@ -5,7 +5,7 @@
 #include <QtGui>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumsubscription.h>
+#include <siilihai/forumdata/forumsubscription.h>
 #include "downloaddialog.h"
 #include "openrequestdialog.h"
 #include "patterneditor.h"

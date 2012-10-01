@@ -1,10 +1,10 @@
 #include "forumproperties.h"
 #include "ui_forumproperties.h"
-#include <siilihai/forumgroup.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/parserengine.h>
-#include <siilihai/forumsubscription.h>
-#include <siilihai/parserdatabase.h>
+#include <siilihai/forumdata/forumgroup.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/parser/parserengine.h>
+#include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/parser/parserdatabase.h>
 
 ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDatabase &f) :
     QDialog(parent), ui(new Ui::ForumProperties), fdb(f) {

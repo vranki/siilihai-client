@@ -1,12 +1,12 @@
 #include "forumlistwidget.h"
 #include "favicon.h"
 #include <siilihai/messageformatting.h>
-#include <siilihai/forumthread.h>
-#include <siilihai/forummessage.h>
-#include <siilihai/parserdatabase.h>
-#include <siilihai/forumdatabase.h>
-#include <siilihai/forumsubscription.h>
-#include <siilihai/forumgroup.h>
+#include <siilihai/forumdata/forumthread.h>
+#include <siilihai/forumdata/forummessage.h>
+#include <siilihai/parser/parserdatabase.h>
+#include <siilihai/forumdatabase/forumdatabase.h>
+#include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/forumdata/forumgroup.h>
 
 
 ForumListWidget::ForumListWidget(QWidget *parent) : QToolBox(parent), currentGroup(0) {

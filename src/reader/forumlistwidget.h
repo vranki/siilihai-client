@@ -13,7 +13,7 @@
 #include <QContextMenuEvent>
 #include <QMessageBox>
 
-#include <siilihai/parserengine.h>
+#include <siilihai/parser/parserengine.h>
 
 class Favicon;
 class ForumGroup;
