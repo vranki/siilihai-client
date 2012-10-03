@@ -93,6 +93,7 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     addItem(lw, sub->alias());
     connect(lw, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem *)), this, SLOT(groupSelected(QListWidgetItem*,QListWidgetItem *)));
     connect(sub, SIGNAL(unreadCountChanged()), this, SLOT(updateSubscriptionLabel()));
+    connect(sub, SIGNAL(changed()), this, SLOT(updateSubscriptionLabel()));
     connect(sub, SIGNAL(groupAdded(ForumGroup*)), this, SLOT(groupFound(ForumGroup*)));
     connect(sub, SIGNAL(groupRemoved(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
@@ -179,6 +180,13 @@ void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
 
     if(sub->unreadCount() > 0)
         title = QString("%1 (%2)").arg(title).arg(sub->unreadCount());
+#ifdef DEBUG_INFO
+        if(sub->beingSynced())
+            title += "(S)";
+        if(sub->beingUpdated())
+            title += "(U)";
+#endif
+
     setItemText(indexOf(lw), title);
 }
 

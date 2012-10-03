@@ -12,7 +12,7 @@ exists(../siilihai-version.h) {
 }
 
 CONFIG(debug_info) {
-    message(XBXBMXBMM . enabling some extra stuff)
+    message(config option debug_info - enabling some extra stuff)
     DEFINES += DEBUG_INFO
 }
 
