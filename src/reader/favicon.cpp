@@ -70,18 +70,22 @@ void Favicon::update() {
 }
 
 void Favicon::engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState) {
-    if(newState==ParserEngine::PES_UPDATING || newState==ParserEngine::PES_UPDATING_PARSER) {
+    bool shouldBlink = false;
+    if(newState==ParserEngine::PES_UPDATING || newState==ParserEngine::PES_UPDATING_PARSER)
+        shouldBlink = true;
+    if(engine->subscription() && engine->subscription()->scheduledForUpdate() || engine->subscription()->beingSynced())
+        shouldBlink = true;
+
+
+    if(shouldBlink) {
         update();
         blinkTimer.start();
-        //        emit iconChanged(subscription, QIcon(":data/view-refresh.png"));
-    } else if(newState==ParserEngine::PES_IDLE) {
+    } else {
         blinkAngle = 0;
         blinkTimer.stop();
         emit iconChanged(subscription, currentpic);
-    } else if(newState==ParserEngine::PES_ERROR) {
-        blinkAngle = 0;
-        blinkTimer.stop();
-
+    }
+    if(newState==ParserEngine::PES_ERROR) {
         QPixmap outPic(currentpic);
         QPainter painter(&outPic);
         painter.drawPixmap(0,0,outPic.width(),outPic.height(), QPixmap(":data/dialog-error.png"));

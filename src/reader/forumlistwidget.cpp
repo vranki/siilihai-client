@@ -183,6 +183,8 @@ void ForumListWidget::updateSubscriptionLabel(ForumSubscription* sub) {
 #ifdef DEBUG_INFO
         if(sub->beingSynced())
             title += "(S)";
+        if(sub->scheduledForUpdate())
+            title += "(u)";
         if(sub->beingUpdated())
             title += "(U)";
 #endif
