@@ -1,3 +1,3 @@
 [D-Bus Service]
 name=com.siilihai.siilihai-client
-Exec=/usr/bin/siilihai
+Exec=/usr/bin/siilihai-client

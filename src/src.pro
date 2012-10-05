@@ -1,7 +1,7 @@
 SUBDIRS += reader
 
 TEMPLATE = app
-TARGET = siilihai
+TARGET = siilihai-client
 target.path = $$[QT_INSTALL_BINS]
 INSTALLS += target
 
