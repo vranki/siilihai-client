@@ -5,7 +5,7 @@
 #include <QtGui>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/parser/forumsubscriptionparsed.h>
 #include "downloaddialog.h"
 #include "openrequestdialog.h"
 #include "patterneditor.h"
@@ -59,7 +59,7 @@ private:
     ForumParser parser;
     QNetworkAccessManager nam;
     ForumSession session;
-    ForumSubscription subscription;
+    ForumSubscriptionParsed subscription;
     PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;
     ForumGroup *selectedGroup;
     ForumThread *selectedThread;

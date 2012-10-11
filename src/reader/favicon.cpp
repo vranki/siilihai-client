@@ -11,19 +11,21 @@ Favicon::Favicon(QObject *parent, ForumSubscription *sub) : QObject(parent) {
     blinkTimer.setInterval(100);
     blinkTimer.setSingleShot(false);
     subscriptionChanged();
+    engineSet = false;
 }
 
 Favicon::~Favicon() {
 }
 
 void Favicon::subscriptionChanged() {
-    if(subscription->parserEngine()) {
-        connect(subscription->parserEngine(),
-                SIGNAL(stateChanged(ParserEngine *, ParserEngine::ParserEngineState, ParserEngine::ParserEngineState)),
+    if(engineSet) return;
+    if(subscription->updateEngine()) {
+        engineSet = true;
+        connect(subscription->updateEngine(),
+                SIGNAL(stateChanged(UpdateEngine::UpdateEngineState, UpdateEngine::UpdateEngineState)),
                 this,
-                SLOT(engineStateChanged(ParserEngine *, ParserEngine::ParserEngineState)));
-        engineStateChanged(subscription->parserEngine(), subscription->parserEngine()->state());
-    } else {
+                SLOT(engineStateChanged(UpdateEngine::UpdateEngineState)));
+        engineStateChanged(subscription->updateEngine(), subscription->updateEngine()->state());
     }
 }
 
@@ -69,13 +71,13 @@ void Favicon::update() {
     emit iconChanged(subscription, QIcon(outPic));
 }
 
-void Favicon::engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState) {
+void Favicon::engineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngineState newState) {
+    qDebug() << Q_FUNC_INFO << newState;
     bool shouldBlink = false;
-    if(newState==ParserEngine::PES_UPDATING || newState==ParserEngine::PES_UPDATING_PARSER)
+    if(newState==UpdateEngine::PES_UPDATING)
         shouldBlink = true;
-    if(engine->subscription() && engine->subscription()->scheduledForUpdate() || engine->subscription()->beingSynced())
+    if(engine->subscription() && (engine->subscription()->scheduledForUpdate() || engine->subscription()->beingSynced()))
         shouldBlink = true;
-
 
     if(shouldBlink) {
         update();
@@ -92,6 +94,11 @@ void Favicon::engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngin
 
         emit iconChanged(subscription, QIcon(outPic));
     }
+}
+
+void Favicon::engineStateChanged(UpdateEngine::UpdateEngineState newState) {
+    UpdateEngine *engine = qobject_cast<UpdateEngine*>(sender());
+    engineStateChanged(engine, newState);
 }
 /*
 void Favicon::setReloading(bool rel, float progress) {

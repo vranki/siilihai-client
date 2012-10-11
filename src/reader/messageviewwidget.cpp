@@ -33,10 +33,10 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         webView.load(QUrl("qrc:/data/blankmessage/index.html"));
         return;
     }
-    qDebug() << "Selected message " << msg->toString() << "Unreads: " << msg->thread()->group()->subscription()->unreadCount()
+    qDebug() << Q_FUNC_INFO << "Selected message " << msg->toString() << "Unreads: " << msg->thread()->group()->subscription()->unreadCount()
                 << msg->thread()->group()->unreadCount() << msg->thread()->unreadCount();
-    if(msg->thread()->group()->subscription()->parserEngine()) {
-        QNetworkAccessManager *nam = msg->thread()->group()->subscription()->parserEngine()->networkAccessManager();
+    if(msg->thread()->group()->subscription()->updateEngine()) {
+        QNetworkAccessManager *nam = msg->thread()->group()->subscription()->updateEngine()->networkAccessManager();
         if(webView.page()->networkAccessManager()!=nam) {
             webView.page()->setNetworkAccessManager(nam); // Crashes??
         }

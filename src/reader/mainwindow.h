@@ -53,8 +53,8 @@ signals:
     void startSyncClicked();
     void endSyncClicked();
 public slots:
-    void parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState,
-                                  ParserEngine::ParserEngineState oldState);
+    void parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
+                                  UpdateEngine::UpdateEngineState oldState);
     void setOffline(bool offline);
     void showMessage(QString msg, int time=5000);
 private slots:

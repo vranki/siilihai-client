@@ -53,7 +53,7 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
     if(forum)
         forum->disconnect(this);
     connect(fdb, SIGNAL(subscriptionRemoved(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
-    if(forum->parserEngine()->state() == ParserEngine::PES_UPDATING) {
+    if(forum->updateEngine()->state() == ParserEngine::PES_UPDATING) {
         close();
         return;
     }

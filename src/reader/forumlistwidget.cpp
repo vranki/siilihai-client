@@ -98,12 +98,11 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     connect(sub, SIGNAL(groupRemoved(ForumGroup*)), this, SLOT(groupDeleted(ForumGroup*)));
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
-    Q_ASSERT(sub->parserEngine());
-    connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)),
-            this, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState)));
+    Q_ASSERT(sub->updateEngine());
+    connect(sub->updateEngine(), SIGNAL(stateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)),
+            this, SLOT(parserEngineStateChanged(UpdateEngine::UpdateEngineState)));
 
-    if(sub->parserEngine()->parser())
-        setupFavicon(sub);
+    setupFavicon(sub);
 
     foreach(ForumGroup *grp, sub->values())
         groupFound(grp);
@@ -115,7 +114,10 @@ void ForumListWidget::subscriptionChanged(ForumSubscription *sub) {
 }
 
 void ForumListWidget::setupFavicon(ForumSubscription *sub) {
-    QString fiUrl = sub->parserEngine()->parser()->forum_url;
+    QString fiUrl = sub->forumUrl().toString(); // @todo modify to QUrl handling..
+    if(fiUrl.isNull()) return; // No parser -> no url known yet
+    if(sub->isParsed())
+        fiUrl = qobject_cast<ForumSubscriptionParsed*>(sub)->parserEngine()->parser()->forum_url;
     fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
     fiUrl = fiUrl + "/favicon.ico";
     Q_ASSERT(listWidgets.value(sub));
@@ -314,9 +316,10 @@ void ForumListWidget::groupSubscriptionsClicked() {
     if(getSelectedForum()) emit groupSubscriptions(getSelectedForum());
 }
 
-void ForumListWidget::parserEngineStateChanged(ParserEngine* engine,ParserEngine::ParserEngineState state) {
+void ForumListWidget::parserEngineStateChanged(UpdateEngine::UpdateEngineState state) {
+    UpdateEngine *engine = qobject_cast<UpdateEngine*>(sender());
     if(!engine->subscription()) return;
-    if(!forumIcons.contains(engine->subscription()) && (engine->parser())) {
+    if(!forumIcons.contains(engine->subscription()) && (engine->state() != UpdateEngine::PES_ENGINE_NOT_READY)) {
         setupFavicon(engine->subscription());
     }
 }

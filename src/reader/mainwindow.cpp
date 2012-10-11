@@ -180,7 +180,9 @@ void MainWindow::viewInBrowserClickedSlot() {
 }
 
 // Caution - engine->subscription() may be null (when deleted)!
-void MainWindow::parserEngineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState, ParserEngine::ParserEngineState oldState) {
+void MainWindow::parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
+                                          UpdateEngine::UpdateEngineState oldState) {
+    ParserEngine *engine = qobject_cast<ParserEngine*> (sender());
     if (newState==ParserEngine::PES_UPDATING) {
         busyParserEngines.insert(engine);
     } else {
@@ -324,8 +326,8 @@ void MainWindow::userAccountSettings() {
 }
 
 void MainWindow::subscriptionFound(ForumSubscription *sub) {
-    connect(sub->parserEngine(), SIGNAL(stateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)),
-            this, SLOT(parserEngineStateChanged(ParserEngine*,ParserEngine::ParserEngineState,ParserEngine::ParserEngineState)));
+    connect(sub->updateEngine(), SIGNAL(stateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)),
+            this, SLOT(parserEngineStateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)));
 }
 
 void MainWindow::showMessage(QString msg, int time) {

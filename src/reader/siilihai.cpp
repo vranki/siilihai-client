@@ -96,10 +96,14 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 void Siilihai::reportClicked(ForumSubscription* forum) {
     if(currentState != SH_READY) return;
     if (forum) {
-        ForumParser *parserToReport = forum->parserEngine()->parser();
-        ReportParser *rpt = new ReportParser(mainWin, forum->parser(), parserToReport->name());
-        connect(rpt, SIGNAL(parserReport(ParserReport*)), &protocol, SLOT(sendParserReport(ParserReport*)));
-        rpt->exec();
+        if(forum->isParsed()) {
+            ForumParser *parserToReport = qobject_cast<ForumSubscriptionParsed*>(forum)->parserEngine()->parser();
+            ReportParser *rpt = new ReportParser(mainWin, parserToReport->id(), parserToReport->name());
+            connect(rpt, SIGNAL(parserReport(ParserReport*)), &protocol, SLOT(sendParserReport(ParserReport*)));
+            rpt->exec();
+        } else {
+            errorDialog(forum->alias() + " does not use a parser");
+        }
     }
 }
 

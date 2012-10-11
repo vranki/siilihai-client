@@ -26,7 +26,10 @@ void ForumProperties::updateValues() {
     ui->forumName->setText(fs->alias());
     ui->threads_per_group->setValue(fs->latestThreads());
     ui->messages_per_thread->setValue(fs->latestMessages());
-    if(fs->parserEngine()->parser()->supportsLogin()) {
+    bool supportsLogin = false;
+    if(fs->isParsed())
+        supportsLogin = qobject_cast<ForumSubscriptionParsed*>(fs)->parserEngine()->parser()->supportsLogin();
+    if(supportsLogin) {
         ui->authenticationGroupbox->setEnabled(true);
         if(fs->username().length()>0)  {
             ui->authenticationGroupbox->setChecked(true);

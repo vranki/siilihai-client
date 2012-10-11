@@ -30,12 +30,13 @@ public slots:
     void replyReceived(QNetworkReply *reply);
     void update();
     void subscriptionChanged();
-    void engineStateChanged(ParserEngine *engine, ParserEngine::ParserEngineState newState);
+    void engineStateChanged(UpdateEngine::UpdateEngineState newState);
+    void engineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngineState newState);
 signals:
     void iconChanged(ForumSubscription *e, QIcon newIcon);
 private:
     ForumSubscription *subscription;
-    bool reloading;
+    bool reloading, engineSet;
     QNetworkAccessManager nam;
     QPixmap currentpic;
     float currentProgress;

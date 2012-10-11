@@ -1,5 +1,9 @@
 #include "subscribewizard.h"
 
+#include <siilihai/parser/forumsubscriptionparsed.h>
+#include <siilihai/tapatalk/forumsubscriptiontapatalk.h>
+#include <QUrl>
+
 SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett) :
     QWizard(parent), protocol(proto), settings(sett) {
     selectedParser = 0;
@@ -19,9 +23,9 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
     connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
     progress = 0;
     parser = 0;
+    provider = ForumSubscription::FP_NONE;
     protocol.listParsers();
     subscribeForm.forumList->addItem(QString("Downloading list of available forums..."));
-    subscribeForm.pagePreview->hide();
     show();
 }
 
@@ -125,35 +129,46 @@ void SubscribeWizard::pageChanged(int id) {
     if (id == 0) {
         selectedParser = 0;
     } else if (id == 1) {
-        if (allParsers.size() == 0 || subscribeForm.forumList->selectedItems().size() != 1) {
-            back();
-        } else {
-            selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
-            connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-            protocol.getParser(selectedParser->id());
-            progress = new QProgressDialog("Downloading parser definition..", "Cancel", 0, 3, this);
-            progress->setWindowModality(Qt::WindowModal);
-            progress->setValue(0);
-            progress->show();
+        if(subscribeForm.tabWidget->currentIndex()==0) { // Parsed
+            provider = ForumSubscription::FP_PARSER;
+            if (allParsers.size() == 0 || subscribeForm.forumList->selectedItems().size() != 1) {
+                back();
+            } else {
+                selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
+                connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
+                protocol.getParser(selectedParser->id());
+                progress = new QProgressDialog("Downloading parser definition..", "Cancel", 0, 3, this);
+                progress->setWindowModality(Qt::WindowModal);
+                progress->setValue(0);
+                progress->show();
+            }
+        } else if(subscribeForm.tabWidget->currentIndex()==1) { // Custom
+            provider = ForumSubscription::FP_TAPATALK;
+            QUrl forumUrl = QUrl(subscribeForm.forumUrl->text());
+            if(forumUrl.isValid()) {
+                subscribeForumLogin.accountGroupBox->setEnabled(false); // For now..
+            } else {
+                back();
+            }
         }
     } else if (id == 2) {
-        if (subscribeForumLogin.accountGroupBox->isChecked()) {
-            /*
-    progress = new QProgressDialog("Checking your credentials..",
-    "Cancel", 0, 3, this);
-    progress->setWindowModality(Qt::WindowModal);
-    progress->setValue(0);
-    */
-        }
-        subscribeForumVerify.forumName->setText(selectedParser->name());
-        subscribeForumVerify.forumUrl->setText(selectedParser->forum_url);
         QString typeString;
-        if(selectedParser->parser_type == 0) {
-            typeString = "Public";
-        } else if(selectedParser->parser_type == 1) {
-            typeString = "Private";
+        if(provider==ForumSubscription::FP_PARSER) {
+            subscribeForumVerify.forumName->setText(selectedParser->name());
+            subscribeForumVerify.forumUrl->setText(selectedParser->forum_url);
+            if(selectedParser->parser_type == 0) {
+                typeString = "Public";
+            } else if(selectedParser->parser_type == 1) {
+                typeString = "Private";
+            } else {
+                typeString = "Development";
+            }
+        } else if(provider==ForumSubscription::FP_TAPATALK) {
+            subscribeForumVerify.forumName->setText("TapaTalk Forum");
+            subscribeForumVerify.forumUrl->setText(subscribeForm.forumUrl->text());
+            typeString = "TapaTalk";
         } else {
-            typeString = "Development";
+            Q_ASSERT(false);
         }
         subscribeForumVerify.forumType->setText(typeString);
     }
@@ -190,7 +205,7 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted
 }
 
 void SubscribeWizard::wizardAccepted() {
-    if(!parser.isSane()) {
+    if(provider==ForumSubscription::FP_PARSER && !parser.isSane()) {
         qDebug() << Q_FUNC_INFO << "Parsed not sane (yet), please hold on..";
         return;
     }
@@ -201,17 +216,28 @@ void SubscribeWizard::wizardAccepted() {
         user = subscribeForumLogin.usernameEdit->text();
         pass = subscribeForumLogin.passwordEdit->text();
     }
+    ForumSubscription *fs = 0;
+    if(provider==ForumSubscription::FP_PARSER) {
+        ForumSubscriptionParsed *fsParsed = new ForumSubscriptionParsed(this, true);
+        fsParsed->setForumId(parser.id()); // @todo temp
+        fsParsed->setParser(parser.id());
+        fs = fsParsed;
+        Q_ASSERT(parser.isSane());
+    } else if(provider==ForumSubscription::FP_TAPATALK) {
+        ForumSubscriptionTapaTalk *fsTt = new ForumSubscriptionTapaTalk(this, true);
+        fsTt->setForumId(rand()); // @todo temp
+        QUrl forumUrl(subscribeForm.forumUrl->text());
+        Q_ASSERT(forumUrl.isValid());
+        fsTt->setForumUrl(forumUrl);
+        fs = fsTt;
+    }
+    fs->setAlias(subscribeForumVerify.forumName->text());
+    fs->setUsername(user);
+    fs->setPassword(pass);
+    fs->setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
+    fs->setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
 
-    ForumSubscription fs(this);
-    fs.setParser(parser.id());
-    fs.setAlias(subscribeForumVerify.forumName->text());
-    fs.setUsername(user);
-    fs.setPassword(pass);
-    fs.setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
-    fs.setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
-
-    Q_ASSERT(parser.isSane());
-    emit(forumAdded(&fs));
+    emit(forumAdded(fs));
     deleteLater();
 }
 

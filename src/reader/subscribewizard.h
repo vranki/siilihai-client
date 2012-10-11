@@ -14,6 +14,8 @@
 #include "ui_subscribeforum_login.h"
 #include "ui_subscribeforum_verify.h"
 
+class ForumParser;
+
 class SubscribeWizard: public QWizard {
     Q_OBJECT
 
@@ -46,6 +48,7 @@ private:
     QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
     ForumParser *selectedParser;
     ForumParser parser;
+    ForumSubscription::ForumProvider provider;
 };
 
 #endif // SubscribeWizard_H
