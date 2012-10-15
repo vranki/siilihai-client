@@ -4,13 +4,13 @@
 #include <QtGui/QWidget>
 #include <QDesktopServices>
 #include <QTimer>
-#include <siilihai/forumsession.h>
-#include <siilihai/patternmatcher.h>
 #include <siilihai/parser/forumparser.h>
-
+#include <siilihai/parser/forumsession.h>
+#include <siilihai/parser/patternmatcher.h>
 #include "ui_patterneditor.h"
 
 class ForumSubscription;
+class PatternMatcher;
 
 class PatternEditor : public QWidget
 {
