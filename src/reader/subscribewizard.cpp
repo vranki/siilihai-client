@@ -225,7 +225,6 @@ void SubscribeWizard::wizardAccepted() {
         Q_ASSERT(parser.isSane());
     } else if(provider==ForumSubscription::FP_TAPATALK) {
         ForumSubscriptionTapaTalk *fsTt = new ForumSubscriptionTapaTalk(this, true);
-        fsTt->setForumId(rand()); // @todo temp
         QUrl forumUrl(subscribeForm.forumUrl->text());
         Q_ASSERT(forumUrl.isValid());
         fsTt->setForumUrl(forumUrl);
