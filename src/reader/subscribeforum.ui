@@ -104,6 +104,29 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="1">
+        <widget class="QProgressBar" name="progressBar">
+         <property name="maximum">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <number>-1</number>
+         </property>
+         <property name="textVisible">
+          <bool>false</bool>
+         </property>
+         <property name="format">
+          <string>Checking</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="checkText">
+         <property name="text">
+          <string>Checking...</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>

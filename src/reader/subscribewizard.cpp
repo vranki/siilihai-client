@@ -2,10 +2,11 @@
 
 #include <siilihai/parser/forumsubscriptionparsed.h>
 #include <siilihai/tapatalk/forumsubscriptiontapatalk.h>
+#include <siilihai/forumdata/forumsubscription.h>
 #include <QUrl>
 
 SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett) :
-    QWizard(parent), protocol(proto), settings(sett) {
+    QWizard(parent), protocol(proto), settings(sett), newForum(this, true, ForumSubscription::FP_NONE) {
     selectedParser = 0;
     setWizardStyle(QWizard::ModernStyle);
 #ifndef Q_WS_HILDON
@@ -47,6 +48,9 @@ QWizardPage *SubscribeWizard::createIntroPage() {
     layout->addWidget(widget);
     page->setLayout(layout);
     connect(subscribeForm.forumList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(forumClicked(QListWidgetItem*)));
+
+    subscribeForm.checkText->setVisible(false);
+    subscribeForm.progressBar->setVisible(false);
     return page;
 }
 
@@ -128,6 +132,8 @@ QWizardPage *SubscribeWizard::createVerifyPage() {
 void SubscribeWizard::pageChanged(int id) {
     if (id == 0) {
         selectedParser = 0;
+        newForum.setForumId(0);
+        newForum.setProvider(ForumSubscription::FP_NONE);
     } else if (id == 1) {
         if(subscribeForm.tabWidget->currentIndex()==0) { // Parsed
             provider = ForumSubscription::FP_PARSER;
@@ -145,10 +151,22 @@ void SubscribeWizard::pageChanged(int id) {
         } else if(subscribeForm.tabWidget->currentIndex()==1) { // Custom
             provider = ForumSubscription::FP_TAPATALK;
             QUrl forumUrl = QUrl(subscribeForm.forumUrl->text());
-            if(forumUrl.isValid()) {
-                subscribeForumLogin.accountGroupBox->setEnabled(false); // For now..
-            } else {
+            subscribeForm.checkText->setVisible(true);
+            if(!newForum.forumId()) {
+                if(forumUrl.isValid()) {
+                    subscribeForumLogin.accountGroupBox->setEnabled(false); // For now..
+                    subscribeForm.progressBar->setVisible(true);
+                    wizard.button(QWizard::NextButton)->setEnabled(false);
+                    newForum.setProvider(ForumSubscription::FP_TAPATALK);
+                    newForum.setForumUrl(forumUrl);
+                    newForum.setAlias(forumUrl.toString());
+                    connect(&protocol, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
+                    protocol.addForum(&newForum);
+                }
                 back();
+            } else {
+                subscribeForm.forumUrl->setFocus();
+                subscribeForm.checkText->setText("Invalid URI");
             }
         }
     } else if (id == 2) {
@@ -164,7 +182,6 @@ void SubscribeWizard::pageChanged(int id) {
                 typeString = "Development";
             }
         } else if(provider==ForumSubscription::FP_TAPATALK) {
-            subscribeForumVerify.forumName->setText("TapaTalk Forum");
             subscribeForumVerify.forumUrl->setText(subscribeForm.forumUrl->text());
             typeString = "TapaTalk";
         } else {
@@ -209,6 +226,7 @@ void SubscribeWizard::wizardAccepted() {
         qDebug() << Q_FUNC_INFO << "Parsed not sane (yet), please hold on..";
         return;
     }
+
     QString user = QString::null;
     QString pass = QString::null;
 
@@ -222,14 +240,17 @@ void SubscribeWizard::wizardAccepted() {
         fsParsed->setForumId(parser.id()); // @todo temp
         fsParsed->setParser(parser.id());
         fs = fsParsed;
+        fs->setForumUrl(QUrl(parser.forum_url));
         Q_ASSERT(parser.isSane());
     } else if(provider==ForumSubscription::FP_TAPATALK) {
         ForumSubscriptionTapaTalk *fsTt = new ForumSubscriptionTapaTalk(this, true);
         QUrl forumUrl(subscribeForm.forumUrl->text());
         Q_ASSERT(forumUrl.isValid());
-        fsTt->setForumUrl(forumUrl);
         fs = fsTt;
+        fs->setForumUrl(forumUrl);
+        fs->setForumId(newForum.forumId());
     }
+    Q_ASSERT(fs);
     fs->setAlias(subscribeForumVerify.forumName->text());
     fs->setUsername(user);
     fs->setPassword(pass);
@@ -249,4 +270,21 @@ void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {
     if(!fp) return;
     //subscribeForm.pagePreview->show(); sucks!
     //subscribeForm.pagePreview->load(QUrl(fp->forum_url));
+}
+
+void SubscribeWizard::newForumAdded(ForumSubscription *sub)
+{
+    disconnect(&protocol, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
+    subscribeForm.progressBar->setVisible(false);
+    wizard.button(QWizard::NextButton)->setEnabled(true);
+    if(sub) {
+        newForum.setForumId(sub->forumId());
+        newForum.setForumUrl(sub->forumUrl());
+        newForum.setProvider(sub->provider());
+        subscribeForumVerify.forumName->setText(sub->alias());
+        subscribeForm.checkText->setText("Forum added");
+        next();
+    } else {
+        subscribeForm.checkText->setText("Check failed");
+    }
 }

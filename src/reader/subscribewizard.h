@@ -36,6 +36,7 @@ private slots:
     void getParserFinished(ForumParser *parser);
     void comboItemChanged(int id);
     void forumClicked(QListWidgetItem* newItem);
+    void newForumAdded(ForumSubscription *sub);
 private:
     QWizard wizard;
     SiilihaiProtocol &protocol;
@@ -49,6 +50,7 @@ private:
     ForumParser *selectedParser;
     ForumParser parser;
     ForumSubscription::ForumProvider provider;
+    ForumSubscription newForum;
 };
 
 #endif // SubscribeWizard_H
