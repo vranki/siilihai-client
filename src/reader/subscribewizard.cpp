@@ -6,9 +6,10 @@
 #include <QUrl>
 
 SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett) :
-    QWizard(parent), protocol(proto), settings(sett), newForum(this, true, ForumSubscription::FP_NONE) {
+    QWizard(parent), protocol(proto), settings(sett), newForum(0, true, ForumSubscription::FP_NONE),
+    probe(this, proto) {
+    // setWizardStyle(QWizard::ModernStyle);
     selectedParser = 0;
-    setWizardStyle(QWizard::ModernStyle);
 #ifndef Q_WS_HILDON
     setPixmap(QWizard::WatermarkPixmap, QPixmap(":/data/siilis_wizard_watermark.png"));
 #endif
@@ -22,12 +23,10 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
     connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
     connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(comboItemChanged(int)));
     connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
-    progress = 0;
     parser = 0;
-    provider = ForumSubscription::FP_NONE;
-    protocol.listParsers();
     subscribeForm.forumList->addItem(QString("Downloading list of available forums..."));
     show();
+    protocol.listParsers();
 }
 
 SubscribeWizard::~SubscribeWizard() {
@@ -135,24 +134,21 @@ void SubscribeWizard::pageChanged(int id) {
         newForum.setForumId(0);
         newForum.setProvider(ForumSubscription::FP_NONE);
     } else if (id == 1) {
-        if(subscribeForm.tabWidget->currentIndex()==0) { // Parsed
-            provider = ForumSubscription::FP_PARSER;
-            if (allParsers.size() == 0 || subscribeForm.forumList->selectedItems().size() != 1) {
+        if(subscribeForm.tabWidget->currentIndex()==0) { // Selected from list
+            if(newForum.provider()==ForumSubscription::FP_NONE) {
+                if (allParsers.size() == 0 || subscribeForm.forumList->selectedItems().size() != 1) {
+                } else {
+                    selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
+                    connect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(forumGot(ForumSubscription*)));
+                    protocol.getForum(selectedParser->id());
+                    wizard.button(QWizard::NextButton)->setEnabled(false);
+                }
                 back();
-            } else {
-                selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
-                connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-                protocol.getParser(selectedParser->id());
-                progress = new QProgressDialog("Downloading parser definition..", "Cancel", 0, 3, this);
-                progress->setWindowModality(Qt::WindowModal);
-                progress->setValue(0);
-                progress->show();
             }
         } else if(subscribeForm.tabWidget->currentIndex()==1) { // Custom
-            provider = ForumSubscription::FP_TAPATALK;
             QUrl forumUrl = QUrl(subscribeForm.forumUrl->text());
             subscribeForm.checkText->setVisible(true);
-            if(!newForum.forumId()) {
+            if(newForum.provider()==ForumSubscription::FP_NONE) {
                 if(forumUrl.isValid()) {
                     subscribeForumLogin.accountGroupBox->setEnabled(false); // For now..
                     subscribeForm.progressBar->setVisible(true);
@@ -160,8 +156,8 @@ void SubscribeWizard::pageChanged(int id) {
                     newForum.setProvider(ForumSubscription::FP_TAPATALK);
                     newForum.setForumUrl(forumUrl);
                     newForum.setAlias(forumUrl.toString());
-                    connect(&protocol, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
-                    protocol.addForum(&newForum);
+                    connect(&probe, SIGNAL(probeResults(ForumSubscription*)), this, SLOT(probeResults(ForumSubscription*)));
+                    probe.probeUrl(forumUrl);
                 }
                 back();
             } else {
@@ -171,17 +167,15 @@ void SubscribeWizard::pageChanged(int id) {
         }
     } else if (id == 2) {
         QString typeString;
-        if(provider==ForumSubscription::FP_PARSER) {
-            subscribeForumVerify.forumName->setText(selectedParser->name());
-            subscribeForumVerify.forumUrl->setText(selectedParser->forum_url);
-            if(selectedParser->parser_type == 0) {
+        if(newForum.provider()==ForumSubscription::FP_PARSER) {
+            if(parser.parser_type == 0) {
                 typeString = "Public";
-            } else if(selectedParser->parser_type == 1) {
+            } else if(parser.parser_type == 1) {
                 typeString = "Private";
             } else {
                 typeString = "Development";
             }
-        } else if(provider==ForumSubscription::FP_TAPATALK) {
+        } else if(newForum.provider()==ForumSubscription::FP_TAPATALK) {
             subscribeForumVerify.forumUrl->setText(subscribeForm.forumUrl->text());
             typeString = "TapaTalk";
         } else {
@@ -193,10 +187,6 @@ void SubscribeWizard::pageChanged(int id) {
 
 void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted after this
     disconnect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-    if (progress) {
-        progress->deleteLater();
-        progress = 0;
-    }
     QString warningLabel;
     if (fp && fp->id() >= 0) {
         parser = (*fp);
@@ -209,6 +199,7 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted
             warningLabel = "Warning: This parser has been reported as not working.\n"
                     "Please report if it is working or not from the menu later.";
         }
+        next();
     } else {
         warningLabel = "Error: Unable to download parser definiton.\nCheck your network connection.";
         back();
@@ -219,10 +210,11 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted
         msgBox.setText(warningLabel);
         msgBox.exec();
     }
+    wizard.button(QWizard::NextButton)->setEnabled(true);
 }
 
 void SubscribeWizard::wizardAccepted() {
-    if(provider==ForumSubscription::FP_PARSER && !parser.isSane()) {
+    if(newForum.provider()==ForumSubscription::FP_PARSER && !parser.isSane()) {
         qDebug() << Q_FUNC_INFO << "Parsed not sane (yet), please hold on..";
         return;
     }
@@ -235,22 +227,19 @@ void SubscribeWizard::wizardAccepted() {
         pass = subscribeForumLogin.passwordEdit->text();
     }
     ForumSubscription *fs = 0;
-    if(provider==ForumSubscription::FP_PARSER) {
+    if(newForum.provider()==ForumSubscription::FP_PARSER) {
         ForumSubscriptionParsed *fsParsed = new ForumSubscriptionParsed(this, true);
-        fsParsed->setForumId(parser.id()); // @todo temp
         fsParsed->setParser(parser.id());
         fs = fsParsed;
         fs->setForumUrl(QUrl(parser.forum_url));
         Q_ASSERT(parser.isSane());
-    } else if(provider==ForumSubscription::FP_TAPATALK) {
+    } else if(newForum.provider()==ForumSubscription::FP_TAPATALK) {
         ForumSubscriptionTapaTalk *fsTt = new ForumSubscriptionTapaTalk(this, true);
-        QUrl forumUrl(subscribeForm.forumUrl->text());
-        Q_ASSERT(forumUrl.isValid());
         fs = fsTt;
-        fs->setForumUrl(forumUrl);
-        fs->setForumId(newForum.forumId());
+        fs->setForumUrl(newForum.forumUrl());
     }
     Q_ASSERT(fs);
+    fs->setForumId(newForum.forumId());
     fs->setAlias(subscribeForumVerify.forumName->text());
     fs->setUsername(user);
     fs->setPassword(pass);
@@ -274,10 +263,9 @@ void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {
 
 void SubscribeWizard::newForumAdded(ForumSubscription *sub)
 {
-    disconnect(&protocol, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
-    subscribeForm.progressBar->setVisible(false);
-    wizard.button(QWizard::NextButton)->setEnabled(true);
+    disconnect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
     if(sub) {
+        Q_ASSERT(sub->forumId());
         newForum.setForumId(sub->forumId());
         newForum.setForumUrl(sub->forumUrl());
         newForum.setProvider(sub->provider());
@@ -285,6 +273,59 @@ void SubscribeWizard::newForumAdded(ForumSubscription *sub)
         subscribeForm.checkText->setText("Forum added");
         next();
     } else {
-        subscribeForm.checkText->setText("Check failed");
+        subscribeForm.checkText->setText("Adding forum failed");
+        newForum.setProvider(ForumSubscription::FP_NONE);
+    }
+    subscribeForm.progressBar->setVisible(false);
+    wizard.button(QWizard::NextButton)->setEnabled(true);
+}
+
+void SubscribeWizard::probeResults(ForumSubscription *probedSub) {
+    disconnect(&probe, SIGNAL(probeResults(ForumSubscription*)), this, SLOT(probeResults(ForumSubscription*)));
+    if(!probedSub) {
+        subscribeForm.checkText->setText("No supported forum found");
+    } else {
+        subscribeForm.checkText->setText("Found supported forum");
+        newForum.setForumId(probedSub->forumId());
+        newForum.setForumUrl(probedSub->forumUrl());
+        newForum.setProvider(probedSub->provider());
+        newForum.setAlias(probedSub->alias());
+        if(newForum.alias().length() < 1) {
+            newForum.setAlias(newForum.forumUrl().host());
+            subscribeForumVerify.forumName->setText(newForum.alias());
+        }
+        subscribeForumVerify.forumName->setText(newForum.alias());
+        subscribeForumVerify.forumUrl->setText(newForum.forumUrl().toString());
+        if(newForum.forumId()) {
+            subscribeForm.progressBar->setVisible(false);
+            wizard.button(QWizard::NextButton)->setEnabled(true);
+            next();
+        } else {
+            subscribeForm.checkText->setText("Adding forum to server..");
+            connect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
+            protocol.addForum(&newForum);
+        }
+    }
+}
+
+void SubscribeWizard::forumGot(ForumSubscription *sub) {
+    if(sub) {
+        newForum.setForumId(sub->forumId());
+        newForum.setForumUrl(sub->forumUrl());
+        newForum.setProvider(sub->provider());
+        newForum.setAlias(sub->alias());
+        subscribeForumVerify.forumName->setText(newForum.alias());
+        subscribeForumVerify.forumUrl->setText(newForum.forumUrl().toString());
+        if(sub->provider() == ForumSubscription::FP_PARSER) {
+            connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
+            protocol.getParser(newForum.forumId());
+        } else {
+            probeResults(sub);
+        }
+    } else {
+        QMessageBox msgBox(this);
+        msgBox.setModal(true);
+        msgBox.setText("Unable to download forum info");
+        msgBox.exec();
     }
 }

@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QDebug>
 
+#include <siilihai/forumprobe.h>
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/forumdata/forumsubscription.h>
 #include <siilihai/parser/forumparser.h>
@@ -37,11 +38,12 @@ private slots:
     void comboItemChanged(int id);
     void forumClicked(QListWidgetItem* newItem);
     void newForumAdded(ForumSubscription *sub);
+    void probeResults(ForumSubscription *probedSub);
+    void forumGot(ForumSubscription *sub);
 private:
     QWizard wizard;
     SiilihaiProtocol &protocol;
     QSettings &settings;
-    QProgressDialog *progress;
     Ui::SubscribeForm subscribeForm;
     Ui::SubscribeForumLoginForm subscribeForumLogin;
     Ui::SubscribeForumVerify subscribeForumVerify;
@@ -49,8 +51,8 @@ private:
     QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
     ForumParser *selectedParser;
     ForumParser parser;
-    ForumSubscription::ForumProvider provider;
     ForumSubscription newForum;
+    ForumProbe probe;
 };
 
 #endif // SubscribeWizard_H

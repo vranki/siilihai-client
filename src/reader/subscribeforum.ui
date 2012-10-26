@@ -21,7 +21,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="searchTab">
       <attribute name="title">
@@ -120,7 +120,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="2" column="1">
         <widget class="QLabel" name="checkText">
          <property name="text">
           <string>Checking...</string>

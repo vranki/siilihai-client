@@ -5,13 +5,13 @@
 Favicon::Favicon(QObject *parent, ForumSubscription *sub) : QObject(parent) {
     subscription = sub;
     currentProgress = 0;
+    engineSet = false;
     reloading = false;
     connect(sub, SIGNAL(changed()), this, SLOT(subscriptionChanged()));
     connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(update()));
     blinkTimer.setInterval(100);
     blinkTimer.setSingleShot(false);
     subscriptionChanged();
-    engineSet = false;
 }
 
 Favicon::~Favicon() {
