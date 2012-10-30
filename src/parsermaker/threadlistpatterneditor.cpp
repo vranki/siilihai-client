@@ -33,6 +33,7 @@ void ThreadListPatternEditor::downloadList() {
     downloadSubscription = subscription;
 
     session.initialize(&downloadParser, downloadSubscription, matcher);
+    currentGroup->setSubscribed(true); // To keep session happy
     session.listThreads(currentGroup);
 
     ui.sourceTextEdit->clear();

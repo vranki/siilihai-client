@@ -40,8 +40,8 @@ private slots:
     void newForumAdded(ForumSubscription *sub);
     void probeResults(ForumSubscription *probedSub);
     void forumGot(ForumSubscription *sub);
+    void checkUrlValidity();
 private:
-    QWizard wizard;
     SiilihaiProtocol &protocol;
     QSettings &settings;
     Ui::SubscribeForm subscribeForm;

@@ -23,10 +23,15 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
     connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
     connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(comboItemChanged(int)));
     connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
+
+    connect(subscribeForm.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(checkUrlValidity()));
+    connect(subscribeForm.forumUrl, SIGNAL(textEdited(QString)), this, SLOT(checkUrlValidity()));
+    connect(subscribeForm.forumList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(checkUrlValidity()));
     parser = 0;
     subscribeForm.forumList->addItem(QString("Downloading list of available forums..."));
     show();
     protocol.listParsers();
+    checkUrlValidity();
 }
 
 SubscribeWizard::~SubscribeWizard() {
@@ -141,7 +146,7 @@ void SubscribeWizard::pageChanged(int id) {
                     selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
                     connect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(forumGot(ForumSubscription*)));
                     protocol.getForum(selectedParser->id());
-                    wizard.button(QWizard::NextButton)->setEnabled(false);
+                    button(QWizard::NextButton)->setEnabled(false);
                 }
                 back();
             }
@@ -152,7 +157,7 @@ void SubscribeWizard::pageChanged(int id) {
                 if(forumUrl.isValid()) {
                     subscribeForumLogin.accountGroupBox->setEnabled(false); // For now..
                     subscribeForm.progressBar->setVisible(true);
-                    wizard.button(QWizard::NextButton)->setEnabled(false);
+                    button(QWizard::NextButton)->setEnabled(false);
                     newForum.setProvider(ForumSubscription::FP_TAPATALK);
                     newForum.setForumUrl(forumUrl);
                     newForum.setAlias(forumUrl.toString());
@@ -210,7 +215,7 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted
         msgBox.setText(warningLabel);
         msgBox.exec();
     }
-    wizard.button(QWizard::NextButton)->setEnabled(true);
+    button(QWizard::NextButton)->setEnabled(true);
 }
 
 void SubscribeWizard::wizardAccepted() {
@@ -277,13 +282,15 @@ void SubscribeWizard::newForumAdded(ForumSubscription *sub)
         newForum.setProvider(ForumSubscription::FP_NONE);
     }
     subscribeForm.progressBar->setVisible(false);
-    wizard.button(QWizard::NextButton)->setEnabled(true);
+    button(QWizard::NextButton)->setEnabled(true);
 }
 
 void SubscribeWizard::probeResults(ForumSubscription *probedSub) {
     disconnect(&probe, SIGNAL(probeResults(ForumSubscription*)), this, SLOT(probeResults(ForumSubscription*)));
     if(!probedSub) {
         subscribeForm.checkText->setText("No supported forum found");
+        subscribeForm.progressBar->setVisible(false);
+        button(QWizard::NextButton)->setEnabled(true);
     } else {
         subscribeForm.checkText->setText("Found supported forum");
         newForum.setForumId(probedSub->forumId());
@@ -298,7 +305,7 @@ void SubscribeWizard::probeResults(ForumSubscription *probedSub) {
         subscribeForumVerify.forumUrl->setText(newForum.forumUrl().toString());
         if(newForum.forumId()) {
             subscribeForm.progressBar->setVisible(false);
-            wizard.button(QWizard::NextButton)->setEnabled(true);
+            button(QWizard::NextButton)->setEnabled(true);
             next();
         } else {
             subscribeForm.checkText->setText("Adding forum to server..");
@@ -327,5 +334,14 @@ void SubscribeWizard::forumGot(ForumSubscription *sub) {
         msgBox.setModal(true);
         msgBox.setText("Unable to download forum info");
         msgBox.exec();
+    }
+}
+
+void SubscribeWizard::checkUrlValidity() {
+    if(subscribeForm.tabWidget->currentIndex()==0) { // Selected from list
+        button(QWizard::NextButton)->setEnabled(subscribeForm.forumList->currentItem());
+    } else if(subscribeForm.tabWidget->currentIndex()==1){ // Custom
+        QUrl forumUrl = QUrl(subscribeForm.forumUrl->text());
+        button(QWizard::NextButton)->setEnabled(forumUrl.isValid());
     }
 }

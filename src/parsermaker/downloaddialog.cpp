@@ -1,4 +1,5 @@
 #include "downloaddialog.h"
+#include <QMessageBox>
 
 DownloadDialog::DownloadDialog(QWidget *parent, SiilihaiProtocol &p) :
     QDialog(parent), protocol(p) {
@@ -29,9 +30,13 @@ void DownloadDialog::listParsersFinished(QList<ForumParser*> parsers) {
 }
 
 void DownloadDialog::getParserFinished(ForumParser *parser) {
-    if(parser->isSane()) {
+    if(parser && parser->isSane()) {
         emit parserLoaded(parser);
         deleteLater();
+    } else {
+        QMessageBox msgBox;
+        msgBox.setText("Failed to download parser");
+        msgBox.exec();
     }
 }
 
