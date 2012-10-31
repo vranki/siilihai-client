@@ -41,7 +41,7 @@ void MessageListPatternEditor::downloadList() {
 }
 
 void MessageListPatternEditor::testPageSpanning() {
-    downloadParser = parser;
+    downloadParser = (*parser);
     downloadSubscription = subscription;
     downloadSubscription->setLatestThreads(999);
     downloadSubscription->setLatestMessages(999);
