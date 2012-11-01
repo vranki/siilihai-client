@@ -13,7 +13,7 @@
 #include "threadproperties.h"
 #include "useraccountdialog.h"
 
-MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMainWindow(parent), fdb(fd), viewAsGroup(this), mvw(this) {
+MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMainWindow(parent), fdb(fd), viewAsGroup(this) {
     ui.setupUi(this);
     offline = false;
     settings = s;
@@ -43,6 +43,10 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
     connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
     connect(ui.viewInBrowser, SIGNAL(clicked()), this, SLOT(viewInBrowserClickedSlot()));
+
+    mvw = new MessageViewWidget(this);
+
+
     flw = new ForumListWidget(this);
     connect(flw, SIGNAL(groupSelected(ForumGroup*)), this, SLOT(groupSelected(ForumGroup*)));
     connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this, SLOT(forumSelected(ForumSubscription*)));
@@ -64,18 +68,18 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(ui.nextUnreadButton, SIGNAL(clicked()), tlw, SLOT(selectNextUnread()));
     ui.topFrame->layout()->addWidget(tlw);
 
-    ui.horizontalSplitter->addWidget(&mvw);
-    connect(tlw, SIGNAL(messageSelected(ForumMessage*)), &mvw, SLOT(messageSelected(ForumMessage*)));
-    connect(ui.actionHTML, SIGNAL(triggered()), &mvw, SLOT(viewAsHTML()));
-    connect(ui.actionText, SIGNAL(triggered()), &mvw, SLOT(viewAsText()));
-    connect(ui.actionHTML_Source, SIGNAL(triggered()), &mvw, SLOT(viewAsSource()));
+    ui.horizontalSplitter->addWidget(mvw);
+    connect(tlw, SIGNAL(messageSelected(ForumMessage*)), mvw, SLOT(messageSelected(ForumMessage*)));
+    connect(ui.actionHTML, SIGNAL(triggered()), mvw, SLOT(viewAsHTML()));
+    connect(ui.actionText, SIGNAL(triggered()), mvw, SLOT(viewAsText()));
+    connect(ui.actionHTML_Source, SIGNAL(triggered()), mvw, SLOT(viewAsSource()));
     ui.actionHTML->setChecked(true);
 
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
 
     flw->installEventFilter(this);
     tlw->installEventFilter(this);
-    mvw.installEventFilter(this);
+    mvw->installEventFilter(this);
 
     if (!restoreGeometry(settings->value("reader_geometry").toByteArray()))
         showMaximized();
@@ -175,8 +179,8 @@ void MainWindow::groupSubscriptionsSlot() {
 }
 
 void MainWindow::viewInBrowserClickedSlot() {
-    if (mvw.currentMessage())
-        QDesktopServices::openUrl(mvw.currentMessage()->url());
+    if (mvw->currentMessage())
+        QDesktopServices::openUrl(mvw->currentMessage()->url());
 }
 
 // Caution - engine->subscription() may be null (when deleted)!
@@ -306,7 +310,7 @@ void MainWindow::groupSelected(ForumGroup *fg) {
 bool MainWindow::eventFilter(QObject *object, QEvent *event)
  {
     if(event->type() == QEvent::KeyPress) {
-        if (object == tlw || object == flw || object == &mvw ) {
+        if (object == tlw || object == flw || object == mvw ) {
             QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Space) {
                 tlw->selectNextUnread();

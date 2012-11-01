@@ -91,7 +91,7 @@ private:
     void closeEvent(QCloseEvent *event);
     ForumListWidget *flw;
     ThreadListWidget *tlw;
-    MessageViewWidget mvw;
+    MessageViewWidget *mvw;
     Ui::MainWindowClass ui;
     ForumDatabase &fdb;
     QSet<ParserEngine*> busyParserEngines;

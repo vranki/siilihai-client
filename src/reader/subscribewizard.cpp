@@ -181,7 +181,7 @@ void SubscribeWizard::pageChanged(int id) {
                 typeString = "Development";
             }
         } else if(newForum.provider()==ForumSubscription::FP_TAPATALK) {
-            subscribeForumVerify.forumUrl->setText(subscribeForm.forumUrl->text());
+            subscribeForumVerify.forumUrl->setText(newForum.forumUrl().toString());
             typeString = "TapaTalk";
         } else {
             Q_ASSERT(false);

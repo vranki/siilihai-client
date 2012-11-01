@@ -52,3 +52,5 @@ icons.path = $${DATADIR}/icons/hicolor/scalable/apps
 icons.files = data/siilihai-client.svg
 
 INSTALLS += icons
+
+QMAKE_DISTCLEAN += src/*.o src/moc_*.cpp debian/*.log -r src/debug src/release debian/tmp debian/siilihai-client debian/siilihai-client-dbg debian/libsiilihai

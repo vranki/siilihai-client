@@ -10,13 +10,13 @@ Page instfiles
  
 section
     setOutPath $INSTDIR
-    File siilihai.exe
+    File siilihai-client.exe
     File *.dll
     File *.ico
 
     writeUninstaller "$INSTDIR\uninstall.exe"
  
-    createShortCut "$SMPROGRAMS\Siilihai.lnk" "$INSTDIR\siilihai.exe" "$INSTDIR\siilis_icon_16.ico"
+    createShortCut "$SMPROGRAMS\Siilihai.lnk" "$INSTDIR\siilihai-client.exe" "$INSTDIR\siilis_icon_16.ico"
 sectionEnd
  
 section "uninstall"
