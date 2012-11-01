@@ -29,14 +29,14 @@ public:
 public slots:
     void replyReceived(QNetworkReply *reply);
     void update();
-    void subscriptionChanged();
+    void subscriptionChanged();/*
     void engineStateChanged(UpdateEngine::UpdateEngineState newState);
-    void engineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngineState newState);
+    void engineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngineState newState);*/
 signals:
     void iconChanged(ForumSubscription *e, QIcon newIcon);
 private:
     ForumSubscription *subscription;
-    bool reloading, engineSet;
+    bool reloading;//, engineSet;
     QNetworkAccessManager nam;
     QPixmap currentpic;
     float currentProgress;

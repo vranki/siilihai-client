@@ -5,7 +5,7 @@
 Favicon::Favicon(QObject *parent, ForumSubscription *sub) : QObject(parent) {
     subscription = sub;
     currentProgress = 0;
-    engineSet = false;
+//    engineSet = false;
     reloading = false;
     connect(sub, SIGNAL(changed()), this, SLOT(subscriptionChanged()));
     connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(update()));
@@ -18,7 +18,9 @@ Favicon::~Favicon() {
 }
 
 void Favicon::subscriptionChanged() {
-    if(engineSet) return;
+    if(!subscription) return;
+    //   if(engineSet) return;
+    /*
     if(subscription->updateEngine()) {
         engineSet = true;
         connect(subscription->updateEngine(),
@@ -26,6 +28,22 @@ void Favicon::subscriptionChanged() {
                 this,
                 SLOT(engineStateChanged(UpdateEngine::UpdateEngineState)));
         engineStateChanged(subscription->updateEngine(), subscription->updateEngine()->state());
+    }
+    */
+    bool shouldBlink = subscription->scheduledForUpdate() || subscription->beingSynced() || subscription->beingUpdated();
+    if(shouldBlink) {
+        update();
+        blinkTimer.start();
+    } else {
+        blinkAngle = 0;
+        blinkTimer.stop();
+        emit iconChanged(subscription, currentpic);
+    }
+    if(subscription->updateEngine() && subscription->updateEngine()->state()==ParserEngine::PES_ERROR) {
+        QPixmap outPic(currentpic);
+        QPainter painter(&outPic);
+        painter.drawPixmap(0,0,outPic.width(),outPic.height(), QPixmap(":data/dialog-error.png"));
+        emit iconChanged(subscription, QIcon(outPic));
     }
 }
 
@@ -71,6 +89,7 @@ void Favicon::update() {
     emit iconChanged(subscription, QIcon(outPic));
 }
 
+/*
 void Favicon::engineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngineState newState) {
     qDebug() << Q_FUNC_INFO << newState;
     bool shouldBlink = false;
@@ -79,37 +98,11 @@ void Favicon::engineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngin
     if(engine->subscription() && (engine->subscription()->scheduledForUpdate() || engine->subscription()->beingSynced()))
         shouldBlink = true;
 
-    if(shouldBlink) {
-        update();
-        blinkTimer.start();
-    } else {
-        blinkAngle = 0;
-        blinkTimer.stop();
-        emit iconChanged(subscription, currentpic);
-    }
-    if(newState==ParserEngine::PES_ERROR) {
-        QPixmap outPic(currentpic);
-        QPainter painter(&outPic);
-        painter.drawPixmap(0,0,outPic.width(),outPic.height(), QPixmap(":data/dialog-error.png"));
 
-        emit iconChanged(subscription, QIcon(outPic));
-    }
 }
 
 void Favicon::engineStateChanged(UpdateEngine::UpdateEngineState newState) {
     UpdateEngine *engine = qobject_cast<UpdateEngine*>(sender());
     engineStateChanged(engine, newState);
-}
-/*
-void Favicon::setReloading(bool rel, float progress) {
-    return;
-    if (rel != reloading || currentProgress != progress) {
-        currentProgress = progress;
-        if (currentProgress > 1)
-            currentProgress = 1;
-
-        reloading = rel;
-        update();
-    }
 }
 */
