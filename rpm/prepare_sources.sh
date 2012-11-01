@@ -1,5 +1,5 @@
 #/bin/bash
-version=2.0.0-1
+version=2.0.0
 target=siilihai-client
 
 rm -rf /tmp/$target-*
@@ -23,6 +23,6 @@ popd
 
 mv /tmp/$target-$version.tar.gz .
 pushd ..
-debuild -S -us -uc
+debuild -S -us -uc -I.git
 popd
 
