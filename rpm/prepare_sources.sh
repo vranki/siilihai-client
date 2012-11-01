@@ -1,5 +1,5 @@
 #/bin/bash
-version=1.3.0
+version=2.0.0-1
 target=siilihai-client
 
 rm -rf /tmp/$target-*
