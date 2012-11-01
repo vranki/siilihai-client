@@ -126,7 +126,9 @@ void ThreadListThreadItem::addMessage(ForumMessage *message) {
     Q_ASSERT(message->thread() == thread());
     Q_ASSERT(message->thread()->group() == _thread->group());
 
+#ifdef SANITY_CHECKS
     // DEBUG, check for dupclicates
+
     for(int i=0;i<childCount();i++) {
         ThreadListMessageItem *item = dynamic_cast<ThreadListMessageItem*> (child(i));
         if(item) {
@@ -136,6 +138,7 @@ void ThreadListThreadItem::addMessage(ForumMessage *message) {
             }
         }
     }
+#endif
 
     ThreadListMessageItem *item = 0;
     if(message->ordernum() == 0) { // First message - update thread item!

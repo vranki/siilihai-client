@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 SUBDIRS = src
 RESOURCES = siilihairesources.qrc
 OTHER_FILES += debian/control debian/rules debian/changelog debian/siilihai-client.install debian/copyright \
+    data/blankmessage/* rpm/* \
     android/res/values-ja/strings.xml \
     android/res/values-pt-rBR/strings.xml \
     android/res/values-de/strings.xml \

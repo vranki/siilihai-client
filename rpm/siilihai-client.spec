@@ -1,15 +1,15 @@
 Name: siilihai-client
-Version: 1.3.0
+Version: 2.0.0
 Release: 1
 Summary: Siilihai web forum reader
 License: GPL
 Group: Productivity/Networking/Web/Utilities
 Url: http://siilihai.com/
 Source: %{name}-%{version}.tar.gz
-Requires: libsiilihai
+Requires: libsiilihai2
 Requires: qtwebkit
 BuildRequires: qt-devel
-BuildRequires: libsiilihai-devel
+BuildRequires: libsiilihai2-devel
 BuildRequires: pkgconfig(QtCore) >= 4.6.0
 BuildRequires: pkgconfig(QtWebKit) >= 4.6.0
 

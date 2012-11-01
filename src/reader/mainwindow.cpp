@@ -199,7 +199,7 @@ void MainWindow::setOffline(bool readerOffline) {
 
 void MainWindow::about() {
     QString aboutText = "<h1>Siilihai</h1><p> by Ville Ranki &lt;ville.ranki@iki.fi&gt;</p> "
-                        "<p>Artwork by Gnome project and SJ</p><p>Released under GNU GPLv3</p>"
+                        "<p>Artwork by Gnome project and SJ</p><p>Powered by TapaTalk</p><p>Released under GNU GPLv3</p>"
                         "<p>Version: <b>Development</b> (Date)</p>";
     aboutText += "<p>Settings stored to " + settings->fileName() + "</p>";
 #ifdef SIILIHAI_CLIENT_VERSION
