@@ -32,7 +32,7 @@ cd ..
 function package_lib {
 clean_lib
 cd libsiilihai
-dpkg-buildpackage -rfakeroot -sa -S -i -I.git
+debuild -S -sa -I.git
 cd ..
 clean_lib
 }
@@ -40,7 +40,7 @@ clean_lib
 function package_app {
 clean_app
 cd siilihai-client
-dpkg-buildpackage -rfakeroot -sa -S -i -I.git
+debuild -S -sa -I.git
 cd ..
 clean_app
 }
