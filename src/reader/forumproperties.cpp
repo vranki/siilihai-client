@@ -29,6 +29,8 @@ void ForumProperties::updateValues() {
     bool supportsLogin = false;
     if(fs->isParsed())
         supportsLogin = qobject_cast<ForumSubscriptionParsed*>(fs)->parserEngine()->parser()->supportsLogin();
+    if(fs->isTapaTalk())
+        supportsLogin = true;
     if(supportsLogin) {
         ui->authenticationGroupbox->setEnabled(true);
         if(fs->username().length()>0)  {
@@ -82,9 +84,11 @@ void ForumProperties::saveChanges() {
     if(ui->authenticationGroupbox->isEnabled() && ui->username->text().length() > 0) {
         fs->setUsername(ui->username->text());
         fs->setPassword(ui->password->text());
+        fs->setAuthenticated(true);
     } else {
         fs->setUsername(QString::null);
         fs->setPassword(QString::null);
+        fs->setAuthenticated(false);
     }
     if(update)
         emit forumUpdateNeeded(fs);

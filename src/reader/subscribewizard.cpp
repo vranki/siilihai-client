@@ -134,10 +134,11 @@ QWizardPage *SubscribeWizard::createVerifyPage() {
 }
 
 void SubscribeWizard::pageChanged(int id) {
-    if (id == 0) {
+    if (id == 0) { // Selection page
         selectedParser = 0;
         newForum.setForumId(0);
         newForum.setProvider(ForumSubscription::FP_NONE);
+        subscribeForumLogin.accountGroupBox->setEnabled(true);
     } else if (id == 1) {
         if(subscribeForm.tabWidget->currentIndex()==0) { // Selected from list
             if(newForum.provider()==ForumSubscription::FP_NONE) {
@@ -155,7 +156,6 @@ void SubscribeWizard::pageChanged(int id) {
             subscribeForm.checkText->setVisible(true);
             if(newForum.provider()==ForumSubscription::FP_NONE) {
                 if(forumUrl.isValid()) {
-                    subscribeForumLogin.accountGroupBox->setEnabled(false); // For now..
                     subscribeForm.progressBar->setVisible(true);
                     button(QWizard::NextButton)->setEnabled(false);
                     newForum.setProvider(ForumSubscription::FP_TAPATALK);
@@ -170,7 +170,7 @@ void SubscribeWizard::pageChanged(int id) {
                 subscribeForm.checkText->setText("Invalid URI");
             }
         }
-    } else if (id == 2) {
+    } else if (id == 2) { // Verify page
         QString typeString;
         if(newForum.provider()==ForumSubscription::FP_PARSER) {
             if(parser.parser_type == 0) {
@@ -248,6 +248,7 @@ void SubscribeWizard::wizardAccepted() {
     fs->setAlias(subscribeForumVerify.forumName->text());
     fs->setUsername(user);
     fs->setPassword(pass);
+    fs->setAuthenticated(user.length() > 0);
     fs->setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
     fs->setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
 
