@@ -1,30 +1,32 @@
 #include "downloaddialog.h"
 #include <QMessageBox>
+#include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/parser/forumparser.h>
 
 DownloadDialog::DownloadDialog(QWidget *parent, SiilihaiProtocol &p) :
     QDialog(parent), protocol(p) {
     ui.setupUi(this);
-    connect(&protocol, SIGNAL(listParsersFinished(QList <ForumParser*>)), this, SLOT(listParsersFinished(QList <ForumParser*>)));
+    connect(&protocol, SIGNAL(listForumsFinished(QList <ForumParser*>)), this, SLOT(listForumsFinished(QList <ForumParser*>)));
     connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
     connect(ui.okButton, SIGNAL(clicked()), this, SLOT(okClicked()));
     connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(cancelClicked()));
-    protocol.listParsers();
+    protocol.listForums();
 }
 
 DownloadDialog::~DownloadDialog() {
-    qDeleteAll(allParsers);
+    qDeleteAll(allForums);
 }
 
 // @todo probably broken
-void DownloadDialog::listParsersFinished(QList<ForumParser*> parsers) {
+void DownloadDialog::listForumsFinished(QList<ForumSubscription*> forums) {
     ui.listWidget->clear();
-    allParsers = parsers;
-    foreach(ForumParser *parser, allParsers) {
+    allForums = forums;
+    foreach(ForumSubscription *forum, allForums) {
         QListWidgetItem *item = new QListWidgetItem(ui.listWidget);
-        item->setText(parser->name());
-        item->setToolTip(parser->forum_url);
+        item->setText(forum->alias());
+        item->setToolTip(forum->forumUrl().toString());
         ui.listWidget->addItem(item);
-        listWidgetItemForum[item] = parser;
+        listWidgetItemForum[item] = forum;
     }
     ui.okButton->setEnabled(true);
 }
@@ -43,7 +45,7 @@ void DownloadDialog::getParserFinished(ForumParser *parser) {
 void DownloadDialog::okClicked() {
     if(ui.listWidget->selectedItems().size()==0) return;
 
-    protocol.getParser(listWidgetItemForum[ui.listWidget->selectedItems()[0]]->id());
+    protocol.getParser(listWidgetItemForum[ui.listWidget->selectedItems()[0]]->forumId());
 }
 
 void DownloadDialog::cancelClicked() {

@@ -18,8 +18,8 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
     addPage(createLoginPage());
     addPage(createVerifyPage());
     setWindowTitle("Subscribe to a forum");
-    connect(&protocol, SIGNAL(listParsersFinished(QList <ForumParser*>)), this, SLOT(listParsersFinished(QList <ForumParser*>)));
-    connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this, SLOT(updateParserList()));
+    connect(&protocol, SIGNAL(listForumsFinished(QList <ForumParser*>)), this, SLOT(listForumsFinished(QList <ForumParser*>)));
+    connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this, SLOT(updateForumList()));
     connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
     connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(comboItemChanged(int)));
     connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
@@ -30,7 +30,7 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
     parser = 0;
     subscribeForm.forumList->addItem(QString("Downloading list of available forums..."));
     show();
-    protocol.listParsers();
+    protocol.listForums();
     checkUrlValidity();
 }
 
@@ -58,14 +58,14 @@ QWizardPage *SubscribeWizard::createIntroPage() {
     return page;
 }
 
-void SubscribeWizard::listParsersFinished(QList<ForumParser*> parsers) {
+void SubscribeWizard::listForumsFinished(QList<ForumParser*> parsers) {
     listWidgetItemForum.clear();
     qDeleteAll(allParsers);
     allParsers = parsers;
-    updateParserList();
+    updateForumList();
 }
 
-void SubscribeWizard::updateParserList() {
+void SubscribeWizard::updateForumList() {
     subscribeForm.forumList->clear();
     listWidgetItemForum.clear();
     foreach(ForumParser *parserIter, allParsers){
@@ -257,7 +257,7 @@ void SubscribeWizard::wizardAccepted() {
 }
 
 void SubscribeWizard::comboItemChanged(int id) {
-    updateParserList();
+    updateForumList();
 }
 
 void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {

@@ -4,7 +4,6 @@
 #include <QtGui/QDialog>
 
 #include <siilihai/siilihaiprotocol.h>
-#include <siilihai/parser/forumparser.h>
 
 #include "ui_downloaddialog.h"
 
@@ -17,7 +16,7 @@ public:
     ~DownloadDialog();
 
 public slots:
-    void listParsersFinished(QList <ForumParser*> parsers);
+    void listForumsFinished(QList <ForumSubscription*> forums);
     void getParserFinished(ForumParser *parser);
     void okClicked();
     void cancelClicked();
@@ -27,8 +26,8 @@ signals:
 private:
     Ui::DownloadDialogClass ui;
     SiilihaiProtocol &protocol;
-    QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
-    QList <ForumParser*> allParsers;
+    QHash <QListWidgetItem*, ForumSubscription*> listWidgetItemForum;
+    QList <ForumSubscription*> allForums;
 
 };
 
