@@ -9,7 +9,7 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
     QWizard(parent), protocol(proto), settings(sett), newForum(0, true, ForumSubscription::FP_NONE),
     probe(this, proto) {
     // setWizardStyle(QWizard::ModernStyle);
-    selectedParser = 0;
+    selectedForum = 0;
 #ifndef Q_WS_HILDON
     setPixmap(QWizard::WatermarkPixmap, QPixmap(":/data/siilis_wizard_watermark.png"));
 #endif
@@ -18,7 +18,7 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
     addPage(createLoginPage());
     addPage(createVerifyPage());
     setWindowTitle("Subscribe to a forum");
-    connect(&protocol, SIGNAL(listForumsFinished(QList <ForumParser*>)), this, SLOT(listForumsFinished(QList <ForumParser*>)));
+    connect(&protocol, SIGNAL(listForumsFinished(QList <ForumSubscription*>)), this, SLOT(listForumsFinished(QList <ForumSubscription*>)));
     connect(subscribeForm.searchString, SIGNAL(textEdited(QString)), this, SLOT(updateForumList()));
     connect(this, SIGNAL(accepted()), this, SLOT(wizardAccepted()));
     connect(subscribeForm.displayCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(comboItemChanged(int)));
@@ -35,8 +35,8 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSett
 }
 
 SubscribeWizard::~SubscribeWizard() {
-    qDeleteAll(allParsers);
-    allParsers.clear();
+    qDeleteAll(allForums);
+    allForums.clear();
 }
 
 QWizardPage *SubscribeWizard::createIntroPage() {
@@ -58,19 +58,20 @@ QWizardPage *SubscribeWizard::createIntroPage() {
     return page;
 }
 
-void SubscribeWizard::listForumsFinished(QList<ForumParser*> parsers) {
+void SubscribeWizard::listForumsFinished(QList<ForumSubscription*> forums) {
     listWidgetItemForum.clear();
-    qDeleteAll(allParsers);
-    allParsers = parsers;
+    qDeleteAll(allForums);
+    allForums = forums;
     updateForumList();
 }
 
 void SubscribeWizard::updateForumList() {
     subscribeForm.forumList->clear();
     listWidgetItemForum.clear();
-    foreach(ForumParser *parserIter, allParsers){
-        bool displayParser = false;
-        int parserType = parserIter->parser_type;
+    foreach(ForumSubscription *forumIter, allForums){
+        bool displayParser = true;
+        /*
+        int parserType = forumIter->parser_type;
         int ci = subscribeForm.displayCombo->currentIndex();
         switch (ci) {
         case 0:
@@ -89,14 +90,15 @@ void SubscribeWizard::updateForumList() {
             displayParser = true;
             break;
         }
+        */
         if (displayParser) {
-            if (parserIter->name().contains(subscribeForm.searchString->text())
-                    || parserIter->forum_url.contains(subscribeForm.searchString->text())) {
+            if (forumIter->alias().contains(subscribeForm.searchString->text())
+                    || forumIter->forumUrl().toString().contains(subscribeForm.searchString->text())) {
                 QListWidgetItem *item = new QListWidgetItem(subscribeForm.forumList);
-                item->setText(parserIter->name());
-                item->setToolTip(parserIter->forum_url);
+                item->setText(forumIter->alias());
+                item->setToolTip(forumIter->forumUrl().toString());
                 subscribeForm.forumList->addItem(item);
-                listWidgetItemForum[item] = parserIter;
+                listWidgetItemForum[item] = forumIter;
             }
         }
     }
@@ -135,18 +137,18 @@ QWizardPage *SubscribeWizard::createVerifyPage() {
 
 void SubscribeWizard::pageChanged(int id) {
     if (id == 0) { // Selection page
-        selectedParser = 0;
+        selectedForum = 0;
         newForum.setForumId(0);
         newForum.setProvider(ForumSubscription::FP_NONE);
         subscribeForumLogin.accountGroupBox->setEnabled(true);
     } else if (id == 1) {
         if(subscribeForm.tabWidget->currentIndex()==0) { // Selected from list
             if(newForum.provider()==ForumSubscription::FP_NONE) {
-                if (allParsers.size() == 0 || subscribeForm.forumList->selectedItems().size() != 1) {
+                if (allForums.size() == 0 || subscribeForm.forumList->selectedItems().size() != 1) {
                 } else {
-                    selectedParser = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
+                    selectedForum = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
                     connect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(forumGot(ForumSubscription*)));
-                    protocol.getForum(selectedParser->id());
+                    protocol.getForum(selectedForum->forumId());
                     button(QWizard::NextButton)->setEnabled(false);
                 }
                 back();
@@ -261,7 +263,7 @@ void SubscribeWizard::comboItemChanged(int id) {
 }
 
 void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {
-    ForumParser *fp = listWidgetItemForum.value(newItem);
+    ForumSubscription *fp = listWidgetItemForum.value(newItem);
     if(!fp) return;
     //subscribeForm.pagePreview->show(); sucks!
     //subscribeForm.pagePreview->load(QUrl(fp->forum_url));

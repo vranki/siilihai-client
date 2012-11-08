@@ -6,7 +6,7 @@
 DownloadDialog::DownloadDialog(QWidget *parent, SiilihaiProtocol &p) :
     QDialog(parent), protocol(p) {
     ui.setupUi(this);
-    connect(&protocol, SIGNAL(listForumsFinished(QList <ForumParser*>)), this, SLOT(listForumsFinished(QList <ForumParser*>)));
+    connect(&protocol, SIGNAL(listForumsFinished(QList <ForumSubscription*>)), this, SLOT(listForumsFinished(QList <ForumSubscription*>)));
     connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
     connect(ui.okButton, SIGNAL(clicked()), this, SLOT(okClicked()));
     connect(ui.cancelButton, SIGNAL(clicked()), this, SLOT(cancelClicked()));

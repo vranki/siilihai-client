@@ -30,7 +30,7 @@ signals:
     void forumAdded(ForumSubscription *fs); //fs valid during signal call
 
 private slots:
-    void listForumsFinished(QList <ForumParser*> parsers);
+    void listForumsFinished(QList <ForumSubscription*> parsers);
     void updateForumList();
     void pageChanged(int id);
     void wizardAccepted();
@@ -47,9 +47,9 @@ private:
     Ui::SubscribeForm subscribeForm;
     Ui::SubscribeForumLoginForm subscribeForumLogin;
     Ui::SubscribeForumVerify subscribeForumVerify;
-    QList <ForumParser*> allParsers;
-    QHash <QListWidgetItem*, ForumParser*> listWidgetItemForum;
-    ForumParser *selectedParser;
+    QList <ForumSubscription*> allForums;
+    QHash <QListWidgetItem*, ForumSubscription*> listWidgetItemForum;
+    ForumSubscription *selectedForum;
     ForumParser parser;
     ForumSubscription newForum;
     ForumProbe probe;

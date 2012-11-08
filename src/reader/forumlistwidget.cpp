@@ -43,6 +43,8 @@ void ForumListWidget::forumItemSelected(int i) {
     if(i >= 0) {
         sub = listWidgets.key(dynamic_cast<QListWidget*> (widget(i)));
 
+        qDebug() << Q_FUNC_INFO << "Selected sub " << sub->toString();
+
         foreach(ForumGroup *grp, sub->values()) {
             if(!g && grp->isSubscribed())
                 g = grp;
