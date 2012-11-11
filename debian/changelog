@@ -1,9 +1,16 @@
-siilihai-client (2.1.0) quantal; urgency=low
+siilihai-client (2.1.0~precise) precise; urgency=low
 
   * TapaTalk login now works
   * Bugfixes
 
  -- Ville Ranki <ville.ranki@iki.fi>  Thu, 01 Nov 2012 12:34:56 +0300
+
+siilihai-client (2.1.0) quantal; urgency=low
+
+   * TapaTalk login now works
+   * Bugfixes
+
+  -- Ville Ranki <ville.ranki@iki.fi>  Thu, 01 Nov 2012 12:34:56 +0300
 
 siilihai-client (2.0.0-1) quantal; urgency=low
 

@@ -86,6 +86,7 @@ echo *** Create installer ***
 cp siilihai-client/siilihai.nsi siilihai-win32
 cd siilihai-win32
 $WINE_CMD makensis.exe siilihai.nsi
+cd ..
 }
 
 #wine cmd 
