@@ -116,16 +116,12 @@ void ForumListWidget::subscriptionChanged(ForumSubscription *sub) {
 }
 
 void ForumListWidget::setupFavicon(ForumSubscription *sub) {
-    QString fiUrl = sub->forumUrl().toString(); // @todo modify to QUrl handling..
+    QString fiUrl = sub->faviconUrl();
     if(fiUrl.isNull()) return; // No parser -> no url known yet
-    if(sub->isParsed())
-        fiUrl = qobject_cast<ForumSubscriptionParsed*>(sub)->parserEngine()->parser()->forum_url;
-    fiUrl = fiUrl.replace(QUrl(fiUrl).path(), "");
-    fiUrl = fiUrl + "/favicon.ico";
     Q_ASSERT(listWidgets.value(sub));
     Favicon *fi = new Favicon(listWidgets.value(sub), sub); // Deleted automatically when listWidget deleted
     connect(fi, SIGNAL(iconChanged(ForumSubscription*, QIcon)), this, SLOT(iconUpdated(ForumSubscription*, QIcon)));
-    fi->fetchIcon(QUrl(QUrl(fiUrl)), QPixmap(":/data/emblem-web.png"));
+    fi->fetchIcon(QUrl(fiUrl), QPixmap(":/data/emblem-web.png"));
     forumIcons.insert(sub, fi);
 }
 
