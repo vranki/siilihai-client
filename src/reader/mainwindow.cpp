@@ -277,8 +277,14 @@ void MainWindow::updateEnabledButtons() {
     ui.actionUpdate_all->setEnabled(!offline);
     ui.actionSubscribe_to->setEnabled(!offline);
 
-    ui.stopButton->setEnabled(!busyParserEngines.isEmpty());
-    ui.updateButton->setEnabled(busyParserEngines.isEmpty() && !offline);
+    bool forumsUpdating = false;
+    foreach(ForumSubscription *sub, fdb.values()) {
+        if(sub->beingUpdated() || sub->scheduledForUpdate())
+            forumsUpdating = true;
+    }
+
+    ui.stopButton->setEnabled(forumsUpdating);
+    ui.updateButton->setEnabled(!offline);
 
     bool sane = (flw->getSelectedForum() != 0);
     ui.actionUpdate_selected->setEnabled( sane && !offline);
