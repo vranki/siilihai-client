@@ -233,6 +233,7 @@
     <addaction name="actionUpdate_all"/>
     <addaction name="actionUpdate_selected"/>
     <addaction name="actionForce_update_on_selected"/>
+    <addaction name="actionUpdate_all_parsers"/>
     <addaction name="separator"/>
     <addaction name="actionMark_forum_as_read"/>
     <addaction name="actionMark_forum_as_unread"/>
@@ -459,6 +460,11 @@
   <action name="actionEnd_sync">
    <property name="text">
     <string>End sync</string>
+   </property>
+  </action>
+  <action name="actionUpdate_all_parsers">
+   <property name="text">
+    <string>Update all parsers</string>
    </property>
   </action>
  </widget>

@@ -15,6 +15,8 @@ public:
     virtual ~MessageViewWidget();
     ForumMessage* currentMessage();
     bool scrollDown(); // Scrolls down if possible and returns true, if it did so.
+signals:
+    void currentMessageChanged(ForumMessage *msg);
 public slots:
     void messageSelected(ForumMessage *msg);
     void linkClicked ( const QUrl & url);

@@ -22,14 +22,14 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     viewAsGroup.addAction(ui.actionHTML_Source);
 
     ui.actionWeb_Page->setChecked(true);
-    connect(ui.actionSubscribe_to, SIGNAL(triggered()), this, SLOT(subscribeForumSlot()));
+    connect(ui.actionSubscribe_to, SIGNAL(triggered()), this, SIGNAL(subscribeForum()));
     connect(ui.actionGroup_Subscriptions, SIGNAL(triggered()), this, SLOT(groupSubscriptionsSlot()));
-    connect(ui.actionUpdate_all, SIGNAL(triggered()), this, SLOT(updateClickedSlot()));
+    connect(ui.actionUpdate_all, SIGNAL(triggered()), this, SIGNAL(updateClicked()));
     connect(ui.actionUpdate_selected, SIGNAL(triggered()), this, SLOT(updateSelectedClickedSlot()));
     connect(ui.actionForce_update_on_selected, SIGNAL(triggered()), this, SLOT(forceUpdateSelectedClickedSlot()));
     connect(ui.actionReport_broken_or_working, SIGNAL(triggered()), this, SLOT(reportClickedSlot()));
     connect(ui.actionUnsubscribe, SIGNAL(triggered()), this, SLOT(unsubscribeForumSlot()));
-    connect(ui.actionParser_Maker, SIGNAL(triggered()), this, SLOT(launchParserMakerSlot()));
+    connect(ui.actionParser_Maker, SIGNAL(triggered()), this, SIGNAL(launchParserMaker()));
     connect(ui.actionAbout_Siilihai, SIGNAL(triggered()), this, SLOT(about()));
     connect(ui.actionPreferences, SIGNAL(triggered()), this, SLOT(settingsDialog()));
     connect(ui.actionMark_forum_as_read, SIGNAL(triggered()), this, SLOT(markForumRead()));
@@ -39,17 +39,16 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(ui.actionWork_offline, SIGNAL(toggled(bool)), this, SLOT(offlineClickedSlot()));
     connect(ui.actionUserAccount, SIGNAL(triggered()), this, SLOT(userAccountSettings()));
     connect(ui.actionForumProperties, SIGNAL(triggered()), this, SLOT(forumPropertiesSlot()));
-    connect(ui.updateButton, SIGNAL(clicked()), this, SLOT(updateClickedSlot()));
-    connect(ui.stopButton, SIGNAL(clicked()), this, SLOT(cancelClickedSlot()));
+    connect(ui.updateButton, SIGNAL(clicked()), this, SIGNAL(updateClicked()));
+    connect(ui.stopButton, SIGNAL(clicked()), this, SIGNAL(cancelClicked()));
     connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
     connect(ui.viewInBrowser, SIGNAL(clicked()), this, SLOT(viewInBrowserClickedSlot()));
-
+    connect(ui.actionUpdate_all_parsers, SIGNAL(triggered()), this, SIGNAL(updateAllParsers()));
     mvw = new MessageViewWidget(this);
 
-
     flw = new ForumListWidget(this);
-    connect(flw, SIGNAL(groupSelected(ForumGroup*)), this, SLOT(groupSelected(ForumGroup*)));
-    connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this, SLOT(forumSelected(ForumSubscription*)));
+    connect(flw, SIGNAL(groupSelected(ForumGroup*)), this, SLOT(updateEnabledButtons()));
+    connect(flw, SIGNAL(forumSelected(ForumSubscription*)), this, SLOT(updateEnabledButtons()));
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), flw, SLOT(addSubscription(ForumSubscription*)));
     connect(flw, SIGNAL(groupUnselected(ForumGroup*)), this, SIGNAL(groupUnselected(ForumGroup*)));
 
@@ -60,7 +59,12 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(flw, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SIGNAL(groupSubscriptions(ForumSubscription*)));
     connect(flw, SIGNAL(unsubscribeForum()), this, SLOT(unsubscribeForumSlot()));
     connect(flw, SIGNAL(forumProperties()), this, SLOT(forumPropertiesSlot()));
-    connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this, SLOT(messageSelected(ForumMessage*)));
+
+    // No, this won't work due to slot order not being in order
+    //connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this, SLOT(updateEnabledButtons()));
+    // This does:
+    connect(mvw, SIGNAL(currentMessageChanged(ForumMessage*)), this, SLOT(updateEnabledButtons()));
+
     connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
     connect(tlw, SIGNAL(viewInBrowser()), this, SLOT(viewInBrowserClickedSlot()));
     connect(tlw, SIGNAL(threadProperties(ForumThread *)), this, SLOT(threadPropertiesSlot(ForumThread *)));
@@ -87,17 +91,7 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
             settings->value("reader_splitter_size").toByteArray());
     ui.horizontalSplitter->restoreState(settings->value(
             "reader_horizontal_splitter_size").toByteArray());
-#ifdef Q_WS_HILDON
-    ui.updateButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui.stopButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui.hideButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    ui.viewInBrowser->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    tlw->setHeaderHidden(true);
-    hideClickedSlot();
-    hideClickedSlot();
-#else
     ui.hideButton->hide();
-#endif
 #ifdef DEBUG_INFO
     setWindowTitle(windowTitle() + " (Debug Build)");
     connect(ui.actionStart_sync, SIGNAL(triggered()), this, SIGNAL(startSyncClicked()));
@@ -128,18 +122,6 @@ void MainWindow::offlineClickedSlot() {
     emit offlineModeSet(ui.actionWork_offline->isChecked());
 }
 
-void MainWindow::subscribeForumSlot() {
-    emit subscribeForum();
-}
-
-void MainWindow::launchParserMakerSlot() {
-    emit launchParserMaker();
-}
-
-void MainWindow::updateClickedSlot() {
-    emit updateClicked();
-}
-
 void MainWindow::reportClickedSlot() {
     emit reportClicked(flw->getSelectedForum());
 }
@@ -168,10 +150,6 @@ void MainWindow::unsubscribeForumSlot() {
     ForumSubscription *sub = flw->getSelectedForum();
     if(sub)
         emit unsubscribeForum(sub);
-}
-
-void MainWindow::cancelClickedSlot() {
-    emit cancelClicked();
 }
 
 void MainWindow::groupSubscriptionsSlot() {
@@ -267,11 +245,6 @@ void MainWindow::markGroupUnread() {
     markGroupRead(false);
 }
 
-void MainWindow::messageSelected(ForumMessage *msg) {
-    ui.viewInBrowser->setEnabled(msg != 0);
-}
-
-
 void MainWindow::updateEnabledButtons() {
     ui.updateButton->setEnabled(!offline);
     ui.actionUpdate_all->setEnabled(!offline);
@@ -299,18 +272,8 @@ void MainWindow::updateEnabledButtons() {
     sane = (flw->getSelectedGroup() != 0);
     ui.actionMark_group_as_Read->setEnabled(sane);
     ui.actionMark_group_as_Unread->setEnabled(sane);
-}
 
-void MainWindow::forumSelected(ForumSubscription *sub) {
-    updateEnabledButtons();
-}
-
-void MainWindow::groupSelected(ForumGroup *fg) {
-    if(!fg) return;
-#ifdef Q_WS_HILDON
-    hideClickedSlot();
-#endif
-    updateEnabledButtons();
+    ui.viewInBrowser->setEnabled(mvw->currentMessage() && !mvw->currentMessage()->url().isNull());
 }
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)

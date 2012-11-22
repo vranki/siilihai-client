@@ -27,7 +27,7 @@ public:
 private slots:
     virtual void subscribeForum();
     virtual void loginWizardFinished();
-    virtual void settingsChanged(bool);
+    virtual void settingsChanged(bool byUser=true);
     void cancelProgress();
     void showUnsubscribeForum(ForumSubscription* forum);
     void reportClicked(ForumSubscription* forumid);

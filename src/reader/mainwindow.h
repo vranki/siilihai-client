@@ -52,19 +52,17 @@ signals:
     void groupUnselected(ForumGroup *group); // and could now be synced etc
     void startSyncClicked();
     void endSyncClicked();
+    void updateAllParsers();
 public slots:
     void parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
                                   UpdateEngine::UpdateEngineState oldState);
     void setOffline(bool offline);
     void showMessage(QString msg, int time=5000);
 private slots:
-    void subscribeForumSlot();
     void unsubscribeForumSlot();
     void groupSubscriptionsSlot();
-    void updateClickedSlot();
     void updateSelectedClickedSlot();
     void forceUpdateSelectedClickedSlot();
-    void cancelClickedSlot();
     void viewInBrowserClickedSlot();
     void hideClickedSlot();
     void reportClickedSlot();
@@ -73,16 +71,12 @@ private slots:
     void markForumUnread();
     void markGroupRead(bool read=true);
     void markGroupUnread();
-    void launchParserMakerSlot();
-    void forumSelected(ForumSubscription *sub);
-    void groupSelected(ForumGroup *grp);
     void forumPropertiesSlot();
     void threadPropertiesSlot(ForumThread *thread);
     void about();
     void settingsDialog();
     void settingsDialogAccepted();
     void userAccountSettings();
-    void messageSelected(ForumMessage *msg);
     void updateEnabledButtons();
     void subscriptionFound(ForumSubscription *sub);
 protected:
