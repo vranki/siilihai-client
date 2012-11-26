@@ -26,6 +26,8 @@ QString MessageListPatternEditor::tabName() {
 }
 
 void MessageListPatternEditor::downloadList() {
+    session.cancelOperation();
+
     downloadParser = (*parser);
     downloadParser.thread_list_page_increment = 0;
     downloadParser.view_thread_page_increment = 0;

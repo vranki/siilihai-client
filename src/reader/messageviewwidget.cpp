@@ -72,11 +72,8 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         QString lastchange = msg->lastchange();
         QString headerHtml = "<div id=\"siilihai-header\">" + MessageFormatting::sanitize(author) + ", "
                 + MessageFormatting::sanitize(lastchange) + ":</div>";
-        QString
-                html =
-                "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +
-                styleHtml + "</head>"
-                "<body>" + headerHtml + bodyToShow + "</body>";
+        QString html = "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +
+                styleHtml + "</head><body>" + headerHtml + bodyToShow + "</body>";
 
         QString baseUrl = msg->url();
         int i = baseUrl.lastIndexOf('/');
