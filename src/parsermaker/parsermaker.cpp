@@ -115,6 +115,7 @@ void ParserMaker::updateState() {
         subscription.setUsername(ui.usernameEdit->text());
         subscription.setPassword(ui.passwordEdit->text());
     }
+    session.setParser(&parser);
     groupListEditor->parserUpdated();
     threadListEditor->parserUpdated();
     messageListEditor->parserUpdated();

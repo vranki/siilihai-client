@@ -207,6 +207,7 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted
                     "Please report if it is working or not from the menu later.";
         }
         next();
+        button(QWizard::NextButton)->setEnabled(true);
     } else {
         warningLabel = "Error: Unable to download parser definiton.\nCheck your network connection.";
         back();
@@ -217,7 +218,6 @@ void SubscribeWizard::getParserFinished(ForumParser *fp) { // fp will be deleted
         msgBox.setText(warningLabel);
         msgBox.exec();
     }
-    button(QWizard::NextButton)->setEnabled(true);
 }
 
 void SubscribeWizard::wizardAccepted() {

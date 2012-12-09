@@ -1,4 +1,4 @@
-siilihai-client (2.2.0~quantal) quantal; urgency=low
+siilihai-client (2.2.0) precise; urgency=low
 
   * Open button now de-enables
   * Force update of parsers-button
