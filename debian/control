@@ -113,8 +113,10 @@ XB-Maemo-Icon-26:
 
 Package: siilihai-client-dbg
 XB-Maemo-Display-Name: Debug symbols for Siilihai Web Forum Reader
+Section: debug
+Priority: extra
 Architecture: any
-Depends: siilihai-client
+Depends: siilihai-client (= ${binary:Version})
 Description: Siilihai web forum reader application debug symbols
  Graphical Siilihai forum reader debug symbols. See www.siilihai.com for details.
 
