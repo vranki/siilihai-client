@@ -18,6 +18,11 @@ CONFIG(debug_info) {
 
 QT += core webkit gui network xml
 
+# DON't strip - let dpkg do it and create a dbg package
+unix {
+    QMAKE_STRIP = echo
+}
+
 contains(MEEGO_EDITION,harmattan): CONFIG += with_lib
 
 android: CONFIG += with_lib
