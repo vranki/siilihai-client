@@ -23,6 +23,8 @@ public slots:
     void viewAsHTML();
     void viewAsText();
     void viewAsSource();
+private slots:
+    void currentMessageDeleted();
 private:
     const static int VIEW_HTML=0;
     const static int VIEW_TEXT=1;

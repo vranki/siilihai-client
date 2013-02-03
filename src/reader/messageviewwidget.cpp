@@ -28,12 +28,14 @@ ForumMessage* MessageViewWidget::currentMessage() {
 
 void MessageViewWidget::messageSelected(ForumMessage *msg) {
     displayedMessage = msg;
+    disconnect(this, SLOT(currentMessageDeleted()));
     if (!msg) {
         webView.page()->setNetworkAccessManager(&nullNam);
         webView.load(QUrl("qrc:/data/blankmessage/index.html"));
     } else {
         qDebug() << Q_FUNC_INFO << "Selected message " << msg->toString() << "Unreads: " << msg->thread()->group()->subscription()->unreadCount()
                  << msg->thread()->group()->unreadCount() << msg->thread()->unreadCount();
+        connect(msg, SIGNAL(destroyed()), this, SLOT(currentMessageDeleted()));
         if(msg->thread()->group()->subscription()->updateEngine()) {
             QNetworkAccessManager *nam = msg->thread()->group()->subscription()->updateEngine()->networkAccessManager();
             if(webView.page()->networkAccessManager()!=nam) {
@@ -107,4 +109,8 @@ void MessageViewWidget::viewAsText() {
 void MessageViewWidget::viewAsSource() {
     viewMode = VIEW_SOURCE;
     messageSelected(currentMessage());
+}
+
+void MessageViewWidget::currentMessageDeleted() {
+    messageSelected(0);
 }
