@@ -13,12 +13,11 @@ ForumProperties::ForumProperties(QWidget *parent, ForumSubscription *s, ForumDat
     connect(this, SIGNAL(accepted()), this, SLOT(saveChanges()));
     connect(this, SIGNAL(rejected()), this, SLOT(deleteLater()));
     connect(fs, SIGNAL(destroyed()), this, SLOT(deleteLater()));
-    connect(fs, SIGNAL(changed(ForumSubscription*)), this, SLOT(updateValues()));
+    connect(fs, SIGNAL(changed()), this, SLOT(updateValues()));
     updateValues();
 }
 
-ForumProperties::~ForumProperties()
-{
+ForumProperties::~ForumProperties() {
     delete ui;
 }
 
@@ -55,7 +54,6 @@ void ForumProperties::changeEvent(QEvent *e) {
 }
 
 void ForumProperties::saveChanges() {
-    bool update = false;
     fs->setAlias(ui->forumName->text());
     if(fs->latestThreads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
@@ -63,9 +61,7 @@ void ForumProperties::saveChanges() {
             group->markToBeUpdated();
             group->commitChanges();
         }
-        update = true;
     }
-
     if(fs->latestMessages() != ui->messages_per_thread->value()) {
         foreach(ForumGroup *grp, fs->values()) {
             foreach(ForumThread *thread, grp->values()) {
@@ -75,7 +71,6 @@ void ForumProperties::saveChanges() {
                     thread->commitChanges();
                     grp->markToBeUpdated();
                     grp->commitChanges();
-                    update = true;
                 }
             }
         }
@@ -90,7 +85,6 @@ void ForumProperties::saveChanges() {
         fs->setPassword(QString::null);
         fs->setAuthenticated(false);
     }
-    if(update)
-        emit forumUpdateNeeded(fs);
+    emit forumUpdateNeeded(fs);
     deleteLater();
 }
