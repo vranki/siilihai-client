@@ -1,3 +1,9 @@
+siilihai-client (2.2.3) quantal; urgency=low
+
+  * Fixed authentication syncing
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 6 Jan 2013 12:34:56 +0300
+
 siilihai-client (2.2.2) quantal; urgency=low
 
   * Crash fixes & fixed long threads in Tapatalk
