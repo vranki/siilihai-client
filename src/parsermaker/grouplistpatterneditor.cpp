@@ -1,4 +1,5 @@
 #include "grouplistpatterneditor.h"
+#include <siilihai/forumdata/forumsubscription.h>
 
 GroupListPatternEditor::GroupListPatternEditor(ForumSession &ses,
                                                ForumParser *par,
