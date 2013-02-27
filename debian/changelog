@@ -1,3 +1,9 @@
+siilihai-client (2.2.4) quantal; urgency=low
+
+  * Crash fix in lib
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 27 Feb 2013 12:34:56 +0300
+
 siilihai-client (2.2.3) quantal; urgency=low
 
   * Fixed authentication syncing
