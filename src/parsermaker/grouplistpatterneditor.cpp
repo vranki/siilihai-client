@@ -7,8 +7,8 @@ GroupListPatternEditor::GroupListPatternEditor(ForumSession &ses,
                                                QWidget *parent) :
 PatternEditor(ses, par, fos, parent) {
 
-    connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup*>&)), this,
-            SLOT(listGroupsFinished(QList<ForumGroup*>&)));
+    connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *)), this,
+            SLOT(listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *)));
     ui.testPageSpanning->setEnabled(false);
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     Q_ASSERT(fos);
@@ -30,7 +30,8 @@ void GroupListPatternEditor::downloadList() {
 void GroupListPatternEditor::testPageSpanning() {
 }
 
-void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups) {
+void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups, ForumSubscription *sub) {
+    if(sub != subscription) return;
     groupSelected(0);
     qDeleteAll(listGroups);
     listGroups.clear();

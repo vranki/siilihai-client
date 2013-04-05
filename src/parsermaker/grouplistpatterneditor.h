@@ -14,7 +14,7 @@ public:
     virtual QString tabName();
 
 public slots:
-    virtual void listGroupsFinished(QList<ForumGroup*> &groups);
+    virtual void listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *);
     virtual void downloadList();
     virtual void testPageSpanning();
     void resultCellActivated(int row, int column);
