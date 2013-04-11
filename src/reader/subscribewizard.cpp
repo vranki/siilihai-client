@@ -4,6 +4,8 @@
 #include <siilihai/tapatalk/forumsubscriptiontapatalk.h>
 #include <siilihai/forumdata/forumsubscription.h>
 #include <QUrl>
+#include <QAbstractButton>
+#include <QMessageBox>
 
 SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett) :
     QWizard(parent), protocol(proto), settings(sett), newForum(0, true, ForumSubscription::FP_NONE),

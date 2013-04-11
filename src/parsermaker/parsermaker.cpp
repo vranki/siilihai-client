@@ -331,8 +331,8 @@ void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
                 qDebug() << Q_FUNC_INFO << "Data MisMatch at pos " << i << " pre " << preDisplay << ": \n" <<
                             myData.mid(preDisplay, postDisplay-preDisplay) <<
                             "\n != \n" << data.mid(preDisplay, postDisplay-preDisplay);
-                qDebug() << Q_FUNC_INFO << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toAscii() <<  ") != "
-                         << data.at(i) << "(" << (int) data.at(i).toAscii() << ")";
+                qDebug() << Q_FUNC_INFO << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toLatin1() <<  ") != "
+                         << data.at(i) << "(" << (int) data.at(i).toLatin1() << ")";
                 i = data.length();
                 mismatches++;
             }

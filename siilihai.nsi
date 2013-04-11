@@ -1,7 +1,7 @@
 # This file is used to generate Windows installer for Siilihai.
 # Use makensis.exe from Nullsoft Installer creator.
 
-outFile "Install-Siilihai.exe"
+outFile "siilihai-win32-latest.exe"
  
 installDir $PROGRAMFILES\Siilihai
 

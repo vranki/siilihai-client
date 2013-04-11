@@ -1,7 +1,8 @@
 #ifndef DOWNLOADDIALOG_H
 #define DOWNLOADDIALOG_H
 
-#include <QtGui/QDialog>
+//Qt5
+#include <QDialog>
 
 #include <siilihai/siilihaiprotocol.h>
 

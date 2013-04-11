@@ -1,7 +1,8 @@
 #ifndef GROUPSUBSCRIPTIONDIALOG_H
 #define GROUPSUBSCRIPTIONDIALOG_H
 
-#include <QtGui/QDialog>
+// Qt5
+#include <QDialog>
 #include <QHash>
 class ForumDatabase;
 class ForumSubscription;

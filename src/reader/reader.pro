@@ -26,7 +26,8 @@ CONFIG(debug) {
     DEFINES += DEBUG_INFO
 }
 
-QT += core webkit gui network xml
+QT += core webkit webkitwidgets gui network xml
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 HEADERS += messageviewwidget.h \
     threadlistwidget.h \

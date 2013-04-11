@@ -1,7 +1,7 @@
 #ifndef CREDENTIALSDIALOG_H
 #define CREDENTIALSDIALOG_H
-
-#include <QtGui/QDialog>
+// Qt5
+#include <QDialog>
 #include "ui_credentialsdialog.h"
 
 class CredentialsRequest;

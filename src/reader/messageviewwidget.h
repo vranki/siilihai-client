@@ -1,5 +1,8 @@
 #ifndef MESSAGEVIEWWIDGET_H_
 #define MESSAGEVIEWWIDGET_H_
+// Required for Qt5
+#include <QtWebKitWidgets>
+
 #include <QWebView>
 #include <QVBoxLayout>
 #include <QUrl>

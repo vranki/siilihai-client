@@ -7,8 +7,9 @@
 set -v 
 
 export QTDIR=$HOME/.wine/drive_c/QtSDK
-export QTVERSIONDIR=$QTDIR/Desktop/Qt/4.8.1/
-export Path=C:\\windows\\system32\\\;C:\\windows\\\;C:\\windows\\system32\\wbem\;C:\\QtSDK\\mingw\\bin\\\;C:\\Program\ Files\\NSIS\\\;C:\\QtSDK\\Desktop\\Qt\\4.8.1\\mingw\\bin\\\;
+export QTVERSIONDIR=$QTDIR/5.0.2/mingw47_32
+export MINGWDIR=$QTDIR/Tools/MinGW
+export Path=C:\\windows\\system32\\\;C:\\windows\\\;C:\\windows\\system32\\wbem\;$MINGWDIR\\bin\;C:\\NSIS\\\;$QTVERSIONDIR\\bin\\\;
 
 export SH_BINARYPATH=release
 export WINE_CMD="wine cmd /c"
@@ -70,15 +71,29 @@ cp -v siilihai-client/data/*.ico siilihai-win32
 
 function install_deps {
 echo *** Install deps ***
-cp $QTDIR/mingw/bin/mingwm10.dll siilihai-win32
-cp $QTDIR/mingw/bin/libgcc_s_dw2-1.dll siilihai-win32
-cp $QTVERSIONDIR/mingw/lib/QtCore4.dll siilihai-win32
-cp $QTVERSIONDIR/mingw/lib/QtGui4.dll siilihai-win32
-cp $QTVERSIONDIR/mingw/lib/QtNetwork4.dll siilihai-win32
-cp $QTVERSIONDIR/mingw/lib/QtWebKit4.dll siilihai-win32
-cp $QTVERSIONDIR/mingw/lib/QtXml4.dll siilihai-win32
-cp $QTVERSIONDIR/mingw/lib/QtXmlPatterns4.dll siilihai-win32
-cp $QTVERSIONDIR/mingw/lib/phonon4.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Core.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Gui.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Network.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5WebKit.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5WebKitWidgets.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Widgets.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Xml.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Multimedia.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5MultimediaWidgets.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5OpenGL.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5PrintSupport.dll siilihai-win32
+cp $QTVERSIONDIR/bin/libEGL.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Qml.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Quick.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Sql.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5V8.dll siilihai-win32
+cp $QTVERSIONDIR/bin/icuin49.dll siilihai-win32
+cp $QTVERSIONDIR/bin/icuuc49.dll siilihai-win32
+cp $QTVERSIONDIR/bin/icudt49.dll siilihai-win32
+cp $QTVERSIONDIR/bin/libGLESv2.dll siilihai-win32
+cp $QTVERSIONDIR/bin/libwinpthread-1.dll siilihai-win32
+cp $MINGWDIR/bin/libstdc++-6.dll siilihai-win32
+cp $MINGWDIR/bin/libgcc_s_sjlj-1.dll siilihai-win32
 }
 
 function create_installer {
@@ -89,14 +104,11 @@ $WINE_CMD makensis.exe siilihai.nsi
 cd ..
 }
 
-#wine cmd 
-#exit 0
-
-init_build
-clean_all
-build_app
-install_app
+#init_build
+#clean_all
+#build_app
+#install_app
 install_deps
 create_installer
-clean_all
+#clean_all
 

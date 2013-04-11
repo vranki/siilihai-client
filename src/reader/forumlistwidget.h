@@ -1,8 +1,9 @@
 #ifndef FORUMLISTWIDGET_H
 #define FORUMLISTWIDGET_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QToolBox>
+// Qt5
+#include <QWidget>
+#include <QToolBox>
 #include <QHash>
 #include <QListWidgetItem>
 #include <QLabel>

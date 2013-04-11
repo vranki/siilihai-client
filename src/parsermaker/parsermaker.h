@@ -1,7 +1,8 @@
 #ifndef PARSERMAKER_H
 #define PARSERMAKER_H
 
-#include <QtGui/QMainWindow>
+// Qt5
+#include <QMainWindow>
 #include <QtGui>
 
 #include <siilihai/siilihaiprotocol.h>

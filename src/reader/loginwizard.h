@@ -5,6 +5,10 @@
 #include <QObject>
 #include <QWizard>
 #include <QProgressDialog>
+#include <QRadioButton>
+#include <QLineEdit>
+#include <QLabel>
+#include <QCheckBox>
 #include <siilihai/siilihaiprotocol.h>
 
 class LoginWizard: public QWizard {

@@ -1,7 +1,8 @@
 #ifndef REPORTPARSER_H
 #define REPORTPARSER_H
 
-#include <QtGui/QDialog>
+// Qt5
+#include <QDialog>
 #include "ui_reportparser.h"
 
 class ParserReport;

@@ -59,8 +59,8 @@ void PatternEditor::dataMatched(int pos, QString data, PatternMatchType type) {
                 qDebug() << "Data MisMatch at pos " << i << " pre " << preDisplay << ": \n" <<
                             myData.mid(preDisplay, postDisplay-preDisplay) <<
                             "\n != \n" << data.mid(preDisplay, postDisplay-preDisplay);
-                qDebug() << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toAscii() <<  ") != "
-                         << data.at(i) << "(" << (int) data.at(i).toAscii() << ")";
+                qDebug() << "Problem char = " << myData.at(i) << " (" << (int) myData.at(i).toLatin1() <<  ") != "
+                         << data.at(i) << "(" << (int) data.at(i).toLatin1() << ")";
                 i = data.length();
                 mismatches++;
             }

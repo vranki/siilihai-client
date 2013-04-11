@@ -1,7 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui/QMainWindow>
+// Qt5
+#include <QMainWindow>
 #include <QListWidget>
 #include <QList>
 #include <QSet>

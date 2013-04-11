@@ -1,7 +1,7 @@
 #ifndef PATTERNEDITOR_H
 #define PATTERNEDITOR_H
-
-#include <QtGui/QWidget>
+// Qt5
+#include <QWidget>
 #include <QDesktopServices>
 #include <QTimer>
 #include <siilihai/parser/forumparser.h>

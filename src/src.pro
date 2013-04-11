@@ -16,7 +16,7 @@ CONFIG(debug_info) {
     DEFINES += DEBUG_INFO
 }
 
-QT += core webkit gui network xml
+QT += core webkit webkitwidgets gui network xml widgets
 
 # DON't strip - let dpkg do it and create a dbg package
 unix {
@@ -123,9 +123,6 @@ FORMS += reader/settingsdialog.ui \
     reader/useraccountdialog.ui
 
 RESOURCES += ../siilihairesources.qrc
-
-
-
 
 win32 {
     INCLUDEPATH += ../../libsiilihai/src/

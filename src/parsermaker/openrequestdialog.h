@@ -1,7 +1,8 @@
 #ifndef OPENREQUESTDIALOG_H
 #define OPENREQUESTDIALOG_H
 
-#include <QtGui/QDialog>
+// Qt5
+#include <QDialog>
 
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/parser/forumparser.h>

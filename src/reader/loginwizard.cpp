@@ -1,4 +1,5 @@
 #include "loginwizard.h"
+#include <QFormLayout>
 
 LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s) :
     QWizard(parent), protocol(proto), settings(s) {
