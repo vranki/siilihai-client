@@ -1,0 +1,21 @@
+language: cpp
+compiler:
+  - gcc
+before_install:
+ - sudo apt-get update -qq
+ - sudo apt-get install -qq libqt4-dev build-essential libqtwebkit-dev debhelper cdbs
+ - cd src
+ - git clone git://github.com/vranki/libsiilihai.git
+ - cd ..
+ - qmake CONFIG+=with_lib
+script: make
+branches:
+  only:
+    - master
+notifications:
+  recipients:
+    - ville.ranki@iki.fi
+  email:
+    on_success: change
+    on_failure: always
+
