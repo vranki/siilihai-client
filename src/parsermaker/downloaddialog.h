@@ -1,11 +1,8 @@
 #ifndef DOWNLOADDIALOG_H
 #define DOWNLOADDIALOG_H
 
-//Qt5
 #include <QDialog>
-
 #include <siilihai/siilihaiprotocol.h>
-
 #include "ui_downloaddialog.h"
 
 class DownloadDialog : public QDialog

@@ -7,7 +7,7 @@
 #include <siilihai/parser/parsermanager.h>
 #include <siilihai/forumrequest.h>
 #include <siilihai/credentialsrequest.h>
-
+#include <QCloseEvent>
 
 ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p) :
     QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this, &nam) {

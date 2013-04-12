@@ -1,6 +1,6 @@
 #ifndef CREDENTIALSDIALOG_H
 #define CREDENTIALSDIALOG_H
-// Qt5
+
 #include <QDialog>
 #include "ui_credentialsdialog.h"
 

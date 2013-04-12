@@ -1,10 +1,8 @@
 #ifndef PARSERMAKER_H
 #define PARSERMAKER_H
 
-// Qt5
 #include <QMainWindow>
-#include <QtGui>
-
+#include <QSettings>
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/parser/forumsubscriptionparsed.h>
 #include "downloaddialog.h"
