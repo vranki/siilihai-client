@@ -1,5 +1,5 @@
 Name: siilihai-client
-Version: 2.0.0
+Version: 2.2.7
 Release: 1
 Summary: Siilihai web forum reader
 License: GPL
