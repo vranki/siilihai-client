@@ -168,7 +168,11 @@ QString Siilihai::getDataFilePath() {
 #ifdef STORE_FILES_IN_APP_DIR
     return QCoreApplication::applicationDirPath();
 #else
+#if QT_VERSION < 0x050000
     return QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+#else
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+#endif
 #endif
 }
 

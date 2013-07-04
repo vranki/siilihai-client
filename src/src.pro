@@ -2,7 +2,7 @@ SUBDIRS += reader
 
 TEMPLATE = app
 TARGET = siilihai-client
-target.path = $$[QT_INSTALL_BINS]
+target.path = /usr/bin
 INSTALLS += target
 
 ICON = ../data/siilihai.icns
