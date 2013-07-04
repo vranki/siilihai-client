@@ -51,8 +51,8 @@ protected:
     QTextCursor patternEditorCursor;
     ForumSession &session;
     ForumSubscription *subscription, *downloadSubscription;
-    QTimer editTimeout;
     ForumParser *parser, downloadParser;
+    QTimer editTimeout;
     PatternMatcher *matcher;
     bool pageSpanningTest;
 };

@@ -104,11 +104,11 @@ $WINE_CMD makensis.exe siilihai.nsi
 cd ..
 }
 
-#init_build
-#clean_all
-#build_app
-#install_app
+init_build
+clean_all
+build_app
+install_app
 install_deps
 create_installer
-#clean_all
+clean_all
 
