@@ -3,7 +3,11 @@
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/parser/parserreport.h>
 #include <siilihai/usersettings.h>
+#if QT_VERSION >= 0x050000
+#include <QStandardPaths>
+#else
 #include <QDesktopServices>
+#endif
 #include "threadlistwidget.h"
 #include "loginwizard.h"
 #include "subscribewizard.h"
@@ -12,6 +16,8 @@
 #include "forumlistwidget.h"
 #include "reportparser.h"
 #include "../common/credentialsdialog.h"
+
+
 
 Siilihai::Siilihai() : ClientLogic() {
     loginWizard = 0;
@@ -168,7 +174,11 @@ QString Siilihai::getDataFilePath() {
 #ifdef STORE_FILES_IN_APP_DIR
     return QCoreApplication::applicationDirPath();
 #else
+#if QT_VERSION >= 0x050000
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+#else
     return QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+#endif
 #endif
 }
 

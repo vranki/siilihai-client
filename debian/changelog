@@ -1,3 +1,9 @@
+siilihai-client (2.2.7) raring; urgency=low
+
+  * Raring release, Qt5
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 8 Apr 2013 12:34:56 +0300
+
 siilihai-client (2.2.6) quantal; urgency=low
 
   * Fixed parser maker

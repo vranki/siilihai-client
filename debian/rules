@@ -8,6 +8,7 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/qmake.mk
 
 DEB_DH_STRIP_ARGS := --dbg-package=siilihai-client-dbg
+DEB_DH_INSTALL_ARGS = --sourcedir=debian/tmp
 DH_ALWAYS_EXCLUDE=.git
 
 override_dh_strip:
