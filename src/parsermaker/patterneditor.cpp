@@ -1,7 +1,7 @@
 #include "patterneditor.h"
 
 PatternEditor::PatternEditor(ForumSession &ses, ForumParser *par, ForumSubscription *fos, QWidget *parent) :
-    QWidget(parent), session(ses), subscription(fos), parser(par), editTimeout(this), downloadParser(0) {
+    QWidget(parent), session(ses), subscription(fos), parser(par), downloadParser(0), editTimeout(this) {
     ui.setupUi(this);
     matcher = new PatternMatcher(this, true);
     connect(ui.downloadButton, SIGNAL(clicked()), this, SLOT(downloadList()));
