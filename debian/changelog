@@ -6,9 +6,9 @@ siilihai-client (2.2.7-1) raring; urgency=low
 
 siilihai-client (2.2.7) raring; urgency=low
 
-  * Raring release, built against new lib. No source changes.
+  * Raring release, Qt5
 
- -- Ville Ranki <ville.ranki@iki.fi>  Mon, 1 Jul 2013 12:34:56 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 8 Apr 2013 12:34:56 +0300
 
 siilihai-client (2.2.6) quantal; urgency=low
 
