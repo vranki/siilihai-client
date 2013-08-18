@@ -16,7 +16,7 @@ CONFIG(debug_info) {
     DEFINES += DEBUG_INFO
 }
 
-QT += core webkit webkitwidgets gui network xml widgets
+QT += core webkitwidgets xml widgets network
 
 # DON't strip - let dpkg do it and create a dbg package
 unix {

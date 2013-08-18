@@ -39,7 +39,7 @@ OTHER_FILES += debian/control debian/rules debian/changelog debian/siilihai-clie
 OTHER_FILES += scripts/upload_debs.sh scripts/buildwin.sh
 OTHER_FILES += siilihai.nsi data/siilihai-client.desktop
 
-CONFIG += qt
+# CONFIG += qt
 
 DATADIR = $$[QT_INSTALL_PREFIX]/share
 
