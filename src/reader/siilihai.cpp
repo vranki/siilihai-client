@@ -23,7 +23,6 @@ Siilihai::Siilihai() : ClientLogic() {
     loginWizard = 0;
     mainWin = 0;
     parserMaker = 0;
-    groupSubscriptionDialog = 0;
 }
 
 Siilihai::~Siilihai() {
@@ -84,20 +83,21 @@ void Siilihai::closeUi() {
 }
 
 void Siilihai::errorDialog(QString message) {
-    QMessageBox msgBox(mainWin);
-    msgBox.setModal(true);
-    msgBox.setText(message);
-    msgBox.exec();
+    QMessageBox* msgBox = new QMessageBox(mainWin);
+    msgBox->setModal(false);
+    msgBox->setText(message);
+    connect(msgBox, SIGNAL(accepted()), msgBox, SLOT(deleteLater()));
+    msgBox->open();
 }
 
 void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
     if(currentState != SH_READY) return;
     Q_ASSERT(forum);
-    groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
+    GroupSubscriptionDialog *groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
     groupSubscriptionDialog->setModal(false);
     groupSubscriptionDialog->setForum(&forumDatabase, forum);
-    connect(groupSubscriptionDialog, SIGNAL(finished(int)), this, SLOT(subscribeGroupDialogFinished()));
-    groupSubscriptionDialog->exec();
+    connect(groupSubscriptionDialog, SIGNAL(updateGroupSubscriptions(ForumSubscription*)), this, SLOT(updateGroupSubscriptions(ForumSubscription*)));
+    groupSubscriptionDialog->show();
 }
 
 void Siilihai::reportClicked(ForumSubscription* forum) {
@@ -189,14 +189,6 @@ void Siilihai::showLoginWizard() {
 
 void Siilihai::loginWizardFinished() {
     ClientLogic::loginWizardFinished();
-}
-
-void Siilihai::subscribeGroupDialogFinished() {
-    if (currentState == SH_READY && groupSubscriptionDialog->subscription()) {
-        updateGroupSubscriptions(groupSubscriptionDialog->subscription());
-    }
-    groupSubscriptionDialog->deleteLater();
-    groupSubscriptionDialog = 0;
 }
 
 void Siilihai::settingsChanged(bool byUser) {

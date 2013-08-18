@@ -34,7 +34,6 @@ private slots:
     void launchParserMaker();
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
-    void subscribeGroupDialogFinished();
     virtual void showStatusMessage(QString message);
 protected:
     virtual QString getDataFilePath();
@@ -49,7 +48,6 @@ private:
     LoginWizard *loginWizard;
     MainWindow *mainWin;
     ParserMaker *parserMaker;
-    GroupSubscriptionDialog *groupSubscriptionDialog;
 };
 
 #endif /* SIILIHAI_H_ */

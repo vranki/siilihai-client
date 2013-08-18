@@ -19,11 +19,13 @@ public:
     ~GroupSubscriptionDialog();
     void setForum(ForumDatabase *db, ForumSubscription *fs);
     ForumSubscription* subscription(); // May be null
-public slots:
+private slots:
     void selectAll();
     void selectNone();
     void apply();
     void subscriptionDeleted(ForumSubscription *sub);
+signals:
+    void updateGroupSubscriptions(ForumSubscription *sub);
 private:
     Ui::GroupSubscriptionDialogClass ui;
     ForumDatabase *fdb;

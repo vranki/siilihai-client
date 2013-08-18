@@ -1,6 +1,7 @@
-siilihai-client (2.2.7-1) raring; urgency=low
+siilihai-client (2.2.7-4) raring; urgency=low
 
   * Build against Qt5 by default
+  * Ubuntu Qt5 packages have broken dependencies, control file is messed up because of this
 
  -- Ville Ranki <ville.ranki@iki.fi>  Sun, 21 Jul 2013 12:34:56 +0300
 

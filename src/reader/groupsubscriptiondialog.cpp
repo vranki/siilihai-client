@@ -44,7 +44,9 @@ void GroupSubscriptionDialog::apply() {
             group->commitChanges();
         }
     }
+    emit updateGroupSubscriptions(forum);
     close();
+    deleteLater();
 }
 
 void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nforum) {
@@ -83,5 +85,6 @@ void GroupSubscriptionDialog::subscriptionDeleted(ForumSubscription *sub) {
     if(sub==forum) {
         forum=0;
         close();
+        deleteLater();
     }
 }
