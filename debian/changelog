@@ -1,3 +1,9 @@
+siilihai-client (2.2.8) raring; urgency=low
+
+  * Minor fixes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 19 Aug 2013 12:34:56 +0300
+
 siilihai-client (2.2.7-4) raring; urgency=low
 
   * Build against Qt5 by default
