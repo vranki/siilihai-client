@@ -36,12 +36,16 @@ void GroupSubscriptionDialog::selectNone() {
 void GroupSubscriptionDialog::apply() {
     foreach(ForumGroup *group, forum->values()) {
         QListWidgetItem *item = listItems[group];
-        bool itemChecked = (item->checkState()==Qt::Checked);
-        if(itemChecked != group->isSubscribed()) {
-            group->setSubscribed(itemChecked);
-            group->setChangeset(0);
-            group->setHasChanged(true);
-            group->commitChanges();
+        if(item) {
+            bool itemChecked = (item->checkState()==Qt::Checked);
+            if(itemChecked != group->isSubscribed()) {
+                group->setSubscribed(itemChecked);
+                group->setChangeset(0);
+                group->setHasChanged(true);
+                group->commitChanges();
+            }
+        } else {
+            // Groups have changed while dialog has been open..
         }
     }
     emit updateGroupSubscriptions(forum);

@@ -153,13 +153,7 @@ void ForumListWidget::groupChanged(ForumGroup *grp) {
     QListWidgetItem *gItem = forumGroups.key(grp);
     if(gItem && !grp->isSubscribed()) {
         // delete unsubscribed group from UI
-        lw->takeItem(lw->row(gItem));
-        forumGroups.remove(gItem);
-        delete gItem;
-        if(currentGroup == grp) {
-            currentGroup = 0;
-            emit groupSelected(currentGroup);
-        }
+        groupDeleted(grp);
     } else if(gItem && grp->isSubscribed()) {
         updateGroupLabel(grp);
     } else if(!gItem && grp->isSubscribed()) {
@@ -222,23 +216,20 @@ void ForumListWidget::groupDestroyed(QObject* g) {
     if(grp) groupDeleted(grp);
 }
 
+// Called also after unsubscribing - just delete the group from list if it is there
 void ForumListWidget::groupDeleted(ForumGroup *grp) {
-    if(!grp->isSubscribed()) return;
+    // Change group if it's the current..
     if(currentGroup==grp) {
         currentGroup = 0;
         emit groupSelected(0);
     }
+    // Do we have the item visible?
+
     QListWidgetItem *item = forumGroups.key(grp);
-    if(!item) {
-        qDebug() << Q_FUNC_INFO << " item for group " << grp << "doesn't exist, why??";
-        return;
+    if(item) {
+        forumGroups.remove(item);
+        delete item; // Should also remove it from list
     }
-    Q_ASSERT(item);
-    QListWidget *lw = listWidgets.value(grp->subscription());
-    Q_ASSERT(lw);
-    lw->removeItemWidget(item);
-    forumGroups.remove(item);
-    delete item;
 }
 
 void ForumListWidget::subscriptionDeleted(QObject* qo) {
@@ -254,11 +245,9 @@ void ForumListWidget::subscriptionDeleted(ForumSubscription* sub) {
     }
     QListWidget *lw = listWidgets.value(sub);
     if(lw) { // Sometimes may not
-        Q_ASSERT(lw);
-        removeItem(indexOf(lw));
         listWidgets.remove(sub);
         // FavIcon deleted automatically here
-        lw->deleteLater();
+        lw->deleteLater(); // Removes it from list
     }
 }
 
