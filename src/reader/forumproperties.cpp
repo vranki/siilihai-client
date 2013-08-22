@@ -54,6 +54,8 @@ void ForumProperties::changeEvent(QEvent *e) {
 }
 
 void ForumProperties::saveChanges() {
+    disconnect(fs, SIGNAL(changed()), this, SLOT(updateValues()));
+
     fs->setAlias(ui->forumName->text());
     if(fs->latestThreads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
@@ -75,8 +77,7 @@ void ForumProperties::saveChanges() {
             }
         }
     }
-
-    if(ui->authenticationGroupbox->isEnabled() && ui->username->text().length() > 0) {
+    if(ui->authenticationGroupbox->isChecked() && ui->username->text().length() > 0) {
         fs->setUsername(ui->username->text());
         fs->setPassword(ui->password->text());
         fs->setAuthenticated(true);
