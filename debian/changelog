@@ -1,3 +1,9 @@
+siilihai-client (2.2.10-1) raring; urgency=low
+
+  * UI splitter now 1/4 in first start
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 22 Aug 2013 12:34:56 +0300
+
 siilihai-client (2.2.10) raring; urgency=low
 
   * Fixed authentication dialog not saving password

@@ -7,8 +7,8 @@
 set -v 
 
 export QTDIR=$HOME/.wine/drive_c/QtSDK
-export QTVERSIONDIR=$QTDIR/5.0.2/mingw47_32
-export MINGWDIR=$QTDIR/Tools/MinGW
+export QTVERSIONDIR=$QTDIR/5.1.0/mingw48_32
+export MINGWDIR=$QTDIR/Tools/mingw48_32
 export Path=C:\\windows\\system32\\\;C:\\windows\\\;C:\\windows\\system32\\wbem\;$MINGWDIR\\bin\;C:\\NSIS\\\;$QTVERSIONDIR\\bin\\\;
 
 export SH_BINARYPATH=release
@@ -82,18 +82,22 @@ cp $QTVERSIONDIR/bin/Qt5Multimedia.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5MultimediaWidgets.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5OpenGL.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5PrintSupport.dll siilihai-win32
-cp $QTVERSIONDIR/bin/libEGL.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Sensors.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Qml.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Quick.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Sql.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5V8.dll siilihai-win32
-cp $QTVERSIONDIR/bin/icuin49.dll siilihai-win32
-cp $QTVERSIONDIR/bin/icuuc49.dll siilihai-win32
-cp $QTVERSIONDIR/bin/icudt49.dll siilihai-win32
-cp $QTVERSIONDIR/bin/libGLESv2.dll siilihai-win32
+cp $QTVERSIONDIR/bin/icu*.dll siilihai-win32
 cp $QTVERSIONDIR/bin/libwinpthread-1.dll siilihai-win32
+
 cp $MINGWDIR/bin/libstdc++-6.dll siilihai-win32
-cp $MINGWDIR/bin/libgcc_s_sjlj-1.dll siilihai-win32
+cp $MINGWDIR/bin/libgcc_s_dw2-1.dll siilihai-win32
+
+cp $QTDIR/Tools/QtCreator/bin/libEGL.dll siilihai-win32
+cp $QTDIR/Tools/QtCreator/bin/libGLESv2.dll siilihai-win32
+cp $QTDIR/Tools/QtCreator/bin/D3DCompiler_43.dll siilihai-win32
+
+cp $QTVERSIONDIR/plugins/platforms/qwindows.dll siilihai-win32
 }
 
 function create_installer {

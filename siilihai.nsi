@@ -17,6 +17,10 @@ section
     writeUninstaller "$INSTDIR\uninstall.exe"
  
     createShortCut "$SMPROGRAMS\Siilihai.lnk" "$INSTDIR\siilihai-client.exe" "$INSTDIR\siilis_icon_16.ico"
+
+    createDirectory "$INSTDIR\platforms"
+    setOutPath "$INSTDIR\platforms"
+    file "qwindows.dll"
 sectionEnd
  
 section "uninstall"
@@ -24,6 +28,8 @@ section "uninstall"
     delete "$INSTDIR\*.exe"
     delete "$INSTDIR\*.dll"
     delete "$INSTDIR\*.ico"
+    delete "$INSTDIR\platforms\*.*"
+    RMDir "$INSTDIR\platforms"
     RMDir $INSTDIR
 
     delete "$SMPROGRAMS\Siilihai.lnk"

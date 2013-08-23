@@ -60,9 +60,6 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(flw, SIGNAL(unsubscribeForum()), this, SLOT(unsubscribeForumSlot()));
     connect(flw, SIGNAL(forumProperties()), this, SLOT(forumPropertiesSlot()));
 
-    // No, this won't work due to slot order not being in order
-    //connect(tlw, SIGNAL(messageSelected(ForumMessage*)), this, SLOT(updateEnabledButtons()));
-    // This does:
     connect(mvw, SIGNAL(currentMessageChanged(ForumMessage*)), this, SLOT(updateEnabledButtons()));
 
     connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
@@ -87,10 +84,14 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
 
     if (!restoreGeometry(settings->value("reader_geometry").toByteArray()))
         showMaximized();
-    ui.forumsSplitter->restoreState(
-            settings->value("reader_splitter_size").toByteArray());
-    ui.horizontalSplitter->restoreState(settings->value(
-            "reader_horizontal_splitter_size").toByteArray());
+    if(settings->contains("reader_splitter_size")) {
+        ui.forumsSplitter->restoreState(settings->value("reader_splitter_size").toByteArray());
+    } else {
+        QList<int> splitterSizes;
+        splitterSizes << width() / 4 << width()*3 / 4;
+        ui.forumsSplitter->setSizes(splitterSizes);
+    }
+    ui.horizontalSplitter->restoreState(settings->value("reader_horizontal_splitter_size").toByteArray());
     ui.hideButton->hide();
 #ifdef DEBUG_INFO
     setWindowTitle(windowTitle() + " (Debug Build)");
