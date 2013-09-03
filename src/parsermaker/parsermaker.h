@@ -57,7 +57,7 @@ private:
     SiilihaiProtocol &protocol;
     ForumParser parser;
     QNetworkAccessManager nam;
-    ForumSession session;
+    ParserEngine engine;
     ForumSubscriptionParsed subscription;
     PatternEditor *groupListEditor, *threadListEditor, *messageListEditor;
     ForumGroup *selectedGroup;

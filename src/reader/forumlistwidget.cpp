@@ -306,7 +306,7 @@ void ForumListWidget::groupSubscriptionsClicked() {
 void ForumListWidget::parserEngineStateChanged(UpdateEngine::UpdateEngineState state) {
     UpdateEngine *engine = qobject_cast<UpdateEngine*>(sender());
     if(!engine->subscription()) return;
-    if(!forumIcons.contains(engine->subscription()) && (engine->state() != UpdateEngine::PES_ENGINE_NOT_READY)) {
+    if(!forumIcons.contains(engine->subscription()) && (engine->state() != UpdateEngine::UES_ENGINE_NOT_READY)) {
         setupFavicon(engine->subscription());
     }
 }

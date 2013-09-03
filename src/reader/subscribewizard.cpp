@@ -238,7 +238,7 @@ void SubscribeWizard::wizardAccepted() {
     ForumSubscription *fs = 0;
     if(newForum.provider()==ForumSubscription::FP_PARSER) {
         ForumSubscriptionParsed *fsParsed = new ForumSubscriptionParsed(this, true);
-        fsParsed->setParser(parser.id());
+        fsParsed->setParserId(parser.id());
         fs = fsParsed;
         fs->setForumUrl(QUrl(parser.forum_url));
         Q_ASSERT(parser.isSane());

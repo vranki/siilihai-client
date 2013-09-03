@@ -4,17 +4,17 @@
 #include <siilihai/forumdata/forumsubscription.h>
 #include <siilihai/forumdata/forummessage.h>
 
-MessageListPatternEditor::MessageListPatternEditor(ForumSession &ses,
+MessageListPatternEditor::MessageListPatternEditor(ParserEngine &eng,
                                                    ForumParser *par,
                                                    ForumSubscription *fos,
-                                                   QWidget *parent) : PatternEditor(ses, par, fos, parent) {
+                                                   QWidget *parent) : PatternEditor(eng, par, fos, parent) {
     setEnabled(false);
-    connect(&session, SIGNAL(listMessagesFinished(QList<ForumMessage*>&, ForumThread*, bool)),
+    connect(&engine, SIGNAL(listMessagesFinished(QList<ForumMessage*>&, ForumThread*, bool)),
             this, SLOT(listMessagesFinished(QList<ForumMessage*>&, ForumThread*, bool)));
     ui.patternLabel->setText("<b>%a</b>=id %b=subject <b>%c</b>=message body %d=author %e=last change");
     subscription = fos;
     Q_ASSERT(fos);
-    session.initialize(par, fos, matcher);
+    engine.initialize(par, fos, matcher);
     currentThread = 0;
 }
 
@@ -26,15 +26,15 @@ QString MessageListPatternEditor::tabName() {
 }
 
 void MessageListPatternEditor::downloadList() {
-    session.cancelOperation();
+    engine.cancelOperation();
 
     downloadParser = (*parser);
     downloadParser.thread_list_page_increment = 0;
     downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
 
-    session.initialize(&downloadParser, downloadSubscription, matcher);
-    session.listMessages(currentThread);
+    engine.initialize(&downloadParser, downloadSubscription, matcher);
+    engine.doUpdateThread(currentThread);
 
     ui.sourceTextEdit->clear();
     ui.downloadButton->setEnabled(false);
@@ -48,8 +48,8 @@ void MessageListPatternEditor::testPageSpanning() {
     downloadSubscription->setLatestThreads(999);
     downloadSubscription->setLatestMessages(999);
 
-    session.initialize(&downloadParser, downloadSubscription, matcher);
-    session.listMessages(currentThread);
+    engine.initialize(&downloadParser, downloadSubscription, matcher);
+    engine.doUpdateThread(currentThread);
 
     ui.sourceTextEdit->clear();
     ui.sourceTextEdit->append("Source not available when testing multiple pages.");
@@ -119,7 +119,7 @@ void MessageListPatternEditor::listMessagesFinished(QList<ForumMessage*> &messag
 
 void MessageListPatternEditor::parserUpdated() {
     if (currentThread) {
-        QString mlu = session.getMessageListUrl(currentThread);
+        QString mlu = engine.getMessageListUrl(currentThread);
         ui.urlLabel->setText(mlu);
     } else {
         ui.urlLabel->setText("(No thread selected)");
@@ -151,9 +151,9 @@ void MessageListPatternEditor::patternChanged() {
     downloadParser.thread_list_page_increment = 0;
     downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
-    session.setParser(&downloadParser);
+    engine.setParser(&downloadParser);
     QString glhtml = ui.sourceTextEdit->toPlainText();
-    session.performListMessages(glhtml);
+    engine.performListMessages(glhtml);
     parserUpdated();
 }
 

@@ -1,29 +1,29 @@
 #include "grouplistpatterneditor.h"
 #include <siilihai/forumdata/forumsubscription.h>
 
-GroupListPatternEditor::GroupListPatternEditor(ForumSession &ses,
+GroupListPatternEditor::GroupListPatternEditor(ParserEngine &eng,
                                                ForumParser *par,
                                                ForumSubscription *fos,
                                                QWidget *parent) :
-PatternEditor(ses, par, fos, parent) {
+PatternEditor(eng, par, fos, parent) {
 
-    connect(&session, SIGNAL(listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *)), this,
+    connect(&engine, SIGNAL(listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *)), this,
             SLOT(listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *)));
     ui.testPageSpanning->setEnabled(false);
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     Q_ASSERT(fos);
     subscription = fos;
-    session.initialize(par, fos, matcher);
+    engine.initialize(par, fos, matcher);
 }
 
 GroupListPatternEditor::~GroupListPatternEditor() {
 }
 
 void GroupListPatternEditor::downloadList() {
-    session.cancelOperation();
-    session.initialize(parser, subscription, matcher);
+    engine.cancelOperation();
+    engine.initialize(parser, subscription, matcher);
     ui.downloadButton->setEnabled(false);
-    session.listGroups();
+    engine.doUpdateForum();
     ui.sourceTextEdit->clear();
 }
 
@@ -92,9 +92,9 @@ void GroupListPatternEditor::parserUpdated() {
 
 void GroupListPatternEditor::patternChanged() {
     parser->group_list_pattern = pattern();
-    session.setParser(parser);
+    engine.setParser(parser);
     QString glhtml = ui.sourceTextEdit->toPlainText();
-    session.performListGroups(glhtml);
+    engine.performListGroups(glhtml);
     parserUpdated();
 }
 

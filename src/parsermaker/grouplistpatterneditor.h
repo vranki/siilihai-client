@@ -8,7 +8,7 @@ class GroupListPatternEditor : public PatternEditor {
     Q_OBJECT
 
 public:
-    GroupListPatternEditor(ForumSession &ses, ForumParser *par, ForumSubscription *fos, QWidget *parent = 0);
+    GroupListPatternEditor(ParserEngine &eng, ForumParser *par, ForumSubscription *fos, QWidget *parent = 0);
     virtual ~GroupListPatternEditor();
     virtual QIcon tabIcon();
     virtual QString tabName();

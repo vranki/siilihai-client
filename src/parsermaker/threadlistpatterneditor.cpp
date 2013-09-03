@@ -3,18 +3,18 @@
 #include <siilihai/forumdata/forumgroup.h>
 #include <siilihai/forumdata/forumthread.h>
 
-ThreadListPatternEditor::ThreadListPatternEditor(ForumSession &ses,
+ThreadListPatternEditor::ThreadListPatternEditor(ParserEngine &eng,
                                                  ForumParser *par,
                                                  ForumSubscription *fos,
                                                  QWidget *parent) :
-PatternEditor(ses, par, fos, parent) {
+PatternEditor(eng, par, fos, parent) {
     setEnabled(false);
-    connect(&session, SIGNAL(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)), this,
+    connect(&engine, SIGNAL(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)), this,
             SLOT(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)));
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     subscription = fos;
     Q_ASSERT(fos);
-    session.initialize(par, fos, matcher);
+    engine.initialize(par, fos, matcher);
     currentGroup = 0;
 }
 
@@ -26,7 +26,7 @@ QString ThreadListPatternEditor::tabName() {
 }
 
 void ThreadListPatternEditor::downloadList() {
-    session.cancelOperation();
+    engine.cancelOperation();
 
     downloadParser = (*parser);
     Q_ASSERT(downloadParser.forum_url == parser->forum_url);
@@ -34,9 +34,9 @@ void ThreadListPatternEditor::downloadList() {
     downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
 
-    session.initialize(&downloadParser, downloadSubscription, matcher);
+    engine.initialize(&downloadParser, downloadSubscription, matcher);
     currentGroup->setSubscribed(true); // To keep session happy
-    session.listThreads(currentGroup);
+    engine.doUpdateGroup(currentGroup);
 
     ui.sourceTextEdit->clear();
     ui.downloadButton->setEnabled(false);
@@ -50,8 +50,8 @@ void ThreadListPatternEditor::testPageSpanning() {
     downloadSubscription->setLatestThreads(999);
     downloadSubscription->setLatestMessages(999);
 
-    session.initialize(&downloadParser, downloadSubscription, matcher);
-    session.listThreads(currentGroup);
+    engine.initialize(&downloadParser, downloadSubscription, matcher);
+    engine.doUpdateGroup(currentGroup);
 
     ui.sourceTextEdit->clear();
     ui.sourceTextEdit->append("Source not available when testing multiple pages.");
@@ -120,7 +120,7 @@ void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*>& threads, 
 void ThreadListPatternEditor::parserUpdated() {
     // @todo bug: currentGroup is sometimes not in scope. Fix!
     if (currentGroup) {
-        ui.urlLabel->setText(session.getThreadListUrl(currentGroup));
+        ui.urlLabel->setText(engine.getThreadListUrl(currentGroup));
     } else {
         ui.urlLabel->setText("(No group selected)");
     }
@@ -143,10 +143,10 @@ void ThreadListPatternEditor::parserUpdated() {
 
 void ThreadListPatternEditor::patternChanged() {
     parser->thread_list_pattern = pattern();
-    session.setParser(parser);
+    engine.setParser(parser);
     if (!pageSpanningTest) {
         QString glhtml = ui.sourceTextEdit->toPlainText();
-        session.performListThreads(glhtml);
+        engine.performListThreads(glhtml);
     }
     parserUpdated();
 }

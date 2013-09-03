@@ -1,7 +1,6 @@
 #include "parsermaker.h"
 #include <siilihai/parser/parserdatabase.h>
 #include <siilihai/parser/forumparser.h>
-#include <siilihai/parser/forumsession.h>
 #include <siilihai/forumdata/forumgroup.h>
 #include <siilihai/forumdata/forumthread.h>
 #include <siilihai/parser/parsermanager.h>
@@ -10,16 +9,16 @@
 #include <QCloseEvent>
 
 ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p) :
-    QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), session(this, &nam) {
+    QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), engine(this, 0, 0, &nam) {
     ui.setupUi(this);
     loginMatcher = new PatternMatcher(this, true);
 
-    groupListEditor = new GroupListPatternEditor(session, &parser, &subscription, this);
+    groupListEditor = new GroupListPatternEditor(engine, &parser, &subscription, this);
     ui.tabWidget->addTab(groupListEditor, groupListEditor->tabIcon(), groupListEditor->tabName());
-    threadListEditor = new ThreadListPatternEditor(session, &parser, &subscription, this);
+    threadListEditor = new ThreadListPatternEditor(engine, &parser, &subscription, this);
     ui.tabWidget->addTab(threadListEditor, threadListEditor->tabIcon(), threadListEditor->tabName());
     threadListEditor->setEnabled(false);
-    messageListEditor = new MessageListPatternEditor(session, &parser, &subscription, this);
+    messageListEditor = new MessageListPatternEditor(engine, &parser, &subscription, this);
     ui.tabWidget->addTab(messageListEditor, threadListEditor->tabIcon(), messageListEditor->tabName());
     messageListEditor->setEnabled(false);
 
@@ -44,9 +43,9 @@ ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, Siili
     connect(ui.tryWithoutLoginButton, SIGNAL(clicked()), this, SLOT(tryWithoutLogin()));
     connect(ui.verifyLoginPattern, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
     connect(ui.helpButton, SIGNAL(clicked()), this, SLOT(helpClicked()));
-    connect(&session, SIGNAL(loginFinished(ForumSubscription *,bool)), this, SLOT(loginFinished(ForumSubscription *, bool)));
-    connect(&session, SIGNAL(networkFailure(QString)), this, SLOT(networkFailure(QString)));
-    connect(&session, SIGNAL(getHttpAuthentication(ForumSubscription *, QAuthenticator *)),
+    connect(&engine, SIGNAL(loginFinished(ForumSubscription *,bool)), this, SLOT(loginFinished(ForumSubscription *, bool)));
+    connect(&engine, SIGNAL(networkFailure(QString)), this, SLOT(networkFailure(QString)));
+    connect(&engine, SIGNAL(getHttpAuthentication(ForumSubscription *, QAuthenticator *)),
             this, SLOT(getHttpAuthentication(ForumSubscription *, QAuthenticator *)));
 
     connect(loginMatcher, SIGNAL(dataMatched(int, QString, PatternMatchType)),
@@ -107,7 +106,7 @@ void ParserMaker::updateState() {
     ui.baseUrlLI->setText(parser.forumUrlWithoutEnd());
 
     subscription.setAlias(parser.name());
-    subscription.setParser(parser.id());
+    subscription.setParserId(parser.id());
     if (loginWithoutCredentials) {
         subscription.setUsername(QString::null);
         subscription.setPassword(QString::null);
@@ -115,7 +114,7 @@ void ParserMaker::updateState() {
         subscription.setUsername(ui.usernameEdit->text());
         subscription.setPassword(ui.passwordEdit->text());
     }
-    session.setParser(&parser);
+    engine.setParser(&parser);
     groupListEditor->parserUpdated();
     threadListEditor->parserUpdated();
     messageListEditor->parserUpdated();
@@ -232,21 +231,21 @@ void ParserMaker::closeEvent(QCloseEvent *event) {
 }
 
 void ParserMaker::tryLogin() {
-    session.initialize(&parser, &subscription, 0);
+    engine.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = false;
     updateState();
-    connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));
-    session.loginToForum();
+    connect(&engine, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));
+    engine.loginToForum();
     ui.tryLoginButton->setEnabled(false);
     ui.tryWithoutLoginButton->setEnabled(false);
 }
 
 void ParserMaker::tryWithoutLogin() {
-    session.initialize(&parser, &subscription, 0);
+    engine.initialize(&parser, &subscription, 0);
     loginWithoutCredentials = true;
     updateState();
-    connect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));
-    session.loginToForum();
+    connect(&engine, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));
+    engine.loginToForum();
     ui.tryLoginButton->setEnabled(false);
     ui.tryWithoutLoginButton->setEnabled(false);
 }
@@ -266,7 +265,7 @@ void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
         }
     }
 
-    disconnect(&session, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setText(const QString&)));
+    disconnect(&engine, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setText(const QString&)));
     loginWithoutCredentials = false;
 
     ui.tryLoginButton->setEnabled(true);

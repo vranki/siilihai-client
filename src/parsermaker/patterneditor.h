@@ -5,7 +5,7 @@
 #include <QDesktopServices>
 #include <QTimer>
 #include <siilihai/parser/forumparser.h>
-#include <siilihai/parser/forumsession.h>
+#include <siilihai/parser/parserengine.h>
 #include <siilihai/parser/patternmatcher.h>
 #include "ui_patterneditor.h"
 
@@ -17,7 +17,7 @@ class PatternEditor : public QWidget
     Q_OBJECT
 
 public:
-    PatternEditor(ForumSession &ses, ForumParser *par, ForumSubscription *fos, QWidget *parent = 0);
+    PatternEditor(ParserEngine &eng, ForumParser *par, ForumSubscription *fos, QWidget *parent = 0);
     ~PatternEditor();
     QString pattern();
     void setPattern(QString txt);
@@ -49,7 +49,7 @@ protected:
 
     Ui::PatternEditorClass ui;
     QTextCursor patternEditorCursor;
-    ForumSession &session;
+    ParserEngine &engine;
     ForumSubscription *subscription, *downloadSubscription;
     ForumParser *parser, downloadParser;
     QTimer editTimeout;

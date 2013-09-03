@@ -166,7 +166,7 @@ void MainWindow::viewInBrowserClickedSlot() {
 void MainWindow::parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
                                           UpdateEngine::UpdateEngineState oldState) {
     ParserEngine *engine = qobject_cast<ParserEngine*> (sender());
-    if (newState==ParserEngine::PES_UPDATING) {
+    if (newState==ParserEngine::UES_UPDATING) {
         busyParserEngines.insert(engine);
     } else {
         busyParserEngines.remove(engine);

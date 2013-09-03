@@ -39,7 +39,7 @@ void Favicon::subscriptionChanged() {
         blinkTimer.stop();
         emit iconChanged(subscription, currentpic);
     }
-    if(subscription->updateEngine() && subscription->updateEngine()->state()==ParserEngine::PES_ERROR) {
+    if(subscription->updateEngine() && subscription->updateEngine()->state()==ParserEngine::UES_ERROR) {
         QPixmap outPic(currentpic);
         QPainter painter(&outPic);
         painter.drawPixmap(0,0,outPic.width(),outPic.height(), QPixmap(":data/dialog-error.png"));
