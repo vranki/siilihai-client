@@ -14,7 +14,9 @@ PatternEditor(eng, par, fos, parent) {
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     subscription = fos;
     Q_ASSERT(fos);
-    engine.initialize(par, fos, matcher);
+    engine.setSubscription(fos);
+    engine.setParser(par);
+    engine.setPatternMatcher(matcher);
     currentGroup = 0;
 }
 
@@ -34,7 +36,9 @@ void ThreadListPatternEditor::downloadList() {
     downloadParser.view_thread_page_increment = 0;
     downloadSubscription = subscription;
 
-    engine.initialize(&downloadParser, downloadSubscription, matcher);
+    engine.setSubscription(downloadSubscription);
+    engine.setParser(&downloadParser);
+    engine.setPatternMatcher(matcher);
     currentGroup->setSubscribed(true); // To keep session happy
     engine.doUpdateGroup(currentGroup);
 
@@ -50,7 +54,9 @@ void ThreadListPatternEditor::testPageSpanning() {
     downloadSubscription->setLatestThreads(999);
     downloadSubscription->setLatestMessages(999);
 
-    engine.initialize(&downloadParser, downloadSubscription, matcher);
+    engine.setSubscription(downloadSubscription);
+    engine.setParser(&downloadParser);
+    engine.setPatternMatcher(matcher);
     engine.doUpdateGroup(currentGroup);
 
     ui.sourceTextEdit->clear();

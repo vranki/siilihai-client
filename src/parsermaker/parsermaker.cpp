@@ -126,13 +126,13 @@ void ParserMaker::updateState() {
 void ParserMaker::openClicked() {
     DownloadDialog *dlg = new DownloadDialog(this, protocol);
     connect(dlg, SIGNAL(parserLoaded(ForumParser*)), this, SLOT(parserLoaded(ForumParser*)));
-    dlg->show();
+    dlg->exec();
 }
 
 void ParserMaker::newFromRequestClicked() {
     OpenRequestDialog *dlg = new OpenRequestDialog(this, protocol);
     connect(dlg, SIGNAL(requestSelected(ForumRequest*)), this, SLOT(requestSelected(ForumRequest*)));
-    dlg->show();
+    dlg->exec();
 }
 
 void ParserMaker::requestSelected(ForumRequest *req) {
@@ -231,7 +231,8 @@ void ParserMaker::closeEvent(QCloseEvent *event) {
 }
 
 void ParserMaker::tryLogin() {
-    engine.initialize(&parser, &subscription, 0);
+    engine.setSubscription(&subscription);
+    engine.setParser(&parser);
     loginWithoutCredentials = false;
     updateState();
     connect(&engine, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));
@@ -241,7 +242,8 @@ void ParserMaker::tryLogin() {
 }
 
 void ParserMaker::tryWithoutLogin() {
-    engine.initialize(&parser, &subscription, 0);
+    engine.setSubscription(&subscription);
+    engine.setParser(&parser);
     loginWithoutCredentials = true;
     updateState();
     connect(&engine, SIGNAL(receivedHtml(const QString&)), ui.loginTextEdit, SLOT(setPlainText(const QString&)));

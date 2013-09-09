@@ -13,7 +13,9 @@ PatternEditor(eng, par, fos, parent) {
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     Q_ASSERT(fos);
     subscription = fos;
-    engine.initialize(par, fos, matcher);
+    engine.setSubscription(fos);
+    engine.setParser(par);
+    engine.setPatternMatcher(matcher);
 }
 
 GroupListPatternEditor::~GroupListPatternEditor() {
@@ -21,7 +23,9 @@ GroupListPatternEditor::~GroupListPatternEditor() {
 
 void GroupListPatternEditor::downloadList() {
     engine.cancelOperation();
-    engine.initialize(parser, subscription, matcher);
+    engine.setSubscription(subscription);
+    engine.setParser(parser);
+    engine.setPatternMatcher(matcher);
     ui.downloadButton->setEnabled(false);
     engine.doUpdateForum();
     ui.sourceTextEdit->clear();
