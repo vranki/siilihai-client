@@ -207,6 +207,8 @@ void ForumListWidget::updateGroupLabel(ForumGroup* grp) {
         if(grp->hasChanged())
             title += " (C)";
 #endif
+        if(!grp->hierarchy().isEmpty())
+            title += " [" + grp->hierarchy() + "]";
         gItem->setText(title);
     }
 }
