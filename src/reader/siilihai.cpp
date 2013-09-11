@@ -156,29 +156,11 @@ void Siilihai::sendParserReportFinished(bool success) {
     }
 }
 
-//@todo not used?
-void Siilihai::cancelProgress() {
-    if(currentState==SH_LOGIN) {
-        loginFinished(false,QString::null,false);
-    } else if(currentState==SH_STARTSYNCING) {
-        changeState(SH_OFFLINE);
-    } else if(currentState==SH_ENDSYNC) {
-        haltSiilihai();
-    } else if(currentState==SH_STOREDB) { // Not allowed
-    } else {
-        Q_ASSERT(false);
-    }
-}
-
 QString Siilihai::getDataFilePath() {
-#ifdef STORE_FILES_IN_APP_DIR
-    return QCoreApplication::applicationDirPath();
-#else
 #if QT_VERSION < 0x050000
     return QDesktopServices::storageLocation(QDesktopServices::DataLocation);
 #else
     return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-#endif
 #endif
 }
 

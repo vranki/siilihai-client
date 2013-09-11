@@ -18,6 +18,9 @@ class SyncMaster;
 class GroupSubscriptionDialog;
 class CredentialsRequest;
 
+/**
+ * @brief The Siilihai class is the main GUI godclass for the desktop reader
+ */
 class Siilihai: public ClientLogic {
     Q_OBJECT
 
@@ -28,7 +31,6 @@ private slots:
     virtual void subscribeForum();
     virtual void loginWizardFinished();
     virtual void settingsChanged(bool byUser=true);
-    void cancelProgress();
     void showUnsubscribeForum(ForumSubscription* forum);
     void reportClicked(ForumSubscription* forumid);
     void launchParserMaker();

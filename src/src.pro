@@ -126,8 +126,6 @@ RESOURCES += ../siilihairesources.qrc
 
 win32 {
     INCLUDEPATH += ../../libsiilihai/src/
-    DEFINES += STORE_FILES_IN_APP_DIR
-    message("Win32 build - storing files in app dir")
 }
 win32:debug {
     LIBS += -L../../libsiilihai/src/debug
