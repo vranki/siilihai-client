@@ -9,6 +9,7 @@ set -v
 export QTDIR=$HOME/.wine/drive_c/QtSDK
 export QTVERSIONDIR=$QTDIR/5.1.0/mingw48_32
 export MINGWDIR=$QTDIR/Tools/mingw48_32
+export OPENSSLDIR=$HOME/.wine/drive_c/OpenSSL-Win32
 export Path=C:\\windows\\system32\\\;C:\\windows\\\;C:\\windows\\system32\\wbem\;$MINGWDIR\\bin\;C:\\NSIS\\\;$QTVERSIONDIR\\bin\\\;
 
 export SH_BINARYPATH=release
@@ -98,6 +99,8 @@ cp $QTDIR/Tools/QtCreator/bin/libGLESv2.dll siilihai-win32
 cp $QTDIR/Tools/QtCreator/bin/D3DCompiler_43.dll siilihai-win32
 
 cp $QTVERSIONDIR/plugins/platforms/qwindows.dll siilihai-win32
+
+cp $OPENSSLDIR/*.dll siilihai-win32
 }
 
 function create_installer {
