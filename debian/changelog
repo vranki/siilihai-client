@@ -1,3 +1,9 @@
+siilihai-client (2.2.13) raring; urgency=low
+
+  * Fix assert fail when downloading more messages
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 16 Oct 2013 12:34:56 +0300
+
 siilihai-client (2.2.12) raring; urgency=low
 
   * Some new features such as group hierarchy display
