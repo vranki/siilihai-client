@@ -38,7 +38,6 @@ private slots:
     void sendParserReportFinished(bool success);
     virtual void showStatusMessage(QString message);
 protected:
-    virtual QString getDataFilePath();
     virtual void errorDialog(QString message);
     virtual void showLoginWizard();
     virtual void showSubscribeGroup(ForumSubscription* forum);

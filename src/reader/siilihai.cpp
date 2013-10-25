@@ -3,11 +3,7 @@
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/parser/parserreport.h>
 #include <siilihai/usersettings.h>
-#if QT_VERSION >= 0x050000
-#include <QStandardPaths>
-#else
-#include <QDesktopServices>
-#endif
+
 #include "threadlistwidget.h"
 #include "loginwizard.h"
 #include "subscribewizard.h"
@@ -42,7 +38,7 @@ void Siilihai::showStatusMessage(QString message) {
 }
 
 void Siilihai::subscribeForum() {
-    if(currentState != SH_READY) return;
+    if(state() != SH_READY) return;
     SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, protocol, *settings);
     subscribeWizard->setModal(false);
     connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(forumAdded(ForumSubscription*)));
@@ -71,7 +67,7 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(startSyncClicked()), &syncmaster, SLOT(startSync()));
     connect(mainWin, SIGNAL(endSyncClicked()), &syncmaster, SLOT(endSync()));
     connect(mainWin, SIGNAL(updateAllParsers()), this, SLOT(updateAllParsers()));
-    mainWin->setOffline(currentState==SH_OFFLINE);
+    mainWin->setOffline(state()==SH_OFFLINE);
     mainWin->show();
     QApplication::setQuitOnLastWindowClosed(true);
 }
@@ -91,7 +87,7 @@ void Siilihai::errorDialog(QString message) {
 }
 
 void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
-    if(currentState != SH_READY) return;
+    if(state() != SH_READY) return;
     Q_ASSERT(forum);
     GroupSubscriptionDialog *groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
     groupSubscriptionDialog->setModal(false);
@@ -101,7 +97,7 @@ void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
 }
 
 void Siilihai::reportClicked(ForumSubscription* forum) {
-    if(currentState != SH_READY) return;
+    if(state() != SH_READY) return;
     if (forum) {
         if(forum->isParsed()) {
             ForumParser *parserToReport = qobject_cast<ForumSubscriptionParsed*>(forum)->parserEngine()->parser();
@@ -154,14 +150,6 @@ void Siilihai::sendParserReportFinished(bool success) {
     } else {
         errorDialog("Thanks for your report");
     }
-}
-
-QString Siilihai::getDataFilePath() {
-#if QT_VERSION < 0x050000
-    return QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-#else
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-#endif
 }
 
 void Siilihai::showLoginWizard() {
