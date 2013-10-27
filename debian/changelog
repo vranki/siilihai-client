@@ -1,3 +1,9 @@
+siilihai-client (2.2.14) raring; urgency=low
+
+  * Minor fixes & refactoring
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 27 Oct 2013 12:34:56 +0300
+
 siilihai-client (2.2.13) raring; urgency=low
 
   * Fix assert fail when downloading more messages
