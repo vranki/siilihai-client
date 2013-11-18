@@ -14,7 +14,7 @@ public:
     CredentialsDialog(QWidget *parent, CredentialsRequest *cr);
     ~CredentialsDialog();
 private slots:
-    void acceptClicked();
+    void dialogClosed();
 
 private:
     Ui::CredentialsDialog ui;

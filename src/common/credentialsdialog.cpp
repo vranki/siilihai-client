@@ -6,7 +6,7 @@ CredentialsDialog::CredentialsDialog(QWidget *parent, CredentialsRequest *cr)
     : QDialog(parent), credentialsRequest(cr)
 {
     ui.setupUi(this);
-    connect(this, SIGNAL(accepted()), this, SLOT(acceptClicked()));
+    connect(this, SIGNAL(finished(int)), this, SLOT(dialogClosed()));
     // @todo request type in dialog
     ui.label->setText(QString("Forum %1 requires authentication").arg(credentialsRequest->subscription->alias()));
     connect(credentialsRequest->subscription, SIGNAL(destroyed()), this, SLOT(deleteLater()));
@@ -19,7 +19,8 @@ CredentialsDialog::~CredentialsDialog() {
     credentialsRequest->signalCredentialsEntered(ui.remember->isChecked());
 }
 
-void CredentialsDialog::acceptClicked()  {
+void CredentialsDialog::dialogClosed()  {
     credentialsRequest->authenticator.setUser(ui.username->text());
     credentialsRequest->authenticator.setPassword(ui.password->text());
+    deleteLater();
 }

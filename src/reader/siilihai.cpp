@@ -165,9 +165,9 @@ void Siilihai::settingsChanged(bool byUser) {
     ClientLogic::settingsChanged(byUser);
 }
 
-void Siilihai::showCredentialsDialog(CredentialsRequest *cr) {
-    CredentialsDialog *creds = new CredentialsDialog(mainWin, cr);
-    creds->setModal(true);
-    creds->exec();
-    creds->deleteLater();
+void Siilihai::showCredentialsDialog() {
+    Q_ASSERT(currentCredentialsRequest);
+    CredentialsDialog *creds = new CredentialsDialog(mainWin, currentCredentialsRequest);
+    creds->setModal(false);
+    creds->show();
 }
