@@ -40,7 +40,7 @@ private slots:
 protected:
     virtual void errorDialog(QString message);
     virtual void showLoginWizard();
-    virtual void showSubscribeGroup(ForumSubscription* forum);
+    virtual void groupListChanged(ForumSubscription* forum);
     virtual void showCredentialsDialog(CredentialsRequest *cr);
     virtual void changeState(siilihai_states newState);
     virtual void closeUi();

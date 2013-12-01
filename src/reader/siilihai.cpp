@@ -52,7 +52,7 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
     connect(mainWin, SIGNAL(updateClicked(ForumSubscription*,bool)), this, SLOT(updateClicked(ForumSubscription*,bool)));
     connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
-    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(showSubscribeGroup(ForumSubscription*)));
+    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(groupListChanged(ForumSubscription*)));
     connect(mainWin, SIGNAL(reportClicked(ForumSubscription*)), this, SLOT(reportClicked(ForumSubscription*)));
     connect(mainWin, SIGNAL(launchParserMaker()), this, SLOT(launchParserMaker()));
     connect(mainWin, SIGNAL(offlineModeSet(bool)), this, SLOT(offlineModeSet(bool)));
@@ -86,7 +86,7 @@ void Siilihai::errorDialog(QString message) {
     msgBox->open();
 }
 
-void Siilihai::showSubscribeGroup(ForumSubscription* forum) {
+void Siilihai::groupListChanged(ForumSubscription* forum) {
     if(state() != SH_READY) return;
     Q_ASSERT(forum);
     GroupSubscriptionDialog *groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
