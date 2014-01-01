@@ -1,3 +1,15 @@
+siilihai-client (2.2.15-2) precise; urgency=low
+
+  * Precise release
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 1 Jan 2014 12:34:56 +0300
+
+siilihai-client (2.2.15-1) saucy; urgency=low
+
+  * Saucy release, nothing much changed
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 29 Dec 2013 12:34:56 +0300
+
 siilihai-client (2.2.15) raring; urgency=low
 
   * Minor tuning
