@@ -44,7 +44,7 @@ ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, Siili
     connect(ui.verifyLoginPattern, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
     connect(ui.helpButton, SIGNAL(clicked()), this, SLOT(helpClicked()));
     connect(&engine, SIGNAL(loginFinished(ForumSubscription *,bool)), this, SLOT(loginFinished(ForumSubscription *, bool)));
-    connect(&engine, SIGNAL(networkFailure(QString)), this, SLOT(networkFailure(QString)));
+    connect(&engine, SIGNAL(updateFailure(ForumSubscription *,QString)), this, SLOT(updateFailure(ForumSubscription *,QString)));
     connect(&engine, SIGNAL(getHttpAuthentication(ForumSubscription *, QAuthenticator *)),
             this, SLOT(getHttpAuthentication(ForumSubscription *, QAuthenticator *)));
 
@@ -274,9 +274,9 @@ void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
     ui.tryWithoutLoginButton->setEnabled(true);
 }
 
-void ParserMaker::networkFailure(QString txt) {
+void ParserMaker::updateFailure(ForumSubscription *sub, QString txt) {
     QMessageBox msgBox(this);
-    msgBox.setText("Network Failure:\n" + txt);
+    msgBox.setText("Update failure:\n" + txt);
     msgBox.exec();
     updateState();
 }

@@ -39,7 +39,7 @@ private slots:
     void tryLogin();
     void tryWithoutLogin();
     void loginFinished(ForumSubscription *sub, bool success);
-    void networkFailure(QString txt);
+    void updateFailure(ForumSubscription *sub, QString txt);
     void helpClicked();
     void getHttpAuthentication(ForumSubscription *, QAuthenticator *);
     void dataMatchingStart(QString &html);
