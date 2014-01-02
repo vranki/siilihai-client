@@ -10,12 +10,13 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <siilihai/siilihaiprotocol.h>
+#include <siilihai/siilihaisettings.h>
 
 class LoginWizard: public QWizard {
     Q_OBJECT
 
 public:
-    LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s);
+    LoginWizard(QWidget *parent, SiilihaiProtocol &proto, SiilihaiSettings &s);
     ~LoginWizard();
     QWizardPage *createIntroPage();
     QWizardPage *createRegistrationPage();
@@ -36,7 +37,7 @@ private:
     SiilihaiProtocol &protocol;
     QProgressDialog *progress;
     QLabel loginMessage, registerMessage, finalLabel;
-    QSettings &settings;
+    SiilihaiSettings &settings;
     QCheckBox enableSync;
 };
 

@@ -1,19 +1,19 @@
 #include "settingsdialog.h"
 
-SettingsDialog::SettingsDialog(QWidget *parent, QSettings *s)
+SettingsDialog::SettingsDialog(QWidget *parent, SiilihaiSettings *s)
     : QDialog(parent)
 {
     ui.setupUi(this);
     connect(ui.closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     settings = s;
-    ui.updateAutomatically->setChecked(settings->value("preferences/update_automatically", true).toBool());
-    if(settings->value("account/noaccount", false).toBool())
+    if(settings->noAccount())
         ui.enableSyncing->setEnabled(false);
-    ui.enableSyncing->setChecked(settings->value("preferences/sync_enabled", false).toBool());
-    ui.httpProxy->setText(settings->value("preferences/http_proxy", "").toString());
-    ui.threads_per_group->setValue(settings->value("preferences/threads_per_group", 20).toInt());
-    ui.messages_per_thread->setValue(settings->value("preferences/messages_per_thread", 20).toInt());
-    ui.show_more_count->setValue(settings->value("preferences/show_more_count", 30).toInt());
+    ui.enableSyncing->setChecked(settings->syncEnabled());
+    ui.httpProxy->setText(settings->httpProxy());
+    ui.threads_per_group->setValue(settings->threadsPerGroup());
+    ui.messages_per_thread->setValue(settings->messagesPerThread());
+    ui.show_more_count->setValue(settings->showMoreCount());
+    ui.signatureEdit->setPlainText(settings->signature());
 }
 
 SettingsDialog::~SettingsDialog()
@@ -21,12 +21,12 @@ SettingsDialog::~SettingsDialog()
 }
 
 void SettingsDialog::closeClicked() {
-    settings->setValue("preferences/update_automatically", ui.updateAutomatically->isChecked());
     settings->setValue("preferences/sync_enabled", ui.enableSyncing->isChecked());
     settings->setValue("preferences/http_proxy", ui.httpProxy->text());
     settings->setValue("preferences/threads_per_group", QString::number(ui.threads_per_group->value()));
     settings->setValue("preferences/messages_per_thread", QString::number(ui.messages_per_thread->value()));
     settings->setValue("preferences/show_more_count", QString::number(ui.show_more_count->value()));
+    settings->setSignature(ui.signatureEdit->toPlainText());
     settings->sync();
     accept();
     deleteLater();

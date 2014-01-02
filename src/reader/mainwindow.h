@@ -14,6 +14,7 @@
 
 #include <siilihai/forumdatabase/forumdatabase.h>
 #include <siilihai/parser/parserengine.h>
+#include <siilihai/siilihaisettings.h>
 
 #ifdef INCLUDE_SIILIHAI_VERSION
 #include "../../siilihai-version.h"
@@ -30,7 +31,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent = 0 );
+    MainWindow(ForumDatabase &fd, SiilihaiSettings *s, QWidget *parent = 0 );
     ~MainWindow();
 signals:
     void subscribeForum();
@@ -54,11 +55,13 @@ signals:
     void startSyncClicked();
     void endSyncClicked();
     void updateAllParsers();
+
 public slots:
     void parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
                                   UpdateEngine::UpdateEngineState oldState);
     void setOffline(bool offline);
     void showMessage(QString msg, int time=5000);
+
 private slots:
     void unsubscribeForumSlot();
     void groupSubscriptionsSlot();
@@ -80,6 +83,9 @@ private slots:
     void userAccountSettings();
     void updateEnabledButtons();
     void subscriptionFound(ForumSubscription *sub);
+    void newThreadClickedSlot();
+    void replyClickedSlot();
+    void replyQuotedClickedSlot();
 protected:
     bool eventFilter(QObject *object, QEvent *event);
 private:
@@ -90,9 +96,8 @@ private:
     Ui::MainWindowClass ui;
     ForumDatabase &fdb;
     QSet<ParserEngine*> busyParserEngines;
-    QSettings *settings;
+    SiilihaiSettings *settings;
     bool offline;
-    QActionGroup viewAsGroup;
 };
 
 #endif // MAINWINDOW_H

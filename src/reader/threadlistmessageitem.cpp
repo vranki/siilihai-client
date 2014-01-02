@@ -1,4 +1,7 @@
 #include "threadlistmessageitem.h"
+#include <siilihai/updateengine.h>
+#include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/forumdata/forumgroup.h>
 #include <siilihai/forumdata/forumthread.h>
 #include <siilihai/messageformatting.h>
 #include "threadlistthreaditem.h"
@@ -58,6 +61,7 @@ void ThreadListMessageItem::updateItem() {
     messageSubject = msg->displayName();
     QString lc = msg->lastchange();
     lc = MessageFormatting::sanitize(lc);
+    lc = msg->thread()->group()->subscription()->updateEngine()->convertDate(lc);
     QString author = msg->author();
     author = MessageFormatting::sanitize(author);
     setText(0, messageSubject);

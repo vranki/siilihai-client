@@ -1,13 +1,10 @@
 #include "loginwizard.h"
 #include <QFormLayout>
 
-LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &s) :
+LoginWizard::LoginWizard(QWidget *parent, SiilihaiProtocol &proto, SiilihaiSettings &s) :
     QWizard(parent), protocol(proto), settings(s) {
     setWizardStyle(QWizard::ModernStyle);
-#ifndef Q_WS_HILDON
-    setPixmap(QWizard::WatermarkPixmap, QPixmap(
-                  ":/data/siilis_wizard_watermark.png"));
-#endif
+    setPixmap(QWizard::WatermarkPixmap, QPixmap(":/data/siilis_wizard_watermark.png"));
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
     connect(this, SIGNAL(finished(int)), this, SLOT(deleteLater()));
     setPage(1, createIntroPage());
@@ -157,7 +154,7 @@ void LoginWizard::pageChanged(int id) {
             connect(&protocol, SIGNAL(loginFinished(bool, QString,bool)), this, SLOT(registerFinished(bool, QString,bool)));
             protocol.registerUser(registerUser.text().trimmed(), registerPass.text().trimmed(), registerEmail.text().trimmed(), enableSync.isChecked());
         } else if(noAccount.isChecked()) {
-            settings.setValue("account/noaccount", true);
+            settings.setNoAccount(true);
             currentPage()->setSubTitle("Using Siilihai with no account");
             finalLabel.setText("Only basic reading is possible without account. \nRegister later to enable sync and other missing features.");
         }

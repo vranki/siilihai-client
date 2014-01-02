@@ -12,16 +12,13 @@
 #include "forumproperties.h"
 #include "threadproperties.h"
 #include "useraccountdialog.h"
+#include "composemessage.h"
 
-MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMainWindow(parent), fdb(fd), viewAsGroup(this) {
+MainWindow::MainWindow(ForumDatabase &fd, SiilihaiSettings *s, QWidget *parent) : QMainWindow(parent), fdb(fd) {
     ui.setupUi(this);
     offline = false;
     settings = s;
-    viewAsGroup.addAction(ui.actionHTML);
-    viewAsGroup.addAction(ui.actionText);
-    viewAsGroup.addAction(ui.actionHTML_Source);
 
-    ui.actionWeb_Page->setChecked(true);
     connect(ui.actionSubscribe_to, SIGNAL(triggered()), this, SIGNAL(subscribeForum()));
     connect(ui.actionGroup_Subscriptions, SIGNAL(triggered()), this, SLOT(groupSubscriptionsSlot()));
     connect(ui.actionUpdate_all, SIGNAL(triggered()), this, SIGNAL(updateClicked()));
@@ -44,6 +41,9 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
     connect(ui.hideButton, SIGNAL(clicked()), this, SLOT(hideClickedSlot()));
     connect(ui.viewInBrowser, SIGNAL(clicked()), this, SLOT(viewInBrowserClickedSlot()));
     connect(ui.actionUpdate_all_parsers, SIGNAL(triggered()), this, SIGNAL(updateAllParsers()));
+    connect(ui.newThreadButton, SIGNAL(clicked()), this, SLOT(newThreadClickedSlot()));
+    connect(ui.replyButton, SIGNAL(clicked()), this, SLOT(replyClickedSlot()));
+    connect(ui.replyQuoted, SIGNAL(clicked()), this, SLOT(replyQuotedClickedSlot()));
     mvw = new MessageViewWidget(this);
 
     flw = new ForumListWidget(this);
@@ -71,10 +71,7 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
 
     ui.horizontalSplitter->addWidget(mvw);
     connect(tlw, SIGNAL(messageSelected(ForumMessage*)), mvw, SLOT(messageSelected(ForumMessage*)));
-    connect(ui.actionHTML, SIGNAL(triggered()), mvw, SLOT(viewAsHTML()));
-    connect(ui.actionText, SIGNAL(triggered()), mvw, SLOT(viewAsText()));
-    connect(ui.actionHTML_Source, SIGNAL(triggered()), mvw, SLOT(viewAsSource()));
-    ui.actionHTML->setChecked(true);
+    connect(ui.actionHTML_Source, SIGNAL(toggled(bool)), mvw, SLOT(viewAsSource(bool)));
 
     connect(&fdb, SIGNAL(subscriptionFound(ForumSubscription*)), this, SLOT(subscriptionFound(ForumSubscription*)));
 
@@ -100,7 +97,7 @@ MainWindow::MainWindow(ForumDatabase &fd, QSettings *s, QWidget *parent) : QMain
 #else
     menuBar()->removeAction(ui.menuDebug->menuAction());
 #endif
-    if(settings->value("account/noaccount", false).toBool()) {
+    if(settings->noAccount()) {
         ui.actionReport_broken_or_working->setEnabled(false);
     }
 
@@ -263,7 +260,7 @@ void MainWindow::updateEnabledButtons() {
     bool sane = (flw->getSelectedForum() != 0);
     ui.actionUpdate_selected->setEnabled( sane && !offline);
     ui.actionForce_update_on_selected->setEnabled( sane && !offline);
-    ui.actionReport_broken_or_working->setEnabled(sane && !offline && !settings->value("account/noaccount", false).toBool());
+    ui.actionReport_broken_or_working->setEnabled(sane && !offline && !settings->noAccount());
     ui.actionUnsubscribe->setEnabled( sane && !offline);
     ui.actionGroup_Subscriptions->setEnabled(sane && !offline);
     ui.actionUpdate_selected->setEnabled( sane && !offline);
@@ -274,6 +271,12 @@ void MainWindow::updateEnabledButtons() {
     ui.actionMark_group_as_Read->setEnabled(sane);
     ui.actionMark_group_as_Unread->setEnabled(sane);
 
+    if(sane && flw->getSelectedForum() && flw->getSelectedForum()->updateEngine()) {
+        bool posting = flw->getSelectedForum()->updateEngine()->supportsPosting();
+        ui.newThreadButton->setEnabled(posting && sane);
+        ui.replyButton->setEnabled(posting && mvw->currentMessage());
+        ui.replyQuoted->setEnabled(posting && mvw->currentMessage());
+    }
     ui.viewInBrowser->setEnabled(mvw->currentMessage() && !mvw->currentMessage()->url().isNull());
 }
 
@@ -302,6 +305,30 @@ void MainWindow::userAccountSettings() {
 void MainWindow::subscriptionFound(ForumSubscription *sub) {
     connect(sub->updateEngine(), SIGNAL(stateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)),
             this, SLOT(parserEngineStateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)));
+}
+
+void MainWindow::newThreadClickedSlot() {
+    if(!flw->getSelectedGroup()) return;
+    ComposeMessage *composition = new ComposeMessage(this, *settings);
+    composition->newThreadIn(flw->getSelectedGroup());
+    composition->setModal(false);
+    composition->show();
+}
+
+void MainWindow::replyClickedSlot() {
+    if(!mvw->currentMessage()) return;
+    ComposeMessage *composition = new ComposeMessage(this, *settings);
+    composition->newReplyTo(mvw->currentMessage()->thread());
+    composition->setModal(false);
+    composition->show();
+}
+
+void MainWindow::replyQuotedClickedSlot(){
+    if(!mvw->currentMessage()) return;
+    ComposeMessage *composition = new ComposeMessage(this, *settings);
+    composition->newReplyTo(mvw->currentMessage());
+    composition->setModal(false);
+    composition->show();
 }
 
 void MainWindow::showMessage(QString msg, int time) {

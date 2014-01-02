@@ -10,13 +10,12 @@
 #include <QDir>
 #include <QDebug>
 
-MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), webView(this), vbox(this) {
+MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), webView(this), vbox(this), sourceView(false) {
     vbox.addWidget(&webView);
     setLayout(&vbox);
     webView.page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     connect(&webView, SIGNAL(linkClicked(const QUrl &)), this, SLOT(linkClicked(const QUrl &)));
     messageSelected(0);
-    viewMode = 0;
 }
 
 MessageViewWidget::~MessageViewWidget() {
@@ -42,20 +41,9 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
                 webView.page()->setNetworkAccessManager(nam); // Crashes??
             }
         }
-        // This looks like a big hack but works pretty well :-)
         QString bodyToShow = msg->body();
-        if(viewMode == VIEW_TEXT) {
-            bodyToShow.replace("<br>", "\n");
-            bodyToShow.replace("<br/>", "\n");
-            bodyToShow.replace("<br />", "\n");
-            bodyToShow.replace("<p>", "\n<p>");
-            bodyToShow.replace("<div", "\n<div");
-            bodyToShow.replace("<a ", "\n<a ");
-            bodyToShow.replace("<img ", "\n<img ");
-            bodyToShow = "<div class=\"monospace\">" + MessageFormatting::stripHtml(bodyToShow) + "</div>";
-        } else if(viewMode == VIEW_SOURCE) {
-            bodyToShow = "<div class=\"monospace\">" +
-                    msg->toString() + ":<br />" + MessageFormatting::replaceCharacters(bodyToShow) + "</div>";
+        if(sourceView) {
+            bodyToShow = "<div class=\"monospace\">" + msg->toString() + ":<br />" + MessageFormatting::replaceCharacters(bodyToShow) + "</div>";
             bodyToShow.replace("\n", "<br />");
         }
         QString styleHtml = "  <style type=\"text/css\">#siilihai-header {"
@@ -96,18 +84,8 @@ bool MessageViewWidget::scrollDown() {
     return false;
 }
 
-void MessageViewWidget::viewAsHTML() {
-    viewMode = VIEW_HTML;
-    messageSelected(currentMessage());
-}
-
-void MessageViewWidget::viewAsText() {
-    viewMode = VIEW_TEXT;
-    messageSelected(currentMessage());
-}
-
-void MessageViewWidget::viewAsSource() {
-    viewMode = VIEW_SOURCE;
+void MessageViewWidget::viewAsSource(bool src) {
+    sourceView = src;
     messageSelected(currentMessage());
 }
 

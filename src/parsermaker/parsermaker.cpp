@@ -8,7 +8,7 @@
 #include <siilihai/credentialsrequest.h>
 #include <QCloseEvent>
 
-ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p) :
+ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, SiilihaiSettings &s, SiilihaiProtocol &p) :
     QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), engine(this, 0, 0, &nam) {
     ui.setupUi(this);
     loginMatcher = new PatternMatcher(this, true);
@@ -92,8 +92,8 @@ void ParserMaker::updateState() {
 
     bool mayWork = parser.mayWork();
 
-    ui.saveChangesButton->setEnabled(mayWork && parser.id() > 0  && !settings.value("account/noaccount", false).toBool());
-    ui.saveAsNewButton->setEnabled(mayWork && !settings.value("account/noaccount", false).toBool());
+    ui.saveChangesButton->setEnabled(mayWork && parser.id() > 0  && !settings.noAccount());
+    ui.saveAsNewButton->setEnabled(mayWork && !settings.noAccount());
 
     ui.loginUrlLabel->setText(ui.loginPath->text());
     ui.loginTypeCombo->setEnabled(ui.loginPath->text().length() > 0);

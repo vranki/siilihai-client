@@ -1,3 +1,10 @@
+siilihai-client (2.3.0) saucy; urgency=low
+
+  * Posting on Tapatalk forums
+  * Other minor changes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 2 Jan 2014 12:34:56 +0300
+
 siilihai-client (2.2.15-2) precise; urgency=low
 
   * Precise release

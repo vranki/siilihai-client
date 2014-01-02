@@ -25,19 +25,14 @@ signals:
 public slots:
     void messageSelected(ForumMessage *msg);
     void linkClicked ( const QUrl & url);
-    void viewAsHTML();
-    void viewAsText();
-    void viewAsSource();
+    void viewAsSource(bool src);
 private slots:
     void currentMessageDeleted();
 private:
-    const static int VIEW_HTML=0;
-    const static int VIEW_TEXT=1;
-    const static int VIEW_SOURCE=2;
     QWebView webView;
     QVBoxLayout vbox;
     ForumMessage *displayedMessage;
-    int viewMode;
+    bool sourceView;
     QNetworkAccessManager nullNam; // Used when no msg is displayed
 };
 

@@ -3,7 +3,7 @@
 
 // Qt5 
 #include <QDialog>
-#include <QSettings>
+#include <siilihai/siilihaisettings.h>
 
 #include "ui_settingsdialog.h"
 
@@ -12,14 +12,14 @@ class SettingsDialog : public QDialog
     Q_OBJECT
 
 public:
-    SettingsDialog(QWidget *parent, QSettings *s);
+    SettingsDialog(QWidget *parent, SiilihaiSettings *s);
     ~SettingsDialog();
 public slots:
     void closeClicked();
 
 private:
     Ui::SettingsDialogClass ui;
-    QSettings *settings;
+    SiilihaiSettings *settings;
 };
 
 #endif // SETTINGSDIALOG_H

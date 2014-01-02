@@ -7,7 +7,7 @@
 #include <QAbstractButton>
 #include <QMessageBox>
 
-SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett) :
+SubscribeWizard::SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, SiilihaiSettings &sett) :
     QWizard(parent), protocol(proto), settings(sett), newForum(0, true, ForumSubscription::FP_NONE),
     probe(this, proto) {
     // setWizardStyle(QWizard::ModernStyle);
@@ -253,8 +253,8 @@ void SubscribeWizard::wizardAccepted() {
     fs->setUsername(user);
     fs->setPassword(pass);
     fs->setAuthenticated(user.length() > 0);
-    fs->setLatestThreads(settings.value("preferences/threads_per_group", 20).toInt());
-    fs->setLatestMessages(settings.value("preferences/messages_per_thread", 20).toInt());
+    fs->setLatestThreads(settings.threadsPerGroup());
+    fs->setLatestMessages(settings.messagesPerThread());
 
     emit(forumAdded(fs));
     deleteLater();

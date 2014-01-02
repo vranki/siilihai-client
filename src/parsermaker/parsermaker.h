@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/parser/forumsubscriptionparsed.h>
+#include <siilihai/siilihaisettings.h>
 #include "downloaddialog.h"
 #include "openrequestdialog.h"
 #include "patterneditor.h"
@@ -23,7 +24,7 @@ class ParserMaker : public QMainWindow
     Q_OBJECT
 
 public:
-    ParserMaker(QWidget *parent, ParserManager *pd, QSettings &s, SiilihaiProtocol &p);
+    ParserMaker(QWidget *parent, ParserManager *pd, SiilihaiSettings &s, SiilihaiProtocol &p);
     ~ParserMaker();
 
 private slots:
@@ -53,7 +54,7 @@ private:
     void closeEvent(QCloseEvent *event);
     Ui::ParserMakerWindow ui;
     ParserManager *pdb;
-    QSettings &settings;
+    SiilihaiSettings &settings;
     SiilihaiProtocol &protocol;
     ForumParser parser;
     QNetworkAccessManager nam;

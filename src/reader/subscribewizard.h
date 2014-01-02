@@ -11,6 +11,7 @@
 #include <siilihai/siilihaiprotocol.h>
 #include <siilihai/forumdata/forumsubscription.h>
 #include <siilihai/parser/forumparser.h>
+#include <siilihai/siilihaisettings.h>
 #include "ui_subscribeforum.h"
 #include "ui_subscribeforum_login.h"
 #include "ui_subscribeforum_verify.h"
@@ -21,7 +22,7 @@ class SubscribeWizard: public QWizard {
     Q_OBJECT
 
 public:
-    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, QSettings &sett);
+    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, SiilihaiSettings &sett);
     ~SubscribeWizard();
     QWizardPage *createIntroPage();
     QWizardPage *createLoginPage();
@@ -43,7 +44,7 @@ private slots:
     void checkUrlValidity();
 private:
     SiilihaiProtocol &protocol;
-    QSettings &settings;
+    SiilihaiSettings &settings;
     Ui::SubscribeForm subscribeForm;
     Ui::SubscribeForumLoginForm subscribeForumLogin;
     Ui::SubscribeForumVerify subscribeForumVerify;
