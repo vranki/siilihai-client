@@ -1,3 +1,9 @@
+siilihai-client (2.3.1) saucy; urgency=low
+
+  * Fixes in lib, needs rebuild
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 11 Feb 2014 12:34:56 +0300
+
 siilihai-client (2.3.0) saucy; urgency=low
 
   * Posting on Tapatalk forums
