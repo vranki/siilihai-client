@@ -8,6 +8,7 @@
 
 ThreadListMessageItem::ThreadListMessageItem(QTreeWidget *tree) : QObject(tree), QTreeWidgetItem(tree) {
     msg = 0;
+    currentIconImage = II_UNDEFINED;
 }
 
 ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem, ForumMessage *message) : QTreeWidgetItem(threadItem)
@@ -16,6 +17,7 @@ ThreadListMessageItem::ThreadListMessageItem(ThreadListMessageItem *threadItem, 
     Q_ASSERT(message->isSane());
     Q_ASSERT(message->thread());
     Q_ASSERT(message->thread()->isSane());
+    currentIconImage = II_UNDEFINED;
     msg = message;
     QString orderString;
     if(message->ordernum() >=0) {
@@ -81,11 +83,7 @@ void ThreadListMessageItem::updateRead() {
 
     QFont myFont = font(0);
     myFont.setBold(!msg->isRead());
-    if (msg->isRead()) {
-        setIcon(0, QIcon(":/data/emblem-mail.png"));
-    } else {
-        setIcon(0, QIcon(":/data/mail-unread.png"));
-    }
+    setIconImage(msg->isRead() ? II_READ : II_UNREAD);
     setFont(0, myFont);
 }
 
@@ -95,4 +93,15 @@ void ThreadListMessageItem::messageDeleted() {
     QTreeWidgetItem *p = QTreeWidgetItem::parent();
     p->removeChild(this);
     deleteLater();
+}
+
+void ThreadListMessageItem::setIconImage(IconImage newIcon) {
+    if(newIcon == currentIconImage) return;
+    currentIconImage = newIcon;
+
+    if (newIcon == II_READ) {
+        setIcon(0, QIcon(":/data/emblem-mail.png"));
+    } else if(newIcon == II_UNREAD) {
+        setIcon(0, QIcon(":/data/mail-unread.png"));
+    }
 }

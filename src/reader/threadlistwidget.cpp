@@ -131,6 +131,12 @@ void ThreadListWidget::messageSelected(QTreeWidgetItem* item, QTreeWidgetItem *p
             Q_ASSERT(msg->isSane());
             emit messageSelected(msg);
             msgItem->updateRead();
+
+            // If all are read and more available, try to get more messages
+            ForumThread *thread = msgItem->message()->thread();
+            if(thread->unreadCount() == 0 && thread->hasMoreMessages()) {
+                emit moreMessagesRequested(thread);
+            }
         }
     } else {
         qDebug() << Q_FUNC_INFO << "Selected an item which s not a showmore or message item. Broken parser?";

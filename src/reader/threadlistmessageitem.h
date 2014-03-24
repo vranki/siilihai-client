@@ -9,6 +9,9 @@ class ThreadListMessageItem :  public QObject, public QTreeWidgetItem
 {
     Q_OBJECT
 public:
+    enum IconImage { II_UNDEFINED, II_UNREAD, II_READ };
+
+
     ThreadListMessageItem(QTreeWidget *tree);
     ThreadListMessageItem(ThreadListMessageItem *threadItem, ForumMessage *message);
     ~ThreadListMessageItem();
@@ -20,9 +23,11 @@ public slots:
     virtual void updateItem();
     void messageDeleted();
 protected:
+    virtual void setIconImage(IconImage newIcon);
     ForumMessage *msg;
     QString messageSubject;
     int lastOrderNum;
+    IconImage currentIconImage;
 };
 
 #endif // THREADLISTMESSAGEITEM_H
