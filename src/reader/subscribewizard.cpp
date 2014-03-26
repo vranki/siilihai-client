@@ -140,7 +140,7 @@ QWizardPage *SubscribeWizard::createVerifyPage() {
 void SubscribeWizard::pageChanged(int id) {
     if (id == 0) { // Selection page
         selectedForum = 0;
-        newForum.setForumId(0);
+        newForum.setId(0);
         newForum.setProvider(ForumSubscription::FP_NONE);
         subscribeForumLogin.accountGroupBox->setEnabled(true);
     } else if (id == 1) {
@@ -150,7 +150,7 @@ void SubscribeWizard::pageChanged(int id) {
                 } else {
                     selectedForum = listWidgetItemForum[subscribeForm.forumList->selectedItems()[0]];
                     connect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(forumGot(ForumSubscription*)));
-                    protocol.getForum(selectedForum->forumId());
+                    protocol.getForum(selectedForum->id());
                     button(QWizard::NextButton)->setEnabled(false);
                 }
                 back();
@@ -248,7 +248,7 @@ void SubscribeWizard::wizardAccepted() {
         fs->setForumUrl(newForum.forumUrl());
     }
     Q_ASSERT(fs);
-    fs->setForumId(newForum.forumId());
+    fs->setId(newForum.id());
     fs->setAlias(subscribeForumVerify.forumName->text());
     fs->setUsername(user);
     fs->setPassword(pass);
@@ -275,8 +275,8 @@ void SubscribeWizard::newForumAdded(ForumSubscription *sub)
 {
     disconnect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
     if(sub) {
-        Q_ASSERT(sub->forumId());
-        newForum.setForumId(sub->forumId());
+        Q_ASSERT(sub->id());
+        newForum.setId(sub->id());
         newForum.setForumUrl(sub->forumUrl());
         newForum.setProvider(sub->provider());
         subscribeForumVerify.forumName->setText(sub->alias());
@@ -298,7 +298,7 @@ void SubscribeWizard::probeResults(ForumSubscription *probedSub) {
         button(QWizard::NextButton)->setEnabled(true);
     } else {
         subscribeForm.checkText->setText("Found supported forum");
-        newForum.setForumId(probedSub->forumId());
+        newForum.setId(probedSub->id());
         newForum.setForumUrl(probedSub->forumUrl());
         newForum.setProvider(probedSub->provider());
         newForum.setAlias(probedSub->alias());
@@ -308,7 +308,7 @@ void SubscribeWizard::probeResults(ForumSubscription *probedSub) {
         }
         subscribeForumVerify.forumName->setText(newForum.alias());
         subscribeForumVerify.forumUrl->setText(newForum.forumUrl().toString());
-        if(newForum.forumId()) {
+        if(newForum.id()) {
             subscribeForm.progressBar->setVisible(false);
             button(QWizard::NextButton)->setEnabled(true);
             next();
@@ -322,7 +322,7 @@ void SubscribeWizard::probeResults(ForumSubscription *probedSub) {
 
 void SubscribeWizard::forumGot(ForumSubscription *sub) {
     if(sub) {
-        newForum.setForumId(sub->forumId());
+        newForum.setId(sub->id());
         newForum.setForumUrl(sub->forumUrl());
         newForum.setProvider(sub->provider());
         newForum.setAlias(sub->alias());
@@ -330,7 +330,7 @@ void SubscribeWizard::forumGot(ForumSubscription *sub) {
         subscribeForumVerify.forumUrl->setText(newForum.forumUrl().toString());
         if(sub->provider() == ForumSubscription::FP_PARSER) {
             connect(&protocol, SIGNAL(getParserFinished(ForumParser*)), this, SLOT(getParserFinished(ForumParser*)));
-            protocol.getParser(newForum.forumId());
+            protocol.getParser(newForum.id());
         } else {
             probeResults(sub);
         }

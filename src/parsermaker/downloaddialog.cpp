@@ -45,7 +45,7 @@ void DownloadDialog::getParserFinished(ForumParser *parser) {
 void DownloadDialog::okClicked() {
     if(ui.listWidget->selectedItems().size()==0) return;
 
-    protocol.getParser(listWidgetItemForum[ui.listWidget->selectedItems()[0]]->forumId());
+    protocol.getParser(listWidgetItemForum[ui.listWidget->selectedItems()[0]]->id());
 }
 
 void DownloadDialog::cancelClicked() {
