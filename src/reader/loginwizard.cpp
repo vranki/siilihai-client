@@ -47,8 +47,8 @@ QWizardPage *LoginWizard::createLoginPage() {
     page->setSubTitle("Please enter your account credentials");
     loginPass.setEchoMode(QLineEdit::Password);
 
-    loginUser.setText(settings.value("account/username", "").toString());
-    loginPass.setText(settings.value("account/password", "").toString());
+    loginUser.setText(settings.username());
+    loginPass.setText(settings.password());
 
     QFormLayout *layout = new QFormLayout();
     layout->addRow("Username:", &loginUser);
@@ -103,9 +103,9 @@ void LoginWizard::loginFinished(bool success, QString motd, bool sync) {
         back();
     } else {
         finalLabel.setText("Login successful.\n\nYou are now ready to use Siilihai.");
-        settings.setValue("account/username", loginUser.text().trimmed());
-        settings.setValue("account/password", loginPass.text().trimmed());
-        settings.setValue("preferences/sync_enabled", sync);
+        settings.setUsername(loginUser.text().trimmed());
+        settings.setPassword(loginPass.text().trimmed());
+        settings.setSyncEnabled(sync);
         settings.sync();
     }
 }
@@ -127,7 +127,7 @@ void LoginWizard::registerFinished(bool success, QString motd, bool sync) {
         finalLabel.setText("Registration successful.\n\nYou are now ready to use Siilihai.");
         settings.setValue("account/username", registerUser.text().trimmed());
         settings.setValue("account/password", registerPass.text().trimmed());
-        settings.setValue("preferences/sync_enabled", sync);
+        settings.setSyncEnabled(sync);
         settings.setValue("account/registered_here", true);
         settings.sync();
     }

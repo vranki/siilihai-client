@@ -6,8 +6,8 @@
 UserAccountDialog::UserAccountDialog(QWidget *parent, QSettings *s) :
     QDialog(parent), ui(new Ui::UserAccountDialog), settings(s) {
     ui->setupUi(this);
-    origUsername = settings->value("account/username", "").toString();
-    origPassword = settings->value("account/password", "").toString();
+    origUsername = settings->username();
+    origPassword = settings->password();
     ui->userNameEdit->setText(origUsername);
     ui->passwordEdit->setText(origPassword);
 
@@ -22,8 +22,8 @@ void UserAccountDialog::accept() {
     QDialog::accept();
     if(origUsername != ui->userNameEdit->text() || origPassword != ui->passwordEdit->text()) {
         // Changed
-        settings->setValue("account/username", ui->userNameEdit->text());
-        settings->setValue("account/password", ui->passwordEdit->text());
+        settings->setUsername(ui->userNameEdit->text());
+        settings->setPassword(ui->passwordEdit->text());
     }
 }
 
