@@ -150,6 +150,7 @@ void ThreadListPatternEditor::parserUpdated() {
 void ThreadListPatternEditor::patternChanged() {
     parser->thread_list_pattern = pattern();
     engine.setParser(parser);
+    engine.setGroup(currentGroup);
     if (!pageSpanningTest) {
         QString glhtml = ui.sourceTextEdit->toPlainText();
         engine.performListThreads(glhtml);

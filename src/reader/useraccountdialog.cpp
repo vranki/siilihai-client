@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include <QDebug>
 
-UserAccountDialog::UserAccountDialog(QWidget *parent, QSettings *s) :
+UserAccountDialog::UserAccountDialog(QWidget *parent, SiilihaiSettings *s) :
     QDialog(parent), ui(new Ui::UserAccountDialog), settings(s) {
     ui->setupUi(this);
     origUsername = settings->username();

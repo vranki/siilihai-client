@@ -2,7 +2,7 @@
 #define USERACCOUNTDIALOG_H
 
 #include <QDialog>
-#include <QSettings>
+#include <siilihai/siilihaisettings.h>
 
 namespace Ui {
     class UserAccountDialog;
@@ -13,7 +13,7 @@ class UserAccountDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UserAccountDialog(QWidget *parent, QSettings *s);
+    explicit UserAccountDialog(QWidget *parent, SiilihaiSettings *s);
     ~UserAccountDialog();
 signals:
     void unregisterSiilihai();
@@ -22,7 +22,7 @@ private slots:
     void unregisterClicked();
 private:
     Ui::UserAccountDialog *ui;
-    QSettings *settings;
+    SiilihaiSettings *settings;
     QString origUsername, origPassword;
 };
 
