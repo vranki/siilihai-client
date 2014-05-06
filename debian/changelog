@@ -1,3 +1,9 @@
+siilihai-client (2.3.2-1) trusty; urgency=low
+
+  * Trusty release, no changes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 5 May 2014 12:34:56 +0300
+
 siilihai-client (2.3.2) saucy; urgency=low
 
   * Get more messages when reading last message of thread
