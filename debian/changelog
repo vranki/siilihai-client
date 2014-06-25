@@ -1,3 +1,15 @@
+siilihai-client (2.3.2-2) trusty; urgency=low
+
+  * Another Trusty release, no changes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Fri, 13 Jun 2014 12:34:56 +0300
+
+siilihai-client (2.3.2-1) trusty; urgency=low
+
+  * Trusty release, no changes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Mon, 5 May 2014 12:34:56 +0300
+
 siilihai-client (2.3.2) saucy; urgency=low
 
   * Get more messages when reading last message of thread
@@ -116,11 +128,11 @@ siilihai-client (2.2.6) quantal; urgency=low
 
  -- Ville Ranki <ville.ranki@iki.fi>  Mon, 8 Apr 2013 12:34:56 +0300
 
- siilihai-client (2.2.5) quantal; urgency=low
+siilihai-client (2.2.5) quantal; urgency=low
 
-   * Another minor crash fix in lib
+  * Another minor crash fix in lib
 
-  -- Ville Ranki <ville.ranki@iki.fi>  Sun, 31 Mar 2013 12:34:56 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 31 Mar 2013 12:34:56 +0300
 
 siilihai-client (2.2.4) quantal; urgency=low
 
@@ -191,7 +203,7 @@ siilihai-client (2.1.0) quantal; urgency=low
    * TapaTalk login now works
    * Bugfixes
 
-  -- Ville Ranki <ville.ranki@iki.fi>  Thu, 01 Nov 2012 12:34:56 +0300
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 01 Nov 2012 12:34:56 +0300
 
 siilihai-client (2.0.0-1) quantal; urgency=low
 
