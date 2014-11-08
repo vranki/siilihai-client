@@ -6,9 +6,9 @@
 
 set -v 
 
-export QTDIR=$HOME/.wine/drive_c/QtSDK
-export QTVERSIONDIR=$QTDIR/5.1.0/mingw48_32
-export MINGWDIR=$QTDIR/Tools/mingw48_32
+export QTDIR=$HOME/.wine/drive_c/Qt
+export QTVERSIONDIR=$QTDIR/5.3/mingw482_32
+export MINGWDIR=$QTDIR/Tools/mingw482_32
 export OPENSSLDIR=$HOME/.wine/drive_c/OpenSSL-Win32
 export Path=C:\\windows\\system32\\\;C:\\windows\\\;C:\\windows\\system32\\wbem\;$MINGWDIR\\bin\;C:\\NSIS\\\;$QTVERSIONDIR\\bin\\\;
 
@@ -88,6 +88,7 @@ cp $QTVERSIONDIR/bin/Qt5Qml.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Quick.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Sql.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5V8.dll siilihai-win32
+cp $QTVERSIONDIR/bin/Qt5Positioning.dll siilihai-win32
 cp $QTVERSIONDIR/bin/icu*.dll siilihai-win32
 cp $QTVERSIONDIR/bin/libwinpthread-1.dll siilihai-win32
 

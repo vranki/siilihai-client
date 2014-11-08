@@ -9,7 +9,7 @@ Homepage: http://www.siilihai.com/
 
 Package: siilihai-client
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai2 (>=2.3.2)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai2 (>=2.3.3)
 Description: Siilihai web forum client
  Graphical web forum client. See http://www.siilihai.com/ for details.
 

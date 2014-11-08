@@ -1,3 +1,15 @@
+siilihai-client (2.3.4-1) utopic; urgency=low
+
+  * Minor changes in lib
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 9 Nov 2014 12:34:56 +0300
+
+siilihai-client (2.3.3) trusty; urgency=low
+
+  * Minor changes in lib
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 15 Jun 2014 12:34:56 +0300
+
 siilihai-client (2.3.2-2) trusty; urgency=low
 
   * Another Trusty release, no changes
