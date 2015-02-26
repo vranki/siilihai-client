@@ -2,8 +2,7 @@ Source: siilihai-client
 Section: net
 Priority: extra
 Maintainer: Ville Ranki <ville.ranki@iki.fi>
-Build-Depends: debhelper (>= 8.1.3), qtbase5-dev, qt5-default, libqt5webkit5-dev, libsiilihai2-dev (>=2.3.0), cdbs (>= 0.4.93~), devscripts, libgstreamer1.0-dev, libgstreamer0.10-dev, libgstreamer-plugins-base1.0-dev, libgstreamer-plugins-base0.10-dev, qtdeclarative5-dev, qtlocation5-dev, qtsensors5-dev, libxslt1-dev, libsqlite3-dev, libqt5opengl5-dev
-Comment: Build-depends contains a lot of crap that does not seem to be right. It is.
+Build-Depends: debhelper (>= 8.1.3), qtbase5-dev, qt5-default, libqt5webkit5-dev, libsiilihai2-dev (>=2.3.0), cdbs (>= 0.4.93~), devscripts, libgstreamer1.0-dev, libgstreamer0.10-dev, libgstreamer-plugins-base1.0-dev, libgstreamer-plugins-base0.10-dev, qtdeclarative5-dev, libxslt1-dev, libsqlite3-dev, libqt5opengl5-dev
 Standards-Version: 3.9.5
 Homepage: http://www.siilihai.com/
 
