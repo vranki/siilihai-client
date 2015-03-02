@@ -12,4 +12,5 @@ DEB_DH_INSTALL_ARGS = --sourcedir=debian/tmp
 DH_ALWAYS_EXCLUDE=.git
 
 override_dh_strip:
-        $(overridden_command) --dbg-package=siilihai-client-dbg
+	$(overridden_command) --dbg-package=siilihai-client-dbg
+
