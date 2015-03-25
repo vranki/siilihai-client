@@ -78,10 +78,12 @@ void Siilihai::closeUi() {
     QCoreApplication::quit();
 }
 
+// @todo dialog queue!
 void Siilihai::errorDialog(QString message) {
     QMessageBox* msgBox = new QMessageBox(mainWin);
     msgBox->setModal(false);
     msgBox->setText(message);
+    msgBox->setWindowTitle("Siilihai error");
     connect(msgBox, SIGNAL(accepted()), msgBox, SLOT(deleteLater()));
     msgBox->open();
 }
