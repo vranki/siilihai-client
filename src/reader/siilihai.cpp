@@ -15,11 +15,7 @@
 
 
 
-Siilihai::Siilihai() : ClientLogic() {
-    loginWizard = 0;
-    mainWin = 0;
-    parserMaker = 0;
-}
+Siilihai::Siilihai() : ClientLogic(), loginWizard(0), mainWin(0), parserMaker(0) { }
 
 Siilihai::~Siilihai() {
     if (mainWin)
@@ -126,7 +122,6 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
 }
 
 void Siilihai::launchParserMaker() {
-#ifndef Q_WS_HILDON
     if (!parserMaker) {
         parserMaker = new ParserMaker(mainWin, parserManager, *settings, protocol);
         connect(parserMaker, SIGNAL(destroyed()), this, SLOT(parserMakerClosed()));
@@ -134,14 +129,10 @@ void Siilihai::launchParserMaker() {
     } else {
         parserMaker->showNormal();
     }
-#endif
 }
 
 void Siilihai::parserMakerClosed() {
-#ifndef Q_WS_HILDON
-    if (parserMaker)
-        disconnect(parserMaker);
-#endif
+    if (parserMaker) disconnect(parserMaker);
     parserMaker->deleteLater();
     parserMaker = 0;
 }
