@@ -261,6 +261,7 @@ void SubscribeWizard::wizardAccepted() {
 }
 
 void SubscribeWizard::comboItemChanged(int id) {
+    Q_UNUSED(id);
     updateForumList();
 }
 

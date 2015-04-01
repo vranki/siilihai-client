@@ -186,7 +186,6 @@ void ThreadListWidget::viewInBrowserClicked() {
 
 void ThreadListWidget::selectNextUnread() {
     QTreeWidgetItem *newItem = currentItem();
-    ThreadListMessageItem *mi = 0;
     while(newItem) {
         if(newItem->childCount()) { // Thread item
             newItem = newItem->child(0);
@@ -210,48 +209,6 @@ void ThreadListWidget::selectNextUnread() {
             }
         }
     }
-    /*
-    QTreeWidgetItem *newItem = 0;
-    ThreadListMessageItem *mi = 0;
-    bool isShowMore = false;
-
-    // Find next unread item
-    if(item) {
-        bool isRead = true;
-        do {
-            if(item->childCount()) {
-                // Is a thread item with child
-                newItem = item->child(0);
-            } else if(item->parent()) {
-                // Is a message item
-                QTreeWidgetItem *nextItem = item->parent()->child(item->parent()->indexOfChild(item) + 1);
-                if(nextItem) {
-                    // ..and has a next item after it
-                    newItem = nextItem;
-                } else {
-                    // ..and is last in thread
-                    newItem = topLevelItem(indexOfTopLevelItem(item->parent()) + 1);
-                }
-            } else {
-                // Is a thread item without child
-                qDebug() << Q_FUNC_INFO << "Top level item without child";
-                newItem = 0;
-                if(indexOfTopLevelItem(item) + 1 < topLevelItemCount())
-                    newItem = topLevelItem(indexOfTopLevelItem(item) + 1);
-            }
-            item = newItem;
-            if(item) {
-                mi = dynamic_cast<ThreadListMessageItem*> (newItem);
-                isShowMore = dynamic_cast<ThreadListShowMoreItem*> (newItem);
-                isRead = true;
-                if(mi && mi->message() && mi->message())
-                    isRead = mi->message()->isRead();
-                ForumMessage *message = mi->message(); // Shouldn't be 0 but sometimes is
-            }
-        } while(item && (isShowMore || isRead));
-        if(mi) setCurrentItem(mi);
-    }
-    */
 }
 void ThreadListWidget::forceUpdateThreadClicked() {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());

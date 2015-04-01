@@ -162,6 +162,7 @@ void MainWindow::viewInBrowserClickedSlot() {
 // Caution - engine->subscription() may be null (when deleted)!
 void MainWindow::parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
                                           UpdateEngine::UpdateEngineState oldState) {
+    Q_UNUSED(oldState);
     ParserEngine *engine = qobject_cast<ParserEngine*> (sender());
     if (newState==ParserEngine::UES_UPDATING) {
         busyParserEngines.insert(engine);

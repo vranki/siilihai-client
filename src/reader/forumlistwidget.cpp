@@ -37,14 +37,10 @@ ForumListWidget::~ForumListWidget() {
 }
 
 void ForumListWidget::forumItemSelected(int i) {
-    QListWidget *curWidget = dynamic_cast<QListWidget*> (currentWidget());
     ForumSubscription *sub = 0;
     ForumGroup *g = 0;
     if(i >= 0) {
         sub = listWidgets.key(dynamic_cast<QListWidget*> (widget(i)));
-
-        qDebug() << Q_FUNC_INFO << "Selected sub " << sub->toString();
-
         foreach(ForumGroup *grp, sub->values()) {
             if(!g && grp->isSubscribed())
                 g = grp;
@@ -82,6 +78,7 @@ void ForumListWidget::iconUpdated(ForumSubscription* en, QIcon newIcon) {
 }
 
 void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev) {
+    Q_UNUSED(prev);
     // qDebug() << Q_FUNC_INFO << " selected item " << item << ", prev " << prev;
     if(currentGroup) emit groupUnselected(currentGroup);
     currentGroup = forumGroups.value(item);
@@ -306,6 +303,7 @@ void ForumListWidget::groupSubscriptionsClicked() {
 }
 
 void ForumListWidget::parserEngineStateChanged(UpdateEngine::UpdateEngineState state) {
+    Q_UNUSED(state);
     UpdateEngine *engine = qobject_cast<UpdateEngine*>(sender());
     if(!engine->subscription()) return;
     if(!forumIcons.contains(engine->subscription()) && (engine->state() != UpdateEngine::UES_ENGINE_NOT_READY)) {

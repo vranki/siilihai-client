@@ -253,6 +253,7 @@ void ParserMaker::tryWithoutLogin() {
 }
 
 void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
+    Q_UNUSED(sub);
     if (loginWithoutCredentials) {
         if (success) {
             ui.loginResultLabel->setText("Search string found - login was successful. This is wrong.");
@@ -275,6 +276,7 @@ void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
 }
 
 void ParserMaker::updateFailure(ForumSubscription *sub, QString txt) {
+    Q_UNUSED(sub);
     QMessageBox msgBox(this);
     msgBox.setText("Update failure:\n" + txt);
     msgBox.exec();

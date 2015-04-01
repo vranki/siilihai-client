@@ -128,11 +128,15 @@ void PatternEditor::viewInBrowser() {
 }
 
 void PatternEditor::listGroupsFinished(QList<ForumGroup*> groups) {
+    Q_UNUSED(groups);
 }
 
 void PatternEditor::listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread) {
-
+    Q_UNUSED(messages);
+    Q_UNUSED(thread);
 }
 void PatternEditor::listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group) {
+    Q_UNUSED(threads);
+    Q_UNUSED(group);
 }
 
