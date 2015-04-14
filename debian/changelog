@@ -1,3 +1,9 @@
+siilihai-client (2.3.5) utopic; urgency=low
+
+  * Minor changes in lib
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 12 Apr 2015 12:34:56 +0300
+
 siilihai-client (2.3.4-2) utopic; urgency=low
 
   * Minor changes in lib
