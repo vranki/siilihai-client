@@ -11,6 +11,7 @@
 #include <QScrollArea>
 
 class ForumMessage;
+class ForumSubscription;
 
 class MessageViewWidget : public QScrollArea {
     Q_OBJECT
@@ -23,6 +24,7 @@ public:
 signals:
     void currentMessageChanged(ForumMessage *msg);
 public slots:
+    void displaySubscriptionErrors(ForumSubscription *sub);
     void messageSelected(ForumMessage *msg);
     void linkClicked ( const QUrl & url);
     void viewAsSource(bool src);

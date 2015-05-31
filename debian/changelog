@@ -1,4 +1,17 @@
-siilihai-client (2.3.5) utopic; urgency=low
+siilihai-client (2.4.0-1) vivid; urgency=low
+
+  * Forum subscriptions have now errors in list
+  * No more error dialogs
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 31 May 2015 12:34:56 +0300
+
+siilihai-client (2.3.5-2) vivid; urgency=low
+
+  * Minor changes in lib
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Sun, 12 Apr 2015 12:34:56 +0300
+
+siilihai-client (2.3.5-1) trusty; urgency=low
 
   * Minor changes in lib
 

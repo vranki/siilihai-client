@@ -48,6 +48,7 @@ void ForumListWidget::forumItemSelected(int i) {
         dynamic_cast<QListWidget*> (widget(i))->setCurrentRow(0);
     }
     emit forumSelected(sub);
+    if(sub->errorList().size()) emit displaySubscriptionErrors(sub);
     emit groupSelected(g);
 }
 

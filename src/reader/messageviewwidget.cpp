@@ -4,6 +4,7 @@
 #include <siilihai/forumdata/forumthread.h>
 #include <siilihai/forumdata/forumgroup.h>
 #include <siilihai/forumdata/forumsubscription.h>
+#include <siilihai/forumdata/updateerror.h>
 #include <siilihai/messageformatting.h>
 
 #include <QDesktopServices>
@@ -82,6 +83,22 @@ void MessageViewWidget::linkClicked ( const QUrl & url) {
 
 bool MessageViewWidget::scrollDown() {
     return false;
+}
+
+void MessageViewWidget::displaySubscriptionErrors(ForumSubscription *sub)
+{
+    QString styleHtml = "  <style type=\"text/css\">"
+                        "h2 { color: #880000}"
+                        "pre { background: #EEEEEE}"
+                        "</style>";
+
+    QString bodyToShow = "<h1>" + sub->alias() + " update failed</h1>";
+    foreach(UpdateError *ue, sub->errorList()) {
+        bodyToShow += "<h2>" + ue->title() + "</h2>\n" + "<div>" + ue->description() + "</div>\n" + "<pre>" + MessageFormatting::replaceCharacters(ue->technicalData()) + "</pre>\n";
+    }
+    QString html = "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +
+            styleHtml + "</head><body>" + bodyToShow + "</body>";
+    webView.setContent(html.toUtf8(), QString("text/html"));
 }
 
 void MessageViewWidget::viewAsSource(bool src) {

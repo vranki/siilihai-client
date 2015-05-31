@@ -59,7 +59,7 @@ MainWindow::MainWindow(ForumDatabase &fd, SiilihaiSettings *s, QWidget *parent) 
     connect(flw, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SIGNAL(groupSubscriptions(ForumSubscription*)));
     connect(flw, SIGNAL(unsubscribeForum()), this, SLOT(unsubscribeForumSlot()));
     connect(flw, SIGNAL(forumProperties()), this, SLOT(forumPropertiesSlot()));
-
+    connect(flw, SIGNAL(displaySubscriptionErrors(ForumSubscription*)), mvw, SLOT(displaySubscriptionErrors(ForumSubscription*)));
     connect(mvw, SIGNAL(currentMessageChanged(ForumMessage*)), this, SLOT(updateEnabledButtons()));
 
     connect(tlw, SIGNAL(moreMessagesRequested(ForumThread*)), this, SIGNAL(moreMessagesRequested(ForumThread*)));
