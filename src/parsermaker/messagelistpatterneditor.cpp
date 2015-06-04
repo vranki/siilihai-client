@@ -159,6 +159,8 @@ void MessageListPatternEditor::patternChanged() {
     downloadSubscription = subscription;
     engine.setParser(&downloadParser);
     QString glhtml = ui.sourceTextEdit->toPlainText();
+    Q_ASSERT(currentThread);
+    engine.setThread(currentThread);
     engine.performListMessages(glhtml);
     parserUpdated();
 }
