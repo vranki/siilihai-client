@@ -22,11 +22,13 @@ void DownloadDialog::listForumsFinished(QList<ForumSubscription*> forums) {
     ui.listWidget->clear();
     allForums = forums;
     foreach(ForumSubscription *forum, allForums) {
-        QListWidgetItem *item = new QListWidgetItem(ui.listWidget);
-        item->setText(forum->alias());
-        item->setToolTip(forum->forumUrl().toString());
-        ui.listWidget->addItem(item);
-        listWidgetItemForum[item] = forum;
+        if(forum->provider() == ForumSubscription::FP_PARSER) {
+            QListWidgetItem *item = new QListWidgetItem(ui.listWidget);
+            item->setText(forum->alias());
+            item->setToolTip(forum->forumUrl().toString());
+            ui.listWidget->addItem(item);
+            listWidgetItemForum[item] = forum;
+        }
     }
     ui.okButton->setEnabled(true);
 }
