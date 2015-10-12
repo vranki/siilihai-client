@@ -35,13 +35,13 @@ void Siilihai::showStatusMessage(QString message) {
 
 void Siilihai::subscribeForum() {
     if(state() != SH_READY) return;
-    SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, protocol, *settings);
+    SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, m_protocol, *m_settings);
     subscribeWizard->setModal(false);
     connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(forumAdded(ForumSubscription*)));
 }
 
 void Siilihai::showMainWindow() {
-    mainWin = new MainWindow(forumDatabase, settings);
+    mainWin = new MainWindow(m_forumDatabase, m_settings);
 
     connect(mainWin, SIGNAL(subscribeForum()), this, SLOT(subscribeForum()));
     connect(mainWin, SIGNAL(unsubscribeForum(ForumSubscription*)), this, SLOT(showUnsubscribeForum(ForumSubscription*)));
@@ -59,9 +59,9 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(forumUpdateNeeded(ForumSubscription*)), this, SLOT(forumUpdateNeeded(ForumSubscription*)));
     connect(mainWin, SIGNAL(updateThread(ForumThread*, bool)), this, SLOT(updateThread(ForumThread*, bool)));
     connect(mainWin, SIGNAL(unregisterSiilihai()), this, SLOT(unregisterSiilihai()));
-    connect(mainWin, SIGNAL(groupUnselected(ForumGroup*)), &syncmaster, SLOT(endSyncSingleGroup(ForumGroup *)));
-    connect(mainWin, SIGNAL(startSyncClicked()), &syncmaster, SLOT(startSync()));
-    connect(mainWin, SIGNAL(endSyncClicked()), &syncmaster, SLOT(endSync()));
+    connect(mainWin, SIGNAL(groupUnselected(ForumGroup*)), &m_syncmaster, SLOT(endSyncSingleGroup(ForumGroup *)));
+    connect(mainWin, SIGNAL(startSyncClicked()), &m_syncmaster, SLOT(startSync()));
+    connect(mainWin, SIGNAL(endSyncClicked()), &m_syncmaster, SLOT(endSync()));
     connect(mainWin, SIGNAL(updateAllParsers()), this, SLOT(updateAllParsers()));
     mainWin->setOffline(state()==SH_OFFLINE);
     mainWin->show();
@@ -89,7 +89,7 @@ void Siilihai::groupListChanged(ForumSubscription* forum) {
     Q_ASSERT(forum);
     GroupSubscriptionDialog *groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);
     groupSubscriptionDialog->setModal(false);
-    groupSubscriptionDialog->setForum(&forumDatabase, forum);
+    groupSubscriptionDialog->setForum(&m_forumDatabase, forum);
     connect(groupSubscriptionDialog, SIGNAL(updateGroupSubscriptions(ForumSubscription*)), this, SLOT(updateGroupSubscriptions(ForumSubscription*)));
     groupSubscriptionDialog->show();
 }
@@ -100,7 +100,7 @@ void Siilihai::reportClicked(ForumSubscription* forum) {
         if(forum->isParsed()) {
             ForumParser *parserToReport = qobject_cast<ForumSubscriptionParsed*>(forum)->parserEngine()->parser();
             ReportParser *rpt = new ReportParser(mainWin, parserToReport->id(), parserToReport->name());
-            connect(rpt, SIGNAL(parserReport(ParserReport*)), &protocol, SLOT(sendParserReport(ParserReport*)));
+            connect(rpt, SIGNAL(parserReport(ParserReport*)), &m_protocol, SLOT(sendParserReport(ParserReport*)));
             rpt->exec();
         } else {
             errorDialog(forum->alias() + " does not use a parser");
@@ -123,9 +123,9 @@ void Siilihai::showUnsubscribeForum(ForumSubscription* fs) {
 
 void Siilihai::launchParserMaker() {
     if (!parserMaker) {
-        parserMaker = new ParserMaker(mainWin, parserManager, *settings, protocol);
+        parserMaker = new ParserMaker(mainWin, m_parserManager, *m_settings, m_protocol);
         connect(parserMaker, SIGNAL(destroyed()), this, SLOT(parserMakerClosed()));
-        connect(parserMaker, SIGNAL(parserSaved(ForumParser*)), parserManager, SLOT(storeOrUpdateParser(ForumParser*)));
+        connect(parserMaker, SIGNAL(parserSaved(ForumParser*)), m_parserManager, SLOT(storeOrUpdateParser(ForumParser*)));
     } else {
         parserMaker->showNormal();
     }
@@ -146,7 +146,7 @@ void Siilihai::sendParserReportFinished(bool success) {
 }
 
 void Siilihai::showLoginWizard() {
-    loginWizard = new LoginWizard(mainWin, protocol, *settings);
+    loginWizard = new LoginWizard(mainWin, m_protocol, *m_settings);
     connect(loginWizard, SIGNAL(finished(int)), this, SLOT(loginWizardFinished()));
 }
 

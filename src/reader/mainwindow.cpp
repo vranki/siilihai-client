@@ -101,7 +101,7 @@ MainWindow::MainWindow(ForumDatabase &fd, SiilihaiSettings *s, QWidget *parent) 
         ui.actionReport_broken_or_working->setEnabled(false);
     }
 
-    foreach(ForumSubscription *sub, fdb.values())
+    for(ForumSubscription *sub : fdb)
         flw->addSubscription(sub);
 }
 
@@ -250,7 +250,7 @@ void MainWindow::updateEnabledButtons() {
     ui.actionSubscribe_to->setEnabled(!offline);
 
     bool forumsUpdating = false;
-    foreach(ForumSubscription *sub, fdb.values()) {
+    for(ForumSubscription *sub : fdb) {
         if(sub->beingUpdated() || sub->scheduledForUpdate())
             forumsUpdating = true;
     }
