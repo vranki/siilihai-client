@@ -8,7 +8,7 @@
 #include <QDebug>
 
 #include <siilihai/forumprobe.h>
-#include <siilihai/siilihaiprotocol.h>
+#include <siilihai/subscriptionmanagement.h>
 #include <siilihai/forumdata/forumsubscription.h>
 #include <siilihai/parser/forumparser.h>
 #include <siilihai/siilihaisettings.h>
@@ -22,38 +22,31 @@ class SubscribeWizard: public QWizard {
     Q_OBJECT
 
 public:
-    SubscribeWizard(QWidget *parent, SiilihaiProtocol &proto, SiilihaiSettings &sett);
+    SubscribeWizard(QWidget *parent, SubscriptionManagement *subscriptionManagement);
     ~SubscribeWizard();
     QWizardPage *createIntroPage();
     QWizardPage *createLoginPage();
     QWizardPage *createVerifyPage();
+
 signals:
-    void forumAdded(ForumSubscription *fs); //fs valid during signal call
+    void forumAdded(ForumSubscription *fs); // fs valid during signal call
 
 private slots:
-    void listForumsFinished(QList <ForumSubscription*> parsers);
+    void forumListChanged();
     void updateForumList();
+    void newForumChanged(ForumSubscription* sub);
     void pageChanged(int id);
     void wizardAccepted();
-    void getParserFinished(ForumParser *parser);
     void comboItemChanged(int id);
     void forumClicked(QListWidgetItem* newItem);
-    void newForumAdded(ForumSubscription *sub);
-    void probeResults(ForumSubscription *probedSub);
-    void forumGot(ForumSubscription *sub);
     void checkUrlValidity();
 private:
-    SiilihaiProtocol &protocol;
-    SiilihaiSettings &settings;
+    SubscriptionManagement *m_subscriptionManagement;
     Ui::SubscribeForm subscribeForm;
     Ui::SubscribeForumLoginForm subscribeForumLogin;
     Ui::SubscribeForumVerify subscribeForumVerify;
-    QList <ForumSubscription*> allForums;
     QHash <QListWidgetItem*, ForumSubscription*> listWidgetItemForum;
     ForumSubscription *selectedForum;
-    ForumParser parser;
-    ForumSubscription newForum;
-    ForumProbe probe;
 };
 
 #endif // SubscribeWizard_H

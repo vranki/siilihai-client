@@ -36,6 +36,7 @@ OTHER_FILES += debian/control debian/rules debian/changelog debian/siilihai-clie
     android/res/drawable-mdpi/icon.png \
     android/res/values/libs.xml \
     android/res/drawable-hdpi/icon.png
+
 OTHER_FILES += scripts/upload_debs.sh scripts/buildwin.sh
 OTHER_FILES += siilihai.nsi data/siilihai-client.desktop README.md
 

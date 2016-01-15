@@ -35,9 +35,9 @@ void Siilihai::showStatusMessage(QString message) {
 
 void Siilihai::subscribeForum() {
     if(state() != SH_READY) return;
-    SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, m_protocol, *m_settings);
+
+    SubscribeWizard *subscribeWizard = new SubscribeWizard(mainWin, subscriptionManagement());
     subscribeWizard->setModal(false);
-    connect(subscribeWizard, SIGNAL(forumAdded(ForumSubscription*)), this, SLOT(forumAdded(ForumSubscription*)));
 }
 
 void Siilihai::showMainWindow() {
@@ -76,6 +76,8 @@ void Siilihai::closeUi() {
 
 // @todo dialog queue!
 void Siilihai::errorDialog(QString message) {
+    if(message.isEmpty()) return;
+
     QMessageBox* msgBox = new QMessageBox(mainWin);
     msgBox->setModal(false);
     msgBox->setText(message);
