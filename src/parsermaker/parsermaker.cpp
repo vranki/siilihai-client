@@ -6,6 +6,7 @@
 #include <siilihai/parser/parsermanager.h>
 #include <siilihai/forumrequest.h>
 #include <siilihai/credentialsrequest.h>
+#include <siilihai/forumdata/updateerror.h>
 #include <QCloseEvent>
 
 ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, SiilihaiSettings &s, SiilihaiProtocol &p) :
@@ -44,7 +45,8 @@ ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, SiilihaiSettings &s
     connect(ui.verifyLoginPattern, SIGNAL(textEdited(QString)), this, SLOT(updateState()));
     connect(ui.helpButton, SIGNAL(clicked()), this, SLOT(helpClicked()));
     connect(&engine, SIGNAL(loginFinished(ForumSubscription *,bool)), this, SLOT(loginFinished(ForumSubscription *, bool)));
-    connect(&engine, SIGNAL(updateFailure(ForumSubscription *,QString)), this, SLOT(updateFailure(ForumSubscription *,QString)));
+    connect(&subscription, SIGNAL(errorsChanged()), this, SLOT(subscriptionErrorsChanged()));
+
     connect(&engine, SIGNAL(getHttpAuthentication(ForumSubscription *, QAuthenticator *)),
             this, SLOT(getHttpAuthentication(ForumSubscription *, QAuthenticator *)));
 
@@ -275,13 +277,6 @@ void ParserMaker::loginFinished(ForumSubscription *sub, bool success) {
     ui.tryWithoutLoginButton->setEnabled(true);
 }
 
-void ParserMaker::updateFailure(ForumSubscription *sub, QString txt) {
-    Q_UNUSED(sub);
-    QMessageBox msgBox(this);
-    msgBox.setText("Update failure:\n" + txt);
-    msgBox.exec();
-    updateState();
-}
 
 void ParserMaker::helpClicked() {
     QUrl helpUrl;
@@ -367,6 +362,21 @@ void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {
     fmt.setForeground(QBrush(color));
     loginEditorCursor.setCharFormat(fmt);
     loginEditorCursor.setPosition(loginEditorCursor.position(), QTextCursor::MoveAnchor);
+}
+
+void ParserMaker::subscriptionErrorsChanged()
+{
+    if(!subscription.errorList().isEmpty()) {
+        for(auto error : subscription.errorList()) {
+            QMessageBox msgBox(this);
+            msgBox.setWindowTitle(error->title());
+            msgBox.setText(error->description());
+            msgBox.setDetailedText(error->technicalData());
+            msgBox.exec();
+        }
+        subscription.clearErrors();
+        updateState();
+    }
 }
 
 

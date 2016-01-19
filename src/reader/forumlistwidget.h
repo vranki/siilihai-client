@@ -51,7 +51,7 @@ private slots:
     void groupDestroyed(QObject*);
     void groupChanged();
     void groupChanged(ForumGroup *grp);
-    void parserEngineStateChanged(UpdateEngine::UpdateEngineState state);
+    void updateEngineStateChanged(UpdateEngine*, UpdateEngine::UpdateEngineState state);
 signals:
     void groupSelected(ForumGroup *grp);
     void forumSelected(ForumSubscription *sub);

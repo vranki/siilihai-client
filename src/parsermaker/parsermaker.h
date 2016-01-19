@@ -40,12 +40,12 @@ private slots:
     void tryLogin();
     void tryWithoutLogin();
     void loginFinished(ForumSubscription *sub, bool success);
-    void updateFailure(ForumSubscription *sub, QString txt);
     void helpClicked();
     void getHttpAuthentication(ForumSubscription *, QAuthenticator *);
     void dataMatchingStart(QString &html);
     void dataMatchingEnd();
     void dataMatched(int pos, QString data, PatternMatchType type);
+    void subscriptionErrorsChanged();
 
 signals:
     void parserSaved(ForumParser *savedParser);
@@ -66,7 +66,6 @@ private:
     bool loginWithoutCredentials;
     PatternMatcher *loginMatcher;
     QTextCursor loginEditorCursor;
-
 };
 
 #endif // PARSERMAKER_H

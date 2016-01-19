@@ -99,8 +99,8 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
     connect(sub, SIGNAL(destroyed(QObject*)), this, SLOT(subscriptionDeleted(QObject*)));
 
     Q_ASSERT(sub->updateEngine());
-    connect(sub->updateEngine(), SIGNAL(stateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)),
-            this, SLOT(parserEngineStateChanged(UpdateEngine::UpdateEngineState)));
+    connect(sub->updateEngine(), SIGNAL(stateChanged(UpdateEngine*, UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)),
+            this, SLOT(updateEngineStateChanged(UpdateEngine*, UpdateEngine::UpdateEngineState)));
 
     setupFavicon(sub);
 
@@ -303,7 +303,7 @@ void ForumListWidget::groupSubscriptionsClicked() {
     if(getSelectedForum()) emit groupSubscriptions(getSelectedForum());
 }
 
-void ForumListWidget::parserEngineStateChanged(UpdateEngine::UpdateEngineState state) {
+void ForumListWidget::updateEngineStateChanged(UpdateEngine*,UpdateEngine::UpdateEngineState state) {
     Q_UNUSED(state);
     UpdateEngine *engine = qobject_cast<UpdateEngine*>(sender());
     if(!engine->subscription()) return;
