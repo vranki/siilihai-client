@@ -25,11 +25,10 @@ void ForumProperties::updateValues() {
     ui->forumName->setText(fs->alias());
     ui->threads_per_group->setValue(fs->latestThreads());
     ui->messages_per_thread->setValue(fs->latestMessages());
-    bool supportsLogin = false;
-    if(fs->isParsed())
+    bool supportsLogin = true;
+    if(fs->provider() == ForumSubscription::FP_PARSER) {
         supportsLogin = qobject_cast<ForumSubscriptionParsed*>(fs)->parserEngine()->parser()->supportsLogin();
-    if(fs->isTapaTalk())
-        supportsLogin = true;
+    }
     if(supportsLogin) {
         ui->authenticationGroupbox->setEnabled(true);
         if(fs->username().length()>0)  {

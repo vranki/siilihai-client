@@ -99,7 +99,7 @@ void Siilihai::groupListChanged(ForumSubscription* forum) {
 void Siilihai::reportClicked(ForumSubscription* forum) {
     if(state() != SH_READY) return;
     if (forum) {
-        if(forum->isParsed()) {
+        if(forum->provider() == ForumSubscription::FP_PARSER) {
             ForumParser *parserToReport = qobject_cast<ForumSubscriptionParsed*>(forum)->parserEngine()->parser();
             ReportParser *rpt = new ReportParser(mainWin, parserToReport->id(), parserToReport->name());
             connect(rpt, SIGNAL(parserReport(ParserReport*)), &m_protocol, SLOT(sendParserReport(ParserReport*)));
