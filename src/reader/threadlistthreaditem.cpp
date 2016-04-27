@@ -31,9 +31,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
 
     QList<ForumMessage*> messages = _thread->values();
     qSort(messages);
-    foreach(ForumMessage *msg, messages) {
-        addMessage(msg);
-    }
+    for(ForumMessage *msg : messages) addMessage(msg);
     updateItem();
 }
 
@@ -87,7 +85,8 @@ void ThreadListThreadItem::unreadCountChanged(ForumThread *thr) {
     } else if(!moreString.isNull()) {
         threadSubject += " (" + moreString + ")";
     }
-    if(!message()) threadSubject += " (no messages, needs update)";
+    if(!message())
+        threadSubject += " (no messages, needs update)";
     setText(0, threadSubject);
 
     setIconImage(unreads ? II_UNREAD : II_READ);

@@ -88,6 +88,11 @@ void ForumListWidget::groupSelected(QListWidgetItem* item, QListWidgetItem *prev
 
 void ForumListWidget::addSubscription(ForumSubscription *sub) {
     if(listWidgets.contains(sub)) return; // Already exists
+    if(!sub || !sub->updateEngine()) {
+        qDebug() << Q_FUNC_INFO << "Invalid subscription - ignoring.";
+        return;
+    }
+
     QListWidget *lw = new QListWidget(this);
     listWidgets.insert(sub, lw);
     addItem(lw, sub->alias());
@@ -104,8 +109,9 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
 
     setupFavicon(sub);
 
-    foreach(ForumGroup *grp, sub->values())
+    for(ForumGroup *grp : sub->values())
         groupFound(grp);
+
     updateSubscriptionLabel(sub);
 }
 

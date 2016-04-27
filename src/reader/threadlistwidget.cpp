@@ -76,9 +76,7 @@ void ThreadListWidget::groupSelected(ForumGroup *fg) {
     }
     if(currentGroup != fg) {
         setDisabled(true);
-        if(currentGroup) {
-            disconnect(currentGroup, 0, this, 0);
-        }
+        if(currentGroup) disconnect(currentGroup, 0, this, 0);
         currentGroup = fg;
         clearSelection();
         updateList();
@@ -106,9 +104,7 @@ void ThreadListWidget::updateList() {
     QList<ForumThread*> threads = currentGroup->values();
     qSort(threads);
     disableSortAndResize = true;
-    foreach(ForumThread *thread, threads) {
-        addThread(thread);
-    }
+    for(ForumThread *thread : threads) addThread(thread);
     disableSortAndResize = false;
 }
 
