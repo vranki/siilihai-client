@@ -1,3 +1,10 @@
+siilihai-client (2.5.0) xenial; urgency=low
+
+  * Discourse support
+  * Some small fixes here & there
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Thu, 12 May 2016 12:34:56 +0300
+
 siilihai-client (2.4.1-1) wily; urgency=low
 
   * Some small fixes here & there

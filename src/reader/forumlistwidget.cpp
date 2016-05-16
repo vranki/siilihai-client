@@ -41,7 +41,7 @@ void ForumListWidget::forumItemSelected(int i) {
     ForumGroup *g = 0;
     if(i >= 0) {
         sub = listWidgets.key(dynamic_cast<QListWidget*> (widget(i)));
-        foreach(ForumGroup *grp, sub->values()) {
+        for(ForumGroup *grp : sub->values()) {
             if(!g && grp->isSubscribed())
                 g = grp;
         }
@@ -225,7 +225,7 @@ void ForumListWidget::groupDestroyed(QObject* g) {
 // Called also after unsubscribing - just delete the group from list if it is there
 void ForumListWidget::groupDeleted(ForumGroup *grp) {
     // Change group if it's the current..
-    if(currentGroup==grp) {
+    if(currentGroup == grp) {
         currentGroup = 0;
         emit groupSelected(0);
     }

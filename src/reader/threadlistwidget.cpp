@@ -51,8 +51,10 @@ void ThreadListWidget::groupChanged() {
 
 void ThreadListWidget::groupDeleted(QObject*g) {
     ForumGroup *grp = dynamic_cast<ForumGroup*>(g);
-    if(grp == currentGroup)
+    if(grp == currentGroup) {
+        currentGroup = 0;
         groupSelected(0);
+    }
 }
 
 void ThreadListWidget::addThread(ForumThread *thread) {
