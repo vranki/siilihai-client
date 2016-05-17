@@ -89,8 +89,6 @@ SOURCES += reader/messageviewwidget.cpp \
     reader/useraccountdialog.cpp \
     reader/composemessage.cpp
 
-FORMS += common/credentialsdialog.ui \
-    reader/composemessage.ui
 HEADERS += common/credentialsdialog.h
 SOURCES += common/credentialsdialog.cpp
 
@@ -110,11 +108,16 @@ SOURCES += parsermaker/openrequestdialog.cpp \
     parsermaker/downloaddialog.cpp \
     parsermaker/parsermaker.cpp
 
+# Common
+FORMS += common/credentialsdialog.ui \
+
+# Parser maker
 FORMS += parsermaker/openrequestdialog.ui \
     parsermaker/patterneditor.ui \
     parsermaker/downloaddialog.ui \
     parsermaker/parsermaker.ui
 
+# Reader
 FORMS += reader/settingsdialog.ui \
     reader/reportparser.ui \
     reader/groupsubscriptiondialog.ui \
@@ -124,7 +127,8 @@ FORMS += reader/settingsdialog.ui \
     reader/mainwindow.ui \
     reader/forumproperties.ui \
     reader/threadproperties.ui \
-    reader/useraccountdialog.ui
+    reader/useraccountdialog.ui \
+    reader/composemessage.ui
 
 RESOURCES += ../siilihairesources.qrc
 

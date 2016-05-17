@@ -1,4 +1,5 @@
 #include "settingsdialog.h"
+#include <siilihai/siilihaisettings.h>
 
 SettingsDialog::SettingsDialog(QWidget *parent, SiilihaiSettings *s)
     : QDialog(parent)

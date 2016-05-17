@@ -1,11 +1,11 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-// Qt5 
 #include <QDialog>
-#include <siilihai/siilihaisettings.h>
 
 #include "ui_settingsdialog.h"
+
+class SiilihaiSettings;
 
 class SettingsDialog : public QDialog
 {

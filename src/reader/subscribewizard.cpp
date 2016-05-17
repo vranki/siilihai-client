@@ -103,7 +103,7 @@ void SubscribeWizard::pageChanged(int id) {
         }
     } else if (id == 2) { // Verify page
         QString typeString = m_subscriptionManagement->newForum()->providerName();
-        if(!m_subscriptionManagement->newForum()->provider()==ForumSubscription::FP_PARSER) {
+        if(m_subscriptionManagement->newForum()->provider()!=ForumSubscription::FP_PARSER) {
             subscribeForumVerify.forumUrl->setText(m_subscriptionManagement->newForum()->forumUrl().toString());
         }
         subscribeForumVerify.forumType->setText(typeString);
