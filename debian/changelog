@@ -1,4 +1,4 @@
-siilihai-client (2.5.0) xenial; urgency=low
+siilihai-client (2.5.0-1) xenial; urgency=low
 
   * Discourse support
   * Some small fixes here & there
