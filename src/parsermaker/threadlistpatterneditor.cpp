@@ -105,7 +105,7 @@ void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*>& threads, 
     ui.testPageSpanning->setEnabled(true);
 
     int row = 0;
-    foreach (ForumThread *thread, threads) {
+    for (ForumThread *thread : threads) {
         QTableWidgetItem *newItem = new QTableWidgetItem(thread->id());
         ui.resultsTable->setItem(row, 0, newItem);
         listThreads[row] = new ForumThread(currentGroup);

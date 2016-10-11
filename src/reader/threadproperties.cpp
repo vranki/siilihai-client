@@ -38,11 +38,11 @@ void ThreadProperties::saveChanges() {
         // If count is LESS than before, delete extra messages!
         if(thread->getMessagesCount() < oldMessagesCount) {
             QList<ForumMessage*> messagesToDelete;
-            foreach(ForumMessage *msg, thread->values()) {
+            for(ForumMessage *msg : thread->values()) {
                 if(msg->ordernum() >= thread->getMessagesCount())
                     messagesToDelete.prepend(msg);
             }
-            foreach(ForumMessage *msg, messagesToDelete) {
+            for(ForumMessage *msg : messagesToDelete) {
                 thread->removeMessage(msg);
             }
             thread->setHasMoreMessages(true);

@@ -34,7 +34,7 @@ void GroupSubscriptionDialog::selectNone() {
 }
 
 void GroupSubscriptionDialog::apply() {
-    foreach(ForumGroup *group, forum->values()) {
+    for(ForumGroup *group : forum->values()) {
         QListWidgetItem *item = listItems[group];
         if(item) {
             bool itemChecked = (item->checkState()==Qt::Checked);
@@ -65,7 +65,7 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
     }
     ui.listWidget->clear();
     listItems.clear();
-    foreach(ForumGroup *group, forum->values()) {
+    for(ForumGroup *group : forum->values()) {
         QListWidgetItem *newItem = new QListWidgetItem();
 
         QString itemLabel = group->name();

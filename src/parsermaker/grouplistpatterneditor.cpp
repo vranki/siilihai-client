@@ -48,7 +48,7 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups, Foru
     ui.downloadButton->setEnabled(true);
 
     int row = 0;
-    foreach (ForumGroup *group, groups) {
+    for (ForumGroup *group : groups) {
         QTableWidgetItem *newItem = new QTableWidgetItem(group->id());
         ui.resultsTable->setItem(row, 0, newItem);
         listGroups[row] = new ForumGroup(subscription);

@@ -19,13 +19,13 @@ OpenRequestDialog::OpenRequestDialog(QWidget *parent, SiilihaiProtocol &p) :
 }
 
 OpenRequestDialog::~OpenRequestDialog() {
-    foreach(ForumRequest *request, tableItems.values())
+    for(ForumRequest *request : tableItems.values())
         request->deleteLater();
     tableItems.clear();
 }
 
 void OpenRequestDialog::listRequestsFinished(QList<ForumRequest*> requests) {
-    foreach(ForumRequest *request, tableItems.values())
+    for(ForumRequest *request : tableItems.values())
         request->deleteLater();
     tableItems.clear();
 
@@ -37,7 +37,7 @@ void OpenRequestDialog::listRequestsFinished(QList<ForumRequest*> requests) {
     ui.tableWidget->setHorizontalHeaderLabels(headers);
 
     int row = 0;
-    foreach(ForumRequest *request, requests) {
+    for(ForumRequest *request : requests) {
         QTableWidgetItem *item = new QTableWidgetItem(request->forum_url);
         ui.tableWidget->setItem(row, 0, item);
         item = new QTableWidgetItem(request->comment);

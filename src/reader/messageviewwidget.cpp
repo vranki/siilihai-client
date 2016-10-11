@@ -33,8 +33,6 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         webView.page()->setNetworkAccessManager(&nullNam);
         webView.load(QUrl("qrc:/data/blankmessage/index.html"));
     } else {
-        qDebug() << Q_FUNC_INFO << "Selected message " << msg->toString() << "Unreads: " << msg->thread()->group()->subscription()->unreadCount()
-                 << msg->thread()->group()->unreadCount() << msg->thread()->unreadCount();
         connect(msg, SIGNAL(destroyed()), this, SLOT(currentMessageDeleted()));
         if(msg->thread()->group()->subscription()->updateEngine()) {
             QNetworkAccessManager *nam = msg->thread()->group()->subscription()->updateEngine()->networkAccessManager();
@@ -93,7 +91,7 @@ void MessageViewWidget::displaySubscriptionErrors(ForumSubscription *sub)
                         "</style>";
 
     QString bodyToShow = "<h1>" + sub->alias() + " update failed</h1>";
-    foreach(UpdateError *ue, sub->errorList()) {
+    for(UpdateError *ue : sub->errorList()) {
         bodyToShow += "<h2>" + ue->title() + "</h2>\n" + "<div>" + ue->description() + "</div>\n" + "<pre>" + MessageFormatting::replaceCharacters(ue->technicalData()) + "</pre>\n";
     }
     QString html = "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +

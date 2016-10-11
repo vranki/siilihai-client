@@ -21,7 +21,7 @@ DownloadDialog::~DownloadDialog() {
 void DownloadDialog::listForumsFinished(QList<ForumSubscription*> forums) {
     ui.listWidget->clear();
     allForums = forums;
-    foreach(ForumSubscription *forum, allForums) {
+    for(ForumSubscription *forum : allForums) {
         if(forum->provider() == ForumSubscription::FP_PARSER) {
             QListWidgetItem *item = new QListWidgetItem(ui.listWidget);
             item->setText(forum->alias());

@@ -101,7 +101,7 @@ void MessageListPatternEditor::listMessagesFinished(QList<ForumMessage*> &messag
     ui.resultsTable->setHorizontalHeaderLabels(headers);
 
     int tableRow = 0;
-    foreach(ForumMessage *fm, messages) {
+    for(ForumMessage *fm : messages) {
         QTableWidgetItem *newItem = new QTableWidgetItem(fm->id());
         ui.resultsTable->setItem(tableRow, 0, newItem);
         //listMessages[tableRow] = fm;

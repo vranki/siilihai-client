@@ -160,7 +160,7 @@ void ThreadListWidget::markReadClicked(bool read) {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
     ForumMessage *threadMessage = msgItem->message();
     if(threadMessage) {
-        foreach(ForumMessage *msg, threadMessage->thread()->values()) {
+        for(ForumMessage *msg : threadMessage->thread()->values()) {
             msg->setRead(read);
         }
     }
