@@ -1,0 +1,41 @@
+name: siilihai-client
+version: 2.5
+summary: Siilihai web forum reader
+description: Siilihai web forum reader
+grade: stable
+confinement: strict
+icon: data/siilihai-client.svg
+
+apps:
+  siilihai-client:
+    command: desktop-launch $SNAP/usr/bin/siilihai-client
+    plugs: [network,gsettings,home,network-observe,x11,opengl,unity7,network-manager]
+    desktop: usr/share/applications/siilihai-client.desktop
+
+parts:
+  libsiilihai:
+    plugin: qmake
+    source: https://github.com/vranki/libsiilihai.git
+    source-type: git
+    qt-version: qt5
+    build-packages:
+      - qtbase5-dev
+      - build-essential
+      - libqt5core5a
+      - libqt5network5
+
+  siilihai-client:
+    plugin: qmake
+    source: .
+    qt-version: qt5
+    build-packages:
+      - build-essential
+      - qtbase5-dev
+      - libqt5core5a
+      - libqt5network5
+      - libqt5gui5
+      - libqt5widgets5
+    stage-packages:
+      - libqt5gui5
+    after: [desktop-qt5, libsiilihai]
+

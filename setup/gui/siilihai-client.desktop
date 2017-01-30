@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Siilihai
+Comment=Siilihai Web Forum Reader
+Exec=siilihai-client
+Type=Application
+Icon=siilihai-client
+

@@ -134,9 +134,11 @@ void Siilihai::launchParserMaker() {
 }
 
 void Siilihai::parserMakerClosed() {
-    if (parserMaker) disconnect(parserMaker);
-    parserMaker->deleteLater();
-    parserMaker = 0;
+    if (parserMaker) {
+        disconnect(parserMaker);
+        parserMaker->deleteLater();
+        parserMaker = nullptr;
+    }
 }
 
 void Siilihai::sendParserReportFinished(bool success) {

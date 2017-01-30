@@ -49,7 +49,7 @@ void ForumListWidget::forumItemSelected(int i) {
     }
     emit forumSelected(sub);
     emit groupSelected(g);
-    if(!sub->errorList().isEmpty()) emit displaySubscriptionErrors(sub);
+    if(sub && !sub->errorList().isEmpty()) emit displaySubscriptionErrors(sub);
 }
 
 ForumSubscription* ForumListWidget::getSelectedForum() {

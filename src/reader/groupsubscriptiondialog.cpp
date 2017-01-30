@@ -55,16 +55,15 @@ void GroupSubscriptionDialog::apply() {
 
 void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nforum) {
     fdb = db;
+    if(forum) forum->disconnect(this);
     forum = nforum;
-    if(forum)
-        forum->disconnect(this);
     connect(fdb, SIGNAL(subscriptionRemoved(ForumSubscription*)), this, SLOT(subscriptionDeleted(ForumSubscription*)));
-    if(forum->updateEngine()->state() == ParserEngine::UES_UPDATING) {
+    ui.listWidget->clear();
+    listItems.clear();
+    if(!forum || (forum->updateEngine()->state() == ParserEngine::UES_UPDATING)) {
         close();
         return;
     }
-    ui.listWidget->clear();
-    listItems.clear();
     for(ForumGroup *group : forum->values()) {
         QListWidgetItem *newItem = new QListWidgetItem();
 
@@ -73,11 +72,7 @@ void GroupSubscriptionDialog::setForum(ForumDatabase *db, ForumSubscription *nfo
             itemLabel += " [" + group->hierarchy() + "]";
         newItem->setText(MessageFormatting::stripHtml(itemLabel));
         newItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        if (group->isSubscribed()) {
-            newItem->setCheckState(Qt::Checked);
-        } else {
-            newItem->setCheckState(Qt::Unchecked);
-        }
+        newItem->setCheckState(group->isSubscribed() ? Qt::Checked : Qt::Unchecked);
         ui.listWidget->addItem(newItem);
         listItems[group] = newItem;
     }
