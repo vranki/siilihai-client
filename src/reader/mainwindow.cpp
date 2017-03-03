@@ -160,15 +160,11 @@ void MainWindow::viewInBrowserClickedSlot() {
 }
 
 // Caution - engine->subscription() may be null (when deleted)!
-void MainWindow::parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
+void MainWindow::updateEngineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngineState newState,
                                           UpdateEngine::UpdateEngineState oldState) {
     Q_UNUSED(oldState);
-    ParserEngine *engine = qobject_cast<ParserEngine*> (sender());
-    if (newState==ParserEngine::UES_UPDATING) {
-        busyParserEngines.insert(engine);
-    } else {
-        busyParserEngines.remove(engine);
-    }
+    Q_UNUSED(newState);
+    Q_UNUSED(engine);
     updateEnabledButtons();
 }
 
@@ -304,8 +300,10 @@ void MainWindow::userAccountSettings() {
 }
 
 void MainWindow::subscriptionFound(ForumSubscription *sub) {
-    connect(sub->updateEngine(), SIGNAL(stateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)),
-            this, SLOT(parserEngineStateChanged(UpdateEngine::UpdateEngineState,UpdateEngine::UpdateEngineState)));
+    connect(sub->updateEngine(),
+            &UpdateEngine::stateChanged,
+            this,
+            &MainWindow::updateEngineStateChanged);
 }
 
 void MainWindow::newThreadClickedSlot() {

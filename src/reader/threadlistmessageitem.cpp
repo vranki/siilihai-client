@@ -63,7 +63,11 @@ void ThreadListMessageItem::updateItem() {
     messageSubject = msg->displayName();
     QString lc = msg->lastchange();
     lc = MessageFormatting::sanitize(lc);
-    lc = msg->thread()->group()->subscription()->updateEngine()->convertDate(lc);
+
+    // UE can be null in some situation, avoid crashing
+    if(msg->thread()->group()->subscription()->updateEngine())
+        lc = msg->thread()->group()->subscription()->updateEngine()->convertDate(lc);
+
     QString author = msg->author();
     author = MessageFormatting::sanitize(author);
     setText(0, messageSubject);

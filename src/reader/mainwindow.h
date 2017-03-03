@@ -57,7 +57,7 @@ signals:
     void updateAllParsers();
 
 public slots:
-    void parserEngineStateChanged(UpdateEngine::UpdateEngineState newState,
+    void updateEngineStateChanged(UpdateEngine *engine, UpdateEngine::UpdateEngineState newState,
                                   UpdateEngine::UpdateEngineState oldState);
     void setOffline(bool offline);
     void showMessage(QString msg, int time=5000);
@@ -95,7 +95,6 @@ private:
     MessageViewWidget *mvw;
     Ui::MainWindowClass ui;
     ForumDatabase &fdb;
-    QSet<ParserEngine*> busyParserEngines;
     SiilihaiSettings *settings;
     bool offline;
 };

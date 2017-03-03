@@ -15,12 +15,15 @@
 
 
 
-Siilihai::Siilihai() : ClientLogic(), loginWizard(0), mainWin(0), parserMaker(0) { }
+Siilihai::Siilihai() : ClientLogic(), loginWizard(0), mainWin(0), parserMaker(0) {
+    connect(&m_protocol, &SiilihaiProtocol::sendParserReportFinished, this, &Siilihai::sendParserReportFinished);
+    connect(this, &ClientLogic::showLoginWizard, this, &Siilihai::showLoginWizardSlot);
+    connect(this, &ClientLogic::currentCredentialsRequestChanged, this, &Siilihai::showCredentialsDialogSlot);
+}
 
 Siilihai::~Siilihai() {
-    if (mainWin)
-        mainWin->deleteLater();
-    mainWin = 0;
+    if (mainWin) mainWin->deleteLater();
+    mainWin = nullptr;
 }
 
 void Siilihai::changeState(siilihai_states newState) {
@@ -48,7 +51,7 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
     connect(mainWin, SIGNAL(updateClicked(ForumSubscription*,bool)), this, SLOT(updateClicked(ForumSubscription*,bool)));
     connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
-    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(groupListChanged(ForumSubscription*)));
+    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(updateGroupSubscriptions(ForumSubscription*)));
     connect(mainWin, SIGNAL(reportClicked(ForumSubscription*)), this, SLOT(reportClicked(ForumSubscription*)));
     connect(mainWin, SIGNAL(launchParserMaker()), this, SLOT(launchParserMaker()));
     connect(mainWin, SIGNAL(offlineModeSet(bool)), this, SLOT(offlineModeSet(bool)));
@@ -149,7 +152,7 @@ void Siilihai::sendParserReportFinished(bool success) {
     }
 }
 
-void Siilihai::showLoginWizard() {
+void Siilihai::showLoginWizardSlot() {
     loginWizard = new LoginWizard(mainWin, m_protocol, *m_settings);
     connect(loginWizard, SIGNAL(finished(int)), this, SLOT(loginWizardFinished()));
 }
@@ -162,9 +165,9 @@ void Siilihai::settingsChanged(bool byUser) {
     ClientLogic::settingsChanged(byUser);
 }
 
-void Siilihai::showCredentialsDialog() {
-    Q_ASSERT(currentCredentialsRequest);
-    CredentialsDialog *creds = new CredentialsDialog(mainWin, currentCredentialsRequest);
-    creds->setModal(false);
-    creds->show();
+void Siilihai::showCredentialsDialogSlot() {
+    if(currentCredentialsRequest()) {
+        CredentialsDialog *creds = new CredentialsDialog(mainWin, currentCredentialsRequest());
+        creds->show();
+    }
 }

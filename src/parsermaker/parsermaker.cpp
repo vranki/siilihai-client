@@ -304,14 +304,13 @@ void ParserMaker::helpClicked() {
 }
 
 void ParserMaker::getHttpAuthentication(ForumSubscription *fsub, QAuthenticator *authenticator) {
-    CredentialsRequest cr;
+    CredentialsRequest cr(fsub);
     cr.credentialType = CredentialsRequest::SH_CREDENTIAL_HTTP;
-    cr.subscription = fsub;
     CredentialsDialog *creds = new CredentialsDialog(this, &cr);
     creds->setModal(true);
     creds->exec();
-    authenticator->setUser(cr.authenticator.user());
-    authenticator->setPassword(cr.authenticator.password());
+    authenticator->setUser(cr.username());
+    authenticator->setPassword(cr.password());
     creds->deleteLater();
 }
 

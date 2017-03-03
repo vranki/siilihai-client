@@ -27,6 +27,7 @@ class Siilihai: public ClientLogic {
 public:
     Siilihai();
     virtual ~Siilihai();
+
 private slots:
     virtual void subscribeForum();
     virtual void loginWizardFinished();
@@ -37,11 +38,12 @@ private slots:
     void parserMakerClosed();
     void sendParserReportFinished(bool success);
     virtual void showStatusMessage(QString message);
+    void showLoginWizardSlot();
+    void showCredentialsDialogSlot();
+
 protected:
     virtual void errorDialog(QString message);
-    virtual void showLoginWizard();
     virtual void groupListChanged(ForumSubscription* forum);
-    virtual void showCredentialsDialog();
     virtual void changeState(siilihai_states newState);
     virtual void closeUi();
     virtual void showMainWindow();

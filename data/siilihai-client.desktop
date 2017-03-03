@@ -9,6 +9,4 @@ Type=Application
 StartupNotify=false
 Categories=Network;
 Icon=siilihai-client
-#X-Osso-Service=com.siilihai.siilihai-client
-X-Osso-HildonDesk-ShowInToolbar=true
-X-Osso-Type=application/x-executable
+

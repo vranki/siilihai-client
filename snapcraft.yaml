@@ -9,8 +9,7 @@ icon: data/siilihai-client.svg
 apps:
   siilihai-client:
     command: desktop-launch $SNAP/usr/bin/siilihai-client
-    plugs: [network,gsettings,home,network-observe,x11,opengl,unity7,network-manager]
-    desktop: usr/share/applications/siilihai-client.desktop
+    plugs: [network,network-observe,x11,unity7,opengl,network-manager]
 
 parts:
   libsiilihai:
