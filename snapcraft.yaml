@@ -1,7 +1,7 @@
 name: siilihai-client
-version: 2.5
-summary: Siilihai web forum reader
-description: Siilihai web forum reader
+version: 2.6
+summary: Siilihai web forum client
+description: Siilihai web forum client
 grade: stable
 confinement: strict
 icon: data/siilihai-client.svg

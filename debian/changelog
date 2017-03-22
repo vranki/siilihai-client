@@ -1,3 +1,9 @@
+siilihai-client (2.6.0-1) xenial; urgency=low
+
+  * Fixes & refactoring
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Wed, 22 Mar 2017 12:34:56 +0300
+
 siilihai-client (2.5.0-3) xenial; urgency=low
 
   * Discourse support
