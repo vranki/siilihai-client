@@ -19,6 +19,7 @@ Siilihai::Siilihai() : ClientLogic(), loginWizard(0), mainWin(0), parserMaker(0)
     connect(&m_protocol, &SiilihaiProtocol::sendParserReportFinished, this, &Siilihai::sendParserReportFinished);
     connect(this, &ClientLogic::showLoginWizard, this, &Siilihai::showLoginWizardSlot);
     connect(this, &ClientLogic::currentCredentialsRequestChanged, this, &Siilihai::showCredentialsDialogSlot);
+    connect(this, &ClientLogic::groupListChanged, this, &Siilihai::showGroupSubscriptionDialog);
 }
 
 Siilihai::~Siilihai() {
@@ -51,7 +52,7 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(updateClicked()), this, SLOT(updateClicked()));
     connect(mainWin, SIGNAL(updateClicked(ForumSubscription*,bool)), this, SLOT(updateClicked(ForumSubscription*,bool)));
     connect(mainWin, SIGNAL(cancelClicked()), this, SLOT(cancelClicked()));
-    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(updateGroupSubscriptions(ForumSubscription*)));
+    connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(showGroupSubscriptionDialog(ForumSubscription*)));
     connect(mainWin, SIGNAL(reportClicked(ForumSubscription*)), this, SLOT(reportClicked(ForumSubscription*)));
     connect(mainWin, SIGNAL(launchParserMaker()), this, SLOT(launchParserMaker()));
     connect(mainWin, SIGNAL(offlineModeSet(bool)), this, SLOT(offlineModeSet(bool)));
@@ -73,7 +74,7 @@ void Siilihai::showMainWindow() {
 
 void Siilihai::closeUi() {
     mainWin->deleteLater();
-    mainWin = 0;
+    mainWin = nullptr;
     QCoreApplication::quit();
 }
 
@@ -89,7 +90,7 @@ void Siilihai::errorDialog(QString message) {
     msgBox->open();
 }
 
-void Siilihai::groupListChanged(ForumSubscription* forum) {
+void Siilihai::showGroupSubscriptionDialog(ForumSubscription* forum) {
     if(state() != SH_READY) return;
     Q_ASSERT(forum);
     GroupSubscriptionDialog *groupSubscriptionDialog = new GroupSubscriptionDialog(mainWin);

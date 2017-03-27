@@ -43,10 +43,13 @@ private slots:
 
 protected:
     virtual void errorDialog(QString message);
-    virtual void groupListChanged(ForumSubscription* forum);
     virtual void changeState(siilihai_states newState);
     virtual void closeUi();
     virtual void showMainWindow();
+
+private slots:
+    virtual void showGroupSubscriptionDialog(ForumSubscription* forum);
+
 private:
     LoginWizard *loginWizard;
     MainWindow *mainWin;

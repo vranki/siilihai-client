@@ -25,6 +25,7 @@ unix {
 }
 
 android: CONFIG += with_lib
+win32: CONFIG += with_lib
 
 # Use this config flag to build libsiilihai into the binary
 CONFIG(with_lib) {
