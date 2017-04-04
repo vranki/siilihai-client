@@ -1,11 +1,7 @@
 #ifndef MESSAGEVIEWWIDGET_H_
 #define MESSAGEVIEWWIDGET_H_
 
-#if QT_VERSION >= 0x050000
-#include <QtWebKitWidgets>
-#endif
-
-#include <QWebView>
+#include <QWebEngineView>
 #include <QVBoxLayout>
 #include <QUrl>
 #include <QScrollArea>
@@ -31,7 +27,7 @@ public slots:
 private slots:
     void currentMessageDeleted();
 private:
-    QWebView webView;
+    QWebEngineView webView;
     QVBoxLayout vbox;
     ForumMessage *displayedMessage;
     bool sourceView;

@@ -30,8 +30,6 @@ public:
 
 private slots:
     virtual void subscribeForum();
-    virtual void loginWizardFinished();
-    virtual void settingsChanged(bool byUser=true);
     void showUnsubscribeForum(ForumSubscription* forum);
     void reportClicked(ForumSubscription* forumid);
     void launchParserMaker();

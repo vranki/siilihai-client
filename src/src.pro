@@ -1,5 +1,3 @@
-SUBDIRS += reader
-
 TEMPLATE = app
 TARGET = siilihai-client
 target.path = /usr/bin
@@ -16,7 +14,7 @@ CONFIG(debug_info) {
     DEFINES += DEBUG_INFO
 }
 
-QT += core webkitwidgets xml widgets network
+QT += core xml widgets network webenginewidgets
 CONFIG += c++11
 
 # DON't strip - let dpkg do it and create a dbg package

@@ -75,8 +75,6 @@ echo *** Install deps ***
 cp $QTVERSIONDIR/bin/Qt5Core.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Gui.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Network.dll siilihai-win32
-cp $QTVERSIONDIR/bin/Qt5WebKit.dll siilihai-win32
-cp $QTVERSIONDIR/bin/Qt5WebKitWidgets.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Widgets.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Xml.dll siilihai-win32
 cp $QTVERSIONDIR/bin/Qt5Multimedia.dll siilihai-win32

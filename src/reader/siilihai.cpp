@@ -146,24 +146,12 @@ void Siilihai::parserMakerClosed() {
 }
 
 void Siilihai::sendParserReportFinished(bool success) {
-    if (!success) {
-        errorDialog("Sending report failed. Please check network connection.");
-    } else {
-        errorDialog("Thanks for your report");
-    }
+    errorDialog(success ? "Thanks for your report" : "Sending report failed. Please check network connection.");
 }
 
 void Siilihai::showLoginWizardSlot() {
     loginWizard = new LoginWizard(mainWin, m_protocol, *m_settings);
-    connect(loginWizard, SIGNAL(finished(int)), this, SLOT(loginWizardFinished()));
-}
-
-void Siilihai::loginWizardFinished() {
-    ClientLogic::loginWizardFinished();
-}
-
-void Siilihai::settingsChanged(bool byUser) {
-    ClientLogic::settingsChanged(byUser);
+    connect(loginWizard, &LoginWizard::finished, this, &ClientLogic::loginWizardFinished);
 }
 
 void Siilihai::showCredentialsDialogSlot() {

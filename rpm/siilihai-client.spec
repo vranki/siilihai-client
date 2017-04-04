@@ -7,11 +7,9 @@ Group: Productivity/Networking/Web/Utilities
 Url: http://siilihai.com/
 Source: %{name}-%{version}.tar.gz
 Requires: libsiilihai2
-Requires: qtwebkit
 BuildRequires: qt-devel
 BuildRequires: libsiilihai2-devel
-BuildRequires: pkgconfig(QtCore) >= 4.6.0
-BuildRequires: pkgconfig(QtWebKit) >= 4.6.0
+BuildRequires: pkgconfig(QtCore) >= 5.2.0
 
 %description
 Siilihai web forum reader

@@ -14,8 +14,9 @@
 MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), webView(this), vbox(this), sourceView(false) {
     vbox.addWidget(&webView);
     setLayout(&vbox);
-    webView.page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    connect(&webView, SIGNAL(linkClicked(const QUrl &)), this, SLOT(linkClicked(const QUrl &)));
+    // webView.page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+    // @todo link handling -> http://stackoverflow.com/questions/40170180/link-clicked-signal-qwebengineview
+    // connect(&webView, SIGNAL(linkClicked(const QUrl &)), this, SLOT(linkClicked(const QUrl &)));
     messageSelected(0);
 }
 
@@ -30,15 +31,17 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
     displayedMessage = msg;
     disconnect(this, SLOT(currentMessageDeleted()));
     if (!msg) {
-        webView.page()->setNetworkAccessManager(&nullNam);
+        //webView.page()->setNetworkAccessManager(&nullNam);
         webView.load(QUrl("qrc:/data/blankmessage/index.html"));
     } else {
         connect(msg, SIGNAL(destroyed()), this, SLOT(currentMessageDeleted()));
         if(msg->thread()->group()->subscription()->updateEngine()) {
+            /*
             QNetworkAccessManager *nam = msg->thread()->group()->subscription()->updateEngine()->networkAccessManager();
             if(webView.page()->networkAccessManager()!=nam) {
                 webView.page()->setNetworkAccessManager(nam); // Crashes??
             }
+            */
         }
         QString bodyToShow = msg->body();
         if(sourceView) {
@@ -61,15 +64,23 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         QString lastchange = msg->lastchange();
         QString headerHtml = "<div id=\"siilihai-header\">" + MessageFormatting::sanitize(author) + ", "
                 + MessageFormatting::sanitize(lastchange) + ":</div>";
+        /*
         QString html = "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +
                 styleHtml + "</head><body>" + headerHtml + bodyToShow + "</body>";
+                */
+        QString html = "<html><head>"
+                + styleHtml
+                + "</head><body>"
+                + headerHtml
+                + bodyToShow
+                + "</body>";
 
         QString baseUrl = msg->url();
         int i = baseUrl.lastIndexOf('/');
         if (i > 0) {
             baseUrl = baseUrl.left(i + 1);
         }
-        webView.setContent(html.toUtf8(), QString("text/html"), QUrl(baseUrl));
+        webView.setHtml(html, QUrl(baseUrl));
         msg->setRead(true);
     }
     emit currentMessageChanged(msg);
@@ -94,9 +105,16 @@ void MessageViewWidget::displaySubscriptionErrors(ForumSubscription *sub)
     for(UpdateError *ue : sub->errorList()) {
         bodyToShow += "<h2>" + ue->title() + "</h2>\n" + "<div>" + ue->description() + "</div>\n" + "<pre>" + MessageFormatting::replaceCharacters(ue->technicalData()) + "</pre>\n";
     }
+    /*
     QString html = "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +
             styleHtml + "</head><body>" + bodyToShow + "</body>";
-    webView.setContent(html.toUtf8(), QString("text/html"));
+            */
+    QString html = "<html><head>"
+            + styleHtml
+            + "</head><body>"
+            + bodyToShow
+            + "</body>";
+    webView.setHtml(html);
 }
 
 void MessageViewWidget::viewAsSource(bool src) {
