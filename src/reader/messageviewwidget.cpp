@@ -6,17 +6,19 @@
 #include <siilihai/forumdata/forumsubscription.h>
 #include <siilihai/forumdata/updateerror.h>
 #include <siilihai/messageformatting.h>
+#include "linkhandlingwebpage.h"
 
 #include <QDesktopServices>
 #include <QDir>
 #include <QDebug>
 
-MessageViewWidget::MessageViewWidget(QWidget *parent) : QScrollArea(parent), webView(this), vbox(this), sourceView(false) {
+MessageViewWidget::MessageViewWidget(QWidget *parent) :
+    QScrollArea(parent),
+    vbox(this),
+    sourceView(false) {
+    webView.setPage(new LinkHandlingWebPage(&webView));
     vbox.addWidget(&webView);
     setLayout(&vbox);
-    // webView.page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    // @todo link handling -> http://stackoverflow.com/questions/40170180/link-clicked-signal-qwebengineview
-    // connect(&webView, SIGNAL(linkClicked(const QUrl &)), this, SLOT(linkClicked(const QUrl &)));
     messageSelected(0);
 }
 
@@ -32,7 +34,7 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
     disconnect(this, SLOT(currentMessageDeleted()));
     if (!msg) {
         //webView.page()->setNetworkAccessManager(&nullNam);
-        webView.load(QUrl("qrc:/data/blankmessage/index.html"));
+        webView.page()->load(QUrl("qrc:///data/blankmessage/index.html"));
     } else {
         connect(msg, SIGNAL(destroyed()), this, SLOT(currentMessageDeleted()));
         if(msg->thread()->group()->subscription()->updateEngine()) {
@@ -80,14 +82,11 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
         if (i > 0) {
             baseUrl = baseUrl.left(i + 1);
         }
-        webView.setHtml(html, QUrl(baseUrl));
+        webView.page()->setHtml(html, QUrl(baseUrl));
+
         msg->setRead(true);
     }
     emit currentMessageChanged(msg);
-}
-
-void MessageViewWidget::linkClicked ( const QUrl & url) {
-    QDesktopServices::openUrl(url);
 }
 
 bool MessageViewWidget::scrollDown() {
@@ -114,7 +113,7 @@ void MessageViewWidget::displaySubscriptionErrors(ForumSubscription *sub)
             + "</head><body>"
             + bodyToShow
             + "</body>";
-    webView.setHtml(html);
+    webView.page()->setHtml(html);
 }
 
 void MessageViewWidget::viewAsSource(bool src) {
@@ -123,5 +122,5 @@ void MessageViewWidget::viewAsSource(bool src) {
 }
 
 void MessageViewWidget::currentMessageDeleted() {
-    messageSelected(0);
+    messageSelected(nullptr);
 }

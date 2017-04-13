@@ -22,7 +22,6 @@ signals:
 public slots:
     void displaySubscriptionErrors(ForumSubscription *sub);
     void messageSelected(ForumMessage *msg);
-    void linkClicked ( const QUrl & url);
     void viewAsSource(bool src);
 private slots:
     void currentMessageDeleted();

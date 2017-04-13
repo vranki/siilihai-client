@@ -66,7 +66,8 @@ HEADERS += reader/messageviewwidget.h \
     reader/threadlistthreaditem.h \
     reader/threadlistshowmoreitem.h \
     reader/useraccountdialog.h \
-    reader/composemessage.h
+    reader/composemessage.h \
+    reader/linkhandlingwebpage.h
 
 SOURCES += reader/messageviewwidget.cpp \
     reader/threadlistwidget.cpp \
@@ -86,7 +87,8 @@ SOURCES += reader/messageviewwidget.cpp \
     reader/threadlistthreaditem.cpp \
     reader/threadlistshowmoreitem.cpp \
     reader/useraccountdialog.cpp \
-    reader/composemessage.cpp
+    reader/composemessage.cpp \
+    reader/linkhandlingwebpage.cpp
 
 HEADERS += common/credentialsdialog.h
 SOURCES += common/credentialsdialog.cpp
