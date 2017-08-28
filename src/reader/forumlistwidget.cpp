@@ -32,20 +32,20 @@ ForumListWidget::ForumListWidget(QWidget *parent) : QToolBox(parent), currentGro
     connect(forumPropertiesAction, SIGNAL(triggered()), this, SIGNAL(forumProperties()));
 }
 
-ForumListWidget::~ForumListWidget() {
-
-}
+ForumListWidget::~ForumListWidget() { }
 
 void ForumListWidget::forumItemSelected(int i) {
-    ForumSubscription *sub = 0;
-    ForumGroup *g = 0;
+    ForumSubscription *sub = nullptr;
+    ForumGroup *g = nullptr;
     if(i >= 0) {
         sub = listWidgets.key(dynamic_cast<QListWidget*> (widget(i)));
-        for(ForumGroup *grp : sub->values()) {
-            if(!g && grp->isSubscribed())
-                g = grp;
+        if(sub) {
+            for(ForumGroup *grp : sub->values()) {
+                if(!g && grp->isSubscribed())
+                    g = grp;
+            }
+            dynamic_cast<QListWidget*> (widget(i))->setCurrentRow(0);
         }
-        dynamic_cast<QListWidget*> (widget(i))->setCurrentRow(0);
     }
     emit forumSelected(sub);
     emit groupSelected(g);
@@ -53,7 +53,7 @@ void ForumListWidget::forumItemSelected(int i) {
 }
 
 ForumSubscription* ForumListWidget::getSelectedForum() {
-    ForumSubscription *sub = 0;
+    ForumSubscription *sub = nullptr;
     QListWidget *curWidget = dynamic_cast<QListWidget*> (currentWidget());
     if(curWidget) {
         sub = listWidgets.key(curWidget); // Can be NULL when quitting(?)
