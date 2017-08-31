@@ -9,11 +9,11 @@
 #include <QMessageBox>
 
 SubscribeWizard::SubscribeWizard(QWidget *parent, SubscriptionManagement *subscriptionManagement) :
-    QWizard(parent), m_subscriptionManagement(subscriptionManagement) {
-    selectedForum = 0;
-#ifndef Q_WS_HILDON
+    QWizard(parent)
+  , m_subscriptionManagement(subscriptionManagement)
+  , selectedForum(nullptr) {
+
     setPixmap(QWizard::WatermarkPixmap, QPixmap(":/data/siilis_wizard_watermark.png"));
-#endif
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(pageChanged(int)));
     addPage(createIntroPage());
     addPage(createLoginPage());
@@ -67,12 +67,16 @@ void SubscribeWizard::newForumChanged(ForumSubscription *sub)
         Q_ASSERT(sub->id());
         subscribeForumVerify.forumName->setText(sub->alias());
         next();
+    } else {
+        selectedForum = nullptr;
+        m_subscriptionManagement->resetNewForum();
+        button(QWizard::NextButton)->setEnabled(true);
     }
 }
 
 void SubscribeWizard::pageChanged(int id) {
     if (id == 0) { // Selection page
-        selectedForum = 0;
+        selectedForum = nullptr;
         subscribeForumLogin.accountGroupBox->setEnabled(true);
         m_subscriptionManagement->resetNewForum();
     } else if (id == 1) { // Credentals page
@@ -134,38 +138,6 @@ void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {
     if(!fp) return;
 }
 
-/*
-void SubscribeWizard::probeResults(ForumSubscription *probedSub) {
-    disconnect(&probe, SIGNAL(probeResults(ForumSubscription*)), this, SLOT(probeResults(ForumSubscription*)));
-    if(!probedSub) {
-        subscribeForm.checkText->setText("No supported forum found");
-        subscribeForm.progressBar->setVisible(false);
-        button(QWizard::NextButton)->setEnabled(true);
-    } else {
-        subscribeForm.checkText->setText("Found supported forum");
-        newForum.setId(probedSub->id());
-        newForum.setForumUrl(probedSub->forumUrl());
-        newForum.setProvider(probedSub->provider());
-        newForum.setAlias(probedSub->alias());
-        if(newForum.alias().length() < 1) {
-            newForum.setAlias(newForum.forumUrl().host());
-            subscribeForumVerify.forumName->setText(newForum.alias());
-        }
-        subscribeForumVerify.forumName->setText(newForum.alias());
-        subscribeForumVerify.forumUrl->setText(newForum.forumUrl().toString());
-        if(newForum.id()) {
-            subscribeForm.progressBar->setVisible(false);
-            button(QWizard::NextButton)->setEnabled(true);
-            next();
-        } else {
-            subscribeForm.checkText->setText("Adding forum to server..");
-            connect(&protocol, SIGNAL(forumGot(ForumSubscription*)), this, SLOT(newForumAdded(ForumSubscription*)));
-            protocol.addForum(&newForum);
-        }
-    }
-}
-*/
-
 void SubscribeWizard::checkUrlValidity() {
     if(subscribeForm.tabWidget->currentIndex()==0) { // Selected from list
         button(QWizard::NextButton)->setEnabled(subscribeForm.forumList->currentItem());
@@ -178,11 +150,8 @@ void SubscribeWizard::checkUrlValidity() {
 
 QWizardPage *SubscribeWizard::createIntroPage() {
     QWizardPage *page = new QWizardPage;
-#ifndef Q_WS_HILDON
     page->setTitle("Subscribe to a forum");
     page->setSubTitle("Please choose the forum you wish to subscribe to");
-#endif
-
     QWidget *widget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout;
     subscribeForm.setupUi(widget);

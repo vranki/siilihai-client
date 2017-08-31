@@ -55,7 +55,7 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(groupSubscriptions(ForumSubscription*)), this, SLOT(showGroupSubscriptionDialog(ForumSubscription*)));
     connect(mainWin, SIGNAL(reportClicked(ForumSubscription*)), this, SLOT(reportClicked(ForumSubscription*)));
     connect(mainWin, SIGNAL(launchParserMaker()), this, SLOT(launchParserMaker()));
-    connect(mainWin, SIGNAL(offlineModeSet(bool)), this, SLOT(offlineModeSet(bool)));
+    connect(mainWin, &MainWindow::offlineModeSet, this, &ClientLogic::setOffline);
     connect(mainWin, SIGNAL(haltRequest()), this, SLOT(haltSiilihai()));
     connect(mainWin, SIGNAL(settingsChanged(bool)), this, SLOT(settingsChanged(bool)));
     connect(mainWin, SIGNAL(moreMessagesRequested(ForumThread*)), this, SLOT(moreMessagesRequested(ForumThread*)));
@@ -81,7 +81,7 @@ void Siilihai::closeUi() {
 // @todo dialog queue!
 void Siilihai::errorDialog(QString message) {
     if(message.isEmpty()) return;
-
+    qDebug() << Q_FUNC_INFO << message;
     QMessageBox* msgBox = new QMessageBox(mainWin);
     msgBox->setModal(false);
     msgBox->setText(message);

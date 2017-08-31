@@ -4,7 +4,6 @@ summary: Siilihai web forum client
 description: Siilihai web forum client
 grade: stable
 confinement: strict
-icon: data/siilihai-client.svg
 
 apps:
   siilihai-client:
@@ -12,6 +11,19 @@ apps:
     plugs: [network,network-observe,x11,unity7,opengl,network-manager]
 
 parts:
+# See https://github.com/ubuntu/snapcraft-desktop-helpers/issues/62#issuecomment-310843827
+  desktop-qt5:
+    stage-packages:
+      - libxkbcommon0
+      - ttf-ubuntu-font-family
+      - dmz-cursor-theme
+      - light-themes
+      - shared-mime-info
+      - libqt5gui5
+      - libgdk-pixbuf2.0-0
+      - libqt5svg5 # for loading icon themes which are svg
+      - locales-all
+
   libsiilihai:
     plugin: qmake
     source: https://github.com/vranki/libsiilihai.git
