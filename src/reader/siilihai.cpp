@@ -67,7 +67,7 @@ void Siilihai::showMainWindow() {
     connect(mainWin, SIGNAL(startSyncClicked()), &m_syncmaster, SLOT(startSync()));
     connect(mainWin, SIGNAL(endSyncClicked()), &m_syncmaster, SLOT(endSync()));
     connect(mainWin, SIGNAL(updateAllParsers()), this, SLOT(updateAllParsers()));
-    mainWin->setOffline(state()==SH_OFFLINE);
+    mainWin->setOffline(offline());
     mainWin->show();
     QApplication::setQuitOnLastWindowClosed(true);
 }
