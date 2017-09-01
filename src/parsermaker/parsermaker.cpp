@@ -161,6 +161,7 @@ void ParserMaker::parserLoaded(ForumParser *p) {
     ui.loginTypeCombo->setCurrentIndex(p->login_type);
     ui.loginParameters->setText(p->login_parameters);
     ui.verifyLoginPattern->setText(p->verify_login_pattern);
+    groupListEditor->reset();
     groupListEditor->setPattern(p->group_list_pattern);
     groupListEditor->parserUpdated();
     threadListEditor->setPattern(p->thread_list_pattern);

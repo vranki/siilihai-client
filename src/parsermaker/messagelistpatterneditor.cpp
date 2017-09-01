@@ -65,6 +65,7 @@ void MessageListPatternEditor::testPageSpanning() {
 }
 
 void MessageListPatternEditor::setThread(ForumThread *thread) {
+    if(currentThread == thread) return;
     currentThread = thread;
     setEnabled(currentThread != 0);
     ui.downloadButton->setEnabled(currentThread != 0);
@@ -72,6 +73,8 @@ void MessageListPatternEditor::setThread(ForumThread *thread) {
 
     if (currentThread) {
         parserUpdated();
+    } else {
+        reset();
     }
 }
 
@@ -163,6 +166,12 @@ void MessageListPatternEditor::patternChanged() {
     engine.setThread(currentThread);
     engine.performListMessages(glhtml);
     parserUpdated();
+}
+
+void MessageListPatternEditor::reset()
+{
+    QList<ForumMessage*> empty;
+    listMessagesFinished(empty, currentThread, false);
 }
 
 QIcon MessageListPatternEditor::tabIcon() {

@@ -31,12 +31,11 @@ void GroupListPatternEditor::downloadList() {
     ui.sourceTextEdit->clear();
 }
 
-void GroupListPatternEditor::testPageSpanning() {
-}
+void GroupListPatternEditor::testPageSpanning() { }
 
 void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups, ForumSubscription *sub) {
     if(sub != subscription) return;
-    groupSelected(0);
+    groupSelected(nullptr);
     qDeleteAll(listGroups);
     listGroups.clear();
     ui.resultsTable->clear();
@@ -100,6 +99,13 @@ void GroupListPatternEditor::patternChanged() {
     QString glhtml = ui.sourceTextEdit->toPlainText();
     engine.performListGroups(glhtml);
     parserUpdated();
+}
+
+void GroupListPatternEditor::reset()
+{
+    QList<ForumGroup*> empty;
+    listGroupsFinished(empty, subscription);
+    emit groupSelected(nullptr);
 }
 
 QIcon GroupListPatternEditor::tabIcon() {

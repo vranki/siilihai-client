@@ -23,7 +23,7 @@ public slots:
     virtual void parserUpdated();
     virtual void listThreadsFinished(QList<ForumThread*>& threads, ForumGroup *group);
     virtual void patternChanged();
-
+    virtual void reset();
 signals:
     void threadSelected(ForumThread *thread);
 private:

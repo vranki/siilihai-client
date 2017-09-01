@@ -26,6 +26,7 @@ public:
 
 public slots:
     virtual void parserUpdated();
+    virtual void reset()=0;
 
 private slots:
     virtual void downloadList() = 0;

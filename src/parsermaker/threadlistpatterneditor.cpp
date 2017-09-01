@@ -67,12 +67,16 @@ void ThreadListPatternEditor::testPageSpanning() {
 }
 
 void ThreadListPatternEditor::setGroup(ForumGroup *grp) {
+    if(currentGroup == grp) return;
     currentGroup = grp;
-    if(currentGroup) // group is a temp object without subscription set
-        grp->setSubscription(subscription);
     setEnabled(currentGroup);
     ui.downloadButton->setEnabled(currentGroup);
     ui.testPageSpanning->setEnabled(currentGroup);
+    if(currentGroup) { // group is a temp object without subscription set
+        grp->setSubscription(subscription);
+    } else {
+        reset();
+    }
     parserUpdated();
 }
 
@@ -156,6 +160,14 @@ void ThreadListPatternEditor::patternChanged() {
         engine.performListThreads(glhtml);
     }
     parserUpdated();
+}
+
+void ThreadListPatternEditor::reset()
+{
+    setGroup(nullptr);
+    QList<ForumThread*> empty;
+    listThreadsFinished(empty, nullptr);
+    emit threadSelected(nullptr);
 }
 
 QIcon ThreadListPatternEditor::tabIcon() {

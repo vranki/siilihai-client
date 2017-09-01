@@ -20,7 +20,7 @@ public slots:
     void resultCellActivated(int row, int column);
     virtual void parserUpdated();
     virtual void patternChanged();
-
+    virtual void reset();
 signals:
     void groupSelected(ForumGroup *grp);
 private:

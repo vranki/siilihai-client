@@ -27,7 +27,7 @@ public slots:
     virtual void listMessagesFinished(QList<ForumMessage*> &messages,
                                       ForumThread *thread, bool more);
     virtual void patternChanged();
-
+    virtual void reset();
 signals:
 
 private:
