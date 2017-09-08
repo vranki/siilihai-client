@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>693</width>
-    <height>652</height>
+    <width>1304</width>
+    <height>1316</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
        <enum>QTabWidget::West</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="loadSaveTab">
        <attribute name="title">
@@ -373,28 +373,28 @@ p, li { white-space: pre-wrap; }
            <item row="0" column="1">
             <widget class="QLineEdit" name="threadListPageStart">
              <property name="inputMask">
-              <string>NNN; </string>
+              <string/>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
             <widget class="QLineEdit" name="threadListPageIncrement">
              <property name="inputMask">
-              <string>NNN; </string>
+              <string/>
              </property>
             </widget>
            </item>
            <item row="2" column="1">
             <widget class="QLineEdit" name="viewThreadPageStart">
              <property name="inputMask">
-              <string>NNN; </string>
+              <string/>
              </property>
             </widget>
            </item>
            <item row="3" column="1">
             <widget class="QLineEdit" name="viewThreadPageIncrement">
              <property name="inputMask">
-              <string>NNN; </string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -582,14 +582,15 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>693</width>
-     <height>22</height>
+     <width>1304</width>
+     <height>42</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources>
+  <include location="../../siilihairesources.qrc"/>
   <include location="../../siilihairesources.qrc"/>
  </resources>
  <connections/>
