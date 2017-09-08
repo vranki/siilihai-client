@@ -48,5 +48,6 @@ parts:
       - libqt5widgets5
     stage-packages:
       - libqt5gui5
+      - libqt5webengine5
     after: [desktop-qt5, libsiilihai]
 
