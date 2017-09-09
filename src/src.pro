@@ -46,7 +46,6 @@ CONFIG(with_lib) {
     INCLUDEPATH += $$LIB_PATH/src/
     message(Building WITH lib included in binary! Lib source in $$LIB_PATH)
 } else {
-    INCLUDEPATH += /usr/include
     LIBS += -lsiilihai
 }
 
