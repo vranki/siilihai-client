@@ -49,6 +49,7 @@ CONFIG(with_lib) {
     LIBS += -lsiilihai
 }
 
+
 HEADERS += reader/messageviewwidget.h \
     reader/threadlistwidget.h \
     reader/settingsdialog.h \
