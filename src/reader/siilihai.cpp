@@ -27,8 +27,8 @@ Siilihai::~Siilihai() {
     mainWin = nullptr;
 }
 
-void Siilihai::changeState(siilihai_states newState) {
-    ClientLogic::changeState(newState);
+void Siilihai::setState(SiilihaiState newState) {
+    ClientLogic::setState(newState);
 
     if(mainWin) mainWin->setOffline(newState==SH_OFFLINE);
 }

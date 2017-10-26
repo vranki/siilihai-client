@@ -41,7 +41,7 @@ private slots:
 
 protected:
     virtual void errorDialog(QString message);
-    virtual void changeState(siilihai_states newState);
+    virtual void setState(SiilihaiState newState);
     virtual void closeUi();
     virtual void showMainWindow();
 
