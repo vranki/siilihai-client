@@ -3,9 +3,8 @@ compiler:
   - gcc
 before_install:
  - yes | sudo add-apt-repository ppa:ubuntu-sdk-team/ppa
- - yes | sudo add-apt-repository ppa:gstreamer-developers/ppa
  - sudo apt-get update -qq
- - sudo apt-get install -qq debhelper qtbase5-dev qt5-default libqt5webkit5-dev cdbs devscripts libgstreamer1.0-dev libgstreamer0.10-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-base0.10-dev qtdeclarative5-dev
+ - sudo apt-get install -qq debhelper qtbase5-dev qt5-default qtwebengine5-dev cdbs devscripts qtdeclarative5-dev
  - cd src
  - git clone git://github.com/vranki/libsiilihai.git
  - cd ..
