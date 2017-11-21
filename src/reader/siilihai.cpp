@@ -15,7 +15,11 @@
 
 
 
-Siilihai::Siilihai() : ClientLogic(), loginWizard(0), mainWin(0), parserMaker(0) {
+Siilihai::Siilihai() : ClientLogic()
+  , loginWizard(nullptr)
+  , mainWin(nullptr)
+  , parserMaker(nullptr)
+{
     connect(&m_protocol, &SiilihaiProtocol::sendParserReportFinished, this, &Siilihai::sendParserReportFinished);
     connect(this, &ClientLogic::showLoginWizard, this, &Siilihai::showLoginWizardSlot);
     connect(this, &ClientLogic::currentCredentialsRequestChanged, this, &Siilihai::showCredentialsDialogSlot);

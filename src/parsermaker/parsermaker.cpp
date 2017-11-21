@@ -310,9 +310,9 @@ void ParserMaker::getHttpAuthentication(ForumSubscription *fsub, QAuthenticator 
     CredentialsDialog *creds = new CredentialsDialog(this, &cr);
     creds->setModal(true);
     creds->exec();
+    delete creds; // Do it here. Not later. This causes signal to emit.
     authenticator->setUser(cr.username());
     authenticator->setPassword(cr.password());
-    creds->deleteLater();
 }
 
 void ParserMaker::dataMatched(int pos, QString data, PatternMatchType type) {

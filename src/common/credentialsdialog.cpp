@@ -3,14 +3,18 @@
 #include <siilihai/forumdata/forumsubscription.h>
 
 CredentialsDialog::CredentialsDialog(QWidget *parent, CredentialsRequest *cr)
-    : QDialog(parent), credentialsRequest(cr)
+    : QDialog(parent)
+      , credentialsRequest(cr)
 {
     ui.setupUi(this);
     setModal(false);
     connect(this, SIGNAL(finished(int)), this, SLOT(dialogClosed()));
     // @todo request type in dialog
     ui.label->setText(QString("Forum %1 requires authentication").arg(credentialsRequest->forumName()));
-    connect(credentialsRequest->subscription(), SIGNAL(destroyed()), this, SLOT(deleteLater()));
+    connect(credentialsRequest->subscription(),
+            SIGNAL(destroyed()),
+            this,
+            SLOT(deleteLater()));
 }
 
 CredentialsDialog::~CredentialsDialog() {
