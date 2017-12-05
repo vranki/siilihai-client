@@ -33,13 +33,13 @@ SubscribeWizard::SubscribeWizard(QWidget *parent, SubscriptionManagement *subscr
     connect(m_subscriptionManagement, SIGNAL(forumListChanged()), this, SLOT(forumListChanged()));
     connect(m_subscriptionManagement, SIGNAL(newForumChanged(ForumSubscription*)), this, SLOT(newForumChanged(ForumSubscription*)));
     connect(m_subscriptionManagement, SIGNAL(showError(QString)), subscribeForm.checkText, SLOT(setText(QString)));
+    connect(m_subscriptionManagement, SIGNAL(probeInProgressChanged(bool)), this, SLOT(probeInProgressChanged(bool)));
     m_subscriptionManagement->listForums();
 
     checkUrlValidity();
 }
 
-SubscribeWizard::~SubscribeWizard() {
-}
+SubscribeWizard::~SubscribeWizard() { }
 
 void SubscribeWizard::forumListChanged() {
     listWidgetItemForum.clear();
@@ -61,16 +61,12 @@ void SubscribeWizard::updateForumList() {
 
 void SubscribeWizard::newForumChanged(ForumSubscription *sub)
 {
-    subscribeForm.progressBar->setVisible(false);
-    button(QWizard::NextButton)->setEnabled(sub);
     if(sub) {
         Q_ASSERT(sub->id());
         subscribeForumVerify.forumName->setText(sub->alias());
         next();
     } else {
         selectedForum = nullptr;
-        m_subscriptionManagement->resetNewForum();
-        button(QWizard::NextButton)->setEnabled(true);
     }
 }
 
@@ -90,10 +86,7 @@ void SubscribeWizard::pageChanged(int id) {
                 }
             } else if(subscribeForm.tabWidget->currentIndex()==1) { // Custom
                 QUrl forumUrl = QUrl(subscribeForm.forumUrl->text());
-                subscribeForm.checkText->setVisible(true);
                 if(forumUrl.isValid()) {
-                    subscribeForm.progressBar->setVisible(true);
-                    button(QWizard::NextButton)->setEnabled(false);
                     m_subscriptionManagement->getForum(forumUrl);
                 } else {
                     subscribeForm.forumUrl->setFocus();
@@ -133,11 +126,6 @@ void SubscribeWizard::comboItemChanged(int id) {
     updateForumList();
 }
 
-void SubscribeWizard::forumClicked(QListWidgetItem* newItem) {
-    ForumSubscription *fp = listWidgetItemForum.value(newItem);
-    if(!fp) return;
-}
-
 void SubscribeWizard::checkUrlValidity() {
     if(subscribeForm.tabWidget->currentIndex()==0) { // Selected from list
         button(QWizard::NextButton)->setEnabled(subscribeForm.forumList->currentItem());
@@ -147,6 +135,13 @@ void SubscribeWizard::checkUrlValidity() {
     }
 }
 
+void SubscribeWizard::probeInProgressChanged(bool pib)
+{
+    qDebug() << Q_FUNC_INFO << pib;
+    subscribeForm.progressBar->setVisible(pib);
+    button(QWizard::NextButton)->setEnabled(!pib);
+    subscribeForm.checkText->setVisible(!pib);
+}
 
 QWizardPage *SubscribeWizard::createIntroPage() {
     QWizardPage *page = new QWizardPage;
@@ -157,8 +152,6 @@ QWizardPage *SubscribeWizard::createIntroPage() {
     subscribeForm.setupUi(widget);
     layout->addWidget(widget);
     page->setLayout(layout);
-    connect(subscribeForm.forumList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(forumClicked(QListWidgetItem*)));
-
     subscribeForm.checkText->setVisible(false);
     subscribeForm.progressBar->setVisible(false);
     return page;

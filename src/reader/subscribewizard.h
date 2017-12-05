@@ -38,8 +38,8 @@ private slots:
     void pageChanged(int id);
     void wizardAccepted();
     void comboItemChanged(int id);
-    void forumClicked(QListWidgetItem* newItem);
     void checkUrlValidity();
+    void probeInProgressChanged(bool pib);
 private:
     SubscriptionManagement *m_subscriptionManagement;
     Ui::SubscribeForm subscribeForm;

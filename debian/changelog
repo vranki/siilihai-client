@@ -1,3 +1,9 @@
+siilihai-client (2.7.1-1) zesty; urgency=low
+
+  * Fixes
+
+ -- Ville Ranki <ville.ranki@iki.fi>  Tue, 05 Dec 2017 12:34:56 +0300
+
 siilihai-client (2.7.0-3) zesty; urgency=low
 
   * Fixes & refactoring to match lib
