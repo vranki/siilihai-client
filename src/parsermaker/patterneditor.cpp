@@ -1,7 +1,15 @@
 #include "patterneditor.h"
 
-PatternEditor::PatternEditor(ParserEngine &eng, ForumParser *par, ForumSubscription *fos, QWidget *parent) :
-    QWidget(parent), engine(eng), subscription(fos), parser(par), downloadParser(0), editTimeout(this) {
+PatternEditor::PatternEditor(ParserEngine &eng,
+                             ForumParser *par,
+                             ForumSubscription *fos,
+                             QWidget *parent) :
+    QWidget(parent)
+  , engine(eng)
+  , subscription(fos)
+  , parser(par)
+  , downloadParser(0)
+  , editTimeout(this) {
     ui.setupUi(this);
     matcher = new PatternMatcher(this, true);
     connect(ui.downloadButton, SIGNAL(clicked()), this, SLOT(downloadList()));
@@ -25,8 +33,7 @@ PatternEditor::PatternEditor(ParserEngine &eng, ForumParser *par, ForumSubscript
     subscription = downloadSubscription = fos;
 }
 
-PatternEditor::~PatternEditor() {
-}
+PatternEditor::~PatternEditor() { }
 
 QString PatternEditor::pattern() {
     return ui.patternEdit->text();
@@ -120,23 +127,9 @@ QString PatternEditor::tabName() {
     return "?";
 }
 
-void PatternEditor::parserUpdated() {
-}
+void PatternEditor::parserUpdated() { }
 
 void PatternEditor::viewInBrowser() {
     QDesktopServices::openUrl(QUrl(ui.urlLabel->text()));
-}
-
-void PatternEditor::listGroupsFinished(QList<ForumGroup*> groups) {
-    Q_UNUSED(groups);
-}
-
-void PatternEditor::listMessagesFinished(QList<ForumMessage*> messages, ForumThread *thread) {
-    Q_UNUSED(messages);
-    Q_UNUSED(thread);
-}
-void PatternEditor::listThreadsFinished(QList<ForumThread*> threads, ForumGroup *group) {
-    Q_UNUSED(threads);
-    Q_UNUSED(group);
 }
 

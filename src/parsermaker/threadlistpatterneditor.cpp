@@ -8,20 +8,20 @@ ThreadListPatternEditor::ThreadListPatternEditor(ParserEngine &eng,
                                                  ForumSubscription *fos,
                                                  QWidget *parent) :
 PatternEditor(eng, par, fos, parent) {
+    Q_ASSERT(fos);
+
     setEnabled(false);
     connect(&engine, SIGNAL(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)), this,
             SLOT(listThreadsFinished(QList<ForumThread*> &, ForumGroup*)));
     ui.patternLabel->setText("<b>%a</b>=id <b>%b</b>=name %c=last change");
     subscription = fos;
-    Q_ASSERT(fos);
     engine.setSubscription(fos);
     engine.setParser(par);
     engine.setPatternMatcher(matcher);
-    currentGroup = 0;
+    currentGroup = nullptr;
 }
 
-ThreadListPatternEditor::~ThreadListPatternEditor() {
-}
+ThreadListPatternEditor::~ThreadListPatternEditor() { }
 
 QString ThreadListPatternEditor::tabName() {
     return "Thread List";
@@ -40,12 +40,12 @@ void ThreadListPatternEditor::downloadList() {
     engine.setParser(&downloadParser);
     engine.setPatternMatcher(matcher);
     currentGroup->setSubscribed(true); // To keep session happy
-    engine.doUpdateGroup(currentGroup);
 
     ui.sourceTextEdit->clear();
     ui.downloadButton->setEnabled(false);
     ui.testPageSpanning->setEnabled(false);
     pageSpanningTest = false;
+    engine.updateGroup(currentGroup, true);
 }
 
 void ThreadListPatternEditor::testPageSpanning() {
@@ -57,16 +57,17 @@ void ThreadListPatternEditor::testPageSpanning() {
     engine.setSubscription(downloadSubscription);
     engine.setParser(&downloadParser);
     engine.setPatternMatcher(matcher);
-    engine.doUpdateGroup(currentGroup);
 
     ui.sourceTextEdit->clear();
     ui.sourceTextEdit->append("Source not available when testing multiple pages.");
     ui.downloadButton->setEnabled(false);
     ui.testPageSpanning->setEnabled(false);
     pageSpanningTest = true;
+    engine.updateGroup(currentGroup, true);
 }
 
 void ThreadListPatternEditor::setGroup(ForumGroup *grp) {
+    Q_ASSERT(!grp || grp->isSubscribed());
     if(currentGroup == grp) return;
     currentGroup = grp;
     setEnabled(currentGroup);
@@ -96,7 +97,7 @@ void ThreadListPatternEditor::resultCellActivated(int row, int column) {
 
 void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*>& threads, ForumGroup *group) {
     Q_UNUSED(group);
-    emit threadSelected(0);
+    emit threadSelected(nullptr);
     qDeleteAll(listThreads);
     listThreads.clear();
     ui.resultsTable->clear();

@@ -5,7 +5,7 @@ GroupListPatternEditor::GroupListPatternEditor(ParserEngine &eng,
                                                ForumParser *par,
                                                ForumSubscription *fos,
                                                QWidget *parent) :
-PatternEditor(eng, par, fos, parent) {
+    PatternEditor(eng, par, fos, parent) {
 
     connect(&engine, SIGNAL(listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *)), this,
             SLOT(listGroupsFinished(QList<ForumGroup*> &, ForumSubscription *)));
@@ -18,8 +18,7 @@ PatternEditor(eng, par, fos, parent) {
     engine.setPatternMatcher(matcher);
 }
 
-GroupListPatternEditor::~GroupListPatternEditor() {
-}
+GroupListPatternEditor::~GroupListPatternEditor() { }
 
 void GroupListPatternEditor::downloadList() {
     engine.cancelOperation();
@@ -27,8 +26,8 @@ void GroupListPatternEditor::downloadList() {
     engine.setParser(parser);
     engine.setPatternMatcher(matcher);
     ui.downloadButton->setEnabled(false);
-    engine.doUpdateForum();
     ui.sourceTextEdit->clear();
+    engine.updateGroupList();
 }
 
 void GroupListPatternEditor::testPageSpanning() { }
@@ -52,6 +51,8 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups, Foru
         ui.resultsTable->setItem(row, 0, newItem);
         listGroups[row] = new ForumGroup(subscription);
         listGroups[row]->copyFrom(group);
+        listGroups[row]->setSubscribed(true);
+
         newItem = new QTableWidgetItem(group->name());
         ui.resultsTable->setItem(row, 1, newItem);
         newItem = new QTableWidgetItem(group->lastchange());
@@ -64,7 +65,7 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups, Foru
 void GroupListPatternEditor::resultCellActivated(int row, int column) {
     Q_UNUSED(column);
 
-    ForumGroup *selectedGroup = 0;
+    ForumGroup *selectedGroup = nullptr;
 
     if (listGroups.contains(row)) {
         qDebug() << "Selected group " << listGroups.value(row)->toString();

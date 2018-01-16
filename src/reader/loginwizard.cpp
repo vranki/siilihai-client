@@ -169,8 +169,10 @@ int LoginWizard::nextId() const {
             return 2;
         } else if (accountExists.isChecked()) {
             return 3;
-        } else if(noAccount.isChecked()) {
+        } else if (noAccount.isChecked()) {
             return 4;
+        } else {
+            return -1;
         }
     case 2:
         return 4;

@@ -14,7 +14,9 @@
 #include "useraccountdialog.h"
 #include "composemessage.h"
 
-MainWindow::MainWindow(ForumDatabase &fd, SiilihaiSettings *s, QWidget *parent) : QMainWindow(parent), fdb(fd) {
+MainWindow::MainWindow(ForumDatabase &fd, SiilihaiSettings *s, QWidget *parent)
+    : QMainWindow(parent)
+    , fdb(fd) {
     ui.setupUi(this);
     offline = false;
     settings = s;
@@ -105,8 +107,7 @@ MainWindow::MainWindow(ForumDatabase &fd, SiilihaiSettings *s, QWidget *parent) 
         flw->addSubscription(sub);
 }
 
-MainWindow::~MainWindow() {
-}
+MainWindow::~MainWindow() { }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
     settings->setValue("reader_geometry", saveGeometry());
@@ -277,8 +278,7 @@ void MainWindow::updateEnabledButtons() {
     ui.viewInBrowser->setEnabled(mvw->currentMessage() && !mvw->currentMessage()->url().isNull());
 }
 
-bool MainWindow::eventFilter(QObject *object, QEvent *event)
- {
+bool MainWindow::eventFilter(QObject *object, QEvent *event) {
     if(event->type() == QEvent::KeyPress) {
         if (object == tlw || object == flw || object == mvw ) {
             QKeyEvent *keyEvent = dynamic_cast<QKeyEvent *>(event);
@@ -291,7 +291,6 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
     }
     return false;
 }
-
 
 void MainWindow::userAccountSettings() {
     UserAccountDialog accountDialog(this, settings);

@@ -9,8 +9,17 @@
 #include <siilihai/forumdata/updateerror.h>
 #include <QCloseEvent>
 
-ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, SiilihaiSettings &s, SiilihaiProtocol &p) :
-    QMainWindow(parent), pdb(pd), settings(s), protocol(p), nam(this), engine(this, 0, 0, &nam) {
+ParserMaker::ParserMaker(QWidget *parent,
+                         ParserManager *pd,
+                         SiilihaiSettings &s,
+                         SiilihaiProtocol &p) :
+    QMainWindow(parent)
+  , pdb(pd)
+  , settings(s)
+  , protocol(p)
+  , nam(this)
+  , engine(this, nullptr, nullptr, &nam)
+{
     ui.setupUi(this);
     loginMatcher = new PatternMatcher(this, true);
 
@@ -67,8 +76,7 @@ ParserMaker::ParserMaker(QWidget *parent, ParserManager *pd, SiilihaiSettings &s
     show();
 }
 
-ParserMaker::~ParserMaker() {
-}
+ParserMaker::~ParserMaker() { }
 
 void ParserMaker::updateState() {
     parser.setName(ui.parserName->text());
@@ -381,11 +389,10 @@ void ParserMaker::subscriptionErrorsChanged()
 
 
 void ParserMaker::dataMatchingStart(QString &html) {
-    if (ui.loginTextEdit->toPlainText().length() == 0) {
+    if (ui.loginTextEdit->toPlainText().isEmpty()) {
         ui.loginTextEdit->setPlainText(html);
     }
     loginEditorCursor.setPosition(0, QTextCursor::MoveAnchor);
 }
 
-void ParserMaker::dataMatchingEnd() {
-}
+void ParserMaker::dataMatchingEnd() { }
