@@ -40,7 +40,7 @@ private slots:
     void showCredentialsDialogSlot();
 
 protected:
-    virtual void errorDialog(QString message);
+    virtual void appendMessage(QString message);
     virtual void setState(SiilihaiState newState);
     virtual void closeUi();
     virtual void showMainWindow();

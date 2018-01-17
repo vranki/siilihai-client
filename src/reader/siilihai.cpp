@@ -83,13 +83,13 @@ void Siilihai::closeUi() {
 }
 
 // @todo dialog queue!
-void Siilihai::errorDialog(QString message) {
+void Siilihai::appendMessage(QString message) {
     if(message.isEmpty()) return;
     qDebug() << Q_FUNC_INFO << message;
     QMessageBox* msgBox = new QMessageBox(mainWin);
     msgBox->setModal(false);
     msgBox->setText(message);
-    msgBox->setWindowTitle("Siilihai error");
+    msgBox->setWindowTitle("Siilihai message");
     connect(msgBox, SIGNAL(accepted()), msgBox, SLOT(deleteLater()));
     msgBox->open();
 }
@@ -113,7 +113,7 @@ void Siilihai::reportClicked(ForumSubscription* forum) {
             connect(rpt, SIGNAL(parserReport(ParserReport*)), &m_protocol, SLOT(sendParserReport(ParserReport*)));
             rpt->exec();
         } else {
-            errorDialog(forum->alias() + " does not use a parser");
+            appendMessage(forum->alias() + " does not use a parser");
         }
     }
 }
@@ -150,7 +150,7 @@ void Siilihai::parserMakerClosed() {
 }
 
 void Siilihai::sendParserReportFinished(bool success) {
-    errorDialog(success ? "Thanks for your report" : "Sending report failed. Please check network connection.");
+    appendMessage(success ? "Thanks for your report" : "Sending report failed. Please check network connection.");
 }
 
 void Siilihai::showLoginWizardSlot() {

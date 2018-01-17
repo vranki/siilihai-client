@@ -9,14 +9,13 @@ Build-Depends: debhelper (>= 8.1.3),
                libsiilihai2-dev (>=2.7.0-1),
                cdbs (>= 0.4.93~), 
                devscripts, 
-               qtdeclarative5-dev,
-               qtpositioning5-dev
+               qtdeclarative5-dev
 Standards-Version: 3.9.5
 Homepage: http://www.siilihai.com/
 
 Package: siilihai-client
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai2 (>=2.7.0-1)
+Depends: ${shlibs:Depends}, ${misc:Depends}, libsiilihai2 (>=2.8.0-1)
 Description: Siilihai web forum client
  Graphical web forum client. See http://www.siilihai.com/ for details.
 
