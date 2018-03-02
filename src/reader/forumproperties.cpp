@@ -58,14 +58,14 @@ void ForumProperties::saveChanges() {
     fs->setAlias(ui->forumName->text());
     if(fs->latestThreads() != ui->threads_per_group->value()) {
         fs->setLatestThreads(ui->threads_per_group->value());
-        for(ForumGroup *group : fs->values()) {
+        for(ForumGroup *group : *fs) {
             group->markToBeUpdated();
             group->commitChanges();
         }
     }
     if(fs->latestMessages() != ui->messages_per_thread->value()) {
-        for(ForumGroup *grp : fs->values()) {
-            for(ForumThread *thread : grp->values()) {
+        for(ForumGroup *grp : *fs) {
+            for(ForumThread *thread : *grp) {
                 if(thread->getMessagesCount() != ui->messages_per_thread->value()) {
                     thread->setGetMessagesCount(ui->messages_per_thread->value());
                     thread->markToBeUpdated();

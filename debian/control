@@ -26,3 +26,20 @@ Architecture: any
 Depends: siilihai-client (= ${binary:Version})
 Description: Siilihai web forum client debug symbols
  Graphical Siilihai forum client debug symbols. See http://www.siilihai.com/ for details.
+
+
+Package: siilihai-client-qml
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, qml-module-qtwebview,
+ qml-module-qtquick-window2, qml-module-qtquick-layouts,
+ qml-module-qtquick-controls2, libsiilihai2 (>=2.8.0-1)
+Description: Siilihai web forum client
+ Graphical web forum client. See http://www.siilihai.com/ for details.
+
+Package: siilihai-client-qml-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: siilihai-client-qml (= ${binary:Version})
+Description: Siilihai web forum client debug symbols
+ Graphical Siilihai forum client debug symbols. See http://www.siilihai.com/ for details.

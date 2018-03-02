@@ -114,7 +114,7 @@ void MessageListPatternEditor::listMessagesFinished(QList<ForumMessage*> &messag
         ui.resultsTable->setItem(tableRow, 1, newItem);
         newItem = new QTableWidgetItem(fm->author());
         ui.resultsTable->setItem(tableRow, 2, newItem);
-        newItem = new QTableWidgetItem(fm->lastchange());
+        newItem = new QTableWidgetItem(fm->lastChange());
         ui.resultsTable->setItem(tableRow, 3, newItem);
         newItem = new QTableWidgetItem(fm->body().left(15));
         ui.resultsTable->setItem(tableRow, 4, newItem);

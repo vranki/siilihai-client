@@ -4,6 +4,7 @@ target.path = /usr/bin
 INSTALLS += target
 
 ICON = ../data/siilihai.icns
+include( ../../Intro-Design-Patterns-Cpp-Qt5/libs/modeltest/modeltest.pri )
 
 exists(../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
@@ -31,20 +32,8 @@ CONFIG(with_lib) {
     !exists("$$LIB_PATH/src") {
        LIB_PATH = libsiilihai
     }
-    SOURCES += $$LIB_PATH/src/siilihai/*.cpp
-    SOURCES += $$LIB_PATH/src/siilihai/parser/*.cpp
-    SOURCES += $$LIB_PATH/src/siilihai/tapatalk/*.cpp
-    SOURCES += $$LIB_PATH/src/siilihai/discourse/*.cpp
-    SOURCES += $$LIB_PATH/src/siilihai/forumdata/*.cpp
-    SOURCES += $$LIB_PATH/src/siilihai/forumdatabase/*.cpp
-    HEADERS += $$LIB_PATH/src/siilihai/*.h
-    HEADERS += $$LIB_PATH/src/siilihai/parser/*.h
-    HEADERS += $$LIB_PATH/src/siilihai/tapatalk/*.h
-    HEADERS += $$LIB_PATH/src/siilihai/discourse/*.h
-    HEADERS += $$LIB_PATH/src/siilihai/forumdata/*.h
-    HEADERS += $$LIB_PATH/src/siilihai/forumdatabase/*.h
-    INCLUDEPATH += $$LIB_PATH/src/
     message(Building WITH lib included in binary! Lib source in $$LIB_PATH)
+    include( $$LIB_PATH/src/libsiilihai.pri )
 } else {
     LIBS += -lsiilihai
 }

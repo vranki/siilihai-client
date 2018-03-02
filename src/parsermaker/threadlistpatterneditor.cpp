@@ -74,7 +74,7 @@ void ThreadListPatternEditor::setGroup(ForumGroup *grp) {
     ui.downloadButton->setEnabled(currentGroup);
     ui.testPageSpanning->setEnabled(currentGroup);
     if(currentGroup) { // group is a temp object without subscription set
-        grp->setSubscription(subscription);
+        currentGroup->setSubscription(subscription);
     } else {
         reset();
     }
@@ -84,7 +84,7 @@ void ThreadListPatternEditor::setGroup(ForumGroup *grp) {
 void ThreadListPatternEditor::resultCellActivated(int row, int column) {
     Q_UNUSED(column);
 
-    ForumThread *selectedThread = 0;
+    ForumThread *selectedThread = nullptr;
 
     if (listThreads.contains(row)) {
         qDebug() << "Selected thread " << listThreads.value(row)->toString();
@@ -118,7 +118,7 @@ void ThreadListPatternEditor::listThreadsFinished(QList<ForumThread*>& threads, 
         listThreads[row]->setGroup(currentGroup);
         newItem = new QTableWidgetItem(thread->name());
         ui.resultsTable->setItem(row, 1, newItem);
-        newItem = new QTableWidgetItem(thread->lastchange());
+        newItem = new QTableWidgetItem(thread->lastChange());
         ui.resultsTable->setItem(row, 2, newItem);
         row++;
     }

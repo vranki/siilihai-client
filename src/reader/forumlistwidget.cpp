@@ -40,7 +40,7 @@ void ForumListWidget::forumItemSelected(int i) {
     if(i >= 0) {
         sub = listWidgets.key(dynamic_cast<QListWidget*> (widget(i)));
         if(sub) {
-            for(ForumGroup *grp : sub->values()) {
+            for(ForumGroup *grp : *sub) {
                 if(!g && grp->isSubscribed())
                     g = grp;
             }
@@ -109,7 +109,7 @@ void ForumListWidget::addSubscription(ForumSubscription *sub) {
 
     setupFavicon(sub);
 
-    for(ForumGroup *grp : sub->values())
+    for(ForumGroup *grp : *sub)
         groupFound(grp);
 
     updateSubscriptionLabel(sub);
@@ -293,8 +293,8 @@ void ForumListWidget::unsubscribeGroupClicked() {
 
 void ForumListWidget::markAllReadClicked(bool un) {
     if(currentGroup) {
-        for(ForumThread *thread : currentGroup->values()) {
-            for(ForumMessage *msg : thread->values()) {
+        for(ForumThread *thread : *currentGroup) {
+            for(ForumMessage *msg : *thread) {
                 msg->setRead(!un);
             }
         }

@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>ForumDelegate.qml</file>
+        <file>ThreadDelegate.qml</file>
+        <file>MessageButton.qml</file>
+        <file>MessageView.qml</file>
+    </qresource>
+</RCC>

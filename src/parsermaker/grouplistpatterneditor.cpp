@@ -55,7 +55,7 @@ void GroupListPatternEditor::listGroupsFinished(QList<ForumGroup*> &groups, Foru
 
         newItem = new QTableWidgetItem(group->name());
         ui.resultsTable->setItem(row, 1, newItem);
-        newItem = new QTableWidgetItem(group->lastchange());
+        newItem = new QTableWidgetItem(group->lastChange());
         ui.resultsTable->setItem(row, 2, newItem);
         row++;
     }

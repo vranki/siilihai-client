@@ -12,7 +12,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
     Q_ASSERT(_thread->isSane());
     Q_ASSERT(treeWidget);
     QString threadSubject = _thread->displayName();
-    QString lc = _thread->lastchange();
+    QString lc = _thread->lastChange();
     QString author = "";
     QString orderString;
     if(_thread->ordernum() >=0) {
@@ -29,7 +29,7 @@ ThreadListThreadItem::ThreadListThreadItem(QTreeWidget *tree, ForumThread *itemT
     setText(2, MessageFormatting::sanitize(author));
     setText(3, orderString);
 
-    QList<ForumMessage*> messages = _thread->values();
+    QList<ForumMessage*> messages = *_thread;
     qSort(messages);
     for(ForumMessage *msg : messages) addMessage(msg);
     updateItem();

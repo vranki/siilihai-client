@@ -61,7 +61,7 @@ void ThreadListMessageItem::updateItem() {
     }
 
     messageSubject = msg->displayName();
-    QString lc = msg->lastchange();
+    QString lc = msg->lastChange();
     lc = MessageFormatting::sanitize(lc);
 
     // UE can be null in some situation, avoid crashing

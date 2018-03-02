@@ -42,7 +42,6 @@ private slots:
 protected:
     virtual void appendMessage(QString message);
     virtual void setState(SiilihaiState newState);
-    virtual void closeUi();
     virtual void showMainWindow();
 
 private slots:

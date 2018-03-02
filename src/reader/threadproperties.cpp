@@ -23,7 +23,7 @@ ThreadProperties::~ThreadProperties()
 void ThreadProperties::updateValues() {
     QString thrName = thread->name();
     ui->thName->setText(MessageFormatting::stripHtml(thrName));
-    ui->thLastchange->setText(thread->lastchange());
+    ui->thLastchange->setText(thread->lastChange());
     ui->thId->setText(thread->id());
     ui->thMessageCount->setText(QString::number(thread->count()));
     ui->thMessagesPerThread->setValue(thread->getMessagesCount());
@@ -38,7 +38,7 @@ void ThreadProperties::saveChanges() {
         // If count is LESS than before, delete extra messages!
         if(thread->getMessagesCount() < oldMessagesCount) {
             QList<ForumMessage*> messagesToDelete;
-            for(ForumMessage *msg : thread->values()) {
+            for(ForumMessage *msg : *thread) {
                 if(msg->ordernum() >= thread->getMessagesCount())
                     messagesToDelete.prepend(msg);
             }

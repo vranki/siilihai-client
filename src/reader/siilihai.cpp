@@ -13,8 +13,6 @@
 #include "reportparser.h"
 #include "../common/credentialsdialog.h"
 
-
-
 Siilihai::Siilihai() : ClientLogic()
   , loginWizard(nullptr)
   , mainWin(nullptr)
@@ -24,6 +22,7 @@ Siilihai::Siilihai() : ClientLogic()
     connect(this, &ClientLogic::showLoginWizard, this, &Siilihai::showLoginWizardSlot);
     connect(this, &ClientLogic::currentCredentialsRequestChanged, this, &Siilihai::showCredentialsDialogSlot);
     connect(this, &ClientLogic::groupListChanged, this, &Siilihai::showGroupSubscriptionDialog);
+    connect(this, &ClientLogic::closeUi, this, &QCoreApplication::quit);
 }
 
 Siilihai::~Siilihai() {
@@ -74,12 +73,6 @@ void Siilihai::showMainWindow() {
     mainWin->setOffline(offline());
     mainWin->show();
     QApplication::setQuitOnLastWindowClosed(true);
-}
-
-void Siilihai::closeUi() {
-    mainWin->deleteLater();
-    mainWin = nullptr;
-    QCoreApplication::quit();
 }
 
 // @todo dialog queue!

@@ -63,9 +63,9 @@ void MessageViewWidget::messageSelected(ForumMessage *msg) {
                 "td.quote { background: #EEEEEE; margin: 5px; }"
                 "</style>";
         QString author = msg->author();
-        QString lastchange = msg->lastchange();
+        QString lastChange = msg->lastChange();
         QString headerHtml = "<div id=\"siilihai-header\">" + MessageFormatting::sanitize(author) + ", "
-                + MessageFormatting::sanitize(lastchange) + ":</div>";
+                + MessageFormatting::sanitize(lastChange) + ":</div>";
         /*
         QString html = "<html><head><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">" +
                 styleHtml + "</head><body>" + headerHtml + bodyToShow + "</body>";

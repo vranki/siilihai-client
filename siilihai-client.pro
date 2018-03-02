@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = src
+SUBDIRS = src src/qmlreader
 RESOURCES = siilihairesources.qrc
 OTHER_FILES += debian/control debian/rules debian/changelog debian/siilihai-client.install debian/copyright \
     data/blankmessage/* rpm/* \

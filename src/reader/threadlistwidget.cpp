@@ -103,7 +103,7 @@ void ThreadListWidget::updateList() {
     if(!currentGroup) return;
     if(topLevelItemCount()) clearList();
     // Add the threads and messages in order
-    QList<ForumThread*> threads = currentGroup->values();
+    QList<ForumThread*> threads = *currentGroup;
     qSort(threads);
     disableSortAndResize = true;
     for(ForumThread *thread : threads) addThread(thread);
@@ -160,7 +160,7 @@ void ThreadListWidget::markReadClicked(bool read) {
     ThreadListMessageItem *msgItem = dynamic_cast<ThreadListMessageItem*> (currentItem());
     ForumMessage *threadMessage = msgItem->message();
     if(threadMessage) {
-        for(ForumMessage *msg : threadMessage->thread()->values()) {
+        for(ForumMessage *msg : *threadMessage->thread()) {
             msg->setRead(read);
         }
     }
