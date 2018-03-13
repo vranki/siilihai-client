@@ -4,13 +4,13 @@ import QtQuick.Controls 2.1
 
 Item {
     property var message: modelData
-    readonly property bool isThread: !modelData.ordernum
+    readonly property bool isThread: modelData.ordernum === 0
     readonly property bool shown: isThread || maximized
-    readonly property bool unread: isThread ? thread.unreadCount : !modelData.isRead
+    readonly property bool unread: !modelData.isRead
 
     width: parent.width
     visible: shown
-    height: shown ? 20 : 0
+    height: shown ? lineHeight : 0
 
     function select() {
         currentMessage = null
@@ -43,7 +43,7 @@ Item {
         id: rowLayout
         anchors {
             left: leftControls.right
-            leftMargin: isThread ? 0 : 20
+            leftMargin: isThread ? 0 : lineHeight
             right: parent.right
             rightMargin: 20
             top: parent.top
@@ -56,7 +56,7 @@ Item {
             fillMode: Image.PreserveAspectCrop
             function sourceImage() {
                 if(isThread) {
-                    return unread ? "qrc:/data/folder-new.png" : "qrc:/data/folder.png"
+                    return thread.unreadCount ? "qrc:/data/folder-new.png" : "qrc:/data/folder.png"
                 } else {
                     return unread ? "qrc:/data/mail-unread.png" : "qrc:/data/emblem-mail.png"
                 }
@@ -66,7 +66,11 @@ Item {
             font.bold: unread
             Layout.fillWidth: true
             elide: Text.ElideRight
-            text: modelData.displayName
+            text: modelData.displayName + (thread.hasMoreMessages ? " (+)" : "")
+        }
+        Label {
+            font.bold: unread
+            text: modelData.author
         }
         Label {
             font.bold: unread
@@ -75,11 +79,12 @@ Item {
         Label {
             font.bold: unread
             text: unreadCountText()
-            width: parent.width * 0.3
+            Layout.preferredWidth: parent.width * 0.03
+            horizontalAlignment: Text.AlignRight
             function unreadCountText() {
                 if(isThread && thread.unreadCount) {
                     if(thread.hasMoreMessages) {
-                        return thread.unreadCount + "+"
+                        return thread.unreadCount.toString() + "+"
                     } else {
                         return thread.unreadCount
                     }

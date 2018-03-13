@@ -10,12 +10,13 @@ ApplicationWindow {
     width: 1024
     height: 768
     title: qsTr("Siilihai")
-    property var currentSubscription: undefined
-    property var currentGroup: undefined
-    property var currentMessage: undefined
+    property var currentSubscription: null
+    property var currentGroup: null
+    property var currentMessage: null
     property bool quitReally: false
     readonly property color highlightColor: "#bebeff"
     readonly property color backgroundColor: "#f0f0f0"
+    readonly property int lineHeight: 20
     signal moveToNextMessage
 
     SiilihaiClient {
@@ -34,13 +35,16 @@ ApplicationWindow {
                 onClicked: siilihai.updateClicked()
                 enabled: siilihai.state === SiilihaiClient.SH_READY
             }
+            ToolButton {
+                text: "Cancel"
+                onClicked: siilihai.cancelClicked()
+                enabled: siilihai.state === SiilihaiClient.SH_READY
+            }
             Item { Layout.fillWidth: true }
-            Switch {
+            CheckBox {
                 Layout.alignment: Qt.AlignRight
                 checked: siilihai.offline
                 onClicked: siilihai.setOffline(!checked)
-            }
-            Label {
                 text: "Offline"
             }
         }
@@ -76,12 +80,16 @@ ApplicationWindow {
                 }
                 ScrollBar.vertical: ScrollBar {}
             }
-            MessageView {
-                Layout.fillHeight: true
+            ContentView {
+                width: parent.width
             }
         }
     }
-    Component.onCompleted: siilihai.launchSiilihai()
+    ErrorMessages {}
+
+    Component.onCompleted: {
+        siilihai.launchSiilihai()
+    }
 
     onClosing: {
         if(!quitReally) {

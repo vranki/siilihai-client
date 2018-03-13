@@ -5,5 +5,8 @@
         <file>ThreadDelegate.qml</file>
         <file>MessageButton.qml</file>
         <file>MessageView.qml</file>
+        <file>ForumErrorView.qml</file>
+        <file>ContentView.qml</file>
+        <file>ErrorMessages.qml</file>
     </qresource>
 </RCC>

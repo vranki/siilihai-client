@@ -14,10 +14,9 @@ ColumnLayout {
             border.color: "black"
             radius: 4
         }
-        visible: currentMessage ? true : false
         GridLayout {
-            columns: 2
             Layout.fillWidth: true
+            columns: 2
             Label { text: "From" }
             Label {
                 text: currentMessage ? currentMessage.author : ""
@@ -47,20 +46,23 @@ ColumnLayout {
             topMargin: 5
         }
         ToolButton {
-            text: "View in browser"
-            // When we have Qt 5.10:
-            // icon.source: "qrc:/data/emblem-web.png"
-            enabled: (currentMessage != undefined) && currentMessage.url
-            onClicked: Qt.openUrlExternally(currentMessage.url)
-            Image {
-                source: "qrc:/data/emblem-web.png"
-                anchors.verticalCenter: parent.verticalCenter
-                Layout.preferredWidth: Layout.preferredHeight
-                Layout.preferredHeight: parent.height
+            contentItem: RowLayout {
+                Image {
+                    source: "qrc:/data/emblem-web.png"
+                    anchors.verticalCenter: parent.verticalCenter
+                    Layout.preferredWidth: Layout.preferredHeight
+                    Layout.preferredHeight: parent.height
+                }
+                Label {
+                    text: "View in browser"
+                    // When we have Qt 5.10:
+                    // icon.source: "qrc:/data/emblem-web.png"
+                    enabled: (currentMessage != undefined) && currentMessage.url
+                }
             }
+            onClicked: Qt.openUrlExternally(currentMessage.url)
         }
     }
-
     WebEngineView {
         id: webEngineView
         url: blankUrl
@@ -68,11 +70,8 @@ ColumnLayout {
         Layout.fillHeight: true
         onNavigationRequested: {
             request.action = WebEngineNavigationRequest.IgnoreRequest
-            console.log("Nav requested ", request.url, request.navigationType, request.isMainFrame)
             if(request.navigationType === WebEngineNavigationRequest.LinkClickedNavigation && request.isMainFrame)
                 Qt.openUrlExternally(request.url)
-            else
-                console.log("Declined nav", request.navigationType, request.url)
         }
         onNewViewRequested: {
             request.action = WebEngineNavigationRequest.IgnoreRequest

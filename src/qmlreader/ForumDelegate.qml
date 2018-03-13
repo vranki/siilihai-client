@@ -7,35 +7,65 @@ ListView {
     width: parent.width
     height: contentHeight
     model: forumDelegate.subscription === currentSubscription ? modelData.subscribedGroups : undefined
+
     property var subscription: modelData
     readonly property bool unread: modelData.unreadCount > 0
+    property int lastSelectedGroupIndex: 0
 
-    header: ItemDelegate {
+    header: Button {
         id: forumButton
         width: parent.width
-        height: 20
-        onClicked: currentSubscription = modelData
-        background: Rectangle {
-            color: highlightColor
-            visible: currentSubscription === subscription
+        height: 30
+        onClicked: {
+            currentMessage = null
+            currentGroup = null
+            currentSubscription = modelData
+            if(currentSubscription.subscribedGroups.length > lastSelectedGroupIndex) {
+                currentGroup = currentSubscription.subscribedGroups[lastSelectedGroupIndex]
+            }
         }
+        highlighted: currentSubscription === subscription
+
         RowLayout {
-            width: parent.width
-            Image {
-                source: modelData.faviconUrl
-                fillMode: Image.PreserveAspectCrop
+            anchors.fill: parent
+            Item {
                 Layout.preferredWidth: Layout.preferredHeight
                 Layout.preferredHeight: parent.height
+
+                Image {
+                    source: "qrc:/data/emblem-web.png"
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectCrop
+                    visible: favIcon.status !== Image.Ready
+                }
+                Image {
+                    id: favIcon
+                    source: modelData.faviconUrl
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectCrop
+                }
+                BusyIndicator {
+                    anchors.fill: parent
+                    running: modelData.beingUpdated || modelData.scheduledForUpdate
+                }
+                Image {
+                    source: "qrc:/data/dialog-error.png"
+                    fillMode: Image.PreserveAspectFit
+                    anchors.fill: parent
+                    visible: modelData.errors.length
+                }
             }
             Label {
                 text: modelData.alias
                 font.bold: unread
+                color: highlighted ? "white" : "black"
                 Layout.fillWidth: true
                 clip: true
             }
             Label {
                 text: modelData.unreadCount
                 font.bold: unread
+                color: highlighted ? "white" : "black"
             }
         }
     }
@@ -47,6 +77,7 @@ ListView {
         onClicked: {
             currentSubscription = forumDelegate.subscription
             currentGroup = modelData
+            lastSelectedGroupIndex = index
         }
         background: Rectangle {
             color: highlightColor
@@ -54,6 +85,7 @@ ListView {
         }
         RowLayout {
             anchors.fill: parent
+            anchors.leftMargin: 20
             Image {
                 source: modelData.unreadCount ? "qrc:/data/folder-new.png" : "qrc:/data/folder.png"
                 Layout.preferredWidth: Layout.preferredHeight
@@ -70,7 +102,7 @@ ListView {
                 font.bold: unread
                 Rectangle {
                     anchors.fill: parent
-                    color: "white"
+                    color: highlighted ? highlightColor : "white"
                     z: -1
                 }
             }
