@@ -11,6 +11,8 @@ ListView {
     property var thread: modelData
     property bool maximized: false
     delegate: MessageButton {}
+    interactive: false
+
     Connections {
         target: siilihaiqml
         onMoveToNextMessage: {

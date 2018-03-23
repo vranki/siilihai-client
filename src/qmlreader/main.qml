@@ -26,7 +26,6 @@ ApplicationWindow {
             close()
         }
     }
-
     header: ToolBar {
         RowLayout {
             anchors.fill: parent
@@ -59,30 +58,16 @@ ApplicationWindow {
     SplitView {
         anchors.fill: parent
         orientation: Qt.Horizontal
-        ListView {
+        SubscriptionListPane {
             width: 200
             height: parent.height
-            model: siilihai.forumDatabase.subscriptions
-            clip: true
-            delegate: ForumDelegate {
-                width: parent.width
-            }
-            ScrollBar.vertical: ScrollBar {}
         }
         SplitView {
             orientation: Qt.Vertical
-            ListView {
+            ThreadListView {
                 height: 200
-                model: currentGroup ? currentGroup.threads : undefined
-                clip: true
-                delegate: ThreadDelegate {
-                    width: parent.width
-                }
-                ScrollBar.vertical: ScrollBar {}
             }
-            ContentView {
-                width: parent.width
-            }
+            ContentView { }
         }
     }
     ErrorMessages {}
@@ -97,5 +82,11 @@ ApplicationWindow {
             siilihai.haltSiilihai()
         }
         quitReally = true
+    }
+
+
+    Connections {
+        target: siilihai
+        onShowSubscribeForumDialog: console.log("Subscribe forum")
     }
 }

@@ -8,5 +8,8 @@
         <file>ForumErrorView.qml</file>
         <file>ContentView.qml</file>
         <file>ErrorMessages.qml</file>
+        <file>ThreadListView.qml</file>
+        <file>MessageHeader.qml</file>
+        <file>SubscriptionListPane.qml</file>
     </qresource>
 </RCC>
