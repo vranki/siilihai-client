@@ -70,8 +70,12 @@ ApplicationWindow {
             ContentView { }
         }
     }
+
     ErrorMessages {}
 
+    SubscribeWizard {
+        id: subscribeWizard
+    }
     Component.onCompleted: {
         siilihai.launchSiilihai()
     }
@@ -87,6 +91,6 @@ ApplicationWindow {
 
     Connections {
         target: siilihai
-        onShowSubscribeForumDialog: console.log("Subscribe forum")
+        onShowSubscribeForumDialog: subscribeWizard.open()
     }
 }

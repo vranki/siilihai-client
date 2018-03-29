@@ -11,5 +11,6 @@
         <file>ThreadListView.qml</file>
         <file>MessageHeader.qml</file>
         <file>SubscriptionListPane.qml</file>
+        <file>SubscribeWizard.qml</file>
     </qresource>
 </RCC>
