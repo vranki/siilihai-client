@@ -18,8 +18,13 @@ SOURCES += main.cpp \
 
 RESOURCES += qml.qrc ../../siilihairesources.qrc
 
-LIB_PATH = ../../../libsiilihai
-include( $$LIB_PATH/src/libsiilihai.pri )
+CONFIG(with_lib) {
+    LIB_PATH = ../../../libsiilihai
+    message(Building WITH lib included in binary! Lib source in $$LIB_PATH)
+    include( $$LIB_PATH/src/libsiilihai.pri )
+} else {
+    LIBS += -lsiilihai
+}
 
 #INCLUDEPATH += $$LIB_PATH/src/
 #LIBS += -lsiilihai
