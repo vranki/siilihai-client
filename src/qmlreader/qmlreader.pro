@@ -20,7 +20,8 @@ RESOURCES += qml.qrc ../../siilihairesources.qrc
 
 CONFIG(with_lib) {
     LIB_PATH = ../../../libsiilihai
-    message(Building WITH lib included in binary! Lib source in $$LIB_PATH)
+    message(Building WITH lib included in binary. Lib in $$LIB_PATH)
+    INCLUDEPATH += $$PWD/$$LIB_PATH/src
     include( $$LIB_PATH/src/libsiilihai.pri )
 } else {
     LIBS += -lsiilihai
@@ -40,5 +41,4 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-HEADERS += \
-    siilihaiclient.h
+HEADERS += siilihaiclient.h

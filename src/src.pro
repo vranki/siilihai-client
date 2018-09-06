@@ -4,7 +4,6 @@ target.path = /usr/bin
 INSTALLS += target
 
 ICON = ../data/siilihai.icns
-include( ../../Intro-Design-Patterns-Cpp-Qt5/libs/modeltest/modeltest.pri )
 
 exists(../siilihai-version.h) {
      DEFINES += INCLUDE_SIILIHAI_VERSION
@@ -32,7 +31,8 @@ CONFIG(with_lib) {
     !exists("$$LIB_PATH/src") {
        LIB_PATH = libsiilihai
     }
-    message(Building WITH lib included in binary! Lib source in $$LIB_PATH)
+    INCLUDEPATH += $$PWD/$$LIB_PATH/src
+    message(Building WITH lib included in binary. Lib in $$LIB_PATH)
     include( $$LIB_PATH/src/libsiilihai.pri )
 } else {
     LIBS += -lsiilihai
