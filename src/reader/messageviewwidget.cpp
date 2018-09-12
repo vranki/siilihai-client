@@ -19,11 +19,10 @@ MessageViewWidget::MessageViewWidget(QWidget *parent) :
     webView.setPage(new LinkHandlingWebPage(&webView));
     vbox.addWidget(&webView);
     setLayout(&vbox);
-    messageSelected(0);
+    messageSelected(nullptr);
 }
 
-MessageViewWidget::~MessageViewWidget() {
-}
+MessageViewWidget::~MessageViewWidget() { }
 
 ForumMessage* MessageViewWidget::currentMessage() {
     return displayedMessage;

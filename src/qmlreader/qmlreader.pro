@@ -18,6 +18,9 @@ SOURCES += main.cpp \
 
 RESOURCES += qml.qrc ../../siilihairesources.qrc
 
+# always now
+CONFIG += with_lib
+
 CONFIG(with_lib) {
     LIB_PATH = ../../../libsiilihai
     message(Building WITH lib included in binary. Lib in $$LIB_PATH)
@@ -26,9 +29,6 @@ CONFIG(with_lib) {
 } else {
     LIBS += -lsiilihai
 }
-
-#INCLUDEPATH += $$LIB_PATH/src/
-#LIBS += -lsiilihai
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

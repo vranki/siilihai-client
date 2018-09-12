@@ -33,9 +33,11 @@ ColumnLayout {
             currentMessage.isRead = true
         } else webEngineView.url = blankUrl
     }
-    focus: currentMessage ? true : false
+
+    focus: true //currentMessage ? true : false
     Keys.onSpacePressed: {
+        console.log("SPACE")
         event.accepted = true;
-        moveToNextMessage()
+        siilihaiqml.moveToNextMessage()
     }
 }

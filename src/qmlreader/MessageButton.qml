@@ -16,6 +16,7 @@ Item {
         currentMessage = null
         currentMessage = modelData
         threadDelegate.currentIndex = index
+        threadDelegate.positionViewAtIndex(currentIndex, ListView.Center)
     }
 
     Rectangle {
@@ -33,7 +34,7 @@ Item {
         height: parent.height
         onClicked: maximized = !maximized
         Text {
-            text: isThread && (thread.count > 1) ? "⯈" : ""
+            text: isThread && (thread.count > 1) ? "▶" : ""
             rotation: maximized ? 90 : 0
             anchors.centerIn: parent
             font.bold: unread
@@ -83,13 +84,17 @@ Item {
             horizontalAlignment: Text.AlignRight
             function unreadCountText() {
                 if(isThread && thread.unreadCount) {
-                    if(thread.hasMoreMessages) {
-                        return thread.unreadCount.toString() + "+"
-                    } else {
-                        return thread.unreadCount
-                    }
+                    return thread.hasMoreMessages ? thread.unreadCount.toString() + "+" : thread.unreadCount
                 }
                 return ""
+            }
+        }
+    }
+    Connections {
+        target: siilihaiqml
+        onSelectMessage: {
+            if(message === modelData) {
+                select()
             }
         }
     }

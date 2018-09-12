@@ -2,6 +2,7 @@ import QtQuick 2.8
 import QtQuick.Controls 1.4
 import QtQuick.Controls 2.1
 import QtQuick.Layouts 1.3
+import Qt.labs.settings 1.0
 import com.siilihai.siilihai 1.0
 
 ApplicationWindow {
@@ -18,6 +19,7 @@ ApplicationWindow {
     readonly property color backgroundColor: "#f0f0f0"
     readonly property int lineHeight: 20
     signal moveToNextMessage
+    signal selectMessage(var message)
 
     SiilihaiClient {
         id: siilihai
@@ -59,12 +61,14 @@ ApplicationWindow {
         anchors.fill: parent
         orientation: Qt.Horizontal
         SubscriptionListPane {
+            id: subscriptionListPane
             width: 200
             height: parent.height
         }
         SplitView {
             orientation: Qt.Vertical
             ThreadListView {
+                id: threadListView
                 height: 200
             }
             ContentView { }
@@ -79,7 +83,6 @@ ApplicationWindow {
     Component.onCompleted: {
         siilihai.launchSiilihai()
     }
-
     onClosing: {
         if(!quitReally) {
             close.accepted = false
@@ -87,10 +90,17 @@ ApplicationWindow {
         }
         quitReally = true
     }
-
-
     Connections {
         target: siilihai
         onShowSubscribeForumDialog: subscribeWizard.open()
+    }
+    Settings {
+        category: "MainWindow"
+        property alias x: siilihaiqml.x
+        property alias y: siilihaiqml.y
+        property alias width: siilihaiqml.width
+        property alias height: siilihaiqml.height
+        property alias subscriptionListPaneWidth: subscriptionListPane.width
+        property alias threadListViewHeight: threadListView.height
     }
 }

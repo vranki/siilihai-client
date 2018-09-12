@@ -30,7 +30,7 @@ Description: Siilihai web forum client debug symbols
 
 Package: siilihai-client-qml
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, qml-module-qtwebview,
+Depends: ${shlibs:Depends}, ${misc:Depends}, qml-module-qtwebengine,
  qml-module-qtquick-window2, qml-module-qtquick-layouts,
  qml-module-qtquick-controls2, libsiilihai2 (>=2.8.0-1)
 Description: Siilihai web forum client
